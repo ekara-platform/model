@@ -63,6 +63,8 @@ stacks:
       - stack1_label3
     repository: stack1_repository
     version: 1.2.3
+    deployOn:
+      - node1_label1
 
   stack2:
     labels:
@@ -71,6 +73,8 @@ stacks:
       - stack2_label3
     repository: stack2_repository
     version: 1.2.3
+    deployOn:
+      - node1_label1
 
 tasks:
   task1:

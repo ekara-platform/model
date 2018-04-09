@@ -4,18 +4,19 @@ type Labels struct {
 	labels []string
 }
 
-func createLabels(values ...string) Labels {
+func createLabels(vErrs *ValidationErrors, values ...string) Labels {
 	ret := Labels{make([]string, len(values))}
 	copy(ret.labels, values)
 	return ret
 }
 
-func (l Labels) Contains(candidates ...string) bool {
+func (l Labels) MatchesLabels(candidates ...string) bool {
 	for _, l1 := range candidates {
 		contains := false
 		for _, l2 := range l.labels {
 			if l1 == l2 {
 				contains = true
+				break
 			}
 		}
 		if !contains {

@@ -4,7 +4,7 @@ type Parameters struct {
 	parameters map[string]string
 }
 
-func createParameters(p map[string]string) Parameters {
+func createParameters(vErrs *ValidationErrors, p map[string]string) Parameters {
 	ret := Parameters{map[string]string{}}
 	for k, v := range p {
 		ret.parameters[k] = v

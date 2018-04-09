@@ -4,24 +4,18 @@ type Lagoon struct {
 	root *Environment
 	Component
 
-	Proxy struct {
-		Http    string
-		Https   string
-		NoProxy string
-	}
+	Proxy Proxy
 }
 
-func createLagoon(env *Environment, yamlEnv *yamlEnvironment) (res Lagoon, err error) {
-	res = Lagoon{root: env}
+type Proxy struct {
+	Http    string
+	Https   string
+	NoProxy string
+}
 
-	res.Version, err = createVersion(yamlEnv.Lagoon.Version)
-	if err != nil {
-		return
-	}
-
-	res.Proxy.Http = yamlEnv.Lagoon.Proxy.Http
-	res.Proxy.Https = yamlEnv.Lagoon.Proxy.Https
-	res.Proxy.NoProxy = yamlEnv.Lagoon.Proxy.NoProxy
-
-	return
+func createLagoon(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) Lagoon {
+	return Lagoon{
+		root:      env,
+		Component: createComponent(vErrs, "lagoon-platform", createVersion(vErrs, "lagoon", yamlEnv.Version)),
+		Proxy:     Proxy{Http: yamlEnv.Lagoon.Proxy.Http, Https: yamlEnv.Lagoon.Proxy.Https, NoProxy: yamlEnv.Lagoon.Proxy.NoProxy}}
 }

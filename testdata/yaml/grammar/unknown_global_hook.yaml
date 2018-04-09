@@ -1,0 +1,82 @@
+name: name_value
+description: description_value
+version: 1.2.3
+baselocation: baselocation_value
+
+
+lagoon:
+  version: 1.2.3
+  registry: registry_value
+  proxy:
+    http: proxy_http_value
+    https: proxy_https_value
+    noProxy: proxy_noproxy_value
+
+providers:
+  aws:
+
+nodes:
+  managers:
+    provider:
+      name: aws
+    instances: 10
+    labels:
+      - application
+    hooks:
+      provision:
+        before:
+          -
+            name: task1
+        after:
+          -
+            name: task1
+        
+
+stacks:
+  monitoring:
+    repository: github.com/lagoon-platform/monitoring-stack
+    version: 1.0.5
+    deployOn:
+      - application
+
+tasks:
+  task1:
+    playbook: playbok_value
+
+
+hooks:
+  init:
+    before:
+      -
+        name: DUMMY
+    after:
+      -
+        name: DUMMY
+  provision:
+    before:
+      -
+        name: DUMMY
+    after:
+      -
+        name: DUMMY
+  deploy:
+    before:
+      -
+        name: DUMMY
+    after:
+      -
+        name: DUMMY
+  undeploy:
+    before:
+      -
+        name: DUMMY
+    after:
+      -
+        name: DUMMY
+  destroy:
+    before:
+      -
+        name: DUMMY
+    after:
+      -
+        name: DUMMY

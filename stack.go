@@ -1,11 +1,14 @@
 package descriptor
 
+import "errors"
+
 type Stack struct {
 	root *Environment
 	Labels
 	Component
 
-	Name string
+	Name     string
+	DeployOn NodeSetRef
 
 	Hooks struct {
 		Deploy   Hook
@@ -13,28 +16,24 @@ type Stack struct {
 	}
 }
 
-func createStacks(env *Environment, yamlEnv *yamlEnvironment) (res map[string]Stack, err error) {
-	res = map[string]Stack{}
-	for name, yamlStack := range yamlEnv.Stacks {
-		stack := Stack{
-			root:   env,
-			Labels: createLabels(yamlStack.Labels...),
-			Name:   name}
+func createStacks(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) map[string]Stack {
+	res := map[string]Stack{}
+	if yamlEnv.Stacks == nil || len(yamlEnv.Stacks) == 0 {
+		vErrs.AddError(errors.New("no stack specified"), "stacks")
+	} else {
+		for name, yamlStack := range yamlEnv.Stacks {
+			stack := Stack{
+				root:   env,
+				Labels: createLabels(vErrs, yamlStack.Labels...),
+				Name:   name}
 
-		stack.Component, err = createComponent(yamlStack.Repository, yamlStack.Version)
-		if err != nil {
-			return
-		}
-		stack.Hooks.Deploy, err = createHook(env.Tasks, yamlStack.Hooks.Deploy)
-		if err != nil {
-			return
-		}
-		stack.Hooks.Undeploy, err = createHook(env.Tasks, yamlStack.Hooks.Undeploy)
-		if err != nil {
-			return
-		}
+			stack.Component = createComponent(vErrs, yamlStack.Repository, createVersion(vErrs, "stacks."+name+".version", yamlStack.Version))
+			stack.DeployOn = createNodeSetRef(vErrs, env, "stacks."+name+".deployOn", yamlStack.DeployOn...)
+			stack.Hooks.Deploy = createHook(vErrs, env.Tasks, "stacks."+name+".hooks.deploy", yamlStack.Hooks.Deploy)
+			stack.Hooks.Undeploy = createHook(vErrs, env.Tasks, "stacks."+name+".hooks.undeploy", yamlStack.Hooks.Undeploy)
 
-		res[name] = stack
+			res[name] = stack
+		}
 	}
-	return
+	return res
 }

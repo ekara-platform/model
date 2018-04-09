@@ -9,14 +9,14 @@ import (
 )
 
 func TestLabelCreate(t *testing.T) {
-	assert.Equal(t, []string{"label1", "label2"}, createLabels("label1", "label2").AsStrings())
+	assert.Equal(t, []string{"label1", "label2"}, createLabels(&ValidationErrors{}, "label1", "label2").AsStrings())
 }
 
 func TestLabelContains(t *testing.T) {
-	f := createLabels("label1", "label2")
-	assert.Equal(t, true, f.Contains("label1"))
-	assert.Equal(t, true, f.Contains("label2"))
-	assert.Equal(t, false, f.Contains("label3"))
+	f := createLabels(&ValidationErrors{}, "label1", "label2")
+	assert.Equal(t, true, f.MatchesLabels("label1"))
+	assert.Equal(t, true, f.MatchesLabels("label2"))
+	assert.Equal(t, false, f.MatchesLabels("label3"))
 }
 
 func TestCreateEngineFromHttp(t *testing.T) {
@@ -46,5 +46,5 @@ func TestCreateEngineFromLocal(t *testing.T) {
 	assert.Equal(t, "testEnvironment", yamlEnv.Name)                               // importing file have has precedence
 	assert.Equal(t, "This is my awesome Lagoon environment.", yamlEnv.Description) // imported files are merged
 	assert.Equal(t, []string{"tag1", "tag2"}, yamlEnv.Labels)
-	// FIXME assert.Contains(t, "task1", "task2", "task3", env.Hooks.Provision.After)        // order matters
+	// FIXME assert.MatchesLabels(t, "task1", "task2", "task3", env.Hooks.Provision.After)        // order matters
 }

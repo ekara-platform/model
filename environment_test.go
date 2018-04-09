@@ -8,7 +8,7 @@ import (
 )
 
 func TestCreateEngineComplete(t *testing.T) {
-	env, e := ParseDescriptor(log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime), "testdata/yaml/complete_descriptor.yaml")
+	env, e, _ := Parse(log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime), "testdata/yaml/complete_descriptor.yaml")
 	assert.Nil(t, e)
 
 	assert.Equal(t, "name_value", env.Name)
@@ -24,7 +24,7 @@ func TestCreateEngineComplete(t *testing.T) {
 	labels := env.Labels
 	assert.NotNil(t, labels)
 	assert.Equal(t, 3, len(labels.AsStrings()))
-	assert.Equal(t, true, labels.Contains("root_label1", "root_label2", "root_label3"))
+	assert.Equal(t, true, labels.MatchesLabels("root_label1", "root_label2", "root_label3"))
 
 	//------------------------------------------------------------
 	// Lagoon Platform

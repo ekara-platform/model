@@ -27,27 +27,30 @@ func (r ProviderRef) Resolve() Provider {
 	return provider
 }
 
-func createProviders(env *Environment, yamlEnv *yamlEnvironment) (res map[string]Provider, err error) {
-	res = map[string]Provider{}
-	for name, yamlProvider := range yamlEnv.Providers {
-		res[name] = Provider{
-			root:       env,
-			Parameters: createParameters(yamlProvider.Params),
-			Name:       name}
+func createProviders(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) map[string]Provider {
+	res := map[string]Provider{}
+	if yamlEnv.Providers == nil || len(yamlEnv.Providers) == 0 {
+		vErrs.AddError(errors.New("no provider specified"), "providers")
+	} else {
+		for name, yamlProvider := range yamlEnv.Providers {
+			res[name] = Provider{
+				root:       env,
+				Parameters: createParameters(vErrs, yamlProvider.Params),
+				Name:       name}
+		}
 	}
-	return
+	return res
 }
 
-func createProviderRef(env *Environment, yamlRef yamlRef) (res ProviderRef, err error) {
+func createProviderRef(vErrs *ValidationErrors, env *Environment, location string, yamlRef yamlRef) ProviderRef {
 	if len(yamlRef.Name) == 0 {
-		err = errors.New("empty provider reference")
-		return
-	}
-	if val, ok := env.Providers[yamlRef.Name]; ok {
-		res = ProviderRef{Parameters: createParameters(yamlRef.Params), provider: &val}
+		vErrs.AddError(errors.New("empty provider reference"), location)
 	} else {
-		err = errors.New("unknown provider reference: " + yamlRef.Name)
-		return
+		if val, ok := env.Providers[yamlRef.Name]; ok {
+			return ProviderRef{Parameters: createParameters(vErrs, yamlRef.Params), provider: &val}
+		} else {
+			vErrs.AddError(errors.New("unknown provider reference: "+yamlRef.Name), location+".name")
+		}
 	}
-	return
+	return ProviderRef{}
 }
