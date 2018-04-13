@@ -1,4 +1,4 @@
-package descriptor
+package model
 
 type Parameters struct {
 	parameters map[string]string

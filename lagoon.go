@@ -1,4 +1,4 @@
-package descriptor
+package model
 
 type Lagoon struct {
 	root *Environment
