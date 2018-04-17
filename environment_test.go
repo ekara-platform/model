@@ -8,8 +8,12 @@ import (
 )
 
 func TestCreateEngineComplete(t *testing.T) {
-	env, e, _ := Parse(log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime), "testdata/yaml/complete_descriptor.yaml")
+	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
+	env, e, vErrs := Parse(logger, "testdata/yaml/complete_descriptor.yaml")
 	assert.Nil(t, e)
+	for _, err := range vErrs.Errors {
+		logger.Println(err.ErrorType.String() + ": " + err.Message + " @" + err.Location)
+	}
 
 	assert.Equal(t, "name_value", env.Name)
 	assert.Equal(t, "description_value", env.Description)
@@ -26,20 +30,17 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.Equal(t, 3, len(labels.AsStrings()))
 	assert.Equal(t, true, labels.MatchesLabels("root_label1", "root_label2", "root_label3"))
 
-	//------------------------------------------------------------
-	// Lagoon Platform
-	//------------------------------------------------------------
-	platform := env.Lagoon
-	assert.NotNil(t, platform)
-	assert.Equal(t, 1, platform.Version.Major)
-	assert.Equal(t, 2, platform.Version.Minor)
-	assert.Equal(t, 3, platform.Version.Micro)
-	assert.Equal(t, "1.2.3", platform.Version.Full)
+	// Proxy
+	assert.NotNil(t, env.Proxy)
+	assert.Equal(t, "http://user:pwd@someproxy.org:8080", env.Proxy.Http)
+	assert.Equal(t, "https://user:pwd@someproxy.org:8080", env.Proxy.Https)
+	assert.Equal(t, "*.dummy.org", env.Proxy.NoProxy)
 
-	assert.NotNil(t, platform.Proxy)
-	assert.Equal(t, "proxy_http_value", platform.Proxy.Http)
-	assert.Equal(t, "proxy_https_value", platform.Proxy.Https)
-	assert.Equal(t, "proxy_noproxy_value", platform.Proxy.NoProxy)
+	//------------------------------------------------------------
+	// Components
+	//------------------------------------------------------------
+	components := env.Components
+	assert.NotNil(t, components)
 
 	//------------------------------------------------------------
 	// Environment Providers
@@ -106,11 +107,11 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.Contains(t, stacks, "stack2")
 	assert.NotContains(t, stacks, "dummy")
 
-	assert.Equal(t, "stack1_repository", stacks["stack1"].Repository)
+	assert.Equal(t, "https://github.com/lagoon-platform/stack1_repository.git", stacks["stack1"].Repository)
 	assert.Equal(t, "1.2.3", stacks["stack1"].Version.Full)
 	assert.Equal(t, []string{"stack1_label1", "stack1_label2", "stack1_label3"}, stacks["stack1"].Labels.AsStrings())
 
-	assert.Equal(t, "stack2_repository", stacks["stack2"].Repository)
+	assert.Equal(t, "https://github.com/lagoon-platform/stack2_repository.git", stacks["stack2"].Repository)
 	assert.Equal(t, "1.2.3", stacks["stack2"].Version.Full)
 	assert.Equal(t, []string{"stack2_label1", "stack2_label2", "stack2_label3"}, stacks["stack2"].Labels.AsStrings())
 

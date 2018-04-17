@@ -32,22 +32,25 @@ type yamlEnvironment struct {
 	Description string
 	Version     string
 
+	// Proxy
+	Proxy struct {
+		Http    string
+		Https   string
+		NoProxy string `yaml:"noProxy"`
+	}
+
 	// Imports
 	Imports []string
 
-	// Lagoon attributes
-	Lagoon struct {
-		Version string
-		Proxy struct {
-			Http    string
-			Https   string
-			NoProxy string `yaml:"noProxy"`
-		}
-	}
+	// Components
+	Components map[string]string
 
 	// Providers
 	Providers map[string]struct {
 		yamlParams `yaml:",inline"`
+
+		Repository string
+		Version    string
 	}
 
 	// Node sets

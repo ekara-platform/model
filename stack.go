@@ -27,7 +27,7 @@ func createStacks(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnviro
 				Labels: createLabels(vErrs, yamlStack.Labels...),
 				Name:   name}
 
-			stack.Component = createComponent(vErrs, yamlStack.Repository, createVersion(vErrs, "stacks."+name+".version", yamlStack.Version))
+			stack.Component = createComponent(vErrs, env, "stacks."+name, yamlStack.Repository, yamlStack.Version)
 			stack.DeployOn = createNodeSetRef(vErrs, env, "stacks."+name+".deployOn", yamlStack.DeployOn...)
 			stack.Hooks.Deploy = createHook(vErrs, env.Tasks, "stacks."+name+".hooks.deploy", yamlStack.Hooks.Deploy)
 			stack.Hooks.Undeploy = createHook(vErrs, env.Tasks, "stacks."+name+".hooks.undeploy", yamlStack.Hooks.Undeploy)

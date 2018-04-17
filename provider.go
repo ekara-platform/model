@@ -33,10 +33,14 @@ func createProviders(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnv
 		vErrs.AddError(errors.New("no provider specified"), "providers")
 	} else {
 		for name, yamlProvider := range yamlEnv.Providers {
-			res[name] = Provider{
+			provider := Provider{
 				root:       env,
 				Parameters: createParameters(vErrs, yamlProvider.Params),
 				Name:       name}
+
+			provider.Component = createComponent(vErrs, env, "providers."+name, yamlProvider.Repository, yamlProvider.Version)
+
+			res[name] = provider
 		}
 	}
 	return res

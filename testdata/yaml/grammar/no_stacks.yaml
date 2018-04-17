@@ -14,7 +14,11 @@ lagoon:
 
 providers:
   aws:
+    repository: lagoon-platform/aws-provider
+    version: 1.2.3
   azure:
+    repository: lagoon-platform/azure-provider
+    version: 1.2.3
 
 nodes:
   node1:

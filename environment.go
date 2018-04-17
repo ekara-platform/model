@@ -14,9 +14,10 @@ type Environment struct {
 	Name        string
 	Description string
 	Version     Version
+	Proxy       Proxy
 
-	// Lagoon platform attributes
-	Lagoon Lagoon
+	// Component versions
+	Components map[string]Version
 
 	// Definition attributes
 	Providers map[string]Provider
@@ -59,8 +60,9 @@ func createEnvironment(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Enviro
 	env.Name = yamlEnv.Name
 	env.Description = yamlEnv.Description
 	env.Labels = createLabels(vErrs, yamlEnv.Labels...)
+	env.Proxy = createProxy(vErrs, yamlEnv)
 	env.Version = createVersion(vErrs, "version", yamlEnv.Version)
-	env.Lagoon = createLagoon(vErrs, &env, yamlEnv)
+	env.Components = createComponentMap(vErrs, yamlEnv)
 	env.Tasks = createTasks(vErrs, &env, yamlEnv)
 	env.Providers = createProviders(vErrs, &env, yamlEnv)
 	env.NodeSets = createNodeSets(vErrs, &env, yamlEnv)
