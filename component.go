@@ -22,8 +22,14 @@ type Component struct {
 	Version    Version
 }
 
-func CreateDetachedComponent(vErrs *ValidationErrors, repoUrl string, version string) Component {
-	return createComponent(vErrs, nil, "<>", repoUrl, version)
+func CreateDetachedComponent(repoUrl string, version string) (Component, error) {
+	validationErrors := ValidationErrors{}
+	c := createComponent(&validationErrors, nil, "<>", repoUrl, version)
+	if validationErrors.HasErrors() {
+		// TODO: return the validation errors directly after they implement error
+		return Component{}, errors.New("an error occurred during component creation")
+	}
+	return c, nil
 }
 
 func createComponent(vErrs *ValidationErrors, env *Environment, location string, repoUrl string, version string) Component {
