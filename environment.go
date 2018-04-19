@@ -1,9 +1,9 @@
 package model
 
 import (
+	"errors"
 	"log"
 	"strings"
-	"errors"
 )
 
 type Environment struct {

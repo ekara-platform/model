@@ -1,9 +1,9 @@
 package model
 
 import (
-	"strings"
-	"strconv"
 	"errors"
+	"strconv"
+	"strings"
 )
 
 type Version struct {

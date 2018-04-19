@@ -2,9 +2,9 @@ package model
 
 import (
 	"github.com/stretchr/testify/assert"
-	"testing"
 	"log"
 	"os"
+	"testing"
 )
 
 func TestCreateEngineComplete(t *testing.T) {

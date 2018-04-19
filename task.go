@@ -1,8 +1,8 @@
 package model
 
 import (
-	"errors"
 	"bytes"
+	"errors"
 	"fmt"
 )
 

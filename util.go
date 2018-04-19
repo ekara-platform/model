@@ -1,14 +1,14 @@
 package model
 
 import (
-	"log"
-	"strings"
-	"net/url"
-	"net/http"
 	"fmt"
 	"io/ioutil"
+	"log"
+	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func readUrlOrFile(logger *log.Logger, location string) (base string, content []byte, err error) {

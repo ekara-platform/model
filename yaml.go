@@ -16,7 +16,7 @@ type yamlParams struct {
 
 type yamlRef struct {
 	yamlParams `yaml:",inline"`
-	Name string
+	Name       string
 }
 
 type yamlHook struct {
@@ -59,7 +59,7 @@ type yamlEnvironment struct {
 
 		Provider  yamlRef
 		Instances int
-		Hooks struct {
+		Hooks     struct {
 			Provision yamlHook
 			Destroy   yamlHook
 		}
@@ -72,7 +72,7 @@ type yamlEnvironment struct {
 		Repository string
 		Version    string
 		DeployOn   []string `yaml:"deployOn"`
-		Hooks struct {
+		Hooks      struct {
 			Deploy   yamlHook
 			Undeploy yamlHook
 		}
@@ -86,7 +86,7 @@ type yamlEnvironment struct {
 		Playbook string
 		Cron     string
 		RunOn    []string `yaml:"runOn"`
-		Hooks struct {
+		Hooks    struct {
 			Execute yamlHook
 		}
 	}

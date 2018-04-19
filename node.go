@@ -48,7 +48,7 @@ func createNodeSets(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvi
 	return res
 }
 
-func createNodeSetRef(vErrs *ValidationErrors, env *Environment, location string, labels ... string) NodeSetRef {
+func createNodeSetRef(vErrs *ValidationErrors, env *Environment, location string, labels ...string) NodeSetRef {
 	nodeSets := make([]*NodeSet, 0, 10)
 	if len(labels) == 0 {
 		vErrs.AddError(errors.New("empty node set reference"), location)
