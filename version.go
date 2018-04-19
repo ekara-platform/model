@@ -14,7 +14,7 @@ type Version struct {
 }
 
 func createVersion(vErrs *ValidationErrors, location string, full string) Version {
-	v := Version{Major: 0, Minor: 0, Micro: 0, Full: full}
+	v := Version{Major: -1, Minor: -1, Micro: -1, Full: full}
 
 	if len(full) > 0 {
 		split := strings.Split(full, ".")
@@ -52,4 +52,17 @@ func createVersion(vErrs *ValidationErrors, location string, full string) Versio
 	}
 
 	return v
+}
+
+func (v Version) IncludesVersion(other Version) bool {
+	if v.Major >= 0 && v.Major != other.Major {
+		return false
+	}
+	if v.Minor >= 0 && v.Minor != other.Minor {
+		return false
+	}
+	if v.Micro >= 0 && v.Micro != other.Micro {
+		return false
+	}
+	return true
 }

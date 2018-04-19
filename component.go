@@ -22,30 +22,38 @@ type Component struct {
 	Version    Version
 }
 
+func CreateDetachedComponent(vErrs *ValidationErrors, repoUrl string, version string) Component {
+	return createComponent(vErrs, nil, "<>", repoUrl, version)
+}
+
+func createComponent(vErrs *ValidationErrors, env *Environment, location string, repoUrl string, version string) Component {
+	componentUrl := buildComponentUrl(vErrs, location+".repository", repoUrl)
+	componentId := buildComponentId(componentUrl)
+
+	var parsedVersion Version
+	if len(version) > 0 {
+		parsedVersion = createVersion(vErrs, location+".version", version)
+	} else {
+		if managedVersion, ok := env.Components[componentId]; ok {
+			parsedVersion = managedVersion
+		} else {
+			vErrs.AddError(errors.New("no version provided for component "+componentUrl.String()), location+".version")
+		}
+	}
+
+	return Component{
+		Id:         buildComponentId(componentUrl),
+		Repository: componentUrl.String(),
+		Version:    parsedVersion,
+		Scm:        resolveScm(vErrs, location+".repository", componentUrl)}
+}
+
 func createComponentMap(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) map[string]Version {
 	res := map[string]Version{}
 	for id, v := range yamlEnv.Components {
 		res[buildComponentId(buildComponentUrl(vErrs, "components", id))] = createVersion(vErrs, "components."+id, v)
 	}
 	return res
-}
-
-func createComponent(vErrs *ValidationErrors, env *Environment, location string, repoUrl string, version string) Component {
-	componentUrl := buildComponentUrl(vErrs, location+".repository", repoUrl)
-	componentId := buildComponentId(componentUrl)
-	var parsedVersion Version
-	if len(version) > 0 {
-		parsedVersion = createVersion(vErrs, location+".version", version)
-	} else if managedVersion, ok := env.Components[componentId]; ok {
-		parsedVersion = managedVersion
-	} else {
-		vErrs.AddError(errors.New("no version provided for component "+componentUrl.String()), location+".version")
-	}
-	return Component{
-		Id:         buildComponentId(componentUrl),
-		Repository: componentUrl.String(),
-		Version:    parsedVersion,
-		Scm:        resolveScm(vErrs, location+".repository", componentUrl)}
 }
 
 func buildComponentUrl(vErrs *ValidationErrors, location string, repoUrl string) url.URL {
