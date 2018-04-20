@@ -26,7 +26,7 @@ func CreateDetachedComponent(repoUrl string, version string) (Component, error) 
 	validationErrors := ValidationErrors{}
 	c := createComponent(&validationErrors, nil, "<>", repoUrl, version)
 	if validationErrors.HasErrors() {
-		return Component{}, validationErrors)
+		return Component{}, validationErrors
 	}
 	return c, nil
 }
