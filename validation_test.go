@@ -12,17 +12,20 @@ import (
 func testEmptyContent(t *testing.T, name string) ValidationErrors {
 	file := fmt.Sprintf("./testdata/yaml/grammar/no_%s.yaml", name)
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e, vErrs := Parse(logger, file)
-	assertValidationErrors(t, e, vErrs, logger)
+	_, e := Parse(logger, file)
+	vErrs := assertValidationErrors(t, e, logger)
 	return vErrs
 }
 
-func assertValidationErrors(t *testing.T, e error, vErrs ValidationErrors, logger *log.Logger) {
+func assertValidationErrors(t *testing.T, e error, logger *log.Logger) ValidationErrors {
 	assert.NotNil(t, e)
-	assert.Equal(t, "validation errors have occurred", e.Error())
+	vErrs, ok := e.(ValidationErrors)
+	assert.True(t, ok)
+	assert.True(t, vErrs.HasErrors())
 	for _, err := range vErrs.Errors {
 		logger.Println(err.ErrorType.String() + ": " + err.Message + " @" + err.Location)
 	}
+	return vErrs
 }
 
 func TestNoProviders(t *testing.T) {
@@ -48,8 +51,8 @@ func TestNoStacks(t *testing.T) {
 
 func TestNoNodesProvider(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e, vErrs := Parse(logger, "./testdata/yaml/grammar/no_nodes_provider.yaml")
-	assertValidationErrors(t, e, vErrs, logger)
+	_, e := Parse(logger, "./testdata/yaml/grammar/no_nodes_provider.yaml")
+	vErrs := assertValidationErrors(t, e, logger)
 
 	assert.Equal(t, true, vErrs.HasErrors())
 	assert.Equal(t, false, vErrs.HasWarnings())
@@ -61,8 +64,8 @@ func TestNoNodesProvider(t *testing.T) {
 
 func TestNoNodesInstance(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e, vErrs := Parse(logger, "./testdata/yaml/grammar/no_nodes_instance.yaml")
-	assertValidationErrors(t, e, vErrs, logger)
+	_, e := Parse(logger, "./testdata/yaml/grammar/no_nodes_instance.yaml")
+	vErrs := assertValidationErrors(t, e, logger)
 
 	assert.NotNil(t, vErrs)
 	assert.Equal(t, true, vErrs.HasErrors())
@@ -75,8 +78,8 @@ func TestNoNodesInstance(t *testing.T) {
 
 func TestNodesUnknownProvider(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e, vErrs := Parse(logger, "./testdata/yaml/grammar/nodes_unknown_provider.yaml")
-	assertValidationErrors(t, e, vErrs, logger)
+	_, e := Parse(logger, "./testdata/yaml/grammar/nodes_unknown_provider.yaml")
+	vErrs := assertValidationErrors(t, e, logger)
 
 	assert.NotNil(t, vErrs)
 	assert.Equal(t, true, vErrs.HasErrors())
@@ -89,8 +92,8 @@ func TestNodesUnknownProvider(t *testing.T) {
 
 func TestNodesUnknownHook(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e, vErrs := Parse(logger, "./testdata/yaml/grammar/nodes_unknown_hook.yaml")
-	assertValidationErrors(t, e, vErrs, logger)
+	_, e := Parse(logger, "./testdata/yaml/grammar/nodes_unknown_hook.yaml")
+	vErrs := assertValidationErrors(t, e, logger)
 
 	assert.NotNil(t, vErrs)
 	assert.Equal(t, true, vErrs.HasErrors())
@@ -102,8 +105,8 @@ func TestNodesUnknownHook(t *testing.T) {
 
 func TestStacksNoDeployOnError(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e, vErrs := Parse(logger, "./testdata/yaml/grammar/stacks_no_deploy_on_error.yaml")
-	assertValidationErrors(t, e, vErrs, logger)
+	_, e := Parse(logger, "./testdata/yaml/grammar/stacks_no_deploy_on_error.yaml")
+	vErrs := assertValidationErrors(t, e, logger)
 
 	assert.NotNil(t, vErrs)
 	assert.Equal(t, true, vErrs.HasErrors())
@@ -116,8 +119,8 @@ func TestStacksNoDeployOnError(t *testing.T) {
 
 func TestStacksUnknownDeployOn(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e, vErrs := Parse(logger, "./testdata/yaml/grammar/stacks_unknown_deploy_on.yaml")
-	assertValidationErrors(t, e, vErrs, logger)
+	_, e := Parse(logger, "./testdata/yaml/grammar/stacks_unknown_deploy_on.yaml")
+	vErrs := assertValidationErrors(t, e, logger)
 
 	assert.NotNil(t, vErrs)
 	assert.Equal(t, true, vErrs.HasErrors())
@@ -130,8 +133,8 @@ func TestStacksUnknownDeployOn(t *testing.T) {
 
 func TestTasksNoPlayBook(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e, vErrs := Parse(logger, "./testdata/yaml/grammar/no_task_playbook.yaml")
-	assertValidationErrors(t, e, vErrs, logger)
+	_, e := Parse(logger, "./testdata/yaml/grammar/no_task_playbook.yaml")
+	vErrs := assertValidationErrors(t, e, logger)
 
 	assert.NotNil(t, vErrs)
 	assert.Equal(t, true, vErrs.HasErrors())
@@ -144,8 +147,8 @@ func TestTasksNoPlayBook(t *testing.T) {
 
 func TestTasksUnknownRunOn(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e, vErrs := Parse(logger, "./testdata/yaml/grammar/tasks_unknown_run_on.yaml")
-	assertValidationErrors(t, e, vErrs, logger)
+	_, e := Parse(logger, "./testdata/yaml/grammar/tasks_unknown_run_on.yaml")
+	vErrs := assertValidationErrors(t, e, logger)
 
 	assert.NotNil(t, vErrs)
 	assert.Equal(t, true, vErrs.HasErrors())
@@ -158,8 +161,8 @@ func TestTasksUnknownRunOn(t *testing.T) {
 
 func TestUnknownGlobalHooks(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e, vErrs := Parse(logger, "./testdata/yaml/grammar/unknown_global_hook.yaml")
-	assertValidationErrors(t, e, vErrs, logger)
+	_, e := Parse(logger, "./testdata/yaml/grammar/unknown_global_hook.yaml")
+	vErrs := assertValidationErrors(t, e, logger)
 
 	assert.NotNil(t, vErrs)
 	assert.Equal(t, true, vErrs.HasErrors())

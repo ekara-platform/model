@@ -1,5 +1,9 @@
 package model
 
+import (
+	"encoding/json"
+)
+
 type ErrorType int
 
 const (
@@ -15,6 +19,17 @@ type ValidationError struct {
 	ErrorType ErrorType
 	Message   string
 	Location  string
+}
+
+func (ve ValidationErrors) Error() string {
+	return "Validation errors or warnings have occurred"
+}
+
+// JSonContent returns the serialized content of all validations
+// errors as JSON
+func (ve ValidationErrors) JSonContent() (b []byte, e error) {
+	b, e = json.MarshalIndent(ve.Errors, "", "    ")
+	return
 }
 
 func (t ErrorType) String() string {

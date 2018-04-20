@@ -1,9 +1,9 @@
 package model
 
 import (
+	"errors"
 	"log"
 	"strings"
-	"errors"
 )
 
 type Environment struct {
@@ -34,8 +34,8 @@ type Environment struct {
 	}
 }
 
-func Parse(logger *log.Logger, location string) (env Environment, err error, vErrs ValidationErrors) {
-	vErrs = ValidationErrors{}
+func Parse(logger *log.Logger, location string) (env Environment, err error) {
+	vErrs := ValidationErrors{}
 	if strings.HasSuffix(strings.ToUpper(location), ".YAML") ||
 		strings.HasSuffix(strings.ToUpper(location), ".YML") {
 		var yamlEnv yamlEnvironment
@@ -45,8 +45,8 @@ func Parse(logger *log.Logger, location string) (env Environment, err error, vEr
 		}
 		env = createEnvironment(&vErrs, &yamlEnv)
 		postValidate(&vErrs, &env)
-		if vErrs.HasErrors() {
-			err = errors.New("validation errors have occurred")
+		if vErrs.HasErrors() || vErrs.HasWarnings() {
+			err = vErrs
 		}
 	} else {
 		err = errors.New("unsupported file format")
