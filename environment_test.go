@@ -10,7 +10,7 @@ import (
 
 func TestCreateEngineComplete(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := Parse(logger, "./testdata/yaml/complete_descriptor.yaml")
+	env, e := Parse(logger, "./testdata/yaml/complete_descriptor/lagoon.yaml")
 	assert.Nil(t, e)
 
 	assert.Equal(t, "name_value", env.Name)
