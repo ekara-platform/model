@@ -1,19 +1,17 @@
 package model
 
 import (
-	"github.com/stretchr/testify/assert"
 	"log"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateEngineComplete(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e, vErrs := Parse(logger, "testdata/yaml/complete_descriptor.yaml")
+	env, e := Parse(logger, "./testdata/yaml/complete_descriptor.yaml")
 	assert.Nil(t, e)
-	for _, err := range vErrs.Errors {
-		logger.Println(err.ErrorType.String() + ": " + err.Message + " @" + err.Location)
-	}
 
 	assert.Equal(t, "name_value", env.Name)
 	assert.Equal(t, "description_value", env.Description)
@@ -56,12 +54,16 @@ func TestCreateEngineComplete(t *testing.T) {
 	// AWS Provider
 	assert.NotNil(t, providers["aws"])
 	assert.Equal(t, "aws", providers["aws"].Name)
+	assert.Equal(t, "https://github.com/lagoon-platform/aws-provider.git", providers["aws"].Repository)
+	assert.Equal(t, "1.2.3", providers["aws"].Version.Full)
 	assert.NotNil(t, providers["aws"].Parameters)
 	assert.Equal(t, map[string]string{"aws_param_key1": "aws_param_key1_value", "aws_param_key2": "aws_param_key2_value"}, providers["aws"].Parameters.AsMap())
 
 	// Azure Provider
 	assert.NotNil(t, providers["azure"])
 	assert.Equal(t, "azure", providers["azure"].Name)
+	assert.Equal(t, "https://github.com/lagoon-platform/azure-provider.git", providers["azure"].Repository)
+	assert.Equal(t, "1.2.3", providers["azure"].Version.Full)
 	assert.NotNil(t, providers["azure"].Parameters)
 	assert.Equal(t, map[string]string{"azure_param_key1": "azure_param_key1_value", "azure_param_key2": "azure_param_key2_value"}, providers["azure"].Parameters.AsMap())
 
