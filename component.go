@@ -26,8 +26,7 @@ func CreateDetachedComponent(repoUrl string, version string) (Component, error) 
 	validationErrors := ValidationErrors{}
 	c := createComponent(&validationErrors, nil, "<>", repoUrl, version)
 	if validationErrors.HasErrors() {
-		// TODO: return the validation errors directly after they implement error
-		return Component{}, errors.New("an error occurred during component creation")
+		return Component{}, validationErrors)
 	}
 	return c, nil
 }
