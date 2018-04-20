@@ -1,10 +1,10 @@
 package model
 
 import (
-	"strings"
+	"errors"
 	"net/url"
 	"regexp"
-	"errors"
+	"strings"
 )
 
 type ScmType string
@@ -16,35 +16,50 @@ const (
 )
 
 type Component struct {
-	id         string
+	Id         string
 	Scm        ScmType
 	Repository string
 	Version    Version
 }
 
-func createComponentMap(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) map[string]Version {
-	res := map[string]Version{}
-	for id, v := range yamlEnv.Components {
-		componentUrl := buildComponentUrl(vErrs, "components", id)
-		res[componentUrl.String()] = createVersion(vErrs, "components."+id, v)
+func CreateDetachedComponent(repoUrl string, version string) (Component, error) {
+	validationErrors := ValidationErrors{}
+	c := createComponent(&validationErrors, nil, "<>", repoUrl, version)
+	if validationErrors.HasErrors() {
+		// TODO: return the validation errors directly after they implement error
+		return Component{}, errors.New("an error occurred during component creation")
 	}
-	return res
+	return c, nil
 }
 
 func createComponent(vErrs *ValidationErrors, env *Environment, location string, repoUrl string, version string) Component {
 	componentUrl := buildComponentUrl(vErrs, location+".repository", repoUrl)
+	componentId := buildComponentId(componentUrl)
+
 	var parsedVersion Version
 	if len(version) > 0 {
 		parsedVersion = createVersion(vErrs, location+".version", version)
-	} else if managedVersion, ok := env.Components[componentUrl.String()]; ok {
-		parsedVersion = managedVersion
 	} else {
-		vErrs.AddError(errors.New("no version provided for component "+componentUrl.String()), location+".version")
+		if managedVersion, ok := env.Components[componentId]; ok {
+			parsedVersion = managedVersion
+		} else {
+			vErrs.AddError(errors.New("no version provided for component "+componentUrl.String()), location+".version")
+		}
 	}
+
 	return Component{
+		Id:         buildComponentId(componentUrl),
 		Repository: componentUrl.String(),
 		Version:    parsedVersion,
 		Scm:        resolveScm(vErrs, location+".repository", componentUrl)}
+}
+
+func createComponentMap(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) map[string]Version {
+	res := map[string]Version{}
+	for id, v := range yamlEnv.Components {
+		res[buildComponentId(buildComponentUrl(vErrs, "components", id))] = createVersion(vErrs, "components."+id, v)
+	}
+	return res
 }
 
 func buildComponentUrl(vErrs *ValidationErrors, location string, repoUrl string) url.URL {
@@ -75,6 +90,16 @@ func buildComponentUrl(vErrs *ValidationErrors, location string, repoUrl string)
 	}
 
 	return *parsedUrl
+}
+
+func buildComponentId(componentUrl url.URL) string {
+	id := componentUrl.Host
+	if hasSuffixIgnoringCase(componentUrl.Path, ".git") {
+		id += strings.Replace(componentUrl.Path[0:len(componentUrl.Path)-4], "/", "-", -1)
+	} else {
+		id += strings.Replace(componentUrl.Path, "/", "-", -1)
+	}
+	return id
 }
 
 func resolveScm(vErrs *ValidationErrors, location string, url url.URL) ScmType {
