@@ -32,8 +32,14 @@ func CreateDetachedComponent(repoUrl string, version string) (Component, error) 
 }
 
 func createComponent(vErrs *ValidationErrors, env *Environment, location string, repoUrl string, version string) Component {
-	componentUrl := buildComponentUrl(vErrs, location+".repository", repoUrl)
-	componentId := buildComponentId(componentUrl)
+	//componentUrl := buildComponentUrl(vErrs, , repoUrl)
+	cUrl, e := BuildComponentFolderUrl(repoUrl)
+	if e != nil {
+		vErrs.AddError(e, location+".repository")
+	}
+	cUrl, _ = BuildComponentGitUrl(cUrl)
+
+	componentId := buildComponentId(cUrl)
 
 	var parsedVersion Version
 	if len(version) > 0 {
@@ -42,26 +48,37 @@ func createComponent(vErrs *ValidationErrors, env *Environment, location string,
 		if managedVersion, ok := env.Components[componentId]; ok {
 			parsedVersion = managedVersion
 		} else {
-			vErrs.AddError(errors.New("no version provided for component "+componentUrl.String()), location+".version")
+			vErrs.AddError(errors.New("no version provided for component "+cUrl.String()), location+".version")
 		}
 	}
 
 	return Component{
-		Id:         buildComponentId(componentUrl),
-		Repository: componentUrl.String(),
+		Id:         buildComponentId(cUrl),
+		Repository: cUrl.String(),
 		Version:    parsedVersion,
-		Scm:        resolveScm(vErrs, location+".repository", componentUrl)}
+		Scm:        resolveScm(vErrs, location+".repository", cUrl)}
 }
 
 func createComponentMap(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) map[string]Version {
 	res := map[string]Version{}
 	for id, v := range yamlEnv.Components {
-		res[buildComponentId(buildComponentUrl(vErrs, "components", id))] = createVersion(vErrs, "components."+id, v)
+		//res[buildComponentId(buildComponentUrl(vErrs, "components", id))] = createVersion(vErrs, "components."+id, v)
+		cUrl, e := BuildComponentFolderUrl(id)
+		if e != nil {
+			vErrs.AddError(e, "components")
+		}
+		cUrl, _ = BuildComponentGitUrl(cUrl)
+		res[buildComponentId(cUrl)] = createVersion(vErrs, "components."+id, v)
 	}
 	return res
 }
 
-func buildComponentUrl(vErrs *ValidationErrors, location string, repoUrl string) url.URL {
+// BuildComponentFolderUrl builds the complete URL of the folder containing all
+// the component items.
+//
+// - URLs starting with github.com or bitbucket.org are assumed as https://
+// - URLs without protocol and matching org/repo are assumed as https://github.com/...
+func BuildComponentFolderUrl(repoUrl string) (url.URL, error) {
 	// URL starting with github.com or bitbucket.org are assumed as https://
 	if hasPrefixIgnoringCase(repoUrl, GitHubHost) || hasPrefixIgnoringCase(repoUrl, BitBucketHost) {
 		repoUrl = "https://" + repoUrl
@@ -79,16 +96,24 @@ func buildComponentUrl(vErrs *ValidationErrors, location string, repoUrl string)
 
 	parsedUrl, e := url.Parse(repoUrl)
 	if e != nil {
-		vErrs.AddError(e, location)
+		return url.URL{}, e
 	}
+	return *parsedUrl, nil
+}
 
-	if hasPrefixIgnoringCase(parsedUrl.Scheme, "http") &&
-		!hasSuffixIgnoringCase(parsedUrl.Path, ".git") &&
-		(parsedUrl.Host == GitHubHost || parsedUrl.Host == BitBucketHost) {
-		parsedUrl.Path = parsedUrl.Path + ".git"
+// BuildComponentGitUrl builds the url od the git repository based on the
+// url received has parameter
+//
+// If the received URL is not eligible to be converted into a GIT repository
+// then an error will be returned and the unchanged  url will be returned;
+func BuildComponentGitUrl(url url.URL) (url.URL, error) {
+	if hasPrefixIgnoringCase(url.Scheme, "http") &&
+		!hasSuffixIgnoringCase(url.Path, ".git") &&
+		(url.Host == GitHubHost || url.Host == BitBucketHost) {
+		url.Path = url.Path + ".git"
+		return url, nil
 	}
-
-	return *parsedUrl
+	return url, errors.New("the URL is not eligible to be a GIT repository")
 }
 
 func buildComponentId(componentUrl url.URL) string {
