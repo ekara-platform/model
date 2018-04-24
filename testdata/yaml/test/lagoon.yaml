@@ -14,7 +14,7 @@ nodes:
   managers:
     provider:
       name: aws
-    params:
+      params:
         client_name: "tb"
         instance_type: "t2.micro"  
         ami_id: "ami-f90a4880"
