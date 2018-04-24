@@ -1,0 +1,19 @@
+name: testEnvironment
+providers:
+  aws:
+    params:
+      region: eu-west-1
+
+nodes:
+  managers:
+    provider:
+      name: aws
+    instances: 3
+    labels:
+      - lagoon
+
+stacks:
+  monitoring:
+    repository: github.com/lagoon-platform/aws-provider
+    deployOn:
+      - lagoon
