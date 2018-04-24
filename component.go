@@ -101,7 +101,7 @@ func BuildComponentFolderUrl(repoUrl string) (url.URL, error) {
 	return *parsedUrl, nil
 }
 
-// BuildComponentGitUrl builds the url od the git repository based on the
+// BuildComponentGitUrl builds the url of the git repository based on the
 // url received has parameter
 //
 // If the received URL is not eligible to be converted into a GIT repository
