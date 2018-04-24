@@ -20,5 +20,6 @@ nodes:
 stacks:
   monitoring:
     repository: github.com/lagoon-platform/aws-provider
+    version: 1.2.3
     deployOn:
       - lagoon
