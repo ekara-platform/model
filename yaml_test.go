@@ -3,9 +3,10 @@ package model
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"log"
 	"os"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestLabelCreate(t *testing.T) {
@@ -22,7 +23,6 @@ func TestLabelContains(t *testing.T) {
 func TestCreateEngineFromHttp(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
 	_, e := parseYamlDescriptor(logger, "https://raw.githubusercontent.com/lagoon-platform/engine/master/testdata/complete_descriptor.yaml")
-
 	// no error occurred
 	assert.Nil(t, e)
 }
