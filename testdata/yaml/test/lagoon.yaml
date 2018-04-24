@@ -1,6 +1,11 @@
 name: testEnvironment
+
+components:
+  lagoon-platform/aws-provider: 1.2.3
+
 providers:
   aws:
+    repository: lagoon-platform/aws-provider
     params:
       region: eu-west-1
 
