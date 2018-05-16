@@ -28,11 +28,11 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.Equal(t, 3, len(labels.AsStrings()))
 	assert.Equal(t, true, labels.MatchesLabels("root_label1", "root_label2", "root_label3"))
 
-	// Proxy
-	assert.NotNil(t, env.Proxy)
-	assert.Equal(t, "http://user:pwd@someproxy.org:8080", env.Proxy.Http)
-	assert.Equal(t, "https://user:pwd@someproxy.org:8080", env.Proxy.Https)
-	assert.Equal(t, "*.dummy.org", env.Proxy.NoProxy)
+	// Settings
+	assert.NotNil(t, env.Settings)
+	assert.Equal(t, "http://user:pwd@someproxy.org:8080", env.Settings.Proxy.Http.String())
+	assert.Equal(t, "https://user:pwd@someproxy.org:8080", env.Settings.Proxy.Https.String())
+	assert.Equal(t, "*.dummy.org", env.Settings.Proxy.NoProxy)
 
 	//------------------------------------------------------------
 	// Components
@@ -54,7 +54,7 @@ func TestCreateEngineComplete(t *testing.T) {
 	// AWS Provider
 	assert.NotNil(t, providers["aws"])
 	assert.Equal(t, "aws", providers["aws"].Name)
-	assert.Equal(t, "https://github.com/lagoon-platform/aws-provider.git", providers["aws"].Repository)
+	assert.Equal(t, "https://github.com/lagoon-platform/aws-provider.git", providers["aws"].Repository.String())
 	assert.Equal(t, "1.2.3", providers["aws"].Version.Full)
 	assert.NotNil(t, providers["aws"].Parameters)
 	assert.Equal(t, map[string]string{"aws_param_key1": "aws_param_key1_value", "aws_param_key2": "aws_param_key2_value"}, providers["aws"].Parameters.AsMap())
@@ -62,7 +62,7 @@ func TestCreateEngineComplete(t *testing.T) {
 	// Azure Provider
 	assert.NotNil(t, providers["azure"])
 	assert.Equal(t, "azure", providers["azure"].Name)
-	assert.Equal(t, "https://github.com/lagoon-platform/azure-provider.git", providers["azure"].Repository)
+	assert.Equal(t, "https://github.com/lagoon-platform/azure-provider.git", providers["azure"].Repository.String())
 	assert.Equal(t, "1.2.3", providers["azure"].Version.Full)
 	assert.NotNil(t, providers["azure"].Parameters)
 	assert.Equal(t, map[string]string{"azure_param_key1": "azure_param_key1_value", "azure_param_key2": "azure_param_key2_value"}, providers["azure"].Parameters.AsMap())
@@ -109,11 +109,11 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.Contains(t, stacks, "stack2")
 	assert.NotContains(t, stacks, "dummy")
 
-	assert.Equal(t, "https://github.com/lagoon-platform/stack1_repository.git", stacks["stack1"].Repository)
+	assert.Equal(t, "https://github.com/lagoon-platform/stack1_repository.git", stacks["stack1"].Repository.String())
 	assert.Equal(t, "1.2.3", stacks["stack1"].Version.Full)
 	assert.Equal(t, []string{"stack1_label1", "stack1_label2", "stack1_label3"}, stacks["stack1"].Labels.AsStrings())
 
-	assert.Equal(t, "https://github.com/lagoon-platform/stack2_repository.git", stacks["stack2"].Repository)
+	assert.Equal(t, "https://github.com/lagoon-platform/stack2_repository.git", stacks["stack2"].Repository.String())
 	assert.Equal(t, "1.2.3", stacks["stack2"].Version.Full)
 	assert.Equal(t, []string{"stack2_label1", "stack2_label2", "stack2_label3"}, stacks["stack2"].Labels.AsStrings())
 

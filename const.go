@@ -1,7 +1,12 @@
 package model
 
 const (
-	GitHubHost           = "github.com"
-	BitBucketHost        = "bitbucket.org"
-	LagoonCoreRepository = "https://" + GitHubHost + "/lagoon-platform/core"
+	// Default locations
+	GitHubHost            = "github.com"
+	BitBucketHost         = "bitbucket.org"
+	DefaultComponentBase  = "https://" + GitHubHost
+	DefaultDockerRegistry = "registry.hub.docker.com"
+
+	// Internal components
+	LagoonCoreRepository = "lagoon-platform/core"
 )

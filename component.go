@@ -3,8 +3,10 @@ package model
 import (
 	"errors"
 	"net/url"
-	"regexp"
 	"strings"
+	"os"
+	"path/filepath"
+	"regexp"
 )
 
 type ScmType string
@@ -18,28 +20,17 @@ const (
 type Component struct {
 	Id         string
 	Scm        ScmType
-	Repository string
+	Repository *url.URL
 	Version    Version
 }
 
-func CreateDetachedComponent(repoUrl string, version string) (Component, error) {
-	validationErrors := ValidationErrors{}
-	c := createComponent(&validationErrors, nil, "<>", repoUrl, version)
-	if validationErrors.HasErrors() {
-		return Component{}, validationErrors
-	}
-	return c, nil
-}
-
-func createComponent(vErrs *ValidationErrors, env *Environment, location string, repoUrl string, version string) Component {
-	//componentUrl := buildComponentUrl(vErrs, , repoUrl)
-	cUrl, e := BuildComponentFolderUrl(repoUrl)
+func createComponent(vErrs *ValidationErrors, env *Environment, location string, repo string, version string) Component {
+	cUrl, e := ResolveRepositoryUrl(env.Settings.ComponentBase, repo)
 	if e != nil {
 		vErrs.AddError(e, location+".repository")
 	}
-	cUrl, _ = BuildComponentGitUrl(cUrl)
 
-	componentId := buildComponentId(cUrl)
+	componentId := BuildComponentId(cUrl)
 
 	var parsedVersion Version
 	if len(version) > 0 {
@@ -53,70 +44,71 @@ func createComponent(vErrs *ValidationErrors, env *Environment, location string,
 	}
 
 	return Component{
-		Id:         buildComponentId(cUrl),
-		Repository: cUrl.String(),
+		Id:         BuildComponentId(cUrl),
+		Repository: cUrl,
 		Version:    parsedVersion,
 		Scm:        resolveScm(vErrs, location+".repository", cUrl)}
 }
 
-func createComponentMap(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) map[string]Version {
+func createComponentMap(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) map[string]Version {
 	res := map[string]Version{}
-	for id, v := range yamlEnv.Components {
-		//res[buildComponentId(buildComponentUrl(vErrs, "components", id))] = createVersion(vErrs, "components."+id, v)
-		cUrl, e := BuildComponentFolderUrl(id)
+	for repo, v := range yamlEnv.Components {
+		cUrl, e := ResolveRepositoryUrl(env.Settings.ComponentBase, repo)
 		if e != nil {
 			vErrs.AddError(e, "components")
 		}
-		cUrl, _ = BuildComponentGitUrl(cUrl)
-		res[buildComponentId(cUrl)] = createVersion(vErrs, "components."+id, v)
+		res[BuildComponentId(cUrl)] = createVersion(vErrs, "components."+repo, v)
 	}
 	return res
 }
 
-// BuildComponentFolderUrl builds the complete URL of the folder containing all
-// the component items.
+// ResolveRepository resolve a full URL from repository short-forms.
 //
 // - URLs starting with github.com or bitbucket.org are assumed as https://
-// - URLs without protocol and matching org/repo are assumed as https://github.com/...
-func BuildComponentFolderUrl(repoUrl string) (url.URL, error) {
-	// URL starting with github.com or bitbucket.org are assumed as https://
-	if hasPrefixIgnoringCase(repoUrl, GitHubHost) || hasPrefixIgnoringCase(repoUrl, BitBucketHost) {
-		repoUrl = "https://" + repoUrl
-	}
+// - URLs without protocol and matching org/repo are assumed as being prefixed with base
+func ResolveRepositoryUrl(base *url.URL, repo string) (*url.URL, error) {
+	isSimpleRepo := false
 
-	// URL without protocol and matching org/repo are assumed as https://github.com/...
-	isSimpleRepo, _ := regexp.MatchString("^[_a-zA-Z0-9-]+/[_a-zA-Z0-9-]+$", repoUrl)
-	if !hasPrefixIgnoringCase(repoUrl, "http") && isSimpleRepo {
-		if hasPrefixIgnoringCase(repoUrl, "/") {
-			repoUrl = "https://" + GitHubHost + repoUrl
-		} else {
-			repoUrl = "https://" + GitHubHost + "/" + repoUrl
+	if _, e := os.Stat(repo); e == nil {
+		// If it is a local file
+		repo, e = filepath.Abs(repo)
+		if e != nil {
+			return nil, e
 		}
+		repo = filepath.ToSlash(repo)
+		if strings.HasPrefix(repo, "/") {
+			repo = "file://" + repo
+		} else {
+			repo = "file:///" + repo
+		}
+	} else if hasPrefixIgnoringCase(repo, GitHubHost) || hasPrefixIgnoringCase(repo, BitBucketHost) {
+		// If not check if it begins with a known source provider (github, bitbucket, ...)
+		repo = "https://" + repo
+	} else {
+		// If it is a simple form (org/repo), resolve it according to the base URL
+		isSimpleRepo, _ = regexp.MatchString("^[_a-zA-Z0-9-]+/[_a-zA-Z0-9-]+$", repo)
 	}
 
-	parsedUrl, e := url.Parse(repoUrl)
+	// Parse the resulting URL
+	cUrl, e := url.Parse(repo)
 	if e != nil {
-		return url.URL{}, e
+		return cUrl, e
 	}
-	return *parsedUrl, nil
+
+	// If it was a simple repo, resolve the parsed URL relatively to the base
+	if isSimpleRepo {
+		cUrl = base.ResolveReference(cUrl)
+	}
+
+	// If it's HTTP(S), assume it's GIT and add the suffix
+	if (strings.ToUpper(cUrl.Scheme) == "HTTP" || strings.ToUpper(cUrl.Scheme) == "HTTPS") && !hasSuffixIgnoringCase(cUrl.Path, ".git") {
+		cUrl.Path = cUrl.Path + ".git"
+	}
+
+	return cUrl, nil
 }
 
-// BuildComponentGitUrl builds the url of the git repository based on the
-// url received has parameter
-//
-// If the received URL is not eligible to be converted into a GIT repository
-// then an error will be returned and the unchanged  url will be returned;
-func BuildComponentGitUrl(url url.URL) (url.URL, error) {
-	if hasPrefixIgnoringCase(url.Scheme, "http") &&
-		!hasSuffixIgnoringCase(url.Path, ".git") &&
-		(url.Host == GitHubHost || url.Host == BitBucketHost) {
-		url.Path = url.Path + ".git"
-		return url, nil
-	}
-	return url, errors.New("the URL is not eligible to be a GIT repository")
-}
-
-func buildComponentId(componentUrl url.URL) string {
+func BuildComponentId(componentUrl *url.URL) string {
 	id := componentUrl.Host
 	if hasSuffixIgnoringCase(componentUrl.Path, ".git") {
 		id += strings.Replace(componentUrl.Path[0:len(componentUrl.Path)-4], "/", "-", -1)
@@ -126,7 +118,7 @@ func buildComponentId(componentUrl url.URL) string {
 	return id
 }
 
-func resolveScm(vErrs *ValidationErrors, location string, url url.URL) ScmType {
+func resolveScm(vErrs *ValidationErrors, location string, url *url.URL) ScmType {
 	switch strings.ToUpper(url.Scheme) {
 	case "GIT":
 		return Git
@@ -139,12 +131,4 @@ func resolveScm(vErrs *ValidationErrors, location string, url url.URL) ScmType {
 	}
 	vErrs.AddError(errors.New("unknown fetch protocol"), location)
 	return Unknown
-}
-
-func hasPrefixIgnoringCase(s string, prefix string) bool {
-	return strings.HasPrefix(strings.ToUpper(s), strings.ToUpper(prefix))
-}
-
-func hasSuffixIgnoringCase(s string, suffix string) bool {
-	return strings.HasSuffix(strings.ToUpper(s), strings.ToUpper(suffix))
 }
