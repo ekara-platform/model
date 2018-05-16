@@ -3,10 +3,10 @@ package model
 import (
 	"errors"
 	"net/url"
-	"strings"
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 )
 
 type ScmType string
