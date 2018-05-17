@@ -22,14 +22,14 @@ func TestLabelContains(t *testing.T) {
 
 func TestCreateEngineFromHttp(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := parseYamlDescriptor(logger, "https://raw.githubusercontent.com/lagoon-platform/engine/master/testdata/complete_descriptor.yaml")
+	_, e := parseYamlDescriptor(logger, "https://raw.githubusercontent.com/lagoon-platform/model/master/testdata/yaml/complete_descriptor/lagoon.yaml")
 	// no error occurred
 	assert.Nil(t, e)
 }
 
 func TestCreateEngineFromBadHttp(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := parseYamlDescriptor(logger, "https://raw.githubusercontent.com/lagoon-platform/engine/master/testdata/DUMMY.yaml")
+	_, e := parseYamlDescriptor(logger, "https://raw.githubusercontent.com/lagoon-platform/model/master/testdata/DUMMY.yaml")
 
 	// an error occurred
 	assert.NotNil(t, e)
