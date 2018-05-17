@@ -1,6 +1,8 @@
 package model
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"errors"
 	"net/url"
 	"os"
@@ -25,18 +27,16 @@ type Component struct {
 }
 
 func createComponent(vErrs *ValidationErrors, env *Environment, location string, repo string, version string) Component {
-	cUrl, e := ResolveRepositoryUrl(env.Settings.ComponentBase, repo)
+	cId, cUrl, e := ResolveRepositoryInfo(env.Settings.ComponentBase, repo)
 	if e != nil {
 		vErrs.AddError(e, location+".repository")
 	}
-
-	componentId := BuildComponentId(cUrl)
 
 	var parsedVersion Version
 	if len(version) > 0 {
 		parsedVersion = createVersion(vErrs, location+".version", version)
 	} else {
-		if managedVersion, ok := env.Components[componentId]; ok {
+		if managedVersion, ok := env.Components[cId]; ok {
 			parsedVersion = managedVersion
 		} else {
 			vErrs.AddError(errors.New("no version provided for component "+cUrl.String()), location+".version")
@@ -53,11 +53,11 @@ func createComponent(vErrs *ValidationErrors, env *Environment, location string,
 func createComponentMap(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) map[string]Version {
 	res := map[string]Version{}
 	for repo, v := range yamlEnv.Components {
-		cUrl, e := ResolveRepositoryUrl(env.Settings.ComponentBase, repo)
+		cId, _, e := ResolveRepositoryInfo(env.Settings.ComponentBase, repo)
 		if e != nil {
 			vErrs.AddError(e, "components")
 		}
-		res[BuildComponentId(cUrl)] = createVersion(vErrs, "components."+repo, v)
+		res[cId] = createVersion(vErrs, "components."+repo, v)
 	}
 	return res
 }
@@ -66,14 +66,14 @@ func createComponentMap(vErrs *ValidationErrors, env *Environment, yamlEnv *yaml
 //
 // - URLs starting with github.com or bitbucket.org are assumed as https://
 // - URLs without protocol and matching org/repo are assumed as being prefixed with base
-func ResolveRepositoryUrl(base *url.URL, repo string) (*url.URL, error) {
+func ResolveRepositoryInfo(base *url.URL, repo string) (string, *url.URL, error) {
 	isSimpleRepo := false
 
 	if _, e := os.Stat(repo); e == nil {
 		// If it is a local file
 		repo, e = filepath.Abs(repo)
 		if e != nil {
-			return nil, e
+			return "", nil, e
 		}
 		repo = filepath.ToSlash(repo)
 		if strings.HasPrefix(repo, "/") {
@@ -92,7 +92,7 @@ func ResolveRepositoryUrl(base *url.URL, repo string) (*url.URL, error) {
 	// Parse the resulting URL
 	cUrl, e := url.Parse(repo)
 	if e != nil {
-		return cUrl, e
+		return "", nil, e
 	}
 
 	// If it was a simple repo, resolve the parsed URL relatively to the base
@@ -105,7 +105,17 @@ func ResolveRepositoryUrl(base *url.URL, repo string) (*url.URL, error) {
 		cUrl.Path = cUrl.Path + ".git"
 	}
 
-	return cUrl, nil
+	// Compute the last segment in path (without extension) + hash of full url
+	splitPath := strings.Split(cUrl.Path, "/")
+	cId := splitPath[len(splitPath)-1]
+	if strings.Contains(cId, ".") {
+		cId = cId[:strings.LastIndex(cId, ".")]
+	}
+	hash := sha1.New()
+	hash.Write([]byte(cUrl.String()))
+	cId = cId + "-" + hex.EncodeToString(hash.Sum(nil))
+
+	return cId, cUrl, nil
 }
 
 func BuildComponentId(componentUrl *url.URL) string {
