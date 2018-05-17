@@ -34,6 +34,24 @@ nodes:
             - 80
             cidr_ip: 0.0.0.0/0
             rule_desc: allow all on port 80
+    docker:
+      bip: "172.26.0.1/20"
+      log-driver: json-file
+      log-opts: 
+        max-size: "20m"
+        max-file: "3"
+      disable-legacy-registry: true
+      userland-proxy: true
+      live-restore: true
+      hosts: 
+      - "unix:///var/run/docker.sock"
+      - "tcp://0.0.0.0:2376"
+      tls: true
+      tlscacert: "/etc/docker/certs/ca.pem"
+      tlscert: "/etc/docker/certs/server-cert.pem"
+      tlskey: "/etc/docker/certs/server-priv-key.pem"
+      tlsverify: true 
+
     instances: 3
     labels:
       - lagoon
