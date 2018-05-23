@@ -37,7 +37,7 @@ func createProviders(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnv
 				root:       env,
 				Parameters: createParameters(vErrs, yamlProvider.Params),
 				Name:       name,
-				Docker:     createDocker(vErrs, yamlProvider.Docker)}
+				}
 
 			provider.Component = createComponent(vErrs, env, "providers."+name, yamlProvider.Repository, yamlProvider.Version)
 
