@@ -29,12 +29,9 @@ func TestCreateEngineFromHttp(t *testing.T) {
 
 func TestCreateEngineFromBadHttp(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := parseYamlDescriptor(logger, "https://raw.githubusercontent.com/lagoon-platform/model/master/testdata/DUMMY.yaml")
-
+	_, e := parseYamlDescriptor(logger, "https://github.com/lagoon-platform/engine/tree/master/testdata/DUMMY.yaml")
 	// an error occurred
 	assert.NotNil(t, e)
-
-	// the error code should be 404
 	assert.Equal(t, "HTTP Error getting the environment descriptor , error code 404", e.Error())
 }
 
@@ -47,4 +44,11 @@ func TestCreateEngineFromLocal(t *testing.T) {
 	assert.Equal(t, "This is my awesome Lagoon environment.", yamlEnv.Description) // imported files are merged
 	assert.Equal(t, []string{"tag1", "tag2"}, yamlEnv.Labels)
 	// FIXME assert.MatchesLabels(t, "task1", "task2", "task3", env.Hooks.Provision.After)        // order matters
+}
+
+func TestCreateEngineFromLocalComplexParams(t *testing.T) {
+	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
+	yamlEnv, e := parseYamlDescriptor(logger, "testdata/yaml/test/lagoon.yaml")
+	assert.Nil(t, e) // no error occurred
+	assert.NotNil(t, yamlEnv)
 }

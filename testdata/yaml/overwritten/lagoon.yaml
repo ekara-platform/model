@@ -1,0 +1,36 @@
+name: testEnvironment
+version: 1.2.3
+
+components:
+  lagoon-platform/aws-provider: 1.2.3
+
+providers:
+  aws:
+    repository: lagoon-platform/aws-provider
+    params:
+      param1: "initial_param1"
+      param3: "initial_param3"
+    docker:
+      docker1: "initial_docker1"
+
+nodes:
+  managers:
+    provider:
+      name: aws
+      params:
+        param1: "overwritten_param1"
+        param2: "new_param2"
+    docker:
+      docker1: "overwritten_docker1"
+      docker2: "new_docker2"
+
+    instances: 3
+    labels:
+      - lagoon
+
+stacks:
+  monitoring:
+    repository: github.com/lagoon-platform/aws-provider
+    version: 1.2.3
+    deployOn:
+      - lagoon

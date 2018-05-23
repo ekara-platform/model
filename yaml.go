@@ -1,9 +1,10 @@
 package model
 
 import (
+	"log"
+
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
-	"log"
 )
 
 type yamlLabels struct {
@@ -11,7 +12,7 @@ type yamlLabels struct {
 }
 
 type yamlParams struct {
-	Params map[string]string
+	Params map[string]interface{}
 }
 
 type yamlRef struct {
@@ -53,6 +54,8 @@ type yamlEnvironment struct {
 	Providers map[string]struct {
 		yamlParams `yaml:",inline"`
 
+		Docker map[string]interface{} `yaml:",inline"`
+
 		Repository string
 		Version    string
 	}
@@ -63,7 +66,9 @@ type yamlEnvironment struct {
 
 		Provider  yamlRef
 		Instances int
-		Hooks     struct {
+		Docker    map[string]interface{} `yaml:",inline"`
+
+		Hooks struct {
 			Provision yamlHook
 			Destroy   yamlHook
 		}
