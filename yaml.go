@@ -34,8 +34,8 @@ type yamlEnvironment struct {
 
 	// Settings
 	Settings struct {
-		ComponentBase  string
-		DockerRegistry string
+		ComponentBase  string `yaml:"componentBase"`
+		DockerRegistry string `yaml:"dockerRegistry"`
 		Proxy          struct {
 			Http    string
 			Https   string

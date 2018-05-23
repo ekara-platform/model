@@ -1,7 +1,5 @@
 package model
 
-import "errors"
-
 type Stack struct {
 	root *Environment
 	Labels
@@ -19,7 +17,7 @@ type Stack struct {
 func createStacks(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) map[string]Stack {
 	res := map[string]Stack{}
 	if yamlEnv.Stacks == nil || len(yamlEnv.Stacks) == 0 {
-		vErrs.AddError(errors.New("no stack specified"), "stacks")
+		vErrs.AddWarning("no stack specified", "stacks")
 	} else {
 		for name, yamlStack := range yamlEnv.Stacks {
 			stack := Stack{

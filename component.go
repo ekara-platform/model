@@ -44,7 +44,7 @@ func createComponent(vErrs *ValidationErrors, env *Environment, location string,
 	}
 
 	return Component{
-		Id:         BuildComponentId(cUrl),
+		Id:         cId,
 		Repository: cUrl,
 		Version:    parsedVersion,
 		Scm:        resolveScm(vErrs, location+".repository", cUrl)}
@@ -66,38 +66,36 @@ func createComponentMap(vErrs *ValidationErrors, env *Environment, yamlEnv *yaml
 //
 // - URLs starting with github.com or bitbucket.org are assumed as https://
 // - URLs without protocol and matching org/repo are assumed as being prefixed with base
-func ResolveRepositoryInfo(base *url.URL, repo string) (string, *url.URL, error) {
-	isSimpleRepo := false
-
-	if _, e := os.Stat(repo); e == nil {
-		// If it is a local file
-		repo, e = filepath.Abs(repo)
-		if e != nil {
-			return "", nil, e
-		}
-		repo = filepath.ToSlash(repo)
-		if strings.HasPrefix(repo, "/") {
-			repo = "file://" + repo
-		} else {
-			repo = "file:///" + repo
-		}
-	} else if hasPrefixIgnoringCase(repo, GitHubHost) || hasPrefixIgnoringCase(repo, BitBucketHost) {
-		// If not check if it begins with a known source provider (github, bitbucket, ...)
-		repo = "https://" + repo
-	} else {
-		// If it is a simple form (org/repo), resolve it according to the base URL
-		isSimpleRepo, _ = regexp.MatchString("^[_a-zA-Z0-9-]+/[_a-zA-Z0-9-]+$", repo)
-	}
-
-	// Parse the resulting URL
-	cUrl, e := url.Parse(repo)
-	if e != nil {
-		return "", nil, e
-	}
-
-	// If it was a simple repo, resolve the parsed URL relatively to the base
+func ResolveRepositoryInfo(base *url.URL, repo string) (cId string, cUrl *url.URL, e error) {
+	isSimpleRepo, _ := regexp.MatchString("^[_a-zA-Z0-9-]+/[_a-zA-Z0-9-]+$", repo)
 	if isSimpleRepo {
+		// Simple repositories are always resolved relatively to the base URL
+		cUrl, e = url.Parse(repo)
+		if e != nil {
+			return
+		}
 		cUrl = base.ResolveReference(cUrl)
+	} else {
+		if _, e = os.Stat(repo); e == nil {
+			// If it is a local file
+			repo, e = filepath.Abs(repo)
+			if e != nil {
+				return
+			}
+			repo = filepath.ToSlash(repo)
+			if strings.HasPrefix(repo, "/") {
+				repo = "file://" + repo
+			} else {
+				repo = "file:///" + repo
+			}
+		} else if hasPrefixIgnoringCase(repo, GitHubHost) || hasPrefixIgnoringCase(repo, BitBucketHost) {
+			// If not check if it begins with a known source provider (github, bitbucket, ...)
+			repo = "https://" + repo
+		}
+		cUrl, e = url.Parse(repo)
+		if e != nil {
+			return
+		}
 	}
 
 	// If it's HTTP(S), assume it's GIT and add the suffix
@@ -107,7 +105,7 @@ func ResolveRepositoryInfo(base *url.URL, repo string) (string, *url.URL, error)
 
 	// Compute the last segment in path (without extension) + hash of full url
 	splitPath := strings.Split(cUrl.Path, "/")
-	cId := splitPath[len(splitPath)-1]
+	cId = splitPath[len(splitPath)-1]
 	if strings.Contains(cId, ".") {
 		cId = cId[:strings.LastIndex(cId, ".")]
 	}
@@ -115,21 +113,14 @@ func ResolveRepositoryInfo(base *url.URL, repo string) (string, *url.URL, error)
 	hash.Write([]byte(cUrl.String()))
 	cId = cId + "-" + hex.EncodeToString(hash.Sum(nil))
 
-	return cId, cUrl, nil
-}
-
-func BuildComponentId(componentUrl *url.URL) string {
-	id := componentUrl.Host
-	if hasSuffixIgnoringCase(componentUrl.Path, ".git") {
-		id += strings.Replace(componentUrl.Path[0:len(componentUrl.Path)-4], "/", "-", -1)
-	} else {
-		id += strings.Replace(componentUrl.Path, "/", "-", -1)
-	}
-	return id
+	return
 }
 
 func resolveScm(vErrs *ValidationErrors, location string, url *url.URL) ScmType {
 	switch strings.ToUpper(url.Scheme) {
+	case "FILE":
+		// TODO: for now assume git on local directories, later try to detect
+		return Git
 	case "GIT":
 		return Git
 	case "SVN":
@@ -139,6 +130,6 @@ func resolveScm(vErrs *ValidationErrors, location string, url *url.URL) ScmType 
 			return Git
 		}
 	}
-	vErrs.AddError(errors.New("unknown fetch protocol"), location)
+	vErrs.AddError(errors.New("unknown fetch protocol: "+url.Scheme), location)
 	return Unknown
 }

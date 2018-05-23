@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/json"
+	"log"
 )
 
 type ErrorType int
@@ -73,4 +74,10 @@ func (ve *ValidationErrors) AddWarning(message string, loc string) {
 		Location:  loc,
 		Message:   message,
 		ErrorType: Warning})
+}
+
+func (ve ValidationErrors) Log(logger *log.Logger) {
+	for _, err := range ve.Errors {
+		logger.Println(err.ErrorType.String() + ": " + err.Message + " @" + err.Location)
+	}
 }
