@@ -57,7 +57,7 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.Equal(t, "https://github.com/lagoon-platform/aws-provider.git", providers["aws"].Repository)
 	assert.Equal(t, "1.2.3", providers["aws"].Version.Full)
 	assert.NotNil(t, providers["aws"].Parameters)
-	assert.Equal(t, map[string]string{"aws_param_key1": "aws_param_key1_value", "aws_param_key2": "aws_param_key2_value"}, providers["aws"].Parameters.AsMap())
+	assert.Equal(t, map[string]interface{}{"aws_param_key1": "aws_param_key1_value", "aws_param_key2": "aws_param_key2_value"}, providers["aws"].Parameters.AsMap())
 
 	// Azure Provider
 	assert.NotNil(t, providers["azure"])
@@ -65,7 +65,7 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.Equal(t, "https://github.com/lagoon-platform/azure-provider.git", providers["azure"].Repository)
 	assert.Equal(t, "1.2.3", providers["azure"].Version.Full)
 	assert.NotNil(t, providers["azure"].Parameters)
-	assert.Equal(t, map[string]string{"azure_param_key1": "azure_param_key1_value", "azure_param_key2": "azure_param_key2_value"}, providers["azure"].Parameters.AsMap())
+	assert.Equal(t, map[string]interface{}{"azure_param_key1": "azure_param_key1_value", "azure_param_key2": "azure_param_key2_value"}, providers["azure"].Parameters.AsMap())
 
 	//------------------------------------------------------------
 	// Environment Nodes
@@ -81,7 +81,7 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.Equal(t, 10, nodeSets["node1"].Instances)
 	assert.Equal(t, "aws", nodeSets["node1"].Provider.Resolve().Name)
 	assert.Equal(t, []string{"node1_label1", "node1_label2", "node1_label3"}, nodeSets["node1"].Labels.AsStrings())
-	assert.Equal(t, map[string]string{
+	assert.Equal(t, map[string]interface{}{
 		"aws_param_key1":            "aws_param_key1_value",
 		"aws_param_key2":            "aws_param_key2_value",
 		"provider_node1_param_key1": "provider_node1_param_key1_value",
@@ -91,7 +91,7 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.Equal(t, 20, nodeSets["node2"].Instances)
 	assert.Equal(t, []string{"node2_label1", "node2_label2", "node2_label3"}, nodeSets["node2"].Labels.AsStrings())
 	assert.Equal(t, "azure", nodeSets["node2"].Provider.Resolve().Name)
-	assert.Equal(t, map[string]string{
+	assert.Equal(t, map[string]interface{}{
 		"azure_param_key1":          "azure_param_key1_value",
 		"azure_param_key2":          "azure_param_key2_value",
 		"provider_node2_param_key1": "provider_node2_param_key1_value",

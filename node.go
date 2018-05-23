@@ -3,6 +3,8 @@ package model
 import (
 	"errors"
 	"strings"
+
+	"gopkg.in/yaml.v2"
 )
 
 type NodeSet struct {
@@ -12,6 +14,7 @@ type NodeSet struct {
 	Name      string
 	Provider  ProviderRef
 	Instances int
+	Docker    Docker
 
 	Hooks struct {
 		Provision Hook
@@ -35,6 +38,7 @@ func createNodeSets(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvi
 			nodeSet := NodeSet{
 				root:      env,
 				Labels:    createLabels(vErrs, yamlNodeSet.Labels...),
+				Docker:    createDocker(vErrs, yamlNodeSet.Docker),
 				Name:      name,
 				Instances: yamlNodeSet.Instances}
 
@@ -63,4 +67,28 @@ func createNodeSetRef(vErrs *ValidationErrors, env *Environment, location string
 		}
 	}
 	return NodeSetRef{nodeSets: nodeSets}
+}
+
+type Client struct {
+	Name string
+	Uid  string
+}
+
+type NodeExtraVars struct {
+	Client    Client
+	Params    map[string]interface{}
+	Instances int
+	Output    string `yaml:"output_folder"`
+}
+
+func (n NodeSet) ExtraVars(c string, uid string, output string) (b []byte, e error) {
+	cli := Client{Name: c, Uid: uid}
+	nev := NodeExtraVars{Client: cli, Params: n.Provider.Parameters.AsMap(), Instances: n.Instances, Output: output}
+	b, e = yaml.Marshal(&nev)
+	return
+}
+
+func (n NodeSet) DockerVars() (b []byte, e error) {
+	b, e = yaml.Marshal(n.Docker.AsMap())
+	return
 }
