@@ -38,7 +38,7 @@ func createProxy(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Proxy {
 	}
 	httpsUrl, e := url.Parse(yamlEnv.Settings.Proxy.Https)
 	if e != nil {
-		vErrs.AddError(e, "proxy.http")
+		vErrs.AddError(e, "proxy.https")
 	}
 	return Proxy{Http: httpUrl, Https: httpsUrl, NoProxy: yamlEnv.Settings.Proxy.NoProxy}
 }
