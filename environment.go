@@ -14,7 +14,9 @@ type Environment struct {
 	Name        string
 	Description string
 	Version     Version
-	Proxy       Proxy
+
+	// Settings
+	Settings Settings
 
 	// Component versions
 	Components map[string]Version
@@ -56,13 +58,12 @@ func Parse(logger *log.Logger, location string) (env Environment, err error) {
 
 func createEnvironment(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Environment {
 	var env = Environment{}
-
 	env.Name = yamlEnv.Name
 	env.Description = yamlEnv.Description
 	env.Labels = createLabels(vErrs, yamlEnv.Labels...)
-	env.Proxy = createProxy(vErrs, yamlEnv)
+	env.Settings = createSettings(vErrs, yamlEnv)
 	env.Version = createVersion(vErrs, "version", yamlEnv.Version)
-	env.Components = createComponentMap(vErrs, yamlEnv)
+	env.Components = createComponentMap(vErrs, &env, yamlEnv)
 	env.Tasks = createTasks(vErrs, &env, yamlEnv)
 	env.Providers = createProviders(vErrs, &env, yamlEnv)
 	env.NodeSets = createNodeSets(vErrs, &env, yamlEnv)

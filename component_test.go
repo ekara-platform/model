@@ -4,57 +4,55 @@ import (
 	"net/url"
 	"testing"
 
+	"crypto/sha1"
+	"encoding/hex"
 	"github.com/stretchr/testify/assert"
+	"path/filepath"
+	"strings"
 )
 
-func TestBuildComponentFolderUrl(t *testing.T) {
+func TestBuildComponentInfo(t *testing.T) {
 	// GitHub assumed to be on https
-	s := GitHubHost + "/blablabla"
-	u, e := BuildComponentFolderUrl(s)
+	s := GitHubHost + "/some/blablabla"
+	i, u, e := ResolveRepositoryInfo(&url.URL{}, s)
 	assert.Nil(t, e)
-	assert.Equal(t, u.Scheme, "https")
+	assert.Equal(t, "https", u.Scheme)
+	assert.Equal(t, "blablabla-"+hashUrl(u), i)
 
 	// BitBucket assumed to be on https
-	s = BitBucketHost + "/blablabla"
-	u, e = BuildComponentFolderUrl(s)
+	s = BitBucketHost + "/some/blablabla"
+	i, u, e = ResolveRepositoryInfo(&url.URL{}, s)
 	assert.Nil(t, e)
-	assert.Equal(t, u.Scheme, "https")
+	assert.Equal(t, "https", u.Scheme)
+	assert.Equal(t, "blablabla-"+hashUrl(u), i)
 
-	// oraganization/repo assumed located on GitHub on https
+	// org/repo are prefixed with base
 	s = "dummy_org/dummy_repo"
-	u, e = BuildComponentFolderUrl(s)
+	baseUrl, _ := url.Parse("https://somebase.org")
+	i, u, e = ResolveRepositoryInfo(baseUrl, s)
 	assert.Nil(t, e)
-	assert.Equal(t, u.Scheme, "https")
-	assert.Equal(t, u.Host, GitHubHost)
+	assert.Equal(t, "https", u.Scheme)
+	assert.Equal(t, "somebase.org", u.Host)
+	assert.Equal(t, "/"+s+".git", u.Path)
+	assert.Equal(t, "dummy_repo-"+hashUrl(u), i)
+
+	// local file
+	i, u, e = ResolveRepositoryInfo(&url.URL{}, "testdata/dummy_org/dummy_repo")
+	assert.Nil(t, e)
+	assert.Equal(t, "file", u.Scheme)
+	assert.Equal(t, "", u.Host)
+	absPath, _ := filepath.Abs("testdata/dummy_org/dummy_repo")
+	absPath = filepath.ToSlash(absPath)
+	if !strings.HasPrefix(absPath, "/") {
+		absPath = "/" + absPath
+	}
+	assert.Equal(t, absPath, u.Path)
+	assert.Equal(t, "dummy_repo-"+hashUrl(u), i)
 
 }
 
-func TestBuildComponentGitUrl(t *testing.T) {
-
-	// Github on http(s)
-	u := url.URL{Scheme: "https", Host: GitHubHost, Path: "blablabla"}
-	cUrl, e := BuildComponentGitUrl(u)
-	assert.Nil(t, e)
-	assert.Equal(t, u.Path+".git", cUrl.Path)
-
-	// BitBucket on http(s)
-	u = url.URL{Scheme: "https", Host: BitBucketHost, Path: "blablabla"}
-	cUrl, e = BuildComponentGitUrl(u)
-	assert.Nil(t, e)
-	assert.Equal(t, u.Path+".git", cUrl.Path)
-
-	// Bad scheme --> Not eligible
-	u = url.URL{Scheme: "SVN", Host: "dummy", Path: "blablabla"}
-	cUrl, e = BuildComponentGitUrl(u)
-	assert.NotNil(t, e)
-
-	// Already a GIT repo Url --> Not eligible
-	u = url.URL{Scheme: "https", Host: GitHubHost, Path: "blablabla.git"}
-	cUrl, e = BuildComponentGitUrl(u)
-	assert.NotNil(t, e)
-
-	// Bad host --> Not eligible
-	u = url.URL{Scheme: "https", Host: "dummy", Path: "blablabla"}
-	cUrl, e = BuildComponentGitUrl(u)
-	assert.NotNil(t, e)
+func hashUrl(u *url.URL) string {
+	hash := sha1.New()
+	hash.Write([]byte(u.String()))
+	return hex.EncodeToString(hash.Sum(nil))
 }

@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -10,11 +11,10 @@ type Version struct {
 	Major int
 	Minor int
 	Micro int
-	Full  string
 }
 
 func createVersion(vErrs *ValidationErrors, location string, full string) Version {
-	v := Version{Major: -1, Minor: -1, Micro: -1, Full: full}
+	v := Version{Major: -1, Minor: -1, Micro: -1}
 
 	if len(full) > 0 {
 		split := strings.Split(full, ".")
@@ -65,4 +65,8 @@ func (v Version) IncludesVersion(other Version) bool {
 		return false
 	}
 	return true
+}
+
+func (v Version) String() string {
+	return fmt.Sprintf("v%d.%d.%d", v.Major, v.Minor, v.Micro)
 }

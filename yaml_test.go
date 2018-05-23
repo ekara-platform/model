@@ -30,10 +30,8 @@ func TestCreateEngineFromHttp(t *testing.T) {
 func TestCreateEngineFromBadHttp(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
 	_, e := parseYamlDescriptor(logger, "https://github.com/lagoon-platform/engine/tree/master/testdata/DUMMY.yaml")
-
 	// an error occurred
 	assert.NotNil(t, e)
-
 	assert.Equal(t, "HTTP Error getting the environment descriptor , error code 404", e.Error())
 }
 

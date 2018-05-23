@@ -5,10 +5,14 @@ labels:
   - root_label1
   - root_label2
   - root_label3
-proxy:
-  http: http://user:pwd@someproxy.org:8080
-  https: https://user:pwd@someproxy.org:8080
-  noProxy: '*.dummy.org'
+
+settings:
+  componentBase: someBase
+  dockerRegistry: someRegistry
+  proxy:
+    http: http://user:pwd@someproxy.org:8080
+    https: https://user:pwd@someproxy.org:8080
+    noProxy: '*.dummy.org'
 
 components:
   lagoon-platform/aws-provider: 1.2.3
