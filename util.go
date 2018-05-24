@@ -12,6 +12,7 @@ import (
 )
 
 func readUrlOrFile(logger *log.Logger, location string) (base string, content []byte, err error) {
+	location = strings.Trim(location, " ")
 	if strings.Index(location, "http") == 0 {
 		logger.Println("Loading URL", location)
 
