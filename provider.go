@@ -3,28 +3,16 @@ package model
 import "errors"
 
 type Provider struct {
-	root *Environment
-	Parameters
+	root       *Environment
+	Parameters attributes
 	Component
 
 	Name string
 }
 
 type ProviderRef struct {
-	Parameters
-	provider *Provider
-}
-
-func (r ProviderRef) Resolve() Provider {
-	// copy provider
-	provider := *r.provider
-
-	// Override/complete parameters
-	for name, value := range r.Parameters.AsMap() {
-		provider.Parameters.add(name, value)
-	}
-
-	return provider
+	Parameters attributes `yaml:",inline"`
+	provider   *Provider
 }
 
 func createProviders(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) map[string]Provider {
@@ -35,9 +23,9 @@ func createProviders(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnv
 		for name, yamlProvider := range yamlEnv.Providers {
 			provider := Provider{
 				root:       env,
-				Parameters: createParameters(vErrs, yamlProvider.Params),
+				Parameters: createAttributes(yamlProvider.Params, nil),
 				Name:       name,
-				}
+			}
 
 			provider.Component = createComponent(vErrs, env, "providers."+name, yamlProvider.Repository, yamlProvider.Version)
 
@@ -52,7 +40,7 @@ func createProviderRef(vErrs *ValidationErrors, env *Environment, location strin
 		vErrs.AddError(errors.New("empty provider reference"), location)
 	} else {
 		if val, ok := env.Providers[yamlRef.Name]; ok {
-			return ProviderRef{Parameters: createParameters(vErrs, yamlRef.Params), provider: &val}
+			return ProviderRef{Parameters: createAttributes(yamlRef.Params, val.Parameters), provider: &val}
 		} else {
 			vErrs.AddError(errors.New("unknown provider reference: "+yamlRef.Name), location+".name")
 		}

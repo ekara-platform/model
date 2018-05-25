@@ -14,7 +14,7 @@ type NodeSet struct {
 	Name      string
 	Provider  ProviderRef
 	Instances int
-	Docker    Docker
+	Docker    attributes
 
 	Hooks struct {
 		Provision Hook
@@ -35,12 +35,14 @@ func createNodeSets(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvi
 			if yamlNodeSet.Instances <= 0 {
 				vErrs.AddError(errors.New("node set instances must be a positive number"), "nodes."+name+".instances")
 			}
+
 			nodeSet := NodeSet{
 				root:      env,
 				Labels:    createLabels(vErrs, yamlNodeSet.Labels...),
-				Docker:    createDocker(vErrs, yamlNodeSet.Docker),
 				Name:      name,
-				Instances: yamlNodeSet.Instances}
+				Instances: yamlNodeSet.Instances,
+			}
+			nodeSet.Docker = createAttributes(yamlNodeSet.Docker, env.Docker.copy())
 
 			nodeSet.Provider = createProviderRef(vErrs, env, "nodes."+name+".provider", yamlNodeSet.Provider)
 			nodeSet.Hooks.Provision = createHook(vErrs, env.Tasks, "nodes."+name+".hooks.provision", yamlNodeSet.Hooks.Provision)
@@ -83,12 +85,12 @@ type NodeExtraVars struct {
 
 func (n NodeSet) ExtraVars(c string, uid string, output string) (b []byte, e error) {
 	cli := Client{Name: c, Uid: uid}
-	nev := NodeExtraVars{Client: cli, Params: n.Provider.Parameters.AsMap(), Instances: n.Instances, Output: output}
+	nev := NodeExtraVars{Client: cli, Params: n.Provider.Parameters.copy(), Instances: n.Instances, Output: output}
 	b, e = yaml.Marshal(&nev)
 	return
 }
 
 func (n NodeSet) DockerVars() (b []byte, e error) {
-	b, e = yaml.Marshal(n.Docker.AsMap())
+	b, e = yaml.Marshal(n.Docker.copy())
 	return
 }

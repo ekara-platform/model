@@ -4,14 +4,17 @@ version: 1.2.3
 components:
   lagoon-platform/aws-provider: 1.2.3
 
+docker:
+  docker1: "initial_docker1"
+  docker3: "initial_docker3"
+
 providers:
   aws:
     repository: lagoon-platform/aws-provider
     params:
       param1: "initial_param1"
       param3: "initial_param3"
-    docker:
-      docker1: "initial_docker1"
+    
 
 nodes:
   managers:
