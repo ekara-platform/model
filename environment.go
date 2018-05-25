@@ -15,6 +15,8 @@ type Environment struct {
 	Description string
 	Version     Version
 
+	Docker attributes
+
 	// Settings
 	Settings Settings
 
@@ -64,6 +66,7 @@ func createEnvironment(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Enviro
 	env.Settings = createSettings(vErrs, yamlEnv)
 	env.Version = createVersion(vErrs, "version", yamlEnv.Version)
 	env.Components = createComponentMap(vErrs, &env, yamlEnv)
+	env.Docker = createAttributes(yamlEnv.Docker, nil)
 	env.Tasks = createTasks(vErrs, &env, yamlEnv)
 	env.Providers = createProviders(vErrs, &env, yamlEnv)
 	env.NodeSets = createNodeSets(vErrs, &env, yamlEnv)

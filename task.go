@@ -9,7 +9,7 @@ import (
 type Task struct {
 	root *Environment
 	Labels
-	Parameters
+	Parameters attributes
 
 	Name     string
 	Playbook string
@@ -22,8 +22,8 @@ type Task struct {
 }
 
 type TaskRef struct {
-	Parameters
-	task *Task
+	Parameters attributes
+	task       *Task
 }
 
 func createTasks(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) map[string]Task {
@@ -37,7 +37,7 @@ func createTasks(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnviron
 		res[name] = Task{
 			root:       env,
 			Labels:     createLabels(vErrs, yamlTask.Labels...),
-			Parameters: createParameters(vErrs, yamlTask.Params),
+			Parameters: createAttributes(yamlTask.Params, nil),
 			Name:       name,
 			Playbook:   yamlTask.Playbook,
 			Cron:       yamlTask.Cron}
@@ -67,7 +67,7 @@ func createTaskRef(vErrs *ValidationErrors, tasks map[string]Task, location stri
 		vErrs.AddError(errors.New("empty task reference"), location)
 	} else {
 		if val, ok := tasks[yamlRef.Name]; ok {
-			return TaskRef{Parameters: createParameters(vErrs, yamlRef.Params), task: &val}
+			return TaskRef{Parameters: createAttributes(yamlRef.Params, nil), task: &val}
 		} else {
 			vErrs.AddError(errors.New("unknown task reference: "+yamlRef.Name), location)
 		}

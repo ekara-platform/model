@@ -12,7 +12,11 @@ type yamlLabels struct {
 }
 
 type yamlParams struct {
-	Params map[string]interface{}
+	Params attributes
+}
+
+type yamlDocker struct {
+	Docker attributes
 }
 
 type yamlRef struct {
@@ -32,6 +36,8 @@ type yamlEnvironment struct {
 	Name        string
 	Description string
 	Version     string
+
+	yamlDocker `yaml:",inline"`
 
 	// Settings
 	Settings struct {
@@ -54,8 +60,6 @@ type yamlEnvironment struct {
 	Providers map[string]struct {
 		yamlParams `yaml:",inline"`
 
-		Docker map[string]interface{} `yaml:",inline"`
-
 		Repository string
 		Version    string
 	}
@@ -64,9 +68,9 @@ type yamlEnvironment struct {
 	Nodes map[string]struct {
 		yamlLabels `yaml:",inline"`
 
-		Provider  yamlRef
-		Instances int
-		Docker    map[string]interface{} `yaml:",inline"`
+		Provider   yamlRef
+		Instances  int
+		yamlDocker `yaml:",inline"`
 
 		Hooks struct {
 			Provision yamlHook
