@@ -78,7 +78,7 @@ func getComponentBase(yamlEnv *yamlEnvironment) (*url.URL, error) {
 
 	// If no protocol, assume file
 	if u.Scheme == "" {
-		u.Scheme = "file";
+		u.Scheme = "file"
 	}
 
 	// Add terminal slash to path if missing
