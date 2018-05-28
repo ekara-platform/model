@@ -31,7 +31,7 @@ func TestCreateEngineComplete(t *testing.T) {
 	// Settings
 	assert.NotNil(t, env.Settings)
 	assert.Equal(t, "file://someBase/", env.Settings.ComponentBase.String())
-	assert.Equal(t, "someRegistry", env.Settings.DockerRegistry.String())
+	assert.Equal(t, "someRegistry.org", env.Settings.DockerRegistry.String())
 	assert.Equal(t, "http://user:pwd@someproxy.org:8080", env.Settings.Proxy.Http.String())
 	assert.Equal(t, "https://user:pwd@someproxy.org:8080", env.Settings.Proxy.Https.String())
 	assert.Equal(t, "*.dummy.org", env.Settings.Proxy.NoProxy)

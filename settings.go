@@ -50,30 +50,40 @@ func createProxy(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Proxy {
 
 func getComponentBase(yamlEnv *yamlEnvironment) (*url.URL, error) {
 	res := DefaultComponentBase
+
 	if yamlEnv.Settings.ComponentBase != "" {
 		res = yamlEnv.Settings.ComponentBase
 	}
+
+	// If file exists locally, resolve its absolute path and convert it to an URL
+	if _, e := os.Stat(res); e == nil {
+		res, e = filepath.Abs(res)
+		if e != nil {
+			return nil, e
+		}
+		res = filepath.ToSlash(res)
+		if strings.HasPrefix(res, "/") {
+			res = "file://" + res
+		} else {
+			// On windows, absolute paths don't start with /
+			res = "file:///" + res
+		}
+	}
+
+	// Parse the result as an URL
 	u, e := url.Parse(res)
 	if e != nil {
 		return nil, e
 	}
 
-	// If no scheme was present, assume a file
+	// If no protocol, assume file
 	if u.Scheme == "" {
-		u.Scheme = "file"
+		u.Scheme = "file";
 	}
 
-	// If file exists locally, resolve its absolute path
-	if u.Scheme == "file" {
-		if _, e := os.Stat(u.Path); e == nil {
-			u.Path, e = filepath.Abs(u.Path)
-			if e != nil {
-				return nil, e
-			}
-		}
-		if !strings.HasSuffix(u.Path, "/") {
-			u.Path = u.Path + "/"
-		}
+	// Add terminal slash to path if missing
+	if !strings.HasSuffix(u.Path, "/") {
+		u.Path = u.Path + "/"
 	}
 
 	return u, nil
