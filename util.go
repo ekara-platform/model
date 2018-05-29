@@ -13,6 +13,51 @@ import (
 	"strings"
 )
 
+func PathToUrl(path string) (*url.URL, error) {
+	absPath, e := filepath.Abs(path)
+	if e != nil {
+		return nil, e
+	}
+	absPath = filepath.ToSlash(absPath)
+	if strings.HasPrefix(absPath, "/") {
+		path = "file://" + filepath.ToSlash(absPath)
+	} else {
+		path = "file:///" + filepath.ToSlash(absPath)
+	}
+	u, e := url.Parse(path)
+	if e != nil {
+		return nil, e
+	}
+	return NormalizeUrl(u), nil
+}
+
+func UrlToPath(u *url.URL) (string, error) {
+	if strings.ToUpper(u.Scheme) != "FILE" {
+		return "", errors.New("not a valid local URL: " + u.String())
+	}
+	p := filepath.FromSlash(u.Path)
+	if strings.HasPrefix(p, "\\") {
+		// windows paths should be stripped from first character
+		p = p[1:]
+	}
+	p = filepath.Clean(filepath.FromSlash(p))
+	return p, nil
+}
+
+func EnsurePathSuffix(u *url.URL, suffix string) *url.URL {
+	res := NormalizeUrl(u)
+	if strings.HasSuffix(res.Path, suffix) {
+		return res
+	} else {
+		if strings.HasSuffix(res.Path, "/") {
+			res.Path = res.Path + suffix
+		} else {
+			res.Path = res.Path + "/" + suffix
+		}
+	}
+	return res
+}
+
 func NormalizeUrl(u *url.URL) *url.URL {
 	res := *u
 	if res.Scheme == "" {
@@ -26,8 +71,6 @@ func NormalizeUrl(u *url.URL) *url.URL {
 }
 
 func ReadUrl(logger *log.Logger, u *url.URL) (*url.URL, []byte, error) {
-	u = NormalizeUrl(u)
-
 	if hasPrefixIgnoringCase(u.Scheme, "http") {
 		logger.Println("loading remote URL", u.String())
 
@@ -57,15 +100,15 @@ func ReadUrl(logger *log.Logger, u *url.URL) (*url.URL, []byte, error) {
 		base.Path = base.Path[0 : i+1]
 
 		return &base, content, nil
-	} else if hasPrefixIgnoringCase(u.Scheme, "file") {
+	} else if strings.ToUpper(u.Scheme) == "FILE" {
 		logger.Println("loading local URL", u.String())
 
 		// Fetch the content
-		location, err := filepath.Abs(filepath.FromSlash(u.EscapedPath()))
+		location, err := UrlToPath(u)
 		if err != nil {
 			return nil, nil, err
 		}
-		file, err := os.Open(filepath.FromSlash(u.EscapedPath()))
+		file, err := os.Open(location)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -76,9 +119,12 @@ func ReadUrl(logger *log.Logger, u *url.URL) (*url.URL, []byte, error) {
 		}
 
 		// Compute the base
-		base, err := url.Parse("file://" + filepath.ToSlash(filepath.Dir(location)) + "/")
+		base, err := PathToUrl(filepath.Dir(location))
 		if err != nil {
 			return nil, nil, err
+		}
+		if !strings.HasSuffix(base.Path, "/") {
+			base.Path = base.Path + "/"
 		}
 
 		return base, content, nil

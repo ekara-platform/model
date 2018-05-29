@@ -116,7 +116,7 @@ type yamlEnvironment struct {
 }
 
 func parseYamlDescriptor(logger *log.Logger, u *url.URL) (env yamlEnvironment, err error) {
-	baseLocation, content, err := ReadUrl(logger, u)
+	baseLocation, content, err := ReadUrl(logger, NormalizeUrl(u))
 	if err != nil {
 		return
 	}
@@ -136,14 +136,14 @@ func parseYamlDescriptor(logger *log.Logger, u *url.URL) (env yamlEnvironment, e
 
 func processYamlImports(logger *log.Logger, base *url.URL, env *yamlEnvironment) error {
 	if len(env.Imports) > 0 {
-		logger.Println("Processing imports", env.Imports)
 		for _, val := range env.Imports {
-			logger.Println("Processing import", base.String()+val)
 			importUrl, err := url.Parse(val)
 			if err != nil {
 				return err
 			}
-			importedDesc, err := parseYamlDescriptor(logger, base.ResolveReference(importUrl))
+			ref := base.ResolveReference(importUrl)
+			logger.Println("Processing import", ref)
+			importedDesc, err := parseYamlDescriptor(logger, ref)
 			if err != nil {
 				return err
 			}

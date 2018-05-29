@@ -6,7 +6,6 @@ import (
 	"errors"
 	"net/url"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -78,23 +77,18 @@ func ResolveRepositoryInfo(base *url.URL, repo string) (cId string, cUrl *url.UR
 	} else {
 		if _, e = os.Stat(repo); e == nil {
 			// If it is a local file
-			repo, e = filepath.Abs(repo)
+			cUrl, e = PathToUrl(repo)
 			if e != nil {
 				return
 			}
-			repo = filepath.ToSlash(repo)
-			if strings.HasPrefix(repo, "/") {
-				repo = "file://" + repo
-			} else {
-				repo = "file:///" + repo
+		} else {
+			if hasPrefixIgnoringCase(repo, GitHubHost) || hasPrefixIgnoringCase(repo, BitBucketHost) {
+				repo = "https://" + repo
 			}
-		} else if hasPrefixIgnoringCase(repo, GitHubHost) || hasPrefixIgnoringCase(repo, BitBucketHost) {
-			// If not check if it begins with a known source provider (github, bitbucket, ...)
-			repo = "https://" + repo
-		}
-		cUrl, e = url.Parse(repo)
-		if e != nil {
-			return
+			cUrl, e = url.Parse(repo)
+			if e != nil {
+				return
+			}
 		}
 	}
 

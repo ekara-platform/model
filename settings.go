@@ -3,7 +3,6 @@ package model
 import (
 	"net/url"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -56,24 +55,17 @@ func getComponentBase(yamlEnv *yamlEnvironment) (*url.URL, error) {
 	}
 
 	// If file exists locally, resolve its absolute path and convert it to an URL
+	var u *url.URL
 	if _, e := os.Stat(res); e == nil {
-		res, e = filepath.Abs(res)
+		u, e = PathToUrl(res)
 		if e != nil {
 			return nil, e
 		}
-		res = filepath.ToSlash(res)
-		if strings.HasPrefix(res, "/") {
-			res = "file://" + res
-		} else {
-			// On windows, absolute paths don't start with /
-			res = "file:///" + res
+	} else {
+		u, e = url.Parse(res)
+		if e != nil {
+			return nil, e
 		}
-	}
-
-	// Parse the result as an URL
-	u, e := url.Parse(res)
-	if e != nil {
-		return nil, e
 	}
 
 	// If no protocol, assume file
