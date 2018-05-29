@@ -7,6 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"net/url"
+	"strings"
 )
 
 func TestCreateEngineComplete(t *testing.T) {
@@ -57,7 +58,7 @@ func TestCreateEngineComplete(t *testing.T) {
 	// AWS Provider
 	assert.NotNil(t, providers["aws"])
 	assert.Equal(t, "aws", providers["aws"].Name)
-	assert.Equal(t, "file:///someBase/lagoon-platform/aws-provider", providers["aws"].Repository.String())
+	assert.True(t, strings.HasSuffix(providers["aws"].Repository.String(), "/someBase/lagoon-platform/aws-provider"))
 	assert.Equal(t, "v1.2.3", providers["aws"].Version.String())
 	assert.NotNil(t, providers["aws"].Parameters)
 	c := providers["aws"].Parameters.copy()
@@ -72,7 +73,7 @@ func TestCreateEngineComplete(t *testing.T) {
 	// Azure Provider
 	assert.NotNil(t, providers["azure"])
 	assert.Equal(t, "azure", providers["azure"].Name)
-	assert.Equal(t, "file:///someBase/lagoon-platform/azure-provider", providers["azure"].Repository.String())
+	assert.True(t, strings.HasSuffix(providers["azure"].Repository.String(), "/someBase/lagoon-platform/azure-provider"))
 	assert.Equal(t, "v1.2.3", providers["azure"].Version.String())
 	assert.NotNil(t, providers["azure"].Parameters)
 
@@ -149,11 +150,11 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.Contains(t, stacks, "stack2")
 	assert.NotContains(t, stacks, "dummy")
 
-	assert.Equal(t, "file:///someBase/lagoon-platform/stack1_repository", stacks["stack1"].Repository.String())
+	assert.True(t, strings.HasSuffix(stacks["stack1"].Repository.String(), "/someBase/lagoon-platform/stack1_repository"))
 	assert.Equal(t, "v1.2.3", stacks["stack1"].Version.String())
 	assert.Equal(t, []string{"stack1_label1", "stack1_label2", "stack1_label3"}, stacks["stack1"].Labels.AsStrings())
 
-	assert.Equal(t, "file:///someBase/lagoon-platform/stack2_repository", stacks["stack2"].Repository.String())
+	assert.True(t, strings.HasSuffix(stacks["stack2"].Repository.String(), "/someBase/lagoon-platform/stack2_repository"))
 	assert.Equal(t, "v1.2.3", stacks["stack2"].Version.String())
 	assert.Equal(t, []string{"stack2_label1", "stack2_label2", "stack2_label3"}, stacks["stack2"].Labels.AsStrings())
 

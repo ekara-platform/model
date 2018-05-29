@@ -116,7 +116,11 @@ type yamlEnvironment struct {
 }
 
 func parseYamlDescriptor(logger *log.Logger, u *url.URL) (env yamlEnvironment, err error) {
-	baseLocation, content, err := ReadUrl(logger, NormalizeUrl(u))
+	normalizedUrl, err := NormalizeUrl(u)
+	if err != nil {
+		return
+	}
+	baseLocation, content, err := ReadUrl(logger, normalizedUrl)
 	if err != nil {
 		return
 	}

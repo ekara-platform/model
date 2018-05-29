@@ -46,7 +46,7 @@ func TestBuildComponentInfo(t *testing.T) {
 	if !strings.HasPrefix(absPath, "/") {
 		absPath = "/" + absPath
 	}
-	assert.Equal(t, absPath, u.Path)
+	assert.Equal(t, absPath+"/", u.Path)
 	assert.Equal(t, "dummy_repo-"+hashUrl(u), i)
 
 }

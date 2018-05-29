@@ -92,14 +92,26 @@ func ResolveRepositoryInfo(base *url.URL, repo string) (cId string, cUrl *url.UR
 		}
 	}
 
+	// Normalize the URL
+	cUrl, e = NormalizeUrl(cUrl)
+	if e != nil {
+		return
+	}
+
 	// If it's HTTP(S), assume it's GIT and add the suffix
 	if (strings.ToUpper(cUrl.Scheme) == "HTTP" || strings.ToUpper(cUrl.Scheme) == "HTTPS") && !hasSuffixIgnoringCase(cUrl.Path, ".git") {
 		cUrl.Path = cUrl.Path + ".git"
 	}
 
-	// Compute the last segment in path (without extension) + hash of full url
+	// Compute the last non-empty segment in path (without extension) + hash of full url
 	splitPath := strings.Split(cUrl.Path, "/")
-	cId = splitPath[len(splitPath)-1]
+	var i = len(splitPath) - 1
+	for ; i >= 0; i-- {
+		if len(splitPath[i]) > 0 {
+			break
+		}
+	}
+	cId = splitPath[i]
 	if strings.Contains(cId, ".") {
 		cId = cId[:strings.LastIndex(cId, ".")]
 	}

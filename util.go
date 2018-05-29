@@ -18,6 +18,9 @@ func PathToUrl(path string) (*url.URL, error) {
 	if e != nil {
 		return nil, e
 	}
+	if fi, e := os.Stat(absPath); e == nil && fi.IsDir() {
+		absPath = absPath + string(filepath.Separator)
+	}
 	absPath = filepath.ToSlash(absPath)
 	if strings.HasPrefix(absPath, "/") {
 		path = "file://" + filepath.ToSlash(absPath)
@@ -28,7 +31,7 @@ func PathToUrl(path string) (*url.URL, error) {
 	if e != nil {
 		return nil, e
 	}
-	return NormalizeUrl(u), nil
+	return u, nil
 }
 
 func UrlToPath(u *url.URL) (string, error) {
@@ -45,29 +48,33 @@ func UrlToPath(u *url.URL) (string, error) {
 }
 
 func EnsurePathSuffix(u *url.URL, suffix string) *url.URL {
-	res := NormalizeUrl(u)
-	if strings.HasSuffix(res.Path, suffix) {
-		return res
+	if strings.HasSuffix(u.Path, suffix) {
+		return u
 	} else {
-		if strings.HasSuffix(res.Path, "/") {
-			res.Path = res.Path + suffix
+		if strings.HasSuffix(u.Path, "/") {
+			u.Path = u.Path + suffix
 		} else {
-			res.Path = res.Path + "/" + suffix
+			u.Path = u.Path + "/" + suffix
 		}
 	}
-	return res
+	return u
 }
 
-func NormalizeUrl(u *url.URL) *url.URL {
+func NormalizeUrl(u *url.URL) (*url.URL, error) {
 	res := *u
 	if res.Scheme == "" {
 		res.Scheme = "file"
 	}
 	if strings.ToUpper(res.Scheme) == "FILE" {
-		res.Path = filepath.ToSlash(filepath.Clean(res.Path))
+		p, e := UrlToPath(&res)
+		if e != nil {
+			return nil, e
+		}
+		return PathToUrl(p)
+	} else {
+		res.Path = path.Clean(res.Path)
 	}
-	res.Path = path.Clean(res.Path)
-	return &res
+	return &res, nil
 }
 
 func ReadUrl(logger *log.Logger, u *url.URL) (*url.URL, []byte, error) {
