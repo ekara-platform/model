@@ -11,7 +11,7 @@ import (
 
 func TestOverwrittenParam(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := Parse(logger, "./testdata/yaml/overwritten/lagoon.yaml")
+	env, e := Parse(logger, buildUrl("./testdata/yaml/overwritten/lagoon.yaml"))
 	assert.Nil(t, e)
 	aws := env.Providers["aws"]
 	assert.NotNil(t, aws)
@@ -32,7 +32,7 @@ func TestOverwrittenParam(t *testing.T) {
 
 func TestOverwrittenDocker(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := Parse(logger, "./testdata/yaml/overwritten/lagoon.yaml")
+	env, e := Parse(logger, buildUrl("./testdata/yaml/overwritten/lagoon.yaml"))
 	assert.Nil(t, e)
 	assert.NotNil(t, env)
 	assert.NotNil(t, env.Docker)

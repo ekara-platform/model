@@ -12,7 +12,7 @@ import (
 func testEmptyContent(t *testing.T, name string, onlyWarning bool) ValidationErrors {
 	file := fmt.Sprintf("./testdata/yaml/grammar/no_%s.yaml", name)
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, file)
+	_, e := Parse(logger, buildUrl(file))
 	vErrs := assertValidationErrors(t, e, logger, onlyWarning)
 	return vErrs
 }
@@ -47,7 +47,7 @@ func TestNoStacks(t *testing.T) {
 
 func TestNoNodesProvider(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, "./testdata/yaml/grammar/no_nodes_provider.yaml")
+	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/no_nodes_provider.yaml"))
 	vErrs := assertValidationErrors(t, e, logger, false)
 
 	assert.Equal(t, true, vErrs.HasErrors())
@@ -60,7 +60,7 @@ func TestNoNodesProvider(t *testing.T) {
 
 func TestNoNodesInstance(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, "./testdata/yaml/grammar/no_nodes_instance.yaml")
+	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/no_nodes_instance.yaml"))
 	vErrs := assertValidationErrors(t, e, logger, false)
 
 	assert.NotNil(t, vErrs)
@@ -74,7 +74,7 @@ func TestNoNodesInstance(t *testing.T) {
 
 func TestNodesUnknownProvider(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, "./testdata/yaml/grammar/nodes_unknown_provider.yaml")
+	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/nodes_unknown_provider.yaml"))
 	vErrs := assertValidationErrors(t, e, logger, false)
 
 	assert.NotNil(t, vErrs)
@@ -88,7 +88,7 @@ func TestNodesUnknownProvider(t *testing.T) {
 
 func TestNodesUnknownHook(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, "./testdata/yaml/grammar/nodes_unknown_hook.yaml")
+	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/nodes_unknown_hook.yaml"))
 	vErrs := assertValidationErrors(t, e, logger, false)
 
 	assert.NotNil(t, vErrs)
@@ -101,7 +101,7 @@ func TestNodesUnknownHook(t *testing.T) {
 
 func TestStacksNoDeployOnError(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, "./testdata/yaml/grammar/stacks_no_deploy_on_error.yaml")
+	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/stacks_no_deploy_on_error.yaml"))
 	vErrs := assertValidationErrors(t, e, logger, false)
 
 	assert.NotNil(t, vErrs)
@@ -115,7 +115,7 @@ func TestStacksNoDeployOnError(t *testing.T) {
 
 func TestStacksUnknownDeployOn(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, "./testdata/yaml/grammar/stacks_unknown_deploy_on.yaml")
+	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/stacks_unknown_deploy_on.yaml"))
 	vErrs := assertValidationErrors(t, e, logger, false)
 
 	assert.NotNil(t, vErrs)
@@ -129,7 +129,7 @@ func TestStacksUnknownDeployOn(t *testing.T) {
 
 func TestTasksNoPlayBook(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, "./testdata/yaml/grammar/no_task_playbook.yaml")
+	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/no_task_playbook.yaml"))
 	vErrs := assertValidationErrors(t, e, logger, false)
 
 	assert.NotNil(t, vErrs)
@@ -143,7 +143,7 @@ func TestTasksNoPlayBook(t *testing.T) {
 
 func TestTasksUnknownRunOn(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, "./testdata/yaml/grammar/tasks_unknown_run_on.yaml")
+	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/tasks_unknown_run_on.yaml"))
 	vErrs := assertValidationErrors(t, e, logger, false)
 
 	assert.NotNil(t, vErrs)
@@ -157,7 +157,7 @@ func TestTasksUnknownRunOn(t *testing.T) {
 
 func TestUnknownGlobalHooks(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, "./testdata/yaml/grammar/unknown_global_hook.yaml")
+	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/unknown_global_hook.yaml"))
 	vErrs := assertValidationErrors(t, e, logger, false)
 
 	assert.NotNil(t, vErrs)

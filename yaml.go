@@ -5,6 +5,7 @@ import (
 
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
+	"net/url"
 )
 
 type yamlLabels struct {
@@ -114,8 +115,8 @@ type yamlEnvironment struct {
 	}
 }
 
-func parseYamlDescriptor(logger *log.Logger, location string) (env yamlEnvironment, err error) {
-	baseLocation, content, err := readUrlOrFile(logger, location)
+func parseYamlDescriptor(logger *log.Logger, u *url.URL) (env yamlEnvironment, err error) {
+	baseLocation, content, err := ReadUrl(logger, u)
 	if err != nil {
 		return
 	}
@@ -133,12 +134,16 @@ func parseYamlDescriptor(logger *log.Logger, location string) (env yamlEnvironme
 	return
 }
 
-func processYamlImports(logger *log.Logger, baseLocation string, env *yamlEnvironment) error {
+func processYamlImports(logger *log.Logger, base *url.URL, env *yamlEnvironment) error {
 	if len(env.Imports) > 0 {
 		logger.Println("Processing imports", env.Imports)
 		for _, val := range env.Imports {
-			logger.Println("Processing import", baseLocation+val)
-			importedDesc, err := parseYamlDescriptor(logger, baseLocation+val)
+			logger.Println("Processing import", base.String()+val)
+			importUrl, err := url.Parse(val)
+			if err != nil {
+				return err
+			}
+			importedDesc, err := parseYamlDescriptor(logger, base.ResolveReference(importUrl))
 			if err != nil {
 				return err
 			}

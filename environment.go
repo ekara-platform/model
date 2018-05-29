@@ -3,7 +3,7 @@ package model
 import (
 	"errors"
 	"log"
-	"strings"
+	"net/url"
 )
 
 type Environment struct {
@@ -38,24 +38,24 @@ type Environment struct {
 	}
 }
 
-func Parse(logger *log.Logger, location string) (env Environment, err error) {
+func Parse(logger *log.Logger, u *url.URL) (Environment, error) {
 	vErrs := ValidationErrors{}
-	if strings.HasSuffix(strings.ToUpper(location), ".YAML") ||
-		strings.HasSuffix(strings.ToUpper(location), ".YML") {
+	if hasSuffixIgnoringCase(u.Path, ".yaml") || hasSuffixIgnoringCase(u.Path, ".yml") {
 		var yamlEnv yamlEnvironment
-		yamlEnv, err = parseYamlDescriptor(logger, location)
+		yamlEnv, err := parseYamlDescriptor(logger, u)
 		if err != nil {
-			return
+			return Environment{}, err
 		}
-		env = createEnvironment(&vErrs, &yamlEnv)
+		env := createEnvironment(&vErrs, &yamlEnv)
 		postValidate(&vErrs, &env)
 		if vErrs.HasErrors() || vErrs.HasWarnings() {
-			err = vErrs
+			return env, vErrs
+		} else {
+			return env, nil
 		}
 	} else {
-		err = errors.New("unsupported file format")
+		return Environment{}, errors.New("unsupported file format")
 	}
-	return
 }
 
 func createEnvironment(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Environment {

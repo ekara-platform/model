@@ -6,11 +6,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"net/url"
 )
 
 func TestCreateEngineComplete(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := Parse(logger, "./testdata/yaml/complete_descriptor/lagoon.yaml")
+	env, e := Parse(logger, buildUrl("./testdata/yaml/complete_descriptor/lagoon.yaml"))
 	assert.Nil(t, e)
 
 	assert.Equal(t, "name_value", env.Name)
@@ -174,4 +175,12 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.Equal(t, "task2_playbook", tasks["task2"].Playbook)
 	assert.Equal(t, "task2_cron", tasks["task2"].Cron)
 	assert.Equal(t, []string{"task2_label1", "task2_label2", "task2_label3"}, tasks["task2"].Labels.AsStrings())
+}
+
+func buildUrl(loc string) *url.URL {
+	u, e := url.Parse(loc)
+	if e != nil {
+		panic(e)
+	}
+	return u
 }

@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/stretchr/testify/assert"
+	"strings"
 )
 
 func TestLabelCreate(t *testing.T) {
@@ -22,29 +23,29 @@ func TestLabelContains(t *testing.T) {
 
 func TestCreateEngineFromHttp(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := parseYamlDescriptor(logger, "https://raw.githubusercontent.com/lagoon-platform/model/master/testdata/yaml/complete_descriptor/lagoon.yaml")
+	_, e := parseYamlDescriptor(logger, buildUrl("https://raw.githubusercontent.com/lagoon-platform/model/master/testdata/yaml/complete_descriptor/lagoon.yaml"))
 	// no error occurred
 	assert.Nil(t, e)
 }
 
 func TestMyDemoUrl(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := parseYamlDescriptor(logger, "https://raw.githubusercontent.com/lagoon-platform/model/master/testdata/yaml/test/lagoon.yaml")
+	_, e := parseYamlDescriptor(logger, buildUrl("https://raw.githubusercontent.com/lagoon-platform/model/master/testdata/yaml/test/lagoon.yaml"))
 	// no error occurred
 	assert.Nil(t, e)
 }
 
 func TestCreateEngineFromBadHttp(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := parseYamlDescriptor(logger, "https://github.com/lagoon-platform/engine/tree/master/testdata/DUMMY.yaml")
+	_, e := parseYamlDescriptor(logger, buildUrl("https://github.com/lagoon-platform/engine/tree/master/testdata/DUMMY.yaml"))
 	// an error occurred
 	assert.NotNil(t, e)
-	assert.Equal(t, "HTTP Error getting the environment descriptor , error code 404", e.Error())
+	assert.True(t, strings.HasSuffix(e.Error(), "HTTP status 404"))
 }
 
 func TestCreateEngineFromLocal(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	yamlEnv, e := parseYamlDescriptor(logger, "testdata/yaml/lagoon.yaml")
+	yamlEnv, e := parseYamlDescriptor(logger, buildUrl("testdata/yaml/lagoon.yaml"))
 	assert.Nil(t, e) // no error occurred
 
 	assert.Equal(t, "testEnvironment", yamlEnv.Name)                               // importing file have has precedence
@@ -55,7 +56,7 @@ func TestCreateEngineFromLocal(t *testing.T) {
 
 func TestCreateEngineFromLocalComplexParams(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	yamlEnv, e := parseYamlDescriptor(logger, "testdata/yaml/test/lagoon.yaml")
+	yamlEnv, e := parseYamlDescriptor(logger, buildUrl("testdata/yaml/test/lagoon.yaml"))
 	assert.Nil(t, e) // no error occurred
 	assert.NotNil(t, yamlEnv)
 }
