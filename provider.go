@@ -19,6 +19,11 @@ func (p ProviderRef) ProviderName() string {
 	return p.provider.Name
 }
 
+// ComponentId returns the id of the provider component
+func (p ProviderRef) ComponentId() string {
+	return p.provider.Component.Id
+}
+
 func createProviders(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) map[string]Provider {
 	res := map[string]Provider{}
 	if yamlEnv.Providers == nil || len(yamlEnv.Providers) == 0 {
