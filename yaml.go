@@ -27,6 +27,11 @@ type yamlHook struct {
 	After  []yamlRef
 }
 
+type lagoonPlateformDef struct {
+	Repository string
+	Version    string
+}
+
 type yamlEnvironment struct {
 	yamlLabels `yaml:",inline"`
 
@@ -45,6 +50,9 @@ type yamlEnvironment struct {
 			NoProxy string `yaml:"noProxy"`
 		}
 	}
+
+	// Lagoon plateform
+	LagoonPlateform lagoonPlateformDef `yaml:"lagoonPlateform"`
 
 	// Imports
 	Imports []string

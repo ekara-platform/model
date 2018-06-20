@@ -16,6 +16,10 @@ orchestrator:
   repository: lagoon-platform/swarm-provider
   version: 1.2.3
 
+lagoonPlateform:
+  repository: lagoon-platform/swarm-provider
+  version: 1.2.3
+
 nodes:
   managers:
     instances: 1

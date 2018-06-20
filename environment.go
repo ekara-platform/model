@@ -15,7 +15,8 @@ type Environment struct {
 	Description string
 	Version     Version
 
-	Orchestrator Orchestrator
+	Orchestrator    Orchestrator
+	LagoonPlateform LagoonPlateform
 
 	// Settings
 	Settings Settings
@@ -65,6 +66,7 @@ func createEnvironment(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Enviro
 	env.Labels = createLabels(vErrs, yamlEnv.Labels...)
 	env.Settings = createSettings(vErrs, yamlEnv)
 	env.Version = createVersion(vErrs, "version", yamlEnv.Version)
+	env.LagoonPlateform = createLagoonPlateform(vErrs, &env, "lagoonPlateform", yamlEnv.LagoonPlateform)
 	env.Components = createComponentMap(vErrs, &env, yamlEnv)
 	env.Orchestrator = createOrchestrator(vErrs, &env, yamlEnv)
 	env.Tasks = createTasks(vErrs, &env, yamlEnv)
