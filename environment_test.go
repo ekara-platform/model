@@ -5,9 +5,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"net/url"
 	"strings"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateEngineComplete(t *testing.T) {
@@ -45,6 +46,23 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.NotNil(t, components)
 
 	//------------------------------------------------------------
+	// Orchestrator
+	//------------------------------------------------------------
+	orchestrator := env.Orchestrator
+	assert.NotNil(t, orchestrator)
+	assert.Equal(t, "swarm", orchestrator.Name)
+
+	assert.NotNil(t, orchestrator.Parameters)
+	c := orchestrator.Parameters.copy()
+	v, ok := c["swarm_param_key1"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "swarm_param_key1_value")
+
+	v, ok = c["swarm_param_key2"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "swarm_param_key2_value")
+
+	//------------------------------------------------------------
 	// Environment Providers
 	//------------------------------------------------------------
 	providers := env.Providers
@@ -61,8 +79,8 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.True(t, strings.HasSuffix(providers["aws"].Repository.String(), "/someBase/lagoon-platform/aws-provider"))
 	assert.Equal(t, "v1.2.3", providers["aws"].Version.String())
 	assert.NotNil(t, providers["aws"].Parameters)
-	c := providers["aws"].Parameters.copy()
-	v, ok := c["aws_param_key1"]
+	c = providers["aws"].Parameters.copy()
+	v, ok = c["aws_param_key1"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "aws_param_key1_value")
 
@@ -118,6 +136,15 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "provider_node1_param_key2_value")
 
+	c = nodeSets["node1"].Orchestrator.Parameters.copy()
+	v, ok = c["orchestrator_node1_param_key1"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "orchestrator_node1_param_key1_value")
+
+	v, ok = c["orchestrator_node1_param_key2"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "orchestrator_node1_param_key2_value")
+
 	assert.Equal(t, 20, nodeSets["node2"].Instances)
 	assert.Equal(t, []string{"node2_label1", "node2_label2", "node2_label3"}, nodeSets["node2"].Labels.AsStrings())
 	assert.Equal(t, "azure", nodeSets["node2"].Provider.provider.Name)
@@ -138,6 +165,15 @@ func TestCreateEngineComplete(t *testing.T) {
 	v, ok = c["provider_node2_param_key2"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "provider_node2_param_key2_value")
+
+	c = nodeSets["node2"].Orchestrator.Parameters.copy()
+	v, ok = c["orchestrator_node2_param_key1"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "orchestrator_node2_param_key1_value")
+
+	v, ok = c["orchestrator_node2_param_key2"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "orchestrator_node2_param_key2_value")
 
 	//------------------------------------------------------------
 	// Environment Stacks

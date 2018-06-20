@@ -7,14 +7,18 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type OrchestratorParameters struct {
+	Parameters attributes
+}
+
 type NodeSet struct {
 	root *Environment
 	Labels
 
-	Name      string
-	Provider  ProviderRef
-	Instances int
-	Docker    attributes
+	Name         string
+	Provider     ProviderRef
+	Instances    int
+	Orchestrator OrchestratorParameters
 
 	Hooks struct {
 		Provision Hook
@@ -37,12 +41,14 @@ func createNodeSets(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvi
 			}
 
 			nodeSet := NodeSet{
-				root:      env,
-				Labels:    createLabels(vErrs, yamlNodeSet.Labels...),
-				Name:      name,
-				Instances: yamlNodeSet.Instances,
+				root:         env,
+				Labels:       createLabels(vErrs, yamlNodeSet.Labels...),
+				Name:         name,
+				Instances:    yamlNodeSet.Instances,
+				Orchestrator: OrchestratorParameters{},
 			}
-			nodeSet.Docker = createAttributes(yamlNodeSet.Docker, env.Docker.copy())
+
+			nodeSet.Orchestrator.Parameters = createAttributes(yamlNodeSet.Orchestrator.Params, env.Orchestrator.Parameters.copy())
 
 			nodeSet.Provider = createProviderRef(vErrs, env, "nodes."+name+".provider", yamlNodeSet.Provider)
 			nodeSet.Hooks.Provision = createHook(vErrs, env.Tasks, "nodes."+name+".hooks.provision", yamlNodeSet.Hooks.Provision)
@@ -76,21 +82,30 @@ type Client struct {
 	Uid  string
 }
 
-type NodeExtraVars struct {
-	Client    Client
-	Params    map[string]interface{}
-	Instances int
-	Output    string `yaml:"output_folder"`
+type NodeConfig struct {
+	Client            Client
+	Params            map[string]interface{}
+	Instances         int
+	Provider          string
+	MachinePublicKey  string `yaml:"machine_public_key"`
+	MachinePrivateKey string `yaml:"machine_private_key"`
 }
 
-func (n NodeSet) ExtraVars(c string, uid string, output string) (b []byte, e error) {
+func (n NodeSet) Config(c string, uid string, p string, pubK string, privK string) (b []byte, e error) {
 	cli := Client{Name: c, Uid: uid}
-	nev := NodeExtraVars{Client: cli, Params: n.Provider.Parameters.copy(), Instances: n.Instances, Output: output}
+	nev := NodeConfig{
+		Client:            cli,
+		Params:            n.Provider.Parameters.copy(),
+		Instances:         n.Instances,
+		Provider:          p,
+		MachinePrivateKey: privK,
+		MachinePublicKey:  pubK,
+	}
 	b, e = yaml.Marshal(&nev)
 	return
 }
 
-func (n NodeSet) DockerVars() (b []byte, e error) {
-	b, e = yaml.Marshal(n.Docker.copy())
+func (n NodeSet) OrchestratorVars() (b []byte, e error) {
+	b, e = yaml.Marshal(n.Orchestrator.Parameters.copy())
 	return
 }

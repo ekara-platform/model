@@ -37,6 +37,13 @@ func TestNoNodes(t *testing.T) {
 	assert.Equal(t, "no node specified", vErrs.Errors[0].Message)
 }
 
+func TestNoOrchestrator(t *testing.T) {
+	vErrs := testEmptyContent(t, "orchestrator", false)
+	assert.Equal(t, true, vErrs.HasErrors())
+	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
+	assert.Equal(t, "no orchestrator specified", vErrs.Errors[0].Message)
+}
+
 func TestNoStacks(t *testing.T) {
 	vErrs := testEmptyContent(t, "stacks", true)
 	assert.Equal(t, false, vErrs.HasErrors())
@@ -175,7 +182,6 @@ func TestUnknownGlobalHooks(t *testing.T) {
 	testHook(t, "hooks.undeploy.after", 7, vErrs)
 	testHook(t, "hooks.destroy.before", 8, vErrs)
 	testHook(t, "hooks.destroy.after", 9, vErrs)
-
 }
 
 func testHook(t *testing.T, msg string, index int, vErrs ValidationErrors) {

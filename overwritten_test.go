@@ -30,22 +30,23 @@ func TestOverwrittenParam(t *testing.T) {
 	assert.Equal(t, "initial_param3", params["param3"])
 }
 
-func TestOverwrittenDocker(t *testing.T) {
+func TestOverwrittenOrchestratorParam(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
 	env, e := Parse(logger, buildUrl("./testdata/yaml/overwritten/lagoon.yaml"))
 	assert.Nil(t, e)
 	assert.NotNil(t, env)
-	assert.NotNil(t, env.Docker)
-	assert.Equal(t, 2, len(env.Docker))
-	assert.Equal(t, "initial_docker1", env.Docker["docker1"])
-	assert.Equal(t, "initial_docker3", env.Docker["docker3"])
+	assert.NotNil(t, env.Orchestrator)
+	assert.NotNil(t, env.Orchestrator.Parameters)
+	assert.Equal(t, 2, len(env.Orchestrator.Parameters))
+	assert.Equal(t, "initial_orchestrator1", env.Orchestrator.Parameters["orchestrator1"])
+	assert.Equal(t, "initial_orchestrator3", env.Orchestrator.Parameters["orchestrator3"])
 
 	managers := env.NodeSets["managers"]
 	assert.NotNil(t, managers)
-	dockers := managers.Docker
-	assert.NotNil(t, dockers)
-	assert.Equal(t, 3, len(dockers))
-	assert.Equal(t, "overwritten_docker1", dockers["docker1"])
-	assert.Equal(t, "new_docker2", dockers["docker2"])
-	assert.Equal(t, "initial_docker3", dockers["docker3"])
+	orchestrator := managers.Orchestrator.Parameters
+	assert.NotNil(t, orchestrator)
+	assert.Equal(t, 3, len(orchestrator))
+	assert.Equal(t, "overwritten_orchestrator1", orchestrator["orchestrator1"])
+	assert.Equal(t, "new_orchestrator2", orchestrator["orchestrator2"])
+	assert.Equal(t, "initial_orchestrator3", orchestrator["orchestrator3"])
 }

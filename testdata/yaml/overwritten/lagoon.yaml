@@ -4,9 +4,13 @@ version: 1.2.3
 components:
   lagoon-platform/aws-provider: 1.2.3
 
-docker:
-  docker1: "initial_docker1"
-  docker3: "initial_docker3"
+orchestrator:
+  name: docker	
+  repository: lagoon-platform/aws-provider
+  version: 1.2.3
+  params:
+    orchestrator1: "initial_orchestrator1"
+    orchestrator3: "initial_orchestrator3"
 
 providers:
   aws:
@@ -23,9 +27,10 @@ nodes:
       params:
         param1: "overwritten_param1"
         param2: "new_param2"
-    docker:
-      docker1: "overwritten_docker1"
-      docker2: "new_docker2"
+    orchestrator:
+      params:
+        orchestrator1: "overwritten_orchestrator1"
+        orchestrator2: "new_orchestrator2"
 
     instances: 3
     labels:

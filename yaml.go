@@ -3,9 +3,10 @@ package model
 import (
 	"log"
 
+	"net/url"
+
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
-	"net/url"
 )
 
 type yamlLabels struct {
@@ -14,10 +15,6 @@ type yamlLabels struct {
 
 type yamlParams struct {
 	Params attributes
-}
-
-type yamlDocker struct {
-	Docker attributes
 }
 
 type yamlRef struct {
@@ -38,8 +35,6 @@ type yamlEnvironment struct {
 	Description string
 	Version     string
 
-	yamlDocker `yaml:",inline"`
-
 	// Settings
 	Settings struct {
 		ComponentBase  string `yaml:"componentBase"`
@@ -57,6 +52,15 @@ type yamlEnvironment struct {
 	// Components
 	Components map[string]string
 
+	// Orchestrator
+	Orchestrator struct {
+		yamlParams `yaml:",inline"`
+
+		Name       string
+		Repository string
+		Version    string
+	}
+
 	// Providers
 	Providers map[string]struct {
 		yamlParams `yaml:",inline"`
@@ -69,9 +73,13 @@ type yamlEnvironment struct {
 	Nodes map[string]struct {
 		yamlLabels `yaml:",inline"`
 
-		Provider   yamlRef
-		Instances  int
-		yamlDocker `yaml:",inline"`
+		Provider  yamlRef
+		Instances int
+
+		// Orchestrator
+		Orchestrator struct {
+			yamlParams `yaml:",inline"`
+		}
 
 		Hooks struct {
 			Provision yamlHook

@@ -1,0 +1,24 @@
+package model
+
+import "errors"
+
+type Orchestrator struct {
+	root       *Environment
+	Parameters attributes
+	Component
+	Name string
+}
+
+func createOrchestrator(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) Orchestrator {
+	o := Orchestrator{}
+	yamlO := yamlEnv.Orchestrator
+	if yamlO.Name == "" {
+		vErrs.AddError(errors.New("no orchestrator specified"), "orchestrator")
+	} else {
+		o.Component = createComponent(vErrs, env, "orchestrator", yamlO.Repository, yamlO.Version)
+		o.Name = yamlO.Name
+		o.Parameters = createAttributes(yamlO.Params, nil)
+		o.root = env
+	}
+	return o
+}
