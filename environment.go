@@ -16,8 +16,9 @@ type Environment struct {
 	// with the environment
 	LagoonPlateform LagoonPlateform
 
-	// Global attributes
-	Name        string
+	// The environment name
+	Name string
+	// The environment description
 	Description string
 
 	// The version of the environment descriptor
