@@ -10,13 +10,18 @@ type Environment struct {
 	Labels
 	Component
 
+	// The orchestrator used to manage the environment
+	Orchestrator Orchestrator
+	// The specification of the flavor of the Lagoon Platform used to interact
+	// with the environment
+	LagoonPlateform LagoonPlateform
+
 	// Global attributes
 	Name        string
 	Description string
-	Version     Version
 
-	Orchestrator    Orchestrator
-	LagoonPlateform LagoonPlateform
+	// The version of the environment descriptor
+	Version Version
 
 	// Settings
 	Settings Settings
@@ -24,11 +29,14 @@ type Environment struct {
 	// Component versions
 	Components map[string]Version
 
-	// Definition attributes
+	// The providers where to create the environment nodesets
 	Providers map[string]Provider
-	NodeSets  map[string]NodeSet
-	Stacks    map[string]Stack
-	Tasks     map[string]Task
+	// The nodesets to create
+	NodeSets map[string]NodeSet
+	// The software stacks to install on the created nodesets
+	Stacks map[string]Stack
+	// The tasks which can be ran against the environment
+	Tasks map[string]Task
 
 	Hooks struct {
 		Init      Hook

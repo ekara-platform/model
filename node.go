@@ -7,19 +7,31 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// OrchestratorParameters contains the parameters related to the orchestrator
+// defined into the environment
 type OrchestratorParameters struct {
 	Parameters attributes
 }
 
+// NodeSet contains the whole specification of a Nodeset to create on a specific
+// cloud provider
 type NodeSet struct {
+	// The environment holding the nodeset
 	root *Environment
+	// The severals labels used to tag the machines
 	Labels
 
-	Name         string
-	Provider     ProviderRef
-	Instances    int
+	// The name of the machines
+	Name string
+	// The ref to the provider where to create the machines
+	Provider ProviderRef
+	// The number of machines to create
+	Instances int
+
+	// The parameters related to the orchestrator used to manage the machines
 	Orchestrator OrchestratorParameters
 
+	// TODO Document this
 	Hooks struct {
 		Provision Hook
 		Destroy   Hook
@@ -28,6 +40,24 @@ type NodeSet struct {
 
 type NodeSetRef struct {
 	nodeSets []*NodeSet
+}
+
+type Client struct {
+	Name string
+	Uid  string
+}
+
+type ConnectionConfig struct {
+	Provider          string
+	MachinePublicKey  string `yaml:"machine_public_key"`
+	MachinePrivateKey string `yaml:"machine_private_key"`
+}
+
+type NodeParams struct {
+	Client           Client
+	Params           map[string]interface{}
+	Instances        int
+	ConnectionConfig ConnectionConfig
 }
 
 func createNodeSets(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) map[string]NodeSet {
@@ -77,35 +107,35 @@ func createNodeSetRef(vErrs *ValidationErrors, env *Environment, location string
 	return NodeSetRef{nodeSets: nodeSets}
 }
 
-type Client struct {
-	Name string
-	Uid  string
-}
-
-type NodeConfig struct {
-	Client            Client
-	Params            map[string]interface{}
-	Instances         int
-	Provider          string
-	MachinePublicKey  string `yaml:"machine_public_key"`
-	MachinePrivateKey string `yaml:"machine_private_key"`
-}
-
-func (n NodeSet) Config(c string, uid string, p string, pubK string, privK string) (b []byte, e error) {
+// NodeParams returns the parameters required to create a nodeset
+//
+//	Parameters:
+//		c: the client requesting the creation
+//		uid: the unique Id used to tag the created machines
+//		p: the name of the provider where to create the machines
+//		pubK: the SSH public key to connect the machine
+//		privK: the SSH private key to connect the machine
+func (n NodeSet) NodeParams(c string, uid string, p string, pubK string, privK string) (b []byte, e error) {
 	cli := Client{Name: c, Uid: uid}
-	nev := NodeConfig{
-		Client:            cli,
-		Params:            n.Provider.Parameters.copy(),
-		Instances:         n.Instances,
-		Provider:          p,
-		MachinePrivateKey: privK,
-		MachinePublicKey:  pubK,
+	nev := NodeParams{
+		Client:    cli,
+		Params:    n.Provider.Parameters.copy(),
+		Instances: n.Instances,
 	}
+
+	mConf := ConnectionConfig{
+		Provider:          p,
+		MachinePublicKey:  pubK,
+		MachinePrivateKey: privK,
+	}
+	nev.ConnectionConfig = mConf
 	b, e = yaml.Marshal(&nev)
 	return
 }
 
-func (n NodeSet) OrchestratorVars() (b []byte, e error) {
+// OrchestratorParams returns the parameters required to deploy the orchestrator
+// on a nodeset
+func (n NodeSet) OrchestratorParams() (b []byte, e error) {
 	b, e = yaml.Marshal(n.Orchestrator.Parameters.copy())
 	return
 }
