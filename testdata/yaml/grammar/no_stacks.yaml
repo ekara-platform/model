@@ -11,7 +11,7 @@ lagoon:
     https: proxy_https_value
     noProxy: proxy_noproxy_value
 
-lagoonPlateform:
+lagoonPlatform:
   repository: lagoon-platform/swarm-provider
   version: 1.2.3
 

@@ -7,6 +7,6 @@ providers:
     repository: lagoon-platform/aws-provider
     version: 1.2.3
 
-lagoonPlateform:
+lagoonPlatform:
   repository: lagoon-platform/swarm-provider
   version: 1.2.3
