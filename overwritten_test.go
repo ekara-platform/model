@@ -38,15 +38,26 @@ func TestOverwrittenOrchestratorParam(t *testing.T) {
 	assert.NotNil(t, env.Orchestrator)
 	assert.NotNil(t, env.Orchestrator.Parameters)
 	assert.Equal(t, 2, len(env.Orchestrator.Parameters))
-	assert.Equal(t, "initial_orchestrator1", env.Orchestrator.Parameters["orchestrator1"])
-	assert.Equal(t, "initial_orchestrator3", env.Orchestrator.Parameters["orchestrator3"])
+	assert.Equal(t, "param_initial_orchestrator1", env.Orchestrator.Parameters["orchestrator1"])
+	assert.Equal(t, "param_initial_orchestrator3", env.Orchestrator.Parameters["orchestrator3"])
+
+	assert.Equal(t, 2, len(env.Orchestrator.Docker))
+	assert.Equal(t, "docker_initial_orchestrator1", env.Orchestrator.Docker["orchestrator1"])
+	assert.Equal(t, "docker_initial_orchestrator3", env.Orchestrator.Docker["orchestrator3"])
 
 	managers := env.NodeSets["managers"]
 	assert.NotNil(t, managers)
 	orchestrator := managers.Orchestrator.Parameters
 	assert.NotNil(t, orchestrator)
 	assert.Equal(t, 3, len(orchestrator))
-	assert.Equal(t, "overwritten_orchestrator1", orchestrator["orchestrator1"])
-	assert.Equal(t, "new_orchestrator2", orchestrator["orchestrator2"])
-	assert.Equal(t, "initial_orchestrator3", orchestrator["orchestrator3"])
+	assert.Equal(t, "param_overwritten_orchestrator1", orchestrator["orchestrator1"])
+	assert.Equal(t, "param_new_orchestrator2", orchestrator["orchestrator2"])
+	assert.Equal(t, "param_initial_orchestrator3", orchestrator["orchestrator3"])
+
+	orchestrator = managers.Orchestrator.Docker
+	assert.NotNil(t, orchestrator)
+	assert.Equal(t, 3, len(orchestrator))
+	assert.Equal(t, "docker_overwritten_orchestrator1", orchestrator["orchestrator1"])
+	assert.Equal(t, "docker_new_orchestrator2", orchestrator["orchestrator2"])
+	assert.Equal(t, "docker_initial_orchestrator3", orchestrator["orchestrator3"])
 }

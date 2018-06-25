@@ -4,6 +4,7 @@ import "errors"
 
 type Orchestrator struct {
 	root       *Environment
+	Docker     attributes
 	Parameters attributes
 	Component
 	Name string
@@ -17,6 +18,7 @@ func createOrchestrator(vErrs *ValidationErrors, env *Environment, yamlEnv *yaml
 	} else {
 		o.Component = createComponent(vErrs, env, "orchestrator", yamlO.Repository, yamlO.Version)
 		o.Name = yamlO.Name
+		o.Docker = createAttributes(yamlO.Docker, nil)
 		o.Parameters = createAttributes(yamlO.Params, nil)
 		o.root = env
 	}

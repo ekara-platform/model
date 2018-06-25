@@ -17,6 +17,10 @@ type yamlParams struct {
 	Params attributes
 }
 
+type yamlDocker struct {
+	Docker attributes
+}
+
 type yamlRef struct {
 	yamlParams `yaml:",inline"`
 	Name       string
@@ -63,6 +67,7 @@ type yamlEnvironment struct {
 	// Orchestrator
 	Orchestrator struct {
 		yamlParams `yaml:",inline"`
+		yamlDocker `yaml:",inline"`
 
 		Name       string
 		Repository string
@@ -87,6 +92,7 @@ type yamlEnvironment struct {
 		// Orchestrator
 		Orchestrator struct {
 			yamlParams `yaml:",inline"`
+			yamlDocker `yaml:",inline"`
 		}
 
 		Hooks struct {
