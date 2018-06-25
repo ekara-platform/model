@@ -47,6 +47,10 @@ type Client struct {
 	Uid  string
 }
 
+type MachineConfig struct {
+	ConnectionConfig ConnectionConfig `yaml:"connectionConfig"`
+}
+
 type ConnectionConfig struct {
 	Provider          string
 	MachinePublicKey  string `yaml:"machine_public_key"`
@@ -57,7 +61,7 @@ type NodeParams struct {
 	Client           Client
 	Params           map[string]interface{}
 	Instances        int
-	ConnectionConfig ConnectionConfig
+	ConnectionConfig ConnectionConfig `yaml:"connectionConfig"`
 }
 
 func createNodeSets(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) map[string]NodeSet {
