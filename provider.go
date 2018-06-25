@@ -3,18 +3,25 @@ package model
 import "errors"
 
 type Provider struct {
-	root       *Environment
-	Parameters attributes
-	Component
-
+	// The Name of the provider
 	Name string
+	// The environment referencing the provider
+	root *Environment
+	// The Repository/version of the provider
+	Component
+	// The provider attributes
+	Parameters attributes
 }
 
+// Reference to a provider
 type ProviderRef struct {
+	// The referenced provider
+	provider *Provider
+	// The overwritten parameters of the provider
 	Parameters attributes `yaml:",inline"`
-	provider   *Provider
 }
 
+// ProviderName returns the name of the referenced provider
 func (p ProviderRef) ProviderName() string {
 	return p.provider.Name
 }
@@ -24,11 +31,12 @@ func (p ProviderRef) ComponentId() string {
 	return p.provider.Component.Id
 }
 
-// ComponentId returns the provider component
+// Component returns the provider component
 func (p ProviderRef) Component() Component {
 	return p.provider.Component
 }
 
+// createProviders creates all the providers declared into the provided environment
 func createProviders(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) map[string]Provider {
 	res := map[string]Provider{}
 	if yamlEnv.Providers == nil || len(yamlEnv.Providers) == 0 {
@@ -49,6 +57,7 @@ func createProviders(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnv
 	return res
 }
 
+// createProviderRef creates a reference to the provider declared into the yaml reference
 func createProviderRef(vErrs *ValidationErrors, env *Environment, location string, yamlRef yamlRef) ProviderRef {
 	if len(yamlRef.Name) == 0 {
 		vErrs.AddError(errors.New("empty provider reference"), location)

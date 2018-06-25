@@ -70,7 +70,7 @@ type yamlEnvironment struct {
 	}
 
 	// The Lagoon platform used to interact with the environment
-	LagoonPlateform yamlRepoVersion `yaml:"lagoonPlateform"`
+	LagoonPlatform yamlRepoVersion `yaml:"lagoonPlateform"`
 
 	// Imports, to be included into the environment descriptor
 	Imports []string

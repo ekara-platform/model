@@ -44,6 +44,7 @@ func (t ErrorType) String() string {
 	}
 }
 
+// HasErrors returns true if the ValidationErrors contains at least on error
 func (ve ValidationErrors) HasErrors() bool {
 	for _, v := range ve.Errors {
 		if v.ErrorType == Error {
@@ -53,6 +54,7 @@ func (ve ValidationErrors) HasErrors() bool {
 	return false
 }
 
+// HasWarnings returns true if the ValidationErrors contains at least on warning
 func (ve ValidationErrors) HasWarnings() bool {
 	for _, v := range ve.Errors {
 		if v.ErrorType == Warning {

@@ -10,8 +10,10 @@ import (
 // OrchestratorParameters contains the parameters related to the orchestrator
 // defined into the environment
 type OrchestratorParameters struct {
+	//The Orchestrator specific parameters
 	Parameters attributes
-	Docker     attributes
+	// The Dockers specific parameters
+	Docker attributes
 }
 
 // NodeSet contains the whole specification of a Nodeset to create on a specific

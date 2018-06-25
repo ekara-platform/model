@@ -1,13 +1,19 @@
 package model
 
 type Stack struct {
+	// The environment holding the stack
 	root *Environment
+	// The labels associated to the stack
 	Labels
+	// The repository/version of the stack
 	Component
 
-	Name     string
+	// The name of the stack
+	Name string
+	// The specifications on where the stack is supposed to deployed
 	DeployOn NodeSetRef
 
+	// The hooks linked to the stack lifecycle
 	Hooks struct {
 		Deploy   Hook
 		Undeploy Hook
