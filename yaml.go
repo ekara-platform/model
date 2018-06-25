@@ -9,40 +9,54 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// yaml tag for labels
 type yamlLabels struct {
 	Labels []string
 }
 
+// yaml tag for parameters
 type yamlParams struct {
 	Params attributes
 }
 
+// yaml tag for docker parameters
 type yamlDocker struct {
 	Docker attributes
 }
 
+// yaml reference on a name allowing to hold more specific parameters
 type yamlRef struct {
 	yamlParams `yaml:",inline"`
 	Name       string
 }
 
+//yaml tag for hooks
 type yamlHook struct {
+	// Hooks to be executed before the corresponding process step
 	Before []yamlRef
-	After  []yamlRef
+	// Hooks to be executed after the corresponding process step
+	After []yamlRef
 }
 
-type lagoonPlateformDef struct {
+// yaml tag for a repository and its version
+type yamlRepoVersion struct {
+	// The Repository, following the notation "organization/repo_name"
 	Repository string
-	Version    string
+	// The release into the repository
+	Version string
 }
 
+// Definition of the Lagoon environment
 type yamlEnvironment struct {
-	yamlLabels `yaml:",inline"`
-
-	// Global attributes
-	Name        string
+	// The name of the environment
+	Name string
+	// The description of the environment
 	Description string
-	Version     string
+	// The version of the environment
+	Version string
+
+	// The labels associated to the environment
+	yamlLabels `yaml:",inline"`
 
 	// Settings
 	Settings struct {
@@ -55,74 +69,90 @@ type yamlEnvironment struct {
 		}
 	}
 
-	// Lagoon plateform
-	LagoonPlateform lagoonPlateformDef `yaml:"lagoonPlateform"`
+	// The Lagoon platform used to interact with the environment
+	LagoonPlateform yamlRepoVersion `yaml:"lagoonPlateform"`
 
-	// Imports
+	// Imports, to be included into the environment descriptor
 	Imports []string
 
 	// Components
 	Components map[string]string
 
-	// Orchestrator
+	// Global definition of the orchestrator to install on the environment
 	Orchestrator struct {
+		// The orchestrator specifics parameters
 		yamlParams `yaml:",inline"`
+		// The docker parameters
 		yamlDocker `yaml:",inline"`
-
-		Name       string
-		Repository string
-		Version    string
+		// The name of the orchestrator
+		Name string
+		// The repository and version of the orchestrator
+		yamlRepoVersion `yaml:",inline"`
 	}
 
-	// Providers
+	// The list of all cloud providers required to create the environment
 	Providers map[string]struct {
+		// The provider parameters
 		yamlParams `yaml:",inline"`
-
-		Repository string
-		Version    string
+		// The repository and version of the provider
+		yamlRepoVersion `yaml:",inline"`
 	}
 
-	// Node sets
+	// The list of node sets to create
 	Nodes map[string]struct {
+		// The labels associated to the node set
 		yamlLabels `yaml:",inline"`
-
-		Provider  yamlRef
+		// Reference on the provider where to create the node set
+		Provider yamlRef
+		// The number of instances to create within the node set
 		Instances int
 
-		// Orchestrator
+		// The installed orchestrator
 		Orchestrator struct {
+			// The overwritten orchestrator specifics parameters for the node set
 			yamlParams `yaml:",inline"`
+			// The overwritten docker parameters for the node set
 			yamlDocker `yaml:",inline"`
 		}
 
+		// The Hooks to be executed while provisionning and destoying the node set
 		Hooks struct {
 			Provision yamlHook
 			Destroy   yamlHook
 		}
 	}
 
-	// Software stacks
+	// Software stacks to be installed on the environment
 	Stacks map[string]struct {
+		// The labels associated to the stack
 		yamlLabels `yaml:",inline"`
+		// The repository and version of the stack
+		yamlRepoVersion `yaml:",inline"`
+		// The names of the node sets where the stack must de installed
+		DeployOn []string `yaml:"deployOn"`
 
-		Repository string
-		Version    string
-		DeployOn   []string `yaml:"deployOn"`
-		Hooks      struct {
+		// The Hooks to be executed while deploying and undeploying the stack
+		Hooks struct {
 			Deploy   yamlHook
 			Undeploy yamlHook
 		}
 	}
 
-	// Custom tasks
+	// Custom tasks which can be run on the created environment
 	Tasks map[string]struct {
+		// The labels associated to the task
 		yamlLabels `yaml:",inline"`
+		// The task parameters
 		yamlParams `yaml:",inline"`
 
+		// The name of the playbook to launch the task
 		Playbook string
-		Cron     string
-		RunOn    []string `yaml:"runOn"`
-		Hooks    struct {
+		// The CRON to run cyclically the task
+		Cron string
+		// The labels allowing to locate where to run the task ( on which node sets )
+		RunOn []string `yaml:"runOn"`
+		// The Hooks to be executed in addition the the main task playbook
+		Hooks struct {
 			Execute yamlHook
 		}
 	}
@@ -138,7 +168,8 @@ type yamlEnvironment struct {
 }
 
 func parseYamlDescriptor(logger *log.Logger, u *url.URL) (env yamlEnvironment, err error) {
-	normalizedUrl, err := NormalizeUrl(u)
+	var normalizedUrl *url.URL
+	normalizedUrl, err = NormalizeUrl(u)
 	if err != nil {
 		return
 	}
