@@ -45,7 +45,7 @@ func TestNoOrchestrator(t *testing.T) {
 }
 
 func TestNoPlateform(t *testing.T) {
-	vErrs := testEmptyContent(t, "plateform", false)
+	vErrs := testEmptyContent(t, "platform", false)
 	assert.Equal(t, true, vErrs.HasErrors())
 	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
 	assert.Equal(t, "no lagoon plaform repository", vErrs.Errors[0].Message)
