@@ -19,11 +19,10 @@ const (
 )
 
 type Component struct {
-	Id           string
-	Scm          ScmType
-	Repository   *url.URL
-	Version      Version
-	BaseLocation string
+	Id         string
+	Scm        ScmType
+	Repository *url.URL
+	Version    Version
 }
 
 func createComponent(vErrs *ValidationErrors, env *Environment, location string, repo string, version string) Component {
