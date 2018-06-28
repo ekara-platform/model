@@ -67,6 +67,15 @@ type NodeParams struct {
 	ConnectionConfig ConnectionConfig `yaml:"connectionConfig"`
 }
 
+type OrchestratorConfig struct {
+	OrchestratorParams OrchestratorParams `yaml:"orchestrator"`
+}
+
+type OrchestratorParams struct {
+	Docker map[string]interface{}
+	Params map[string]interface{}
+}
+
 func createNodeSets(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) map[string]NodeSet {
 	res := map[string]NodeSet{}
 	if yamlEnv.Nodes == nil || len(yamlEnv.Nodes) == 0 {
@@ -143,7 +152,10 @@ func (n NodeSet) NodeParams(c string, uid string, p string, pubK string, privK s
 
 // OrchestratorParams returns the parameters required to deploy the orchestrator
 // on a nodeset
-func (n NodeSet) OrchestratorParams() (b []byte, e error) {
-	b, e = yaml.Marshal(n.Orchestrator.Parameters.copy())
+func (n NodeSet) OrchestratorConfig() (b []byte, e error) {
+	r := OrchestratorConfig{}
+	r.OrchestratorParams.Docker = n.Orchestrator.Docker.copy()
+	r.OrchestratorParams.Params = n.Orchestrator.Parameters.copy()
+	b, e = yaml.Marshal(r)
 	return
 }
