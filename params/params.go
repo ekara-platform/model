@@ -29,10 +29,10 @@ func BuilBaseParam(client string, uid string, provider string, pubK string, priv
 
 	clientM := make(map[string]interface{})
 	if client != "" {
-		clientM["Name"] = client
+		clientM["name"] = client
 	}
 	if uid != "" {
-		clientM["Uid"] = uid
+		clientM["uid"] = uid
 	}
 	baseParam.Body["client"] = clientM
 

@@ -24,6 +24,6 @@ func createLagoonPlatform(vErrs *ValidationErrors, env *Environment, location st
 	}
 
 	res := LagoonPlatform{}
-	res.Component = createComponent(vErrs, env, "location.", def.Repository, def.Version)
+	res.Component = createComponent(vErrs, env, "location", def.Repository, def.Version)
 	return res
 }
