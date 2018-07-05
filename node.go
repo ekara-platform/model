@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"gopkg.in/yaml.v2"
+	_ "gopkg.in/yaml.v2"
 )
 
 // OrchestratorParameters contains the parameters related to the orchestrator
@@ -45,35 +45,9 @@ type NodeSetRef struct {
 	nodeSets []*NodeSet
 }
 
-type Client struct {
-	Name string
-	Uid  string
-}
-
-type MachineConfig struct {
-	ConnectionConfig ConnectionConfig `yaml:"connectionConfig"`
-}
-
-type ConnectionConfig struct {
-	Provider          string
-	MachinePublicKey  string `yaml:"machine_public_key"`
-	MachinePrivateKey string `yaml:"machine_private_key"`
-}
-
 type NodeParams struct {
-	Client           Client
-	Params           map[string]interface{}
-	Instances        int
-	ConnectionConfig ConnectionConfig `yaml:"connectionConfig"`
-}
-
-type OrchestratorConfig struct {
-	OrchestratorParams OrchestratorParams `yaml:"orchestrator"`
-}
-
-type OrchestratorParams struct {
-	Docker map[string]interface{}
-	Params map[string]interface{}
+	Params    map[string]interface{}
+	Instances int
 }
 
 func createNodeSets(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) map[string]NodeSet {
@@ -125,37 +99,18 @@ func createNodeSetRef(vErrs *ValidationErrors, env *Environment, location string
 }
 
 // NodeParams returns the parameters required to create a nodeset
-//
-//	Parameters:
-//		c: the client requesting the creation
-//		uid: the unique Id used to tag the created machines
-//		p: the name of the provider where to create the machines
-//		pubK: the SSH public key to connect the machine
-//		privK: the SSH private key to connect the machine
-func (n NodeSet) NodeParams(c string, uid string, p string, pubK string, privK string) (b []byte, e error) {
-	cli := Client{Name: c, Uid: uid}
-	nev := NodeParams{
-		Client:    cli,
+func (n NodeSet) NodeParams() NodeParams {
+	r := NodeParams{
 		Params:    n.Provider.Parameters.copy(),
 		Instances: n.Instances,
 	}
-
-	mConf := ConnectionConfig{
-		Provider:          p,
-		MachinePublicKey:  pubK,
-		MachinePrivateKey: privK,
-	}
-	nev.ConnectionConfig = mConf
-	b, e = yaml.Marshal(&nev)
-	return
+	return r
 }
 
-// OrchestratorParams returns the parameters required to deploy the orchestrator
-// on a nodeset
-func (n NodeSet) OrchestratorConfig() (b []byte, e error) {
-	r := OrchestratorConfig{}
-	r.OrchestratorParams.Docker = n.Orchestrator.Docker.copy()
-	r.OrchestratorParams.Params = n.Orchestrator.Parameters.copy()
-	b, e = yaml.Marshal(r)
-	return
+// OrchestratorParams returns the parameters required to install the orchestrator
+func (n NodeSet) OrchestratorParams() map[string]interface{} {
+	r := make(map[string]interface{})
+	r["docker"] = n.Orchestrator.Docker.copy()
+	r["params"] = n.Orchestrator.Parameters.copy()
+	return r
 }
