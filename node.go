@@ -34,6 +34,8 @@ type NodeSet struct {
 	// The parameters related to the orchestrator used to manage the machines
 	Orchestrator OrchestratorParameters
 
+	Volumes []Volume
+
 	// TODO Document this
 	Hooks struct {
 		Provision Hook
@@ -72,6 +74,7 @@ func createNodeSets(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvi
 			nodeSet.Orchestrator.Docker = createAttributes(yamlNodeSet.Orchestrator.Docker, env.Orchestrator.Docker.copy())
 
 			nodeSet.Provider = createProviderRef(vErrs, env, "nodes."+name+".provider", yamlNodeSet.Provider)
+			nodeSet.Volumes = createVolumes(vErrs, env, "nodes."+name+".volumes", yamlNodeSet.Volumes)
 			nodeSet.Hooks.Provision = createHook(vErrs, env.Tasks, "nodes."+name+".hooks.provision", yamlNodeSet.Hooks.Provision)
 			nodeSet.Hooks.Destroy = createHook(vErrs, env.Tasks, "nodes."+name+".hooks.destroy", yamlNodeSet.Hooks.Destroy)
 

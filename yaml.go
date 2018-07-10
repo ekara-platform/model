@@ -30,6 +30,12 @@ type yamlRef struct {
 	Name       string
 }
 
+//TODO Comment this
+type yamlVolumes struct {
+	yamlParams `yaml:",inline"`
+	Name       string
+}
+
 //yaml tag for hooks
 type yamlHook struct {
 	// Hooks to be executed before the corresponding process step
@@ -114,6 +120,8 @@ type yamlEnvironment struct {
 			// The overwritten docker parameters for the node set
 			yamlDocker `yaml:",inline"`
 		}
+
+		Volumes []yamlVolumes
 
 		// The Hooks to be executed while provisionning and destoying the node set
 		Hooks struct {
