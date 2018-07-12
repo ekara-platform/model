@@ -4,12 +4,14 @@ import (
 	"errors"
 )
 
+// Volume contains the specifications of a volume to create
 type Volume struct {
-	Name       string
+	// The mounting path of the created volume
+	Name string
+	// The parameters required to create the volume.
 	Parameters attributes `yaml:"params"`
 }
 
-// TODO comments
 func createVolumes(vErrs *ValidationErrors, env *Environment, location string, yamlRef []yamlVolumes) []Volume {
 	volumes := make([]Volume, 0, 00)
 	for _, v := range yamlRef {

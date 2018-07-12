@@ -21,7 +21,7 @@ type ProviderRef struct {
 	provider *Provider
 	// The overwritten parameters of the provider
 	Parameters attributes `yaml:",inline"`
-
+	// The volumes to create
 	Volumes []Volume
 }
 

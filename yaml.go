@@ -32,15 +32,21 @@ type yamlRef struct {
 
 // yaml reference on a provider name allowing to hold more specific parameters
 type yamlProviderRef struct {
+	// The name of the referenced provider
+	Name string
+	// The overwritten parameters for the provider
 	yamlParams `yaml:",inline"`
-	Name       string
-	Volumes    []yamlVolumes
+	// The volumes to create and mount
+	Volumes []yamlVolumes
 }
 
-//TODO Comment this
+//yaml tag for a volume and its parameters
 type yamlVolumes struct {
+	// The mounting path of the created volume
+	Name string
+	// The parameters required to create the volume.
+	// These parameters are typically provider dependent, so refer to the provider documentation to figure how to create volumes.
 	yamlParams `yaml:",inline"`
-	Name       string
 }
 
 //yaml tag for hooks
