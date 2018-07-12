@@ -22,7 +22,7 @@ type ProviderRef struct {
 	// The overwritten parameters of the provider
 	Parameters attributes `yaml:",inline"`
 	// The volumes to create
-	Volumes []Volume
+	volumes []Volume
 }
 
 // ProviderName returns the name of the referenced provider
@@ -38,6 +38,11 @@ func (p ProviderRef) ComponentId() string {
 // Component returns the provider component
 func (p ProviderRef) Component() Component {
 	return p.provider.Component
+}
+
+// Volumes returns the volumes to create on this provider
+func (p ProviderRef) Volumes() []Volume {
+	return p.Volumes()
 }
 
 // createProviders creates all the providers declared into the provided environment
@@ -68,7 +73,7 @@ func createProviderRef(vErrs *ValidationErrors, env *Environment, location strin
 	} else {
 		if val, ok := env.Providers[yamlRef.Name]; ok {
 			providerRef := ProviderRef{Parameters: createAttributes(yamlRef.Params, val.Parameters), provider: &val}
-			providerRef.Volumes = createVolumes(vErrs, env, location+".volumes", yamlRef.Volumes)
+			providerRef.volumes = createVolumes(vErrs, env, location+".volumes", yamlRef.Volumes)
 			return providerRef
 		} else {
 			vErrs.AddError(errors.New("unknown provider reference: "+yamlRef.Name), location+".name")
