@@ -1,6 +1,8 @@
 package model
 
-import "errors"
+import (
+	"errors"
+)
 
 type Provider struct {
 	// The Name of the provider
@@ -19,6 +21,8 @@ type ProviderRef struct {
 	provider *Provider
 	// The overwritten parameters of the provider
 	Parameters attributes `yaml:",inline"`
+
+	Volumes []Volume
 }
 
 // ProviderName returns the name of the referenced provider
@@ -58,12 +62,14 @@ func createProviders(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnv
 }
 
 // createProviderRef creates a reference to the provider declared into the yaml reference
-func createProviderRef(vErrs *ValidationErrors, env *Environment, location string, yamlRef yamlRef) ProviderRef {
+func createProviderRef(vErrs *ValidationErrors, env *Environment, location string, yamlRef yamlProviderRef) ProviderRef {
 	if len(yamlRef.Name) == 0 {
 		vErrs.AddError(errors.New("empty provider reference"), location)
 	} else {
 		if val, ok := env.Providers[yamlRef.Name]; ok {
-			return ProviderRef{Parameters: createAttributes(yamlRef.Params, val.Parameters), provider: &val}
+			providerRef := ProviderRef{Parameters: createAttributes(yamlRef.Params, val.Parameters), provider: &val}
+			providerRef.Volumes = createVolumes(vErrs, env, location+".volumes", yamlRef.Volumes)
+			return providerRef
 		} else {
 			vErrs.AddError(errors.New("unknown provider reference: "+yamlRef.Name), location+".name")
 		}

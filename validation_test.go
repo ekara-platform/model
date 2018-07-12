@@ -88,6 +88,19 @@ func TestNoNodesInstance(t *testing.T) {
 	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
 }
 
+func TestNoVolumeName(t *testing.T) {
+	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
+	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/no_volume_name.yaml"))
+	vErrs := assertValidationErrors(t, e, logger, false)
+
+	assert.NotNil(t, vErrs)
+	assert.Equal(t, true, vErrs.HasErrors())
+	assert.Equal(t, false, vErrs.HasWarnings())
+	assert.Equal(t, 1, len(vErrs.Errors))
+	assert.Equal(t, "nodes.managers.provider.volumes", vErrs.Errors[0].Location)
+	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
+}
+
 func TestNodesUnknownProvider(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
 	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/nodes_unknown_provider.yaml"))

@@ -145,6 +145,18 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "orchestrator_node1_param_key2_value")
 
+	vs := nodeSets["node1"].Provider.Volumes
+	assert.NotNil(t, vs)
+	assert.Equal(t, 2, len(vs))
+
+	vol := vs[0]
+	assert.Equal(t, vol.Name, "aws_name1")
+	assert.Equal(t, vol.Parameters["param1_name"], "aws_param1_name_value")
+
+	vol = vs[1]
+	assert.Equal(t, vol.Name, "aws_name2")
+	assert.Equal(t, vol.Parameters["param2_name"], "aws_param2_name_value")
+
 	assert.Equal(t, 20, nodeSets["node2"].Instances)
 	assert.Equal(t, []string{"node2_label1", "node2_label2", "node2_label3"}, nodeSets["node2"].Labels.AsStrings())
 	assert.Equal(t, "azure", nodeSets["node2"].Provider.provider.Name)
@@ -174,6 +186,18 @@ func TestCreateEngineComplete(t *testing.T) {
 	v, ok = c["orchestrator_node2_param_key2"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "orchestrator_node2_param_key2_value")
+
+	vs = nodeSets["node2"].Provider.Volumes
+	assert.NotNil(t, vs)
+	assert.Equal(t, 2, len(vs))
+
+	vol = vs[0]
+	assert.Equal(t, vol.Name, "azure_name1")
+	assert.Equal(t, vol.Parameters["param1_name"], "azure_param1_name_value")
+
+	vol = vs[1]
+	assert.Equal(t, vol.Name, "azure_name2")
+	assert.Equal(t, vol.Parameters["param2_name"], "azure_param2_name_value")
 
 	//------------------------------------------------------------
 	// Environment Stacks

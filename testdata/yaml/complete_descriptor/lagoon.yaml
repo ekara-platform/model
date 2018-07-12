@@ -26,7 +26,7 @@ orchestrator:
   version: 1.2.3
 
 lagoonPlatform:
-  repository: lagoon-platform/swarm-provider
+  repository: lagoon-platform/core
   version: 1.2.3
 
 
@@ -61,6 +61,14 @@ nodes:
       params:
         provider_node1_param_key1: provider_node1_param_key1_value
         provider_node1_param_key2: provider_node1_param_key2_value
+      volumes:
+        - name: "aws_name1"
+          params:
+            param1_name: aws_param1_name_value
+        - name: "aws_name2"
+          params:
+            param2_name: aws_param2_name_value
+
     orchestrator:
       params:
         orchestrator_node1_param_key1: orchestrator_node1_param_key1_value
@@ -78,6 +86,13 @@ nodes:
       params:
         provider_node2_param_key1: provider_node2_param_key1_value
         provider_node2_param_key2: provider_node2_param_key2_value
+      volumes:
+        - name: "azure_name1"
+          params:
+            param1_name: azure_param1_name_value
+        - name: "azure_name2"
+          params:
+            param2_name: azure_param2_name_value
 
     orchestrator:
       params:

@@ -30,6 +30,13 @@ type yamlRef struct {
 	Name       string
 }
 
+// yaml reference on a provider name allowing to hold more specific parameters
+type yamlProviderRef struct {
+	yamlParams `yaml:",inline"`
+	Name       string
+	Volumes    []yamlVolumes
+}
+
 //TODO Comment this
 type yamlVolumes struct {
 	yamlParams `yaml:",inline"`
@@ -109,7 +116,7 @@ type yamlEnvironment struct {
 		// The labels associated to the node set
 		yamlLabels `yaml:",inline"`
 		// Reference on the provider where to create the node set
-		Provider yamlRef
+		Provider yamlProviderRef
 		// The number of instances to create within the node set
 		Instances int
 
@@ -120,8 +127,6 @@ type yamlEnvironment struct {
 			// The overwritten docker parameters for the node set
 			yamlDocker `yaml:",inline"`
 		}
-
-		Volumes []yamlVolumes
 
 		// The Hooks to be executed while provisionning and destoying the node set
 		Hooks struct {
