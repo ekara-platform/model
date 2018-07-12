@@ -5,8 +5,8 @@ components:
   lagoon-platform/aws-provider: 1.2.3
 
 lagoonPlatform:
-  repository: lagoon-platform/swarm-provider
-  version: 1.2.3
+  repository: lagoon-platform/core
+  version: 0.0.1
 
 providers:
   aws:
