@@ -145,7 +145,7 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "orchestrator_node1_param_key2_value")
 
-	vs := nodeSets["node1"].Provider.Volumes
+	vs := nodeSets["node1"].Provider.Volumes()
 	assert.NotNil(t, vs)
 	assert.Equal(t, 2, len(vs))
 
@@ -187,7 +187,7 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "orchestrator_node2_param_key2_value")
 
-	vs = nodeSets["node2"].Provider.Volumes
+	vs = nodeSets["node2"].Provider.Volumes()
 	assert.NotNil(t, vs)
 	assert.Equal(t, 2, len(vs))
 

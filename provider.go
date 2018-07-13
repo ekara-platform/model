@@ -42,7 +42,7 @@ func (p ProviderRef) Component() Component {
 
 // Volumes returns the volumes to create on this provider
 func (p ProviderRef) Volumes() []Volume {
-	return p.Volumes()
+	return p.volumes
 }
 
 // createProviders creates all the providers declared into the provided environment
