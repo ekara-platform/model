@@ -2,19 +2,20 @@ package model
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
+	"fmt"
 )
 
 type Version struct {
 	Major int
 	Minor int
 	Micro int
+	full  string
 }
 
 func createVersion(vErrs *ValidationErrors, location string, full string) Version {
-	v := Version{Major: -1, Minor: -1, Micro: -1}
+	v := Version{Major: -1, Minor: -1, Micro: -1, full: full}
 
 	if len(full) > 0 {
 		split := strings.Split(full, ".")
@@ -25,8 +26,6 @@ func createVersion(vErrs *ValidationErrors, location string, full string) Versio
 			} else {
 				v.Major = int(major)
 			}
-		} else {
-			vErrs.AddError(errors.New("empty version was specified"), location)
 		}
 		if len(split) > 1 {
 			minor, err := strconv.Atoi(split[1])
@@ -55,18 +54,26 @@ func createVersion(vErrs *ValidationErrors, location string, full string) Versio
 }
 
 func (v Version) IncludesVersion(other Version) bool {
-	if v.Major >= 0 && v.Major != other.Major {
-		return false
+	if v.Major >= 0 {
+		if v.Major != other.Major {
+			return false
+		}
+		if v.Minor >= 0 && v.Minor != other.Minor {
+			return false
+		}
+		if v.Micro >= 0 && v.Micro != other.Micro {
+			return false
+		}
+		return true
+	} else {
+		return v.full == other.full
 	}
-	if v.Minor >= 0 && v.Minor != other.Minor {
-		return false
-	}
-	if v.Micro >= 0 && v.Micro != other.Micro {
-		return false
-	}
-	return true
 }
 
 func (v Version) String() string {
-	return fmt.Sprintf("v%d.%d.%d", v.Major, v.Minor, v.Micro)
+	if v.Major >= 0 {
+		return fmt.Sprintf("v%d.%d.%d", v.Major, v.Minor, v.Micro)
+	} else {
+		return v.full
+	}
 }
