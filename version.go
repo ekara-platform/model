@@ -1,11 +1,12 @@
 package model
 
 import (
-	"errors"
-	"strconv"
-	"strings"
 	"fmt"
+	"regexp"
+	"strconv"
 )
+
+var semanticVersioningPattern = regexp.MustCompile("^(?P<major>0|[1-9]\\d*)(\\.(?P<minor>0|[1-9]\\d*))?(\\.(?P<patch>0|[1-9]\\d*))?(?:-(?P<prerelease>(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$")
 
 type Version struct {
 	Major int
@@ -17,37 +18,40 @@ type Version struct {
 func createVersion(vErrs *ValidationErrors, location string, full string) Version {
 	v := Version{Major: -1, Minor: -1, Micro: -1, full: full}
 
-	if len(full) > 0 {
-		split := strings.Split(full, ".")
-		if len(split) > 0 {
-			major, err := strconv.Atoi(split[0])
+	if semanticVersioningPattern.MatchString(full) {
+		match := semanticVersioningPattern.FindStringSubmatch(full)
+		result := make(map[string]string)
+		for i, name := range semanticVersioningPattern.SubexpNames() {
+			if i != 0 && name != "" {
+				result[name] = match[i]
+			}
+		}
+
+		if result["major"] != "" {
+			major, err := strconv.Atoi(result["major"])
 			if err != nil {
 				vErrs.AddError(err, location+".x")
 			} else {
 				v.Major = int(major)
 			}
 		}
-		if len(split) > 1 {
-			minor, err := strconv.Atoi(split[1])
+		if result["minor"] != "" {
+			minor, err := strconv.Atoi(result["minor"])
 			if err != nil {
 				vErrs.AddError(err, location+".y")
 			} else {
 				v.Minor = int(minor)
 			}
 		}
-		if len(split) > 2 {
-			minor, err := strconv.Atoi(split[2])
+		if result["patch"] != "" {
+			patch, err := strconv.Atoi(result["patch"])
 			if err != nil {
 				vErrs.AddError(err, location+".z")
 			} else {
-				v.Micro = int(minor)
+				v.Micro = int(patch)
 			}
 		}
-		if len(split) > 3 {
-			vErrs.AddWarning("ignored extraneous characters after x.y.z in version "+full, location)
-		}
-	} else {
-		vErrs.AddError(errors.New("no version was specified"), location)
+		// TODO take prerelease tag into account
 	}
 
 	return v
