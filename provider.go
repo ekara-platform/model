@@ -63,7 +63,7 @@ func createProviders(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnv
 				Name:       name,
 			}
 
-			provider.Component = createComponent(vErrs, env, "providers."+name, yamlProvider.Repository, yamlProvider.Version)
+			provider.Component = createComponent(vErrs, env.Lagoon, "providers."+name, yamlProvider.Repository, yamlProvider.Version)
 
 			res[name] = provider
 		}

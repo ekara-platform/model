@@ -31,19 +31,16 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.Equal(t, 3, len(labels.AsStrings()))
 	assert.Equal(t, true, labels.MatchesLabels("root_label1", "root_label2", "root_label3"))
 
-	// Settings
-	assert.NotNil(t, env.Settings)
-	assert.Equal(t, "file://someBase/", env.Settings.ComponentBase.String())
-	assert.Equal(t, "someRegistry.org", env.Settings.DockerRegistry.String())
-	assert.Equal(t, "http://user:pwd@someproxy.org:8080", env.Settings.Proxy.Http.String())
-	assert.Equal(t, "https://user:pwd@someproxy.org:8080", env.Settings.Proxy.Https.String())
-	assert.Equal(t, "*.dummy.org", env.Settings.Proxy.NoProxy)
-
-	//------------------------------------------------------------
-	// Components
-	//------------------------------------------------------------
-	components := env.Components
-	assert.NotNil(t, components)
+	// Platform
+	assert.NotNil(t, env.Lagoon)
+	assert.Equal(t, "file://someBase/", env.Lagoon.ComponentBase.String())
+	assert.Equal(t, "someRegistry.org", env.Lagoon.DockerRegistry.String())
+	assert.Equal(t, "http://user:pwd@someproxy.org:8080", env.Lagoon.Proxy.Http.String())
+	assert.Equal(t, "https://user:pwd@someproxy.org:8080", env.Lagoon.Proxy.Https.String())
+	assert.Equal(t, "*.dummy.org", env.Lagoon.Proxy.NoProxy)
+	assert.NotNil(t, env.Lagoon.ComponentVersions)
+	assert.True(t, strings.HasSuffix(env.Lagoon.Component.Repository.String(), "someBase/lagoon-platform/core"))
+	assert.Equal(t, "stable", env.Lagoon.Component.Version.String())
 
 	//------------------------------------------------------------
 	// Orchestrator

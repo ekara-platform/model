@@ -17,7 +17,7 @@ func createOrchestrator(vErrs *ValidationErrors, env *Environment, yamlEnv *yaml
 	if yamlO.Name == "" {
 		vErrs.AddError(errors.New("no orchestrator specified"), "orchestrator")
 	} else {
-		o.Component = createComponent(vErrs, env, "orchestrator", yamlO.Repository, yamlO.Version)
+		o.Component = createComponent(vErrs, env.Lagoon, "orchestrator", yamlO.Repository, yamlO.Version)
 		o.Name = yamlO.Name
 		o.Docker = createAttributes(yamlO.Docker, nil)
 		o.Parameters = createAttributes(yamlO.Params, nil)

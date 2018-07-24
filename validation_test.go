@@ -44,15 +44,6 @@ func TestNoOrchestrator(t *testing.T) {
 	assert.Equal(t, "no orchestrator specified", vErrs.Errors[0].Message)
 }
 
-func TestNoPlateform(t *testing.T) {
-	vErrs := testEmptyContent(t, "platform", false)
-	assert.Equal(t, true, vErrs.HasErrors())
-	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
-	assert.Equal(t, "no lagoon plaform repository", vErrs.Errors[0].Message)
-	assert.Equal(t, Error, vErrs.Errors[1].ErrorType)
-	assert.Equal(t, "no lagoon plaform version", vErrs.Errors[1].Message)
-}
-
 func TestNoStacks(t *testing.T) {
 	vErrs := testEmptyContent(t, "stacks", true)
 	assert.Equal(t, false, vErrs.HasErrors())

@@ -6,16 +6,16 @@ labels:
   - root_label2
   - root_label3
 
-settings:
+lagoon:
   componentBase: someBase
+  components:
+    lagoon-platform/aws-provider: 1.2.3
   dockerRegistry: someRegistry.org
   proxy:
     http: http://user:pwd@someproxy.org:8080
     https: https://user:pwd@someproxy.org:8080
     noProxy: '*.dummy.org'
 
-components:
-  lagoon-platform/aws-provider: 1.2.3
 
 orchestrator:
   name: swarm
@@ -27,11 +27,6 @@ orchestrator:
     swarm_env_key2: swarm_env_key2_value
   repository: lagoon-platform/swarm-provider
   version: master
-
-lagoonPlatform:
-  repository: lagoon-platform/core
-  version: 1.2.3
-
 
 providers:
   aws:

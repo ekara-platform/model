@@ -25,8 +25,8 @@ type Component struct {
 	Version    Version
 }
 
-func createComponent(vErrs *ValidationErrors, env *Environment, location string, repo string, version string) Component {
-	cId, cUrl, e := ResolveRepositoryInfo(env.Settings.ComponentBase, repo)
+func createComponent(vErrs *ValidationErrors, lagoon LagoonPlatform, location string, repo string, version string) Component {
+	cId, cUrl, e := ResolveRepositoryInfo(lagoon.ComponentBase, repo)
 	if e != nil {
 		vErrs.AddError(e, location+".repository")
 	}
@@ -35,7 +35,7 @@ func createComponent(vErrs *ValidationErrors, env *Environment, location string,
 	if len(version) > 0 {
 		parsedVersion = createVersion(vErrs, location+".version", version)
 	} else {
-		if managedVersion, ok := env.Components[cId]; ok {
+		if managedVersion, ok := lagoon.ComponentVersions[cId]; ok {
 			parsedVersion = managedVersion
 		} else {
 			vErrs.AddError(errors.New("no version provided for component "+cUrl.String()), location+".version")
@@ -49,12 +49,18 @@ func createComponent(vErrs *ValidationErrors, env *Environment, location string,
 		Scm:        resolveScm(vErrs, location+".repository", cUrl)}
 }
 
-func createComponentMap(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) map[string]Version {
+func createComponentMap(vErrs *ValidationErrors, componentBase *url.URL, yamlEnv *yamlEnvironment) map[string]Version {
 	res := map[string]Version{}
-	for repo, v := range yamlEnv.Components {
-		cId, _, e := ResolveRepositoryInfo(env.Settings.ComponentBase, repo)
+	coreId, _, e := ResolveRepositoryInfo(componentBase, LagoonCoreRepository)
+	if e != nil {
+		vErrs.AddError(e, "lagoon.components")
+	}
+	res[coreId] = createVersion(vErrs, "lagoon.components."+LagoonCoreRepository, "stable")
+
+	for repo, v := range yamlEnv.Lagoon.Components {
+		cId, _, e := ResolveRepositoryInfo(componentBase, repo)
 		if e != nil {
-			vErrs.AddError(e, "components")
+			vErrs.AddError(e, "lagoon.components")
 		}
 		res[cId] = createVersion(vErrs, "components."+repo, v)
 	}

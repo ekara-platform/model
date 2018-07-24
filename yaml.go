@@ -76,6 +76,9 @@ type yamlRepoVersion struct {
 
 // Definition of the Lagoon environment
 type yamlEnvironment struct {
+	// Imports, to be included into the environment descriptor
+	Imports []string
+
 	// The name of the environment
 	Name string
 	// The description of the environment
@@ -86,25 +89,18 @@ type yamlEnvironment struct {
 	// The labels associated to the environment
 	yamlLabels `yaml:",inline"`
 
-	// Settings
-	Settings struct {
+	// The Lagoon platform used to interact with the environment
+	Lagoon struct {
 		ComponentBase  string `yaml:"componentBase"`
+		Components     map[string]string
 		DockerRegistry string `yaml:"dockerRegistry"`
 		Proxy          struct {
 			Http    string
 			Https   string
 			NoProxy string `yaml:"noProxy"`
 		}
+		yamlRepoVersion `yaml:"lagoonPlatform"`
 	}
-
-	// The Lagoon platform used to interact with the environment
-	LagoonPlatform yamlRepoVersion `yaml:"lagoonPlatform"`
-
-	// Imports, to be included into the environment descriptor
-	Imports []string
-
-	// Components
-	Components map[string]string
 
 	// Global definition of the orchestrator to install on the environment
 	Orchestrator struct {

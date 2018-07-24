@@ -10,31 +10,23 @@ type Environment struct {
 	Labels
 	Component
 
-	// The orchestrator used to manage the environment
-	Orchestrator Orchestrator
-	// The specification of the flavor of the Lagoon Platform used to interact
-	// with the environment
-	LagoonPlatform LagoonPlatform
-
 	// The environment name
 	Name string
 	// The environment description
 	Description string
-
 	// The version of the environment descriptor
 	Version Version
 
-	// Settings
-	Settings Settings
+	// Lagoon platform settings
+	Lagoon LagoonPlatform
 
-	// Component versions
-	Components map[string]Version
-
-	// The providers where to create the environment nodesets
+	// The providers where to create the environment node sets
 	Providers map[string]Provider
+	// The orchestrator used to manage the environment
+	Orchestrator Orchestrator
 	// The nodesets to create
 	NodeSets map[string]NodeSet
-	// The software stacks to install on the created nodesets
+	// The software stacks to install on the created node sets
 	Stacks map[string]Stack
 	// The tasks which can be ran against the environment
 	Tasks map[string]Task
@@ -72,13 +64,11 @@ func createEnvironment(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Enviro
 	var env = Environment{}
 	env.Name = yamlEnv.Name
 	env.Description = yamlEnv.Description
-	env.Labels = createLabels(vErrs, yamlEnv.Labels...)
-	env.Settings = createSettings(vErrs, yamlEnv)
 	env.Version = createVersion(vErrs, "version", yamlEnv.Version)
-	env.LagoonPlatform = createLagoonPlatform(vErrs, &env, "lagoonPlatform", yamlEnv.LagoonPlatform)
-	env.Components = createComponentMap(vErrs, &env, yamlEnv)
-	env.Orchestrator = createOrchestrator(vErrs, &env, yamlEnv)
+	env.Labels = createLabels(vErrs, yamlEnv.Labels...)
+	env.Lagoon = createLagoonPlatform(vErrs, yamlEnv)
 	env.Tasks = createTasks(vErrs, &env, yamlEnv)
+	env.Orchestrator = createOrchestrator(vErrs, &env, yamlEnv)
 	env.Providers = createProviders(vErrs, &env, yamlEnv)
 	env.NodeSets = createNodeSets(vErrs, &env, yamlEnv)
 	env.Stacks = createStacks(vErrs, &env, yamlEnv)
