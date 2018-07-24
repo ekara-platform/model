@@ -87,7 +87,7 @@ func createNodeSets(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvi
 func createNodeSetRef(vErrs *ValidationErrors, env *Environment, location string, labels ...string) NodeSetRef {
 	nodeSets := make([]*NodeSet, 0, 10)
 	if len(labels) == 0 {
-		vErrs.AddError(errors.New("empty node set reference"), location)
+		vErrs.AddWarning("empty node set reference", location)
 	} else {
 		for _, nodeSet := range env.NodeSets {
 			if nodeSet.MatchesLabels(labels...) {

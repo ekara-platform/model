@@ -122,15 +122,15 @@ func TestNodesUnknownHook(t *testing.T) {
 func TestStacksNoDeployOnError(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
 	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/stacks_no_deploy_on_error.yaml"))
-	vErrs := assertValidationErrors(t, e, logger, false)
+	vErrs := assertValidationErrors(t, e, logger, true)
 
 	assert.NotNil(t, vErrs)
-	assert.Equal(t, true, vErrs.HasErrors())
-	assert.Equal(t, false, vErrs.HasWarnings())
+	assert.Equal(t, false, vErrs.HasErrors())
+	assert.Equal(t, true, vErrs.HasWarnings())
 	assert.Equal(t, 1, len(vErrs.Errors))
 	assert.Equal(t, "stacks.monitoring.deployOn", vErrs.Errors[0].Location)
 	assert.Equal(t, "empty node set reference", vErrs.Errors[0].Message)
-	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
+	assert.Equal(t, Warning, vErrs.Errors[0].ErrorType)
 }
 
 func TestStacksUnknownDeployOn(t *testing.T) {
