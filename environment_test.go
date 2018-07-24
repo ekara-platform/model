@@ -62,6 +62,15 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "swarm_param_key2_value")
 
+	en := orchestrator.Envvars.copy()
+	v, ok = en["swarm_env_key1"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "swarm_env_key1_value")
+
+	v, ok = en["swarm_env_key2"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "swarm_env_key2_value")
+
 	//------------------------------------------------------------
 	// Environment Providers
 	//------------------------------------------------------------
@@ -88,6 +97,16 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "aws_param_key2_value")
 
+	assert.NotNil(t, providers["aws"].Envvars)
+	en = providers["aws"].Envvars.copy()
+	v, ok = en["aws_env_key1"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "aws_env_key1_value")
+
+	v, ok = en["aws_env_key2"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "aws_env_key2_value")
+
 	// Azure Provider
 	assert.NotNil(t, providers["azure"])
 	assert.Equal(t, "azure", providers["azure"].Name)
@@ -103,6 +122,16 @@ func TestCreateEngineComplete(t *testing.T) {
 	v, ok = c["azure_param_key2"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "azure_param_key2_value")
+
+	assert.NotNil(t, providers["azure"].Envvars)
+	en = providers["azure"].Envvars.copy()
+	v, ok = en["azure_env_key1"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "azure_env_key1_value")
+
+	v, ok = en["azure_env_key2"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "azure_env_key2_value")
 
 	//------------------------------------------------------------
 	// Environment Nodes
@@ -144,6 +173,15 @@ func TestCreateEngineComplete(t *testing.T) {
 	v, ok = c["orchestrator_node1_param_key2"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "orchestrator_node1_param_key2_value")
+
+	en = nodeSets["node1"].Orchestrator.Envvars.copy()
+	v, ok = en["orchestrator_node1_env_key1"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "orchestrator_node1_env_key1_value")
+
+	v, ok = en["orchestrator_node1_env_key2"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "orchestrator_node1_env_key2_value")
 
 	vs := nodeSets["node1"].Provider.Volumes()
 	assert.NotNil(t, vs)
@@ -187,6 +225,15 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "orchestrator_node2_param_key2_value")
 
+	en = nodeSets["node2"].Orchestrator.Envvars.copy()
+	v, ok = en["orchestrator_node2_env_key1"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "orchestrator_node2_env_key1_value")
+
+	v, ok = en["orchestrator_node2_env_key2"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "orchestrator_node2_env_key2_value")
+
 	vs = nodeSets["node2"].Provider.Volumes()
 	assert.NotNil(t, vs)
 	assert.Equal(t, 2, len(vs))
@@ -226,7 +273,45 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.Equal(t, 2, len(tasks))
 
 	assert.Contains(t, tasks, "task1")
+
+	pa := tasks["task1"].Parameters.copy()
+	v, ok = pa["tasks_task1_param_key1"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "tasks_task1_param_key1_value")
+
+	v, ok = pa["tasks_task1_param_key2"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "tasks_task1_param_key2_value")
+
+	en = tasks["task1"].Envvars.copy()
+	v, ok = en["tasks_task1_env_key1"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "tasks_task1_env_key1_value")
+
+	v, ok = en["tasks_task1_env_key2"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "tasks_task1_env_key2_value")
+
 	assert.Contains(t, tasks, "task2")
+
+	pa = tasks["task2"].Parameters.copy()
+	v, ok = pa["tasks_task2_param_key1"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "tasks_task2_param_key1_value")
+
+	v, ok = pa["tasks_task2_param_key2"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "tasks_task2_param_key2_value")
+
+	en = tasks["task2"].Envvars.copy()
+	v, ok = en["tasks_task2_env_key1"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "tasks_task2_env_key1_value")
+
+	v, ok = en["tasks_task2_env_key2"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "tasks_task2_env_key2_value")
+
 	assert.NotContains(t, tasks, "dummy")
 
 	assert.Equal(t, "task1_playbook", tasks["task1"].Playbook)

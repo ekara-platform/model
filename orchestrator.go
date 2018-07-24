@@ -6,6 +6,7 @@ type Orchestrator struct {
 	root       *Environment
 	Docker     attributes
 	Parameters attributes
+	Envvars    envvars
 	Component
 	Name string
 }
@@ -20,6 +21,7 @@ func createOrchestrator(vErrs *ValidationErrors, env *Environment, yamlEnv *yaml
 		o.Name = yamlO.Name
 		o.Docker = createAttributes(yamlO.Docker, nil)
 		o.Parameters = createAttributes(yamlO.Params, nil)
+		o.Envvars = createEnvvars(yamlO.Envvars, nil)
 		o.root = env
 	}
 	return o

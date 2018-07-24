@@ -19,15 +19,22 @@ type yamlParams struct {
 	Params attributes
 }
 
+// yaml tag for environment variables
+type yamlEnvvars struct {
+	Envvars envvars
+}
+
 // yaml tag for docker parameters
 type yamlDocker struct {
 	Docker attributes
 }
 
-// yaml reference on a name allowing to hold more specific parameters
+// yaml reference on a name allowing to hold more specific parameters and
+// environment variables.
 type yamlRef struct {
-	yamlParams `yaml:",inline"`
-	Name       string
+	yamlParams  `yaml:",inline"`
+	yamlEnvvars `yaml:",inline"`
+	Name        string
 }
 
 // yaml reference on a provider name allowing to hold more specific parameters
@@ -36,6 +43,8 @@ type yamlProviderRef struct {
 	Name string
 	// The overwritten parameters for the provider
 	yamlParams `yaml:",inline"`
+	// The overwritten environment variables for the provider
+	yamlEnvvars `yaml:",inline"`
 	// The volumes to create and mount
 	Volumes []yamlVolumes
 }
@@ -101,6 +110,8 @@ type yamlEnvironment struct {
 	Orchestrator struct {
 		// The orchestrator specifics parameters
 		yamlParams `yaml:",inline"`
+		// The orchestrator specifics environment variables
+		yamlEnvvars `yaml:",inline"`
 		// The docker parameters
 		yamlDocker `yaml:",inline"`
 		// The name of the orchestrator
@@ -113,6 +124,8 @@ type yamlEnvironment struct {
 	Providers map[string]struct {
 		// The provider parameters
 		yamlParams `yaml:",inline"`
+		// The provider environment variables
+		yamlEnvvars `yaml:",inline"`
 		// The repository and version of the provider
 		yamlRepoVersion `yaml:",inline"`
 	}
@@ -130,6 +143,8 @@ type yamlEnvironment struct {
 		Orchestrator struct {
 			// The overwritten orchestrator specifics parameters for the node set
 			yamlParams `yaml:",inline"`
+			// The overwritten orchestrator specifics environment variables for the node set
+			yamlEnvvars `yaml:",inline"`
 			// The overwritten docker parameters for the node set
 			yamlDocker `yaml:",inline"`
 		}
@@ -163,6 +178,8 @@ type yamlEnvironment struct {
 		yamlLabels `yaml:",inline"`
 		// The task parameters
 		yamlParams `yaml:",inline"`
+		// The task environment variables
+		yamlEnvvars `yaml:",inline"`
 
 		// The name of the playbook to launch the task
 		Playbook string

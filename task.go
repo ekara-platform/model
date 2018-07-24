@@ -10,6 +10,7 @@ type Task struct {
 	root *Environment
 	Labels
 	Parameters attributes
+	Envvars    envvars
 
 	Name     string
 	Playbook string
@@ -23,6 +24,7 @@ type Task struct {
 
 type TaskRef struct {
 	Parameters attributes
+	Envvars    envvars
 	task       *Task
 }
 
@@ -38,6 +40,7 @@ func createTasks(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnviron
 			root:       env,
 			Labels:     createLabels(vErrs, yamlTask.Labels...),
 			Parameters: createAttributes(yamlTask.Params, nil),
+			Envvars:    createEnvvars(yamlTask.Envvars, nil),
 			Name:       name,
 			Playbook:   yamlTask.Playbook,
 			Cron:       yamlTask.Cron}
@@ -62,12 +65,17 @@ func createTasks(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnviron
 	return res
 }
 
+// TODO Add units tests for this on the "complete_descriptor"
 func createTaskRef(vErrs *ValidationErrors, tasks map[string]Task, location string, yamlRef yamlRef) TaskRef {
 	if len(yamlRef.Name) == 0 {
 		vErrs.AddError(errors.New("empty task reference"), location)
 	} else {
 		if val, ok := tasks[yamlRef.Name]; ok {
-			return TaskRef{Parameters: createAttributes(yamlRef.Params, nil), task: &val}
+			return TaskRef{
+				Parameters: createAttributes(yamlRef.Params, nil),
+				Envvars:    createEnvvars(yamlRef.Envvars, nil),
+				task:       &val,
+			}
 		} else {
 			vErrs.AddError(errors.New("unknown task reference: "+yamlRef.Name), location)
 		}

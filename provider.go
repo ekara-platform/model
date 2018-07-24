@@ -13,6 +13,8 @@ type Provider struct {
 	Component
 	// The provider attributes
 	Parameters attributes
+	// The provider environment variables
+	Envvars envvars
 }
 
 // Reference to a provider
@@ -21,6 +23,8 @@ type ProviderRef struct {
 	provider *Provider
 	// The overwritten parameters of the provider
 	Parameters attributes `yaml:",inline"`
+	// The overwritten environment variables of the provider
+	Envvars envvars `yaml:",inline"`
 	// The volumes to create
 	volumes []Volume
 }
@@ -55,6 +59,7 @@ func createProviders(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnv
 			provider := Provider{
 				root:       env,
 				Parameters: createAttributes(yamlProvider.Params, nil),
+				Envvars:    createEnvvars(yamlProvider.Envvars, nil),
 				Name:       name,
 			}
 
@@ -72,7 +77,11 @@ func createProviderRef(vErrs *ValidationErrors, env *Environment, location strin
 		vErrs.AddError(errors.New("empty provider reference"), location)
 	} else {
 		if val, ok := env.Providers[yamlRef.Name]; ok {
-			providerRef := ProviderRef{Parameters: createAttributes(yamlRef.Params, val.Parameters), provider: &val}
+			providerRef := ProviderRef{
+				Parameters: createAttributes(yamlRef.Params, val.Parameters),
+				Envvars:    createEnvvars(yamlRef.Envvars, val.Envvars),
+				provider:   &val,
+			}
 			providerRef.volumes = createVolumes(vErrs, env, location+".volumes", yamlRef.Volumes)
 			return providerRef
 		} else {

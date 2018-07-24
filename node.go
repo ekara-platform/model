@@ -12,6 +12,8 @@ import (
 type OrchestratorParameters struct {
 	//The Orchestrator specific parameters
 	Parameters attributes
+	//The Orchestrator specific environment variables
+	Envvars envvars
 	// The Dockers specific parameters
 	Docker attributes
 }
@@ -69,6 +71,7 @@ func createNodeSets(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvi
 			}
 
 			nodeSet.Orchestrator.Parameters = createAttributes(yamlNodeSet.Orchestrator.Params, env.Orchestrator.Parameters.copy())
+			nodeSet.Orchestrator.Envvars = createEnvvars(yamlNodeSet.Orchestrator.Envvars, env.Orchestrator.Envvars.copy())
 			nodeSet.Orchestrator.Docker = createAttributes(yamlNodeSet.Orchestrator.Docker, env.Orchestrator.Docker.copy())
 
 			nodeSet.Provider = createProviderRef(vErrs, env, "nodes."+name+".provider", yamlNodeSet.Provider)

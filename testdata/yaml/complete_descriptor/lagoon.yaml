@@ -22,6 +22,9 @@ orchestrator:
   params:
     swarm_param_key1: swarm_param_key1_value
     swarm_param_key2: swarm_param_key2_value
+  envvars:
+    swarm_env_key1: swarm_env_key1_value
+    swarm_env_key2: swarm_env_key2_value
   repository: lagoon-platform/swarm-provider
   version: master
 
@@ -39,6 +42,10 @@ providers:
     params:
       aws_param_key1: aws_param_key1_value
       aws_param_key2: aws_param_key2_value
+    envvars:
+      aws_env_key1: aws_env_key1_value
+      aws_env_key2: aws_env_key2_value
+
   azure:
     repository: lagoon-platform/azure-provider
     version: 1.2.3
@@ -48,6 +55,9 @@ providers:
     params:
       azure_param_key1: azure_param_key1_value
       azure_param_key2: azure_param_key2_value
+    envvars:
+      azure_env_key1: azure_env_key1_value
+      azure_env_key2: azure_env_key2_value
 
 nodes:
   node1:
@@ -61,6 +71,10 @@ nodes:
       params:
         provider_node1_param_key1: provider_node1_param_key1_value
         provider_node1_param_key2: provider_node1_param_key2_value
+      envvars:
+        provider_node1_env_key1: provider_node1_env_key1_value
+        provider_node1_env_key2: provider_node1_env_key2_value
+
       volumes:
         - name: "aws_name1"
           params:
@@ -73,6 +87,9 @@ nodes:
       params:
         orchestrator_node1_param_key1: orchestrator_node1_param_key1_value
         orchestrator_node1_param_key2: orchestrator_node1_param_key2_value
+      envvars:
+        orchestrator_node1_env_key1: orchestrator_node1_env_key1_value
+        orchestrator_node1_env_key2: orchestrator_node1_env_key2_value
 
 
   node2:
@@ -86,6 +103,10 @@ nodes:
       params:
         provider_node2_param_key1: provider_node2_param_key1_value
         provider_node2_param_key2: provider_node2_param_key2_value
+      envvars:
+        provider_node2_env_key1: provider_node2_env_key1_value
+        provider_node2_env_key2: provider_node2_env_key2_value
+
       volumes:
         - name: "azure_name1"
           params:
@@ -98,6 +119,9 @@ nodes:
       params:
         orchestrator_node2_param_key1: orchestrator_node2_param_key1_value
         orchestrator_node2_param_key2: orchestrator_node2_param_key2_value
+      envvars:
+        orchestrator_node2_env_key1: orchestrator_node2_env_key1_value
+        orchestrator_node2_env_key2: orchestrator_node2_env_key2_value
 
 stacks:
   stack1:
@@ -128,6 +152,12 @@ tasks:
       - task1_label3
     cron: task1_cron
     playbook: task1_playbook
+    params:
+      tasks_task1_param_key1: tasks_task1_param_key1_value
+      tasks_task1_param_key2: tasks_task1_param_key2_value
+    envvars:
+      tasks_task1_env_key1: tasks_task1_env_key1_value
+      tasks_task1_env_key2: tasks_task1_env_key2_value	
 
   task2:
     labels:
@@ -136,3 +166,9 @@ tasks:
       - task2_label3
     cron: task2_cron
     playbook: task2_playbook
+    params:
+      tasks_task2_param_key1: tasks_task2_param_key1_value
+      tasks_task2_param_key2: tasks_task2_param_key2_value
+    envvars:
+      tasks_task2_env_key1: tasks_task2_env_key1_value
+      tasks_task2_env_key2: tasks_task2_env_key2_value	
