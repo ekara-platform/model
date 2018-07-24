@@ -29,24 +29,25 @@ func createComponent(vErrs *ValidationErrors, lagoon LagoonPlatform, location st
 	cId, cUrl, e := ResolveRepositoryInfo(lagoon.ComponentBase, repo)
 	if e != nil {
 		vErrs.AddError(e, location+".repository")
-	}
-
-	var parsedVersion Version
-	if len(version) > 0 {
-		parsedVersion = createVersion(vErrs, location+".version", version)
+		return Component{}
 	} else {
-		if managedVersion, ok := lagoon.ComponentVersions[cId]; ok {
-			parsedVersion = managedVersion
+		var parsedVersion Version
+		if len(version) > 0 {
+			parsedVersion = createVersion(vErrs, location+".version", version)
 		} else {
-			vErrs.AddError(errors.New("no version provided for component "+cUrl.String()), location+".version")
+			if managedVersion, ok := lagoon.ComponentVersions[cId]; ok {
+				parsedVersion = managedVersion
+			} else {
+				vErrs.AddError(errors.New("no version specified"), location+".version")
+			}
 		}
-	}
 
-	return Component{
-		Id:         cId,
-		Repository: cUrl,
-		Version:    parsedVersion,
-		Scm:        resolveScm(vErrs, location+".repository", cUrl)}
+		return Component{
+			Id:         cId,
+			Repository: cUrl,
+			Version:    parsedVersion,
+			Scm:        resolveScm(vErrs, location+".repository", cUrl)}
+	}
 }
 
 func createComponentMap(vErrs *ValidationErrors, componentBase *url.URL, yamlEnv *yamlEnvironment) map[string]Version {
@@ -72,6 +73,11 @@ func createComponentMap(vErrs *ValidationErrors, componentBase *url.URL, yamlEnv
 // - URLs starting with github.com or bitbucket.org are assumed as https://
 // - URLs without protocol and matching org/repo are assumed as being prefixed with base
 func ResolveRepositoryInfo(base *url.URL, repo string) (cId string, cUrl *url.URL, e error) {
+	if repo == "" {
+		e = errors.New("no repository specified")
+		return
+	}
+
 	isSimpleRepo, _ := regexp.MatchString("^[_a-zA-Z0-9-]+/[_a-zA-Z0-9-]+$", repo)
 	if isSimpleRepo {
 		// Simple repositories are always resolved relatively to the base URL

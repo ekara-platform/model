@@ -11,10 +11,6 @@ lagoon:
     https: proxy_https_value
     noProxy: proxy_noproxy_value
 
-lagoonPlatform:
-  repository: lagoon-platform/swarm-provider
-  version: 1.2.3
-
 providers:
   aws:
     repository: lagoon-platform/aws-provider
@@ -24,7 +20,6 @@ providers:
     version: 1.2.3
 
 orchestrator:
-  name: swarm
   params:
     swarm_param_key1: swarm_param_key1_value
     swarm_param_key2: swarm_param_key2_value

@@ -9,14 +9,9 @@ providers:
     version: 1.2.3
 
 orchestrator:
-  name: swarm
   params:
     swarm_param_key1: swarm_param_key1_value
     swarm_param_key2: swarm_param_key2_value
-  repository: lagoon-platform/swarm-provider
-  version: 1.2.3
-
-lagoonPlatform:
   repository: lagoon-platform/swarm-provider
   version: 1.2.3
 

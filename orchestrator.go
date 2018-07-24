@@ -12,17 +12,16 @@ type Orchestrator struct {
 }
 
 func createOrchestrator(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) Orchestrator {
-	o := Orchestrator{}
 	yamlO := yamlEnv.Orchestrator
-	if yamlO.Name == "" {
+	if yamlO.Repository == "" {
 		vErrs.AddError(errors.New("no orchestrator specified"), "orchestrator")
+		return Orchestrator{}
 	} else {
-		o.Component = createComponent(vErrs, env.Lagoon, "orchestrator", yamlO.Repository, yamlO.Version)
-		o.Name = yamlO.Name
-		o.Docker = createAttributes(yamlO.Docker, nil)
-		o.Parameters = createAttributes(yamlO.Params, nil)
-		o.Envvars = createEnvvars(yamlO.Envvars, nil)
-		o.root = env
+		return Orchestrator{
+			Component:  createComponent(vErrs, env.Lagoon, "orchestrator", yamlO.Repository, yamlO.Version),
+			Docker:     createAttributes(yamlO.Docker, nil),
+			Parameters: createAttributes(yamlO.Params, nil),
+			Envvars:    createEnvvars(yamlO.Envvars, nil),
+			root:       env}
 	}
-	return o
 }

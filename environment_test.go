@@ -47,8 +47,6 @@ func TestCreateEngineComplete(t *testing.T) {
 	//------------------------------------------------------------
 	orchestrator := env.Orchestrator
 	assert.NotNil(t, orchestrator)
-	assert.Equal(t, "swarm", orchestrator.Name)
-
 	assert.NotNil(t, orchestrator.Parameters)
 	c := orchestrator.Parameters.copy()
 	v, ok := c["swarm_param_key1"]
