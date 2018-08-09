@@ -18,9 +18,9 @@ func testEmptyContent(t *testing.T, name string, onlyWarning bool) ValidationErr
 }
 
 func assertValidationErrors(t *testing.T, e error, logger *log.Logger, onlyWarning bool) ValidationErrors {
-	assert.NotNil(t, e)
+	assert.NotNilf(t, e, "error should not be nil")
 	vErrs, ok := e.(ValidationErrors)
-	assert.True(t, ok)
+	assert.True(t, ok, "error should be of type ValidationError but was: "+e.Error())
 	if onlyWarning {
 		assert.True(t, vErrs.HasWarnings())
 	} else {
@@ -88,7 +88,7 @@ func TestNoVolumeName(t *testing.T) {
 	assert.Equal(t, true, vErrs.HasErrors())
 	assert.Equal(t, false, vErrs.HasWarnings())
 	assert.Equal(t, 1, len(vErrs.Errors))
-	assert.Equal(t, "nodes.managers.provider.volumes", vErrs.Errors[0].Location)
+	assert.Equal(t, "nodes.managers.volumes.path", vErrs.Errors[0].Location)
 	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
 }
 
@@ -102,7 +102,7 @@ func TestNodesUnknownProvider(t *testing.T) {
 	assert.Equal(t, false, vErrs.HasWarnings())
 	assert.Equal(t, 1, len(vErrs.Errors))
 	assert.Equal(t, "nodes.managers.provider.name", vErrs.Errors[0].Location)
-	assert.Equal(t, "unknown provider reference: DUMMY", vErrs.Errors[0].Message)
+	assert.Equal(t, "unknown provider reference: unknown", vErrs.Errors[0].Message)
 	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
 }
 
@@ -119,31 +119,17 @@ func TestNodesUnknownHook(t *testing.T) {
 	testHook(t, "nodes.managers.hooks.provision.after", 1, vErrs)
 }
 
-func TestStacksNoDeployOnError(t *testing.T) {
+func TestStacksUnknownOn(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/stacks_no_deploy_on_error.yaml"))
-	vErrs := assertValidationErrors(t, e, logger, true)
-
-	assert.NotNil(t, vErrs)
-	assert.Equal(t, false, vErrs.HasErrors())
-	assert.Equal(t, true, vErrs.HasWarnings())
-	assert.Equal(t, 1, len(vErrs.Errors))
-	assert.Equal(t, "stacks.monitoring.deployOn", vErrs.Errors[0].Location)
-	assert.Equal(t, "empty node set reference", vErrs.Errors[0].Message)
-	assert.Equal(t, Warning, vErrs.Errors[0].ErrorType)
-}
-
-func TestStacksUnknownDeployOn(t *testing.T) {
-	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/stacks_unknown_deploy_on.yaml"))
+	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/stacks_unknown_on.yaml"))
 	vErrs := assertValidationErrors(t, e, logger, false)
 
 	assert.NotNil(t, vErrs)
 	assert.Equal(t, true, vErrs.HasErrors())
 	assert.Equal(t, false, vErrs.HasWarnings())
 	assert.Equal(t, 1, len(vErrs.Errors))
-	assert.Equal(t, "stacks.monitoring.deployOn", vErrs.Errors[0].Location)
-	assert.Equal(t, "no node set matches label(s): DUMMY", vErrs.Errors[0].Message)
+	assert.Equal(t, "stacks.monitoring.on", vErrs.Errors[0].Location)
+	assert.Equal(t, "unknown node set reference: unknown", vErrs.Errors[0].Message)
 	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
 }
 
@@ -161,17 +147,17 @@ func TestTasksNoPlayBook(t *testing.T) {
 	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
 }
 
-func TestTasksUnknownRunOn(t *testing.T) {
+func TestTasksUnknownOn(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/tasks_unknown_run_on.yaml"))
+	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/tasks_unknown_on.yaml"))
 	vErrs := assertValidationErrors(t, e, logger, false)
 
 	assert.NotNil(t, vErrs)
 	assert.Equal(t, true, vErrs.HasErrors())
 	assert.Equal(t, false, vErrs.HasWarnings())
 	assert.Equal(t, 1, len(vErrs.Errors))
-	assert.Equal(t, "tasks.task1.runOn", vErrs.Errors[0].Location)
-	assert.Equal(t, "no node set matches label(s): DUMMY", vErrs.Errors[0].Message)
+	assert.Equal(t, "tasks.task1.on", vErrs.Errors[0].Location)
+	assert.Equal(t, "unknown node set reference: unknown", vErrs.Errors[0].Message)
 	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
 }
 
@@ -199,6 +185,6 @@ func TestUnknownGlobalHooks(t *testing.T) {
 
 func testHook(t *testing.T, msg string, index int, vErrs ValidationErrors) {
 	assert.Equal(t, msg, vErrs.Errors[index].Location)
-	assert.Equal(t, "unknown task reference: DUMMY", vErrs.Errors[index].Message)
+	assert.Equal(t, "unknown task reference: unknown", vErrs.Errors[index].Message)
 	assert.Equal(t, Error, vErrs.Errors[index].ErrorType)
 }

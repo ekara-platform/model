@@ -1,33 +1,41 @@
 name: name_value
 description: description_value
-version: 1.2.3
+
+lagoon:
+  components:
+    swarm:
+      repository: lagoon-platform/swarm-orchestrator
+      version: 1.2.3
+    aws:
+      repository: lagoon-platform/aws-provider
+      version: 1.2.3
+    azure:
+      repository: lagoon-platform/azure-provider
+      version: 1.2.3
+    stack1:
+      repository: some-org/stack1
+      version: 1.2.3
 
 providers:
   aws:
-    repository: lagoon-platform/aws-provider
-    version: 1.2.3
+    component: aws
+  azure:
+    component: azure
 
 orchestrator:
-  params:
-    swarm_param_key1: swarm_param_key1_value
-    swarm_param_key2: swarm_param_key2_value
-  repository: lagoon-platform/swarm-provider
-  version: 1.2.3
+  component: swarm
 
 nodes:
   managers:
+    instances: 1
     provider:
       name: aws
-    instances: 10
-    labels:
-      - application
-
-stacks:
-  monitoring:
-    repository: github.com/lagoon-platform/monitoring-stack
-    version: 1.0.5
-    deployOn:
-      - application
 
 tasks:
   task1:
+
+
+stacks:
+  monitoring:
+    component: stack1
+

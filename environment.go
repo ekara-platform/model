@@ -7,7 +7,6 @@ import (
 )
 
 type Environment struct {
-	Labels
 	Component
 
 	// The environment name
@@ -49,7 +48,6 @@ func Parse(logger *log.Logger, u *url.URL) (Environment, error) {
 			return Environment{}, err
 		}
 		env := createEnvironment(&vErrs, &yamlEnv)
-		postValidate(&vErrs, &env)
 		if vErrs.HasErrors() || vErrs.HasWarnings() {
 			return env, vErrs
 		} else {
@@ -64,23 +62,16 @@ func createEnvironment(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Enviro
 	var env = Environment{}
 	env.Name = yamlEnv.Name
 	env.Description = yamlEnv.Description
-	env.Version = createVersion(vErrs, "version", yamlEnv.Version)
-	env.Labels = createLabels(vErrs, yamlEnv.Labels...)
 	env.Lagoon = createLagoonPlatform(vErrs, yamlEnv)
 	env.Tasks = createTasks(vErrs, &env, yamlEnv)
 	env.Orchestrator = createOrchestrator(vErrs, &env, yamlEnv)
 	env.Providers = createProviders(vErrs, &env, yamlEnv)
 	env.NodeSets = createNodeSets(vErrs, &env, yamlEnv)
 	env.Stacks = createStacks(vErrs, &env, yamlEnv)
-	env.Hooks.Init = createHook(vErrs, env.Tasks, "hooks.init", yamlEnv.Hooks.Init)
-	env.Hooks.Provision = createHook(vErrs, env.Tasks, "hooks.provision", yamlEnv.Hooks.Provision)
-	env.Hooks.Deploy = createHook(vErrs, env.Tasks, "hooks.deploy", yamlEnv.Hooks.Deploy)
-	env.Hooks.Undeploy = createHook(vErrs, env.Tasks, "hooks.undeploy", yamlEnv.Hooks.Undeploy)
-	env.Hooks.Destroy = createHook(vErrs, env.Tasks, "hooks.destroy", yamlEnv.Hooks.Destroy)
+	env.Hooks.Init = createHook(vErrs, "hooks.init", &env, yamlEnv.Hooks.Init)
+	env.Hooks.Provision = createHook(vErrs, "hooks.provision", &env, yamlEnv.Hooks.Provision)
+	env.Hooks.Deploy = createHook(vErrs, "hooks.deploy", &env, yamlEnv.Hooks.Deploy)
+	env.Hooks.Undeploy = createHook(vErrs, "hooks.undeploy", &env, yamlEnv.Hooks.Undeploy)
+	env.Hooks.Destroy = createHook(vErrs, "hooks.destroy", &env, yamlEnv.Hooks.Destroy)
 	return env
-}
-
-func postValidate(vErrs *ValidationErrors, env *Environment) ValidationErrors {
-	validationErrors := ValidationErrors{}
-	return validationErrors
 }

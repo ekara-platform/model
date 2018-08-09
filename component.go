@@ -1,8 +1,6 @@
 package model
 
 import (
-	"crypto/sha1"
-	"encoding/hex"
 	"errors"
 	"net/url"
 	"os"
@@ -25,54 +23,47 @@ type Component struct {
 	Version    Version
 }
 
-func createComponent(vErrs *ValidationErrors, lagoon LagoonPlatform, location string, repo string, version string) Component {
-	cId, cUrl, e := ResolveRepositoryInfo(lagoon.ComponentBase, repo)
+type ComponentRef struct {
+	component *Component
+}
+
+func (c ComponentRef) Resolve() Component {
+	// just copy the component by value
+	return *c.component
+}
+
+func createComponent(vErrs *ValidationErrors, location string, componentBase *url.URL, id string, repo string, version string) Component {
+	repoUrl, e := ResolveRepositoryInfo(componentBase, repo)
 	if e != nil {
 		vErrs.AddError(e, location+".repository")
 		return Component{}
 	} else {
-		var parsedVersion Version
-		if len(version) > 0 {
-			parsedVersion = createVersion(vErrs, location+".version", version)
-		} else {
-			if managedVersion, ok := lagoon.ComponentVersions[cId]; ok {
-				parsedVersion = managedVersion
-			} else {
-				vErrs.AddError(errors.New("no version specified"), location+".version")
-			}
-		}
-
 		return Component{
-			Id:         cId,
-			Repository: cUrl,
-			Version:    parsedVersion,
-			Scm:        resolveScm(vErrs, location+".repository", cUrl)}
+			Id:         id,
+			Repository: repoUrl,
+			Version:    createVersion(vErrs, location+".version", version),
+			Scm:        resolveScm(vErrs, location+".repository", repoUrl)}
 	}
 }
 
-func createComponentMap(vErrs *ValidationErrors, componentBase *url.URL, yamlEnv *yamlEnvironment) map[string]Version {
-	res := map[string]Version{}
-	coreId, _, e := ResolveRepositoryInfo(componentBase, LagoonCoreRepository)
-	if e != nil {
-		vErrs.AddError(e, "lagoon.components")
-	}
-	res[coreId] = createVersion(vErrs, "lagoon.components."+LagoonCoreRepository, "stable")
-
-	for repo, v := range yamlEnv.Lagoon.Components {
-		cId, _, e := ResolveRepositoryInfo(componentBase, repo)
-		if e != nil {
-			vErrs.AddError(e, "lagoon.components")
+func createComponentRef(vErrs *ValidationErrors, components map[string]Component, location string, componentRef string) ComponentRef {
+	if len(componentRef) == 0 {
+		vErrs.AddError(errors.New("empty component reference"), location)
+	} else {
+		if val, ok := components[componentRef]; ok {
+			return ComponentRef{component: &val}
+		} else {
+			vErrs.AddError(errors.New("unknown component reference: "+componentRef), location)
 		}
-		res[cId] = createVersion(vErrs, "components."+repo, v)
 	}
-	return res
+	return ComponentRef{}
 }
 
 // ResolveRepository resolve a full URL from repository short-forms.
 //
 // - URLs starting with github.com or bitbucket.org are assumed as https://
 // - URLs without protocol and matching org/repo are assumed as being prefixed with base
-func ResolveRepositoryInfo(base *url.URL, repo string) (cId string, cUrl *url.URL, e error) {
+func ResolveRepositoryInfo(base *url.URL, repo string) (cUrl *url.URL, e error) {
 	if repo == "" {
 		e = errors.New("no repository specified")
 		return
@@ -114,22 +105,6 @@ func ResolveRepositoryInfo(base *url.URL, repo string) (cId string, cUrl *url.UR
 	if (strings.ToUpper(cUrl.Scheme) == "HTTP" || strings.ToUpper(cUrl.Scheme) == "HTTPS") && !hasSuffixIgnoringCase(cUrl.Path, ".git") {
 		cUrl.Path = cUrl.Path + ".git"
 	}
-
-	// Compute the last non-empty segment in path (without extension) + hash of full url
-	splitPath := strings.Split(cUrl.Path, "/")
-	var i = len(splitPath) - 1
-	for ; i >= 0; i-- {
-		if len(splitPath[i]) > 0 {
-			break
-		}
-	}
-	cId = splitPath[i]
-	if strings.Contains(cId, ".") {
-		cId = cId[:strings.LastIndex(cId, ".")]
-	}
-	hash := sha1.New()
-	hash.Write([]byte(cUrl.String()))
-	cId = cId + "-" + hex.EncodeToString(hash.Sum(nil))
 
 	return
 }

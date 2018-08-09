@@ -1,8 +1,12 @@
 name: name_value
 description: description_value
-version: 1.2.3
+
+lagoon:
+  components:
+    aws:
+      repository: lagoon-platform/aws-provider
+      version: 1.2.3
 
 providers:
   aws:
-    repository: lagoon-platform/aws-provider
-    version: 1.2.3
+    component: aws

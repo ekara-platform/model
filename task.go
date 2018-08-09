@@ -7,46 +7,36 @@ import (
 )
 
 type Task struct {
-	root *Environment
-	Labels
-	Parameters attributes
-	Envvars    envvars
-
-	Name     string
+	// Name of the task
+	Name string
+	// The playbook to execute
 	Playbook string
-	Cron     string
-	RunOn    NodeSetRef
-
+	// The cron expression when the task must be scheduled
+	Cron string
+	// The nodes to run the task on
+	On NodeSetRef
+	// The task parameters
+	Parameters Parameters
+	// The task environment variables
+	EnvVars EnvVars
+	// Hooks for executing other tasks around execution
 	Hooks struct {
 		Execute Hook
 	}
 }
 
 type TaskRef struct {
-	Parameters attributes
-	Envvars    envvars
 	task       *Task
+	parameters Parameters
+	envVars    EnvVars
 }
 
 func createTasks(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) map[string]Task {
 	res := map[string]Task{}
-
 	for name, yamlTask := range yamlEnv.Tasks {
 		if len(yamlTask.Playbook) == 0 {
 			vErrs.AddError(errors.New("missing playbook"), "tasks."+name+".playbook")
 		}
-
-		res[name] = Task{
-			root:       env,
-			Labels:     createLabels(vErrs, yamlTask.Labels...),
-			Parameters: createAttributes(yamlTask.Params, nil),
-			Envvars:    createEnvvars(yamlTask.Envvars, nil),
-			Name:       name,
-			Playbook:   yamlTask.Playbook,
-			Cron:       yamlTask.Cron}
-	}
-
-	for name, yamlTask := range yamlEnv.Tasks {
 		err := checkCircularRefs(yamlTask.Hooks.Execute.Before, &circularRefTracking{})
 		if err != nil {
 			vErrs.AddError(err, "tasks."+name+".hooks.execute.before")
@@ -55,38 +45,40 @@ func createTasks(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnviron
 		if err != nil {
 			vErrs.AddError(err, "tasks."+name+".hooks.execute.after")
 		}
-		task := res[name]
-		task.Hooks.Execute = createHook(vErrs, res, "tasks."+name+".hooks.execute", yamlTask.Hooks.Execute)
-		if len(yamlTask.RunOn) > 0 {
-			task.RunOn = createNodeSetRef(vErrs, env, "tasks."+name+".runOn", yamlTask.RunOn...)
-		}
-	}
 
+		res[name] = Task{
+			Name:       name,
+			Playbook:   yamlTask.Playbook,
+			Cron:       yamlTask.Cron,
+			On:         createNodeSetRef(vErrs, env, "tasks."+name+".on", yamlTask.On...),
+			Parameters: createParameters(yamlTask.Params),
+			EnvVars:    createEnvVars(yamlTask.Env)}
+	}
 	return res
 }
 
 // TODO Add units tests for this on the "complete_descriptor"
-func createTaskRef(vErrs *ValidationErrors, tasks map[string]Task, location string, yamlRef yamlRef) TaskRef {
-	if len(yamlRef.Name) == 0 {
+func createTaskRef(vErrs *ValidationErrors, location string, env *Environment, taskRef yamlTaskRef) TaskRef {
+	if len(taskRef.Task) == 0 {
 		vErrs.AddError(errors.New("empty task reference"), location)
 	} else {
-		if val, ok := tasks[yamlRef.Name]; ok {
+		if val, ok := env.Tasks[taskRef.Task]; ok {
 			return TaskRef{
-				Parameters: createAttributes(yamlRef.Params, nil),
-				Envvars:    createEnvvars(yamlRef.Envvars, nil),
 				task:       &val,
+				parameters: createParameters(taskRef.Params).inherit(val.Parameters),
+				envVars:    createEnvVars(taskRef.Env).inherit(val.EnvVars),
 			}
 		} else {
-			vErrs.AddError(errors.New("unknown task reference: "+yamlRef.Name), location)
+			vErrs.AddError(errors.New("unknown task reference: "+taskRef.Task), location)
 		}
 	}
 	return TaskRef{}
 }
 
-func checkCircularRefs(yamlRefs []yamlRef, alreadyEncountered *circularRefTracking) error {
-	for _, ref := range yamlRefs {
-		if _, ok := (*alreadyEncountered)[ref.Name]; ok {
-			return errors.New("circular task reference: " + alreadyEncountered.String() + ref.Name)
+func checkCircularRefs(taskRefs []yamlTaskRef, alreadyEncountered *circularRefTracking) error {
+	for _, ref := range taskRefs {
+		if _, ok := (*alreadyEncountered)[ref.Task]; ok {
+			return errors.New("circular task reference: " + alreadyEncountered.String() + ref.Task)
 		}
 	}
 	return nil

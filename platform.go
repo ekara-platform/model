@@ -8,12 +8,10 @@ import (
 
 // Lagoon Platform used to manipulate an environment
 type LagoonPlatform struct {
-	ComponentBase     *url.URL
-	ComponentVersions map[string]Version
-	DockerRegistry    *url.URL
-	Proxy             Proxy
-
-	Component
+	ComponentBase  *url.URL
+	DockerRegistry *url.URL
+	Components     map[string]Component
+	Component      ComponentRef
 }
 
 type Proxy struct {
@@ -28,11 +26,6 @@ type Proxy struct {
 // The yamlRepoVersion must contains a repository and a version! If the repository
 // or the version is missing then a  error will be generated
 func createLagoonPlatform(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) LagoonPlatform {
-	lagoonRepository := yamlEnv.Lagoon.Repository
-	if lagoonRepository == "" {
-		lagoonRepository = LagoonCoreRepository
-	}
-
 	base, e := createComponentBase(yamlEnv)
 	if e != nil {
 		vErrs.AddError(e, "lagoon.componentBase")
@@ -44,12 +37,41 @@ func createLagoonPlatform(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Lag
 	}
 
 	lagoon := LagoonPlatform{
-		ComponentBase:     base,
-		ComponentVersions: createComponentMap(vErrs, base, yamlEnv),
-		DockerRegistry:    dockerReg,
-		Proxy:             createProxy(vErrs, yamlEnv),
+		ComponentBase:  base,
+		DockerRegistry: dockerReg,
+		Components:     map[string]Component{}}
+
+	// Create all components
+	for componentName, yamlComponent := range yamlEnv.Lagoon.Components {
+		lagoon.Components[componentName] = createComponent(
+			vErrs,
+			"lagoon.components."+componentName,
+			lagoon.ComponentBase,
+			componentName,
+			yamlComponent.Repository,
+			yamlComponent.Version)
 	}
-	lagoon.Component = createComponent(vErrs, lagoon, "lagoon", lagoonRepository, "")
+
+	// Core component defaults if not specified
+	var yamlCoreComponent yamlComponent
+	var ok bool
+	if yamlCoreComponent, ok = yamlEnv.Lagoon.Components[LagoonCoreId]; !ok {
+		yamlCoreComponent = yamlComponent{
+			Repository: LagoonCoreRepository,
+			Version:    ""}
+	}
+
+	// (Re-)create core component
+	lagoon.Components[LagoonCoreId] = createComponent(
+		vErrs,
+		"lagoon.components."+LagoonCoreId,
+		lagoon.ComponentBase,
+		LagoonCoreId,
+		yamlCoreComponent.Repository,
+		yamlCoreComponent.Version)
+
+	lagoon.Component = createComponentRef(vErrs, lagoon.Components, "lagoon", LagoonCoreId)
+
 	return lagoon
 }
 
@@ -93,16 +115,4 @@ func createDockerRegistry(yamlEnv *yamlEnvironment) (*url.URL, error) {
 		res = yamlEnv.Lagoon.DockerRegistry
 	}
 	return url.Parse(res)
-}
-
-func createProxy(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Proxy {
-	httpUrl, e := url.Parse(yamlEnv.Lagoon.Proxy.Http)
-	if e != nil {
-		vErrs.AddError(e, "proxy.http")
-	}
-	httpsUrl, e := url.Parse(yamlEnv.Lagoon.Proxy.Https)
-	if e != nil {
-		vErrs.AddError(e, "proxy.https")
-	}
-	return Proxy{Http: httpUrl, Https: httpsUrl, NoProxy: yamlEnv.Lagoon.Proxy.NoProxy}
 }
