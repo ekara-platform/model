@@ -8,6 +8,6 @@ const (
 	DefaultDockerRegistry = "registry.hub.docker.com"
 
 	// Internal components
-	LagoonCoreId         = "core"
+	LagoonCoreId         = "__core__"
 	LagoonCoreRepository = "lagoon-platform/core"
 )
