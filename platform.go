@@ -43,13 +43,16 @@ func createLagoonPlatform(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Lag
 
 	// Create all components
 	for componentName, yamlComponent := range yamlEnv.Lagoon.Components {
-		lagoon.Components[componentName] = createComponent(
-			vErrs,
-			"lagoon.components."+componentName,
+		component, e := CreateComponent(
 			lagoon.ComponentBase,
 			componentName,
 			yamlComponent.Repository,
 			yamlComponent.Version)
+		if e != nil {
+			vErrs.AddError(e, "lagoon.components."+componentName)
+		} else {
+			lagoon.Components[componentName] = component
+		}
 	}
 
 	// Core component defaults if not specified
@@ -62,13 +65,16 @@ func createLagoonPlatform(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Lag
 	}
 
 	// (Re-)create core component
-	lagoon.Components[LagoonCoreId] = createComponent(
-		vErrs,
-		"lagoon.components."+LagoonCoreId,
+	coreComponent, e := CreateComponent(
 		lagoon.ComponentBase,
 		LagoonCoreId,
 		yamlCoreComponent.Repository,
 		yamlCoreComponent.Version)
+	if e != nil {
+		vErrs.AddError(e, "lagoon.components."+LagoonCoreId)
+	} else {
+		lagoon.Components[LagoonCoreId] = coreComponent
+	}
 
 	lagoon.Component = createComponentRef(vErrs, lagoon.Components, "lagoon", LagoonCoreId)
 
@@ -78,7 +84,7 @@ func createLagoonPlatform(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Lag
 func createComponentBase(yamlEnv *yamlEnvironment) (*url.URL, error) {
 	res := DefaultComponentBase
 
-	if yamlEnv.Lagoon.ComponentBase != "" {
+	if yamlEnv != nil && yamlEnv.Lagoon.ComponentBase != "" {
 		res = yamlEnv.Lagoon.ComponentBase
 	}
 

@@ -32,18 +32,21 @@ func (c ComponentRef) Resolve() Component {
 	return *c.component
 }
 
-func createComponent(vErrs *ValidationErrors, location string, componentBase *url.URL, id string, repo string, version string) Component {
+func CreateComponent(componentBase *url.URL, id string, repo string, version string) (Component, error) {
 	repoUrl, e := ResolveRepositoryInfo(componentBase, repo)
 	if e != nil {
-		vErrs.AddError(e, location+".repository")
-		return Component{}
-	} else {
-		return Component{
-			Id:         id,
-			Repository: repoUrl,
-			Version:    createVersion(vErrs, location+".version", version),
-			Scm:        resolveScm(vErrs, location+".repository", repoUrl)}
+		return Component{}, e
 	}
+	scmType, e := resolveScm(repoUrl)
+	if e != nil {
+		return Component{}, e
+	}
+	parsedVersion, e := createVersion(version)
+	if e != nil {
+		return Component{}, e
+	}
+
+	return Component{Id: id, Repository: repoUrl, Version: parsedVersion, Scm: scmType}, nil
 }
 
 func createComponentRef(vErrs *ValidationErrors, components map[string]Component, location string, componentRef string) ComponentRef {
@@ -109,20 +112,19 @@ func ResolveRepositoryInfo(base *url.URL, repo string) (cUrl *url.URL, e error) 
 	return
 }
 
-func resolveScm(vErrs *ValidationErrors, location string, url *url.URL) ScmType {
+func resolveScm(url *url.URL) (ScmType, error) {
 	switch strings.ToUpper(url.Scheme) {
 	case "FILE":
 		// TODO: for now assume git on local directories, later try to detect
-		return Git
+		return Git, nil
 	case "GIT":
-		return Git
+		return Git, nil
 	case "SVN":
-		return Svn
+		return Svn, nil
 	case "HTTP", "HTTPS":
 		if hasSuffixIgnoringCase(url.Path, ".git") {
-			return Git
+			return Git, nil
 		}
 	}
-	vErrs.AddError(errors.New("unknown fetch protocol: "+url.Scheme), location)
-	return Unknown
+	return Unknown, errors.New("unknown fetch protocol: " + url.Scheme)
 }

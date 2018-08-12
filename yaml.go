@@ -5,8 +5,10 @@ import (
 
 	"net/url"
 
+	"bytes"
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
+	"text/template"
 )
 
 // yaml tag for parameters
@@ -163,23 +165,35 @@ type yamlEnvironment struct {
 	}
 }
 
-func parseYamlDescriptor(logger *log.Logger, u *url.URL) (env yamlEnvironment, err error) {
+func parseYamlDescriptor(logger *log.Logger, u *url.URL, data map[string]interface{}) (env yamlEnvironment, err error) {
 	var normalizedUrl *url.URL
 	normalizedUrl, err = NormalizeUrl(u)
 	if err != nil {
 		return
 	}
+
+	// Read descriptor content
 	baseLocation, content, err := ReadUrl(logger, normalizedUrl)
 	if err != nil {
 		return
 	}
 
-	err = yaml.Unmarshal(content, &env)
+	// Parse/execute it as a Go template
+	out := bytes.Buffer{}
+	tpl, err := template.New(normalizedUrl.String()).Parse(string(content))
+	if err != nil {
+		return
+	}
+	tpl.Execute(&out, data)
+
+	// Unmarshal the resulting YAML
+	err = yaml.Unmarshal(out.Bytes(), &env)
 	if err != nil {
 		return
 	}
 
-	err = processYamlImports(logger, baseLocation, &env)
+	// Process imports if any
+	err = processYamlImports(logger, baseLocation, &env, data)
 	if err != nil {
 		return
 	}
@@ -187,7 +201,7 @@ func parseYamlDescriptor(logger *log.Logger, u *url.URL) (env yamlEnvironment, e
 	return
 }
 
-func processYamlImports(logger *log.Logger, base *url.URL, env *yamlEnvironment) error {
+func processYamlImports(logger *log.Logger, base *url.URL, env *yamlEnvironment, data map[string]interface{}) error {
 	if len(env.Imports) > 0 {
 		for _, val := range env.Imports {
 			importUrl, err := url.Parse(val)
@@ -196,7 +210,7 @@ func processYamlImports(logger *log.Logger, base *url.URL, env *yamlEnvironment)
 			}
 			ref := base.ResolveReference(importUrl)
 			logger.Println("Processing import", ref)
-			importedDesc, err := parseYamlDescriptor(logger, ref)
+			importedDesc, err := parseYamlDescriptor(logger, ref, data)
 			if err != nil {
 				return err
 			}

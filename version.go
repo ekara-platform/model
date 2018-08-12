@@ -15,7 +15,7 @@ type Version struct {
 	full  string
 }
 
-func createVersion(vErrs *ValidationErrors, location string, full string) Version {
+func createVersion(full string) (Version, error) {
 	v := Version{Major: -1, Minor: -1, Micro: -1, full: full}
 
 	if semanticVersioningPattern.MatchString(full) {
@@ -30,7 +30,7 @@ func createVersion(vErrs *ValidationErrors, location string, full string) Versio
 		if result["major"] != "" {
 			major, err := strconv.Atoi(result["major"])
 			if err != nil {
-				vErrs.AddError(err, location+".x")
+				return Version{}, err
 			} else {
 				v.Major = int(major)
 			}
@@ -38,7 +38,7 @@ func createVersion(vErrs *ValidationErrors, location string, full string) Versio
 		if result["minor"] != "" {
 			minor, err := strconv.Atoi(result["minor"])
 			if err != nil {
-				vErrs.AddError(err, location+".y")
+				return Version{}, err
 			} else {
 				v.Minor = int(minor)
 			}
@@ -46,7 +46,7 @@ func createVersion(vErrs *ValidationErrors, location string, full string) Versio
 		if result["patch"] != "" {
 			patch, err := strconv.Atoi(result["patch"])
 			if err != nil {
-				vErrs.AddError(err, location+".z")
+				return Version{}, err
 			} else {
 				v.Micro = int(patch)
 			}
@@ -54,7 +54,7 @@ func createVersion(vErrs *ValidationErrors, location string, full string) Versio
 		// TODO take prerelease tag into account
 	}
 
-	return v
+	return v, nil
 }
 
 func (v Version) IncludesVersion(other Version) bool {

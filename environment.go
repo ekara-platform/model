@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"github.com/imdario/mergo"
 	"log"
 	"net/url"
 )
@@ -39,23 +40,31 @@ type Environment struct {
 	}
 }
 
-func Parse(logger *log.Logger, u *url.URL) (Environment, error) {
+func Parse(logger *log.Logger, u *url.URL) (*Environment, error) {
+	return ParseWithData(logger, u, map[string]interface{}{})
+}
+
+func ParseWithData(logger *log.Logger, u *url.URL, data map[string]interface{}) (*Environment, error) {
 	vErrs := ValidationErrors{}
 	if hasSuffixIgnoringCase(u.Path, ".yaml") || hasSuffixIgnoringCase(u.Path, ".yml") {
 		var yamlEnv yamlEnvironment
-		yamlEnv, err := parseYamlDescriptor(logger, u)
+		yamlEnv, err := parseYamlDescriptor(logger, u, data)
 		if err != nil {
-			return Environment{}, err
+			return &Environment{}, err
 		}
 		env := createEnvironment(&vErrs, &yamlEnv)
 		if vErrs.HasErrors() || vErrs.HasWarnings() {
-			return env, vErrs
+			return &env, vErrs
 		} else {
-			return env, nil
+			return &env, nil
 		}
 	} else {
-		return Environment{}, errors.New("unsupported file format")
+		return &Environment{}, errors.New("unsupported file format")
 	}
+}
+
+func (env *Environment) Merge(other *Environment) {
+	mergo.Merge(env, other, mergo.WithOverride)
 }
 
 func createEnvironment(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Environment {
