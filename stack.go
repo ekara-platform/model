@@ -1,18 +1,12 @@
 package model
 
 type Stack struct {
-	// The environment holding the stack
-	root *Environment
-	// The labels associated to the stack
-	Labels
-	// The repository/version of the stack
-	Component
-
 	// The name of the stack
 	Name string
-	// The specifications on where the stack is supposed to deployed
-	DeployOn NodeSetRef
-
+	// The component containing the stack
+	Component ComponentRef
+	// The node sets where the stack should be deployed
+	On NodeSetRef
 	// The hooks linked to the stack lifecycle
 	Hooks struct {
 		Deploy   Hook
@@ -26,17 +20,16 @@ func createStacks(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnviro
 		vErrs.AddWarning("no stack specified", "stacks")
 	} else {
 		for name, yamlStack := range yamlEnv.Stacks {
-			stack := Stack{
-				root:   env,
-				Labels: createLabels(vErrs, yamlStack.Labels...),
-				Name:   name}
-
-			stack.Component = createComponent(vErrs, env.Lagoon, "stacks."+name, yamlStack.Repository, yamlStack.Version)
-			stack.DeployOn = createNodeSetRef(vErrs, env, "stacks."+name+".deployOn", yamlStack.DeployOn...)
-			stack.Hooks.Deploy = createHook(vErrs, env.Tasks, "stacks."+name+".hooks.deploy", yamlStack.Hooks.Deploy)
-			stack.Hooks.Undeploy = createHook(vErrs, env.Tasks, "stacks."+name+".hooks.undeploy", yamlStack.Hooks.Undeploy)
-
-			res[name] = stack
+			res[name] = Stack{
+				Name:      name,
+				Component: createComponentRef(vErrs, env.Lagoon.Components, "stacks."+name+".component", yamlStack.Component),
+				On:        createNodeSetRef(vErrs, env, "stacks."+name+".on", yamlStack.On...),
+				Hooks: struct {
+					Deploy   Hook
+					Undeploy Hook
+				}{
+					Deploy:   createHook(vErrs, "stacks."+name+".hooks.deploy", env, yamlStack.Hooks.Deploy),
+					Undeploy: createHook(vErrs, "stacks."+name+".hooks.undeploy", env, yamlStack.Hooks.Undeploy)}}
 		}
 	}
 	return res

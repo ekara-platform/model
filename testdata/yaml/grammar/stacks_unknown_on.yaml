@@ -30,10 +30,9 @@ nodes:
     instances: 1
     provider:
       name: aws
-    volumes:
-      - path: ""
 
 stacks:
   monitoring:
     component: stack1
-
+    on:
+      - unknown

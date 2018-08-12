@@ -2,54 +2,32 @@ package model
 
 import (
 	"errors"
-	"strings"
-
 	_ "gopkg.in/yaml.v2"
 )
 
-// OrchestratorParameters contains the parameters related to the orchestrator
-// defined into the environment
-type OrchestratorParameters struct {
-	//The Orchestrator specific parameters
-	Parameters attributes
-	//The Orchestrator specific environment variables
-	Envvars envvars
-	// The Dockers specific parameters
-	Docker attributes
-}
-
-// NodeSet contains the whole specification of a Nodeset to create on a specific
+// NodeSet contains the whole specification of a nodes et to create on a specific
 // cloud provider
 type NodeSet struct {
-	// The environment holding the nodeset
-	root *Environment
-	// The severals labels used to tag the machines
-	Labels
-
 	// The name of the machines
 	Name string
-	// The ref to the provider where to create the machines
-	Provider ProviderRef
 	// The number of machines to create
 	Instances int
-
+	// The ref to the provider where to create the machines
+	Provider ProviderRef
 	// The parameters related to the orchestrator used to manage the machines
-	Orchestrator OrchestratorParameters
-
-	// TODO Document this
+	Orchestrator OrchestratorRef
+	// Volumes attached to each node
+	Volumes []Volume
+	// Hooks for executing tasks around provisioning and destruction
 	Hooks struct {
 		Provision Hook
 		Destroy   Hook
 	}
 }
 
+// Reference to a node set
 type NodeSetRef struct {
 	nodeSets []*NodeSet
-}
-
-type NodeParams struct {
-	Params    map[string]interface{}
-	Instances int
 }
 
 func createNodeSets(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) map[string]NodeSet {
@@ -62,58 +40,37 @@ func createNodeSets(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvi
 				vErrs.AddError(errors.New("node set instances must be a positive number"), "nodes."+name+".instances")
 			}
 
-			nodeSet := NodeSet{
-				root:         env,
-				Labels:       createLabels(vErrs, yamlNodeSet.Labels...),
+			res[name] = NodeSet{
 				Name:         name,
 				Instances:    yamlNodeSet.Instances,
-				Orchestrator: OrchestratorParameters{},
-			}
-
-			nodeSet.Orchestrator.Parameters = createAttributes(yamlNodeSet.Orchestrator.Params, env.Orchestrator.Parameters.copy())
-			nodeSet.Orchestrator.Envvars = createEnvvars(yamlNodeSet.Orchestrator.Envvars, env.Orchestrator.Envvars.copy())
-			nodeSet.Orchestrator.Docker = createAttributes(yamlNodeSet.Orchestrator.Docker, env.Orchestrator.Docker.copy())
-
-			nodeSet.Provider = createProviderRef(vErrs, env, "nodes."+name+".provider", yamlNodeSet.Provider)
-			nodeSet.Hooks.Provision = createHook(vErrs, env.Tasks, "nodes."+name+".hooks.provision", yamlNodeSet.Hooks.Provision)
-			nodeSet.Hooks.Destroy = createHook(vErrs, env.Tasks, "nodes."+name+".hooks.destroy", yamlNodeSet.Hooks.Destroy)
-
-			res[name] = nodeSet
+				Provider:     createProviderRef(vErrs, "nodes."+name+".provider", env, yamlNodeSet.Provider),
+				Orchestrator: createOrchestratorRef(env, yamlNodeSet.Orchestrator),
+				Volumes:      createVolumes(vErrs, "nodes."+name+".volumes", yamlNodeSet.Volumes),
+				Hooks: struct {
+					Provision Hook
+					Destroy   Hook
+				}{
+					Provision: createHook(vErrs, "nodes."+name+".hooks.provision", env, yamlNodeSet.Hooks.Provision),
+					Destroy:   createHook(vErrs, "nodes."+name+".hooks.destroy", env, yamlNodeSet.Hooks.Destroy)}}
 		}
 	}
 	return res
 }
 
-func createNodeSetRef(vErrs *ValidationErrors, env *Environment, location string, labels ...string) NodeSetRef {
+func createNodeSetRef(vErrs *ValidationErrors, env *Environment, location string, nodeSetRefs ...string) NodeSetRef {
 	nodeSets := make([]*NodeSet, 0, 10)
-	if len(labels) == 0 {
-		vErrs.AddWarning("empty node set reference", location)
-	} else {
+	if len(nodeSetRefs) == 0 {
 		for _, nodeSet := range env.NodeSets {
-			if nodeSet.MatchesLabels(labels...) {
-				nodeSets = append(nodeSets, &nodeSet)
-			}
+			nodeSets = append(nodeSets, &nodeSet)
 		}
-		if len(nodeSets) == 0 {
-			vErrs.AddError(errors.New("no node set matches label(s): "+strings.Join(labels, ", ")), location)
+	} else {
+		for _, nodeSetRef := range nodeSetRefs {
+			if nodeSet, ok := env.NodeSets[nodeSetRef]; ok {
+				nodeSets = append(nodeSets, &nodeSet)
+			} else {
+				vErrs.AddError(errors.New("unknown node set reference: "+nodeSetRef), location)
+			}
 		}
 	}
 	return NodeSetRef{nodeSets: nodeSets}
-}
-
-// NodeParams returns the parameters required to create a nodeset
-func (n NodeSet) NodeParams() NodeParams {
-	r := NodeParams{
-		Params:    n.Provider.Parameters.copy(),
-		Instances: n.Instances,
-	}
-	return r
-}
-
-// OrchestratorParams returns the parameters required to install the orchestrator
-func (n NodeSet) OrchestratorParams() map[string]interface{} {
-	r := make(map[string]interface{})
-	r["docker"] = n.Orchestrator.Docker.copy()
-	r["params"] = n.Orchestrator.Parameters.copy()
-	return r
 }

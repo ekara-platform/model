@@ -5,73 +5,69 @@ import (
 
 	"net/url"
 
+	"bytes"
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
+	"text/template"
 )
-
-// yaml tag for labels
-type yamlLabels struct {
-	Labels []string
-}
 
 // yaml tag for parameters
 type yamlParams struct {
-	Params attributes
+	Params map[string]interface{}
 }
 
 // yaml tag for environment variables
-type yamlEnvvars struct {
-	Envvars envvars
+type yamlEnv struct {
+	Env map[string]string
 }
 
-// yaml tag for docker parameters
-type yamlDocker struct {
-	Docker attributes
+// yaml tag for component
+type yamlComponent struct {
+	Repository string
+	Version    string
 }
 
-// yaml reference on a name allowing to hold more specific parameters and
-// environment variables.
-type yamlRef struct {
-	yamlParams  `yaml:",inline"`
-	yamlEnvvars `yaml:",inline"`
-	Name        string
-}
-
-// yaml reference on a provider name allowing to hold more specific parameters
-type yamlProviderRef struct {
-	// The name of the referenced provider
-	Name string
-	// The overwritten parameters for the provider
-	yamlParams `yaml:",inline"`
-	// The overwritten environment variables for the provider
-	yamlEnvvars `yaml:",inline"`
-	// The volumes to create and mount
-	Volumes []yamlVolumes
-}
-
-//yaml tag for a volume and its parameters
-type yamlVolumes struct {
+// yaml tag for a volume and its parameters
+type yamlVolume struct {
 	// The mounting path of the created volume
-	Name string
-	// The parameters required to create the volume.
-	// These parameters are typically provider dependent, so refer to the provider documentation to figure how to create volumes.
+	Path string
+	// The parameters required to create the volume (typically provider dependent)
 	yamlParams `yaml:",inline"`
+}
+
+// yaml reference to provider
+type yamlProviderRef struct {
+	Name string
+	// The overriding provider parameters
+	yamlParams `yaml:",inline"`
+	// The overriding provider environment variables
+	yamlEnv `yaml:",inline"`
+}
+
+// yaml reference to orchestrator
+type yamlOrchestratorRef struct {
+	// The overriding orchestrator parameters
+	yamlParams `yaml:",inline"`
+	// The overriding orchestrator environment variables
+	yamlEnv `yaml:",inline"`
+}
+
+// yaml reference to task
+type yamlTaskRef struct {
+	// The referenced task
+	Task string
+	// The overriding parameters
+	yamlParams `yaml:",inline"`
+	// The overriding environment variables
+	yamlEnv `yaml:",inline"`
 }
 
 //yaml tag for hooks
 type yamlHook struct {
 	// Hooks to be executed before the corresponding process step
-	Before []yamlRef
+	Before []yamlTaskRef
 	// Hooks to be executed after the corresponding process step
-	After []yamlRef
-}
-
-// yaml tag for a repository and its version
-type yamlRepoVersion struct {
-	// The Repository, following the notation "organization/repo_name"
-	Repository string
-	// The release into the repository
-	Version string
+	After []yamlTaskRef
 }
 
 // Definition of the Lagoon environment
@@ -83,69 +79,63 @@ type yamlEnvironment struct {
 	Name string
 	// The description of the environment
 	Description string
-	// The version of the environment
-	Version string
-
-	// The labels associated to the environment
-	yamlLabels `yaml:",inline"`
 
 	// The Lagoon platform used to interact with the environment
 	Lagoon struct {
 		ComponentBase  string `yaml:"componentBase"`
-		Components     map[string]string
 		DockerRegistry string `yaml:"dockerRegistry"`
-		Proxy          struct {
-			Http    string
-			Https   string
-			NoProxy string `yaml:"noProxy"`
+		Components     map[string]yamlComponent
+	}
+
+	// Tasks which can be run on the created environment
+	Tasks map[string]struct {
+		// The task parameters
+		yamlParams `yaml:",inline"`
+		// The task environment variables
+		yamlEnv `yaml:",inline"`
+		// The name of the playbook to launch the task
+		Playbook string
+		// The name of the node sets to run the task on (all if not specified)
+		On []string
+		// The CRON to run cyclically the task
+		Cron string
+		// The Hooks to be executed in addition the the main task playbook
+		Hooks struct {
+			Execute yamlHook
 		}
-		yamlRepoVersion `yaml:"lagoonPlatform"`
 	}
 
 	// Global definition of the orchestrator to install on the environment
 	Orchestrator struct {
-		// The orchestrator specifics parameters
+		// Name of the orchestrator component
+		Component string
+		// The orchestrator parameters
 		yamlParams `yaml:",inline"`
-		// The orchestrator specifics environment variables
-		yamlEnvvars `yaml:",inline"`
-		// The docker parameters
-		yamlDocker `yaml:",inline"`
-		// The name of the orchestrator
-		Name string
-		// The repository and version of the orchestrator
-		yamlRepoVersion `yaml:",inline"`
+		// The orchestrator environment variables
+		yamlEnv `yaml:",inline"`
 	}
 
 	// The list of all cloud providers required to create the environment
 	Providers map[string]struct {
+		// Name of the provider component
+		Component string
 		// The provider parameters
 		yamlParams `yaml:",inline"`
 		// The provider environment variables
-		yamlEnvvars `yaml:",inline"`
-		// The repository and version of the provider
-		yamlRepoVersion `yaml:",inline"`
+		yamlEnv `yaml:",inline"`
 	}
 
 	// The list of node sets to create
 	Nodes map[string]struct {
-		// The labels associated to the node set
-		yamlLabels `yaml:",inline"`
-		// Reference on the provider where to create the node set
-		Provider yamlProviderRef
 		// The number of instances to create within the node set
 		Instances int
-
-		// The installed orchestrator
-		Orchestrator struct {
-			// The overwritten orchestrator specifics parameters for the node set
-			yamlParams `yaml:",inline"`
-			// The overwritten orchestrator specifics environment variables for the node set
-			yamlEnvvars `yaml:",inline"`
-			// The overwritten docker parameters for the node set
-			yamlDocker `yaml:",inline"`
-		}
-
-		// The Hooks to be executed while provisionning and destoying the node set
+		// The provider used to create the node set and its settings
+		Provider yamlProviderRef
+		// The orchestrator settings for this node set
+		Orchestrator yamlOrchestratorRef
+		// The orchestrator settings for this node set
+		Volumes []yamlVolume
+		// The Hooks to be executed while provisioning and destroying the node set
 		Hooks struct {
 			Provision yamlHook
 			Destroy   yamlHook
@@ -154,38 +144,14 @@ type yamlEnvironment struct {
 
 	// Software stacks to be installed on the environment
 	Stacks map[string]struct {
-		// The labels associated to the stack
-		yamlLabels `yaml:",inline"`
-		// The repository and version of the stack
-		yamlRepoVersion `yaml:",inline"`
-		// The names of the node sets where the stack must de installed
-		DeployOn []string `yaml:"deployOn"`
-
+		// Name of the stack component
+		Component string
+		// Name of the nodes to deploy the stack on (all if not specified)
+		On []string
 		// The Hooks to be executed while deploying and undeploying the stack
 		Hooks struct {
 			Deploy   yamlHook
 			Undeploy yamlHook
-		}
-	}
-
-	// Custom tasks which can be run on the created environment
-	Tasks map[string]struct {
-		// The labels associated to the task
-		yamlLabels `yaml:",inline"`
-		// The task parameters
-		yamlParams `yaml:",inline"`
-		// The task environment variables
-		yamlEnvvars `yaml:",inline"`
-
-		// The name of the playbook to launch the task
-		Playbook string
-		// The CRON to run cyclically the task
-		Cron string
-		// The labels allowing to locate where to run the task ( on which node sets )
-		RunOn []string `yaml:"runOn"`
-		// The Hooks to be executed in addition the the main task playbook
-		Hooks struct {
-			Execute yamlHook
 		}
 	}
 
@@ -199,23 +165,35 @@ type yamlEnvironment struct {
 	}
 }
 
-func parseYamlDescriptor(logger *log.Logger, u *url.URL) (env yamlEnvironment, err error) {
+func parseYamlDescriptor(logger *log.Logger, u *url.URL, data map[string]interface{}) (env yamlEnvironment, err error) {
 	var normalizedUrl *url.URL
 	normalizedUrl, err = NormalizeUrl(u)
 	if err != nil {
 		return
 	}
+
+	// Read descriptor content
 	baseLocation, content, err := ReadUrl(logger, normalizedUrl)
 	if err != nil {
 		return
 	}
 
-	err = yaml.Unmarshal(content, &env)
+	// Parse/execute it as a Go template
+	out := bytes.Buffer{}
+	tpl, err := template.New(normalizedUrl.String()).Parse(string(content))
+	if err != nil {
+		return
+	}
+	tpl.Execute(&out, data)
+
+	// Unmarshal the resulting YAML
+	err = yaml.Unmarshal(out.Bytes(), &env)
 	if err != nil {
 		return
 	}
 
-	err = processYamlImports(logger, baseLocation, &env)
+	// Process imports if any
+	err = processYamlImports(logger, baseLocation, &env, data)
 	if err != nil {
 		return
 	}
@@ -223,7 +201,7 @@ func parseYamlDescriptor(logger *log.Logger, u *url.URL) (env yamlEnvironment, e
 	return
 }
 
-func processYamlImports(logger *log.Logger, base *url.URL, env *yamlEnvironment) error {
+func processYamlImports(logger *log.Logger, base *url.URL, env *yamlEnvironment, data map[string]interface{}) error {
 	if len(env.Imports) > 0 {
 		for _, val := range env.Imports {
 			importUrl, err := url.Parse(val)
@@ -232,7 +210,7 @@ func processYamlImports(logger *log.Logger, base *url.URL, env *yamlEnvironment)
 			}
 			ref := base.ResolveReference(importUrl)
 			logger.Println("Processing import", ref)
-			importedDesc, err := parseYamlDescriptor(logger, ref)
+			importedDesc, err := parseYamlDescriptor(logger, ref, data)
 			if err != nil {
 				return err
 			}

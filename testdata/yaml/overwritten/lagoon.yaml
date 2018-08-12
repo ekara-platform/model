@@ -3,27 +3,29 @@ version: 1.2.3
 
 lagoon:
   components:
-    lagoon-platform/aws-provider: 1.2.3
-    lagoon-platform/swarm-orchestrator: 1.2.3
-    lagoon-platform/monitoring-stack: 1.2.3
+    aws:
+      repository: lagoon-platform/aws-provider
+      version: 1.2.3
+    swarm:
+      repository: lagoon-platform/swarm-orchestrator
+      version: 1.2.3
+    monitoring:
+      repository: lagoon-platform/monitoring-stack
+      version: 1.2.3
 
 orchestrator:
-  name: docker	
-  repository: lagoon-platform/swarm-orchestrator
-  docker:
-    orchestrator1: "docker_initial_orchestrator1"
-    orchestrator3: "docker_initial_orchestrator3"	
+  component: swarm
   params:
     orchestrator1: "param_initial_orchestrator1"
     orchestrator3: "param_initial_orchestrator3"
 
 providers:
   aws:
-    repository: lagoon-platform/aws-provider
+    component: aws
     params:
       param1: "initial_param1"
       param3: "initial_param3"
-    
+
 nodes:
   managers:
     provider:
@@ -39,11 +41,9 @@ nodes:
         orchestrator1: "param_overwritten_orchestrator1"
         orchestrator2: "param_new_orchestrator2"
     instances: 3
-    labels:
-      - lagoon
 
 stacks:
   monitoring:
-    repository: lagoon-platform/monitoring-stack
-    deployOn:
-      - lagoon
+    component: monitoring
+    on:
+    - managers

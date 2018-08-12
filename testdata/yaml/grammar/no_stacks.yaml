@@ -1,30 +1,26 @@
-name: testEnvironment
+name: name_value
 description: description_value
-version: 1.2.3
-baselocation: baselocation_value
 
 lagoon:
-  version: 1.2.3
-  registry: registry_value
-  proxy:
-    http: proxy_http_value
-    https: proxy_https_value
-    noProxy: proxy_noproxy_value
+  components:
+    swarm:
+      repository: lagoon-platform/swarm-orchestrator
+      version: 1.2.3
+    aws:
+      repository: lagoon-platform/aws-provider
+      version: 1.2.3
+    azure:
+      repository: lagoon-platform/azure-provider
+      version: 1.2.3
 
 providers:
   aws:
-    repository: lagoon-platform/aws-provider
-    version: 1.2.3
+    component: aws
   azure:
-    repository: lagoon-platform/azure-provider
-    version: 1.2.3
+    component: azure
 
 orchestrator:
-  params:
-    swarm_param_key1: swarm_param_key1_value
-    swarm_param_key2: swarm_param_key2_value
-  repository: lagoon-platform/swarm-provider
-  version: 1.2.3
+  component: swarm
 
 nodes:
   node1:

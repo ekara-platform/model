@@ -1,0 +1,134 @@
+name: testEnvironment
+description: This is my awesome Lagoon environment.
+
+lagoon:
+  componentBase: someBase
+  dockerRegistry: someRegistry.org
+  components:
+    aws:
+      repository: lagoon-platform/aws-provider
+      version: 1.2.3
+    azure:
+      repository: lagoon-platform/azure-provider
+      version: 1.2.3
+    swarm:
+      repository: lagoon-platform/swarm-orchestrator
+      version: 1.2.3
+    stack1:
+      repository: some-org/stack1
+      version: 1.2.3
+    stack2:
+      repository: some-org/stack2
+      version: 1.2.3
+
+tasks:
+  task1:
+    cron: task1_cron
+    playbook: task1_playbook
+    params:
+      tasks_task1_param_key1: tasks_task1_param_key1_value
+      tasks_task1_param_key2: tasks_task1_param_key2_value
+    env:
+      tasks_task1_env_key1: tasks_task1_env_key1_value
+      tasks_task1_env_key2: tasks_task1_env_key2_value
+
+  task2:
+    cron: task2_cron
+    playbook: task2_playbook
+    params:
+      tasks_task2_param_key1: tasks_task2_param_key1_value
+      tasks_task2_param_key2: tasks_task2_param_key2_value
+    env:
+      tasks_task2_env_key1: tasks_task2_env_key1_value
+      tasks_task2_env_key2: tasks_task2_env_key2_value
+
+orchestrator:
+  component: swarm
+  params:
+    swarm_param_key1: swarm_param_key1_value
+    swarm_param_key2: swarm_param_key2_value
+  env:
+    swarm_env_key1: swarm_env_key1_value
+    swarm_env_key2: swarm_env_key2_value
+
+providers:
+  aws:
+    component: aws
+    params:
+      aws_param_key1: aws_param_key1_value
+      aws_param_key2: aws_param_key2_value
+    env:
+      aws_env_key1: aws_env_key1_value
+      aws_env_key2: aws_env_key2_value
+
+  azure:
+    component: azure
+    params:
+      azure_param_key1: azure_param_key1_value
+      azure_param_key2: azure_param_key2_value
+    env:
+      azure_env_key1: azure_env_key1_value
+      azure_env_key2: azure_env_key2_value
+
+nodes:
+  node1:
+    instances: 10
+    provider:
+      name: aws
+      params:
+        provider_node1_param_key1: provider_node1_param_key1_value
+        provider_node1_param_key2: provider_node1_param_key2_value
+      env:
+        provider_node1_env_key1: provider_node1_env_key1_value
+        provider_node1_env_key2: provider_node1_env_key2_value
+    orchestrator:
+      params:
+        orchestrator_node1_param_key1: orchestrator_node1_param_key1_value
+        orchestrator_node1_param_key2: orchestrator_node1_param_key2_value
+      env:
+        orchestrator_node1_env_key1: orchestrator_node1_env_key1_value
+        orchestrator_node1_env_key2: orchestrator_node1_env_key2_value
+    volumes:
+    - path: "some/volume/path"
+      params:
+        param1_name: aws_param1_name_value
+    - path: "other/volume/path"
+      params:
+        param2_name: aws_param2_name_value
+
+  node2:
+    instances: 20
+    provider:
+      name: azure
+      params:
+        provider_node2_param_key1: provider_node2_param_key1_value
+        provider_node2_param_key2: provider_node2_param_key2_value
+      env:
+        provider_node2_env_key1: provider_node2_env_key1_value
+        provider_node2_env_key2: provider_node2_env_key2_value
+    orchestrator:
+      params:
+        orchestrator_node2_param_key1: orchestrator_node2_param_key1_value
+        orchestrator_node2_param_key2: orchestrator_node2_param_key2_value
+      env:
+        orchestrator_node2_env_key1: orchestrator_node2_env_key1_value
+        orchestrator_node2_env_key2: orchestrator_node2_env_key2_value
+    volumes:
+    - path: "some/volume/path"
+      params:
+        param1_name: azure_param1_name_value
+    - path: "other/volume/path"
+      params:
+        param2_name: azure_param2_name_value
+
+stacks:
+  stack1:
+    component: stack1
+    on:
+    - node1
+
+  stack2:
+    component: stack2
+    on:
+    - node1
+    - node2

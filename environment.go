@@ -2,12 +2,12 @@ package model
 
 import (
 	"errors"
+	"github.com/imdario/mergo"
 	"log"
 	"net/url"
 )
 
 type Environment struct {
-	Labels
 	Component
 
 	// The environment name
@@ -40,47 +40,47 @@ type Environment struct {
 	}
 }
 
-func Parse(logger *log.Logger, u *url.URL) (Environment, error) {
+func Parse(logger *log.Logger, u *url.URL) (*Environment, error) {
+	return ParseWithData(logger, u, map[string]interface{}{})
+}
+
+func ParseWithData(logger *log.Logger, u *url.URL, data map[string]interface{}) (*Environment, error) {
 	vErrs := ValidationErrors{}
 	if hasSuffixIgnoringCase(u.Path, ".yaml") || hasSuffixIgnoringCase(u.Path, ".yml") {
 		var yamlEnv yamlEnvironment
-		yamlEnv, err := parseYamlDescriptor(logger, u)
+		yamlEnv, err := parseYamlDescriptor(logger, u, data)
 		if err != nil {
-			return Environment{}, err
+			return &Environment{}, err
 		}
 		env := createEnvironment(&vErrs, &yamlEnv)
-		postValidate(&vErrs, &env)
 		if vErrs.HasErrors() || vErrs.HasWarnings() {
-			return env, vErrs
+			return &env, vErrs
 		} else {
-			return env, nil
+			return &env, nil
 		}
 	} else {
-		return Environment{}, errors.New("unsupported file format")
+		return &Environment{}, errors.New("unsupported file format")
 	}
+}
+
+func (env *Environment) Merge(other *Environment) {
+	mergo.Merge(env, other, mergo.WithOverride)
 }
 
 func createEnvironment(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Environment {
 	var env = Environment{}
 	env.Name = yamlEnv.Name
 	env.Description = yamlEnv.Description
-	env.Version = createVersion(vErrs, "version", yamlEnv.Version)
-	env.Labels = createLabels(vErrs, yamlEnv.Labels...)
 	env.Lagoon = createLagoonPlatform(vErrs, yamlEnv)
 	env.Tasks = createTasks(vErrs, &env, yamlEnv)
 	env.Orchestrator = createOrchestrator(vErrs, &env, yamlEnv)
 	env.Providers = createProviders(vErrs, &env, yamlEnv)
 	env.NodeSets = createNodeSets(vErrs, &env, yamlEnv)
 	env.Stacks = createStacks(vErrs, &env, yamlEnv)
-	env.Hooks.Init = createHook(vErrs, env.Tasks, "hooks.init", yamlEnv.Hooks.Init)
-	env.Hooks.Provision = createHook(vErrs, env.Tasks, "hooks.provision", yamlEnv.Hooks.Provision)
-	env.Hooks.Deploy = createHook(vErrs, env.Tasks, "hooks.deploy", yamlEnv.Hooks.Deploy)
-	env.Hooks.Undeploy = createHook(vErrs, env.Tasks, "hooks.undeploy", yamlEnv.Hooks.Undeploy)
-	env.Hooks.Destroy = createHook(vErrs, env.Tasks, "hooks.destroy", yamlEnv.Hooks.Destroy)
+	env.Hooks.Init = createHook(vErrs, "hooks.init", &env, yamlEnv.Hooks.Init)
+	env.Hooks.Provision = createHook(vErrs, "hooks.provision", &env, yamlEnv.Hooks.Provision)
+	env.Hooks.Deploy = createHook(vErrs, "hooks.deploy", &env, yamlEnv.Hooks.Deploy)
+	env.Hooks.Undeploy = createHook(vErrs, "hooks.undeploy", &env, yamlEnv.Hooks.Undeploy)
+	env.Hooks.Destroy = createHook(vErrs, "hooks.destroy", &env, yamlEnv.Hooks.Destroy)
 	return env
-}
-
-func postValidate(vErrs *ValidationErrors, env *Environment) ValidationErrors {
-	validationErrors := ValidationErrors{}
-	return validationErrors
 }
