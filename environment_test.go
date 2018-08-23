@@ -96,6 +96,12 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "aws_env_key2_value")
 
+	assert.NotNil(t, providers["aws"].Proxy)
+	pr := providers["aws"].Proxy
+	assert.Equal(t, pr.Http, "aws_http_proxy")
+	assert.Equal(t, pr.Https, "aws_https_proxy")
+	assert.Equal(t, pr.NoProxy, "aws_no_proxy")
+
 	// Azure Provider
 	assert.NotNil(t, providers["azure"])
 	assert.Equal(t, "azure", providers["azure"].Name)
@@ -121,6 +127,12 @@ func TestCreateEngineComplete(t *testing.T) {
 	v, ok = en["azure_env_key2"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "azure_env_key2_value")
+
+	assert.NotNil(t, providers["azure"].Proxy)
+	pr = providers["azure"].Proxy
+	assert.Equal(t, pr.Http, "azure_http_proxy")
+	assert.Equal(t, pr.Https, "azure_https_proxy")
+	assert.Equal(t, pr.NoProxy, "azure_no_proxy")
 
 	//------------------------------------------------------------
 	// Environment Nodes

@@ -51,6 +51,26 @@ func TestOverwrittenProviderEnv(t *testing.T) {
 	assert.Equal(t, "initial_env3", envs["env3"])
 }
 
+func TestOverwrittenProviderProxy(t *testing.T) {
+	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
+	env, e := Parse(logger, buildUrl("./testdata/yaml/overwritten/lagoon.yaml"))
+	assert.Nil(t, e)
+	aws := env.Providers["aws"]
+	assert.NotNil(t, aws)
+	assert.NotNil(t, aws.Proxy)
+	assert.Equal(t, "aws_http_proxy", aws.Proxy.Http)
+	assert.Equal(t, "aws_https_proxy", aws.Proxy.Https)
+	assert.Equal(t, "aws_no_proxy", aws.Proxy.NoProxy)
+
+	managers := env.NodeSets["managers"]
+	assert.NotNil(t, managers)
+	pr := managers.Provider.Resolve().Proxy
+	assert.NotNil(t, pr)
+	assert.Equal(t, "", pr.Http)
+	assert.Equal(t, "", pr.Https)
+	assert.Equal(t, "overwritten_aws_no_proxy", pr.NoProxy)
+}
+
 func TestOverwrittenOrchestratorParam(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
 	env, e := Parse(logger, buildUrl("./testdata/yaml/overwritten/lagoon.yaml"))

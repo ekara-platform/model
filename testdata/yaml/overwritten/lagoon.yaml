@@ -35,6 +35,10 @@ providers:
     env:
       env1: "initial_env1"
       env3: "initial_env3"
+    proxy:
+      http: "aws_http_proxy"
+      https: "aws_https_proxy"
+      noProxy: "aws_no_proxy"
 
 
 nodes:
@@ -47,6 +51,9 @@ nodes:
       env:
         env1: "overwritten_env1"
         env2: "new_env2"
+      proxy:
+        noProxy: "overwritten_aws_no_proxy"
+
 
     orchestrator:
       params:

@@ -13,6 +13,8 @@ type Provider struct {
 	Parameters Parameters
 	// The provider environment variables
 	EnvVars EnvVars
+	// The provider proxy
+	Proxy Proxy
 }
 
 // Reference to a provider
@@ -20,13 +22,16 @@ type ProviderRef struct {
 	provider   *Provider
 	parameters Parameters
 	envVars    EnvVars
+	proxy      Proxy
 }
 
 func (p ProviderRef) Resolve() Provider {
 	return Provider{
 		Component:  p.provider.Component,
 		Parameters: p.parameters.inherit(p.provider.Parameters),
-		EnvVars:    p.envVars.inherit(p.provider.EnvVars)}
+		EnvVars:    p.envVars.inherit(p.provider.EnvVars),
+		Proxy:      p.proxy.inherit(p.provider.Proxy),
+	}
 }
 
 // createProviders creates all the providers declared into the provided environment
@@ -40,6 +45,7 @@ func createProviders(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnv
 				Name:       name,
 				Component:  createComponentRef(vErrs, env.Lagoon.Components, "provider."+name, yamlProvider.Component),
 				Parameters: createParameters(yamlProvider.Params),
+				Proxy:      createProxy(yamlProvider.Proxy),
 				EnvVars:    createEnvVars(yamlProvider.Env)}
 		}
 	}
@@ -55,7 +61,9 @@ func createProviderRef(vErrs *ValidationErrors, location string, env *Environmen
 			return ProviderRef{
 				provider:   &val,
 				parameters: createParameters(yamlRef.Params),
-				envVars:    createEnvVars(yamlRef.Env)}
+				proxy:      createProxy(yamlRef.Proxy),
+				envVars:    createEnvVars(yamlRef.Env),
+			}
 		} else {
 			vErrs.AddError(errors.New("unknown provider reference: "+yamlRef.Name), location+".name")
 		}

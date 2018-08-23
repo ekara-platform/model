@@ -12,6 +12,13 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// yaml tag for the proxy details
+type yamlProxy struct {
+	Http    string
+	Https   string
+	NoProxy string `yaml:"noProxy"`
+}
+
 // yaml tag for parameters
 type yamlParams struct {
 	Params map[string]interface{}
@@ -48,6 +55,8 @@ type yamlProviderRef struct {
 	yamlParams `yaml:",inline"`
 	// The overriding provider environment variables
 	yamlEnv `yaml:",inline"`
+	// The overriding provider proxy
+	Proxy yamlProxy
 }
 
 // yaml reference to orchestrator
@@ -133,6 +142,8 @@ type yamlEnvironment struct {
 		yamlParams `yaml:",inline"`
 		// The provider environment variables
 		yamlEnv `yaml:",inline"`
+		// The provider proxy
+		Proxy yamlProxy
 	}
 
 	// The list of node sets to create
