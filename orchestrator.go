@@ -1,12 +1,16 @@
 package model
 
-import "errors"
+import (
+	"errors"
+)
 
 type Orchestrator struct {
 	// The component containing the orchestrator
 	Component ComponentRef
 	// The orchestrator parameters
 	Parameters Parameters
+	// The Docker parameters
+	Docker Parameters
 	// The orchestrator environment variables
 	EnvVars EnvVars
 }
@@ -14,6 +18,7 @@ type Orchestrator struct {
 type OrchestratorRef struct {
 	orchestrator *Orchestrator
 	parameters   Parameters
+	docker       Parameters
 	envVars      EnvVars
 }
 
@@ -21,6 +26,7 @@ func (o OrchestratorRef) Resolve() Orchestrator {
 	return Orchestrator{
 		Component:  o.orchestrator.Component,
 		Parameters: o.parameters.inherit(o.orchestrator.Parameters),
+		Docker:     o.docker.inherit(o.orchestrator.Docker),
 		EnvVars:    o.envVars.inherit(o.orchestrator.EnvVars)}
 }
 
@@ -33,6 +39,7 @@ func createOrchestrator(vErrs *ValidationErrors, env *Environment, yamlEnv *yaml
 		return Orchestrator{
 			Component:  createComponentRef(vErrs, env.Lagoon.Components, "orchestrator", yamlO.Component),
 			Parameters: createParameters(yamlO.Params),
+			Docker:     createParameters(yamlO.Docker),
 			EnvVars:    createEnvVars(yamlO.Env)}
 	}
 }
@@ -41,5 +48,6 @@ func createOrchestratorRef(env *Environment, yamlRef yamlOrchestratorRef) Orches
 	return OrchestratorRef{
 		orchestrator: &env.Orchestrator,
 		parameters:   createParameters(yamlRef.Params),
+		docker:       createParameters(yamlRef.Docker),
 		envVars:      createEnvVars(yamlRef.Env)}
 }

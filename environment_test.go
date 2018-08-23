@@ -42,6 +42,15 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "swarm_param_key2_value")
 
+	c = orchestrator.Docker
+	v, ok = c["docker_param_key1"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "docker_param_key1_value")
+
+	v, ok = c["docker_param_key2"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "docker_param_key2_value")
+
 	en := orchestrator.EnvVars
 	v, ok = en["swarm_env_key1"]
 	assert.True(t, ok)
@@ -153,6 +162,15 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "orchestrator_node1_param_key2_value")
 
+	c = nodeSets["node1"].Orchestrator.Resolve().Docker
+	v, ok = c["docker_node1_param_key1"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "docker_node1_param_key1_value")
+
+	v, ok = c["docker_node1_param_key2"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "docker_node1_param_key2_value")
+
 	en = nodeSets["node1"].Orchestrator.Resolve().EnvVars
 	v, ok = en["orchestrator_node1_env_key1"]
 	assert.True(t, ok)
@@ -202,6 +220,15 @@ func TestCreateEngineComplete(t *testing.T) {
 	v, ok = c["orchestrator_node2_param_key2"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "orchestrator_node2_param_key2_value")
+
+	c = nodeSets["node2"].Orchestrator.Resolve().Docker
+	v, ok = c["docker_node2_param_key1"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "docker_node2_param_key1_value")
+
+	v, ok = c["docker_node2_param_key2"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "docker_node2_param_key2_value")
 
 	en = nodeSets["node2"].Orchestrator.Resolve().EnvVars
 	v, ok = en["orchestrator_node2_env_key1"]

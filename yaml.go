@@ -6,14 +6,20 @@ import (
 	"net/url"
 
 	"bytes"
+	"text/template"
+
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
-	"text/template"
 )
 
 // yaml tag for parameters
 type yamlParams struct {
 	Params map[string]interface{}
+}
+
+// yaml tag for Docker parameters
+type yamlDockerParams struct {
+	Docker map[string]interface{}
 }
 
 // yaml tag for environment variables
@@ -48,6 +54,8 @@ type yamlProviderRef struct {
 type yamlOrchestratorRef struct {
 	// The overriding orchestrator parameters
 	yamlParams `yaml:",inline"`
+	// The overriding docker parameters
+	yamlDockerParams `yaml:",inline"`
 	// The overriding orchestrator environment variables
 	yamlEnv `yaml:",inline"`
 }
@@ -113,6 +121,8 @@ type yamlEnvironment struct {
 		yamlParams `yaml:",inline"`
 		// The orchestrator environment variables
 		yamlEnv `yaml:",inline"`
+		// The Docker parameters
+		yamlDockerParams `yaml:",inline"`
 	}
 
 	// The list of all cloud providers required to create the environment
