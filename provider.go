@@ -27,6 +27,7 @@ type ProviderRef struct {
 
 func (p ProviderRef) Resolve() Provider {
 	return Provider{
+		Name:       p.provider.Name,
 		Component:  p.provider.Component,
 		Parameters: p.parameters.inherit(p.provider.Parameters),
 		EnvVars:    p.envVars.inherit(p.provider.EnvVars),
