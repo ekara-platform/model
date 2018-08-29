@@ -22,6 +22,15 @@ type OrchestratorRef struct {
 	envVars      EnvVars
 }
 
+// OrchestratorParams returns the parameters required to install the orchestrator
+func (ref OrchestratorRef) OrchestratorParams() map[string]interface{} {
+	o := ref.Resolve()
+	r := make(map[string]interface{})
+	r["docker"] = o.Docker
+	r["params"] = o.Parameters
+	return r
+}
+
 func (o OrchestratorRef) Resolve() Orchestrator {
 	return Orchestrator{
 		Component:  o.orchestrator.Component,
