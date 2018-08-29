@@ -197,11 +197,11 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.Equal(t, 2, len(vs))
 
 	vol := vs[0]
-	assert.Equal(t, vol.Path, "some/volume/path")
+	assert.Equal(t, vol.Name, "some/volume/path")
 	assert.Equal(t, vol.Parameters["param1_name"], "aws_param1_name_value")
 
 	vol = vs[1]
-	assert.Equal(t, vol.Path, "other/volume/path")
+	assert.Equal(t, vol.Name, "other/volume/path")
 	assert.Equal(t, vol.Parameters["param2_name"], "aws_param2_name_value")
 
 	assert.Equal(t, 20, nodeSets["node2"].Instances)
@@ -256,11 +256,11 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.Equal(t, 2, len(vs))
 
 	vol = vs[0]
-	assert.Equal(t, vol.Path, "some/volume/path")
+	assert.Equal(t, vol.Name, "some/volume/path")
 	assert.Equal(t, vol.Parameters["param1_name"], "azure_param1_name_value")
 
 	vol = vs[1]
-	assert.Equal(t, vol.Path, "other/volume/path")
+	assert.Equal(t, vol.Name, "other/volume/path")
 	assert.Equal(t, vol.Parameters["param2_name"], "azure_param2_name_value")
 
 	//------------------------------------------------------------
