@@ -7,7 +7,7 @@ import (
 // Volume contains the specifications of a volume to create
 type Volume struct {
 	// The mounting path of the created volume
-	Path string
+	Name string
 	// The parameters required to create the volume.
 	Parameters Parameters `yaml:"params"`
 }
@@ -18,7 +18,7 @@ func createVolumes(vErrs *ValidationErrors, location string, yamlRef []yamlVolum
 		if len(v.Path) == 0 {
 			vErrs.AddError(errors.New("empty volume path"), location+".path")
 		} else {
-			volumes = append(volumes, Volume{Parameters: createParameters(v.Params), Path: v.Path})
+			volumes = append(volumes, Volume{Parameters: createParameters(v.Params), Name: v.Path})
 		}
 	}
 	return volumes
