@@ -87,6 +87,10 @@ type yamlHook struct {
 	After []yamlTaskRef
 }
 
+func (e *yamlEnvironment) RawContent() ([]byte, error) {
+	return yaml.Marshal(e)
+}
+
 // Definition of the Lagoon environment
 type yamlEnvironment struct {
 	// Imports, to be included into the environment descriptor
@@ -205,6 +209,7 @@ func parseYamlDescriptor(logger *log.Logger, u *url.URL, data map[string]interfa
 	if err != nil {
 		return
 	}
+	
 	tpl.Execute(&out, data)
 
 	// Unmarshal the resulting YAML
