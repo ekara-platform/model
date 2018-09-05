@@ -2,6 +2,7 @@ package model
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 )
@@ -20,9 +21,39 @@ type Task struct {
 	// The task environment variables
 	EnvVars EnvVars
 	// Hooks for executing other tasks around execution
-	Hooks struct {
-		Execute Hook
-	}
+	Hooks TaskHook
+}
+
+func (r Task) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Name       string      `json:",omitempty"`
+		Playbook   string      `json:",omitempty"`
+		Cron       string      `json:",omitempty"`
+		On         *NodeSetRef `json:",omitempty"`
+		Parameters *Parameters `json:",omitempty"`
+		EnvVars    *EnvVars    `json:",omitempty"`
+		Hooks      *TaskHook   `json:",omitempty"`
+	}{
+		Name:       r.Name,
+		Playbook:   r.Playbook,
+		Cron:       r.Cron,
+		On:         &r.On,
+		Parameters: &r.Parameters,
+		EnvVars:    &r.EnvVars,
+		Hooks:      &r.Hooks,
+	})
+}
+
+type TaskHook struct {
+	Execute Hook
+}
+
+func (r TaskHook) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Execute *Hook `json:",omitempty"`
+	}{
+		Execute: &r.Execute,
+	})
 }
 
 type TaskRef struct {

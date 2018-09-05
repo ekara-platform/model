@@ -1,10 +1,12 @@
 package model
 
 import (
+	"encoding/json"
 	"errors"
-	"github.com/imdario/mergo"
 	"log"
 	"net/url"
+
+	"github.com/imdario/mergo"
 )
 
 type Environment struct {
@@ -31,13 +33,57 @@ type Environment struct {
 	// The tasks which can be ran against the environment
 	Tasks map[string]Task
 
-	Hooks struct {
-		Init      Hook
-		Provision Hook
-		Deploy    Hook
-		Undeploy  Hook
-		Destroy   Hook
-	}
+	Hooks EnvironmentHooks
+}
+
+func (r Environment) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Name         string          `json:",omitempty"`
+		Description  string          `json:",omitempty"`
+		Version      *Version        `json:",omitempty"`
+		Lagoon       *LagoonPlatform `json:",omitempty"`
+		Providers    map[string]Provider
+		Orchestrator *Orchestrator `json:",omitempty"`
+		NodeSets     map[string]NodeSet
+		Stacks       map[string]Stack
+		Tasks        map[string]Task
+		Hooks        *EnvironmentHooks `json:",omitempty"`
+	}{
+		Name:         r.Name,
+		Description:  r.Description,
+		Version:      &r.Version,
+		Lagoon:       &r.Lagoon,
+		Providers:    r.Providers,
+		Orchestrator: &r.Orchestrator,
+		NodeSets:     r.NodeSets,
+		Stacks:       r.Stacks,
+		Tasks:        r.Tasks,
+		Hooks:        &r.Hooks,
+	})
+}
+
+type EnvironmentHooks struct {
+	Init      Hook
+	Provision Hook
+	Deploy    Hook
+	Undeploy  Hook
+	Destroy   Hook
+}
+
+func (r EnvironmentHooks) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Init      *Hook `json:",omitempty"`
+		Provision *Hook `json:",omitempty"`
+		Deploy    *Hook `json:",omitempty"`
+		Undeploy  *Hook `json:",omitempty"`
+		Destroy   *Hook `json:",omitempty"`
+	}{
+		Init:      &r.Init,
+		Provision: &r.Provision,
+		Deploy:    &r.Deploy,
+		Undeploy:  &r.Undeploy,
+		Destroy:   &r.Destroy,
+	})
 }
 
 func Parse(logger *log.Logger, u *url.URL) (*Environment, error) {

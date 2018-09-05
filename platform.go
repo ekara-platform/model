@@ -14,14 +14,6 @@ type LagoonPlatform struct {
 	Component      ComponentRef
 }
 
-/**
-type Proxy struct {
-	Http    *url.URL
-	Https   *url.URL
-	NoProxy string
-}
-*/
-
 // createLagoonPlatform create the Lagoon Platform based on the given
 // repository and version
 //

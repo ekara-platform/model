@@ -1,6 +1,7 @@
 package model
 
 import (
+	"encoding/json"
 	"errors"
 )
 
@@ -15,6 +16,22 @@ type Provider struct {
 	EnvVars EnvVars
 	// The provider proxy
 	Proxy Proxy
+}
+
+func (r Provider) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Name       string        `json:",omitempty"`
+		Component  *ComponentRef `json:",omitempty"`
+		Parameters *Parameters   `json:",omitempty"`
+		EnvVars    *EnvVars      `json:",omitempty"`
+		Proxy      *Proxy        `json:",omitempty"`
+	}{
+		Name:       r.Name,
+		Component:  &r.Component,
+		Parameters: &r.Parameters,
+		EnvVars:    &r.EnvVars,
+		Proxy:      &r.Proxy,
+	})
 }
 
 // Reference to a provider

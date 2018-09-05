@@ -1,6 +1,7 @@
 package model
 
 import (
+	"encoding/json"
 	"errors"
 )
 
@@ -13,6 +14,20 @@ type Orchestrator struct {
 	Docker Parameters
 	// The orchestrator environment variables
 	EnvVars EnvVars
+}
+
+func (r Orchestrator) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Component  *ComponentRef `json:",omitempty"`
+		Parameters *Parameters   `json:",omitempty"`
+		Docker     *Parameters   `json:",omitempty"`
+		EnvVars    *EnvVars      `json:",omitempty"`
+	}{
+		Component:  &r.Component,
+		Parameters: &r.Parameters,
+		Docker:     &r.Docker,
+		EnvVars:    &r.EnvVars,
+	})
 }
 
 type OrchestratorRef struct {

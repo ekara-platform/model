@@ -1,7 +1,9 @@
 package model
 
 import (
+	"encoding/json"
 	"errors"
+
 	_ "gopkg.in/yaml.v2"
 )
 
@@ -19,10 +21,40 @@ type NodeSet struct {
 	// Volumes attached to each node
 	Volumes []Volume
 	// Hooks for executing tasks around provisioning and destruction
-	Hooks struct {
-		Provision Hook
-		Destroy   Hook
-	}
+	Hooks NodeHook
+}
+
+func (r NodeSet) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Name         string           `json:",omitempty"`
+		Instances    int              `json:",omitempty"`
+		Provider     *ProviderRef     `json:",omitempty"`
+		Orchestrator *OrchestratorRef `json:",omitempty"`
+		Volumes      []Volume
+		Hooks        *NodeHook `json:",omitempty"`
+	}{
+		Name:         r.Name,
+		Instances:    r.Instances,
+		Provider:     &r.Provider,
+		Orchestrator: &r.Orchestrator,
+		Volumes:      r.Volumes,
+		Hooks:        &r.Hooks,
+	})
+}
+
+type NodeHook struct {
+	Provision Hook
+	Destroy   Hook
+}
+
+func (r NodeHook) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Provision *Hook `json:",omitempty"`
+		Destroy   *Hook `json:",omitempty"`
+	}{
+		Provision: &r.Provision,
+		Destroy:   &r.Destroy,
+	})
 }
 
 // Reference to a node set
@@ -46,10 +78,7 @@ func createNodeSets(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvi
 				Provider:     createProviderRef(vErrs, "nodes."+name+".provider", env, yamlNodeSet.Provider),
 				Orchestrator: createOrchestratorRef(env, yamlNodeSet.Orchestrator),
 				Volumes:      createVolumes(vErrs, "nodes."+name+".volumes", yamlNodeSet.Volumes),
-				Hooks: struct {
-					Provision Hook
-					Destroy   Hook
-				}{
+				Hooks: NodeHook{
 					Provision: createHook(vErrs, "nodes."+name+".hooks.provision", env, yamlNodeSet.Hooks.Provision),
 					Destroy:   createHook(vErrs, "nodes."+name+".hooks.destroy", env, yamlNodeSet.Hooks.Destroy)}}
 		}

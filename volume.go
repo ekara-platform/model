@@ -1,6 +1,7 @@
 package model
 
 import (
+	"encoding/json"
 	"errors"
 )
 
@@ -10,6 +11,16 @@ type Volume struct {
 	Name string
 	// The parameters required to create the volume.
 	Parameters Parameters `yaml:"params"`
+}
+
+func (r Volume) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Name       string      `json:",omitempty"`
+		Parameters *Parameters `json:",omitempty"`
+	}{
+		Name:       r.Name,
+		Parameters: &r.Parameters,
+	})
 }
 
 func createVolumes(vErrs *ValidationErrors, location string, yamlRef []yamlVolume) []Volume {
