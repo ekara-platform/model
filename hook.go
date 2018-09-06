@@ -5,6 +5,10 @@ type Hook struct {
 	After  []TaskRef
 }
 
+func (r Hook) HasTasks() bool {
+	return len(r.Before) > 0 || len(r.After) > 0
+}
+
 func createHook(vErrs *ValidationErrors, location string, env *Environment, yamlHook yamlHook) Hook {
 	hook := Hook{
 		Before: make([]TaskRef, len(yamlHook.Before)),

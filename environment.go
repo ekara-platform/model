@@ -1,10 +1,12 @@
 package model
 
 import (
+	"encoding/json"
 	"errors"
-	"github.com/imdario/mergo"
 	"log"
 	"net/url"
+
+	"github.com/imdario/mergo"
 )
 
 type Environment struct {
@@ -31,13 +33,80 @@ type Environment struct {
 	// The tasks which can be ran against the environment
 	Tasks map[string]Task
 
-	Hooks struct {
-		Init      Hook
-		Provision Hook
-		Deploy    Hook
-		Undeploy  Hook
-		Destroy   Hook
+	Hooks EnvironmentHooks
+}
+
+func (r Environment) MarshalJSON() ([]byte, error) {
+	t := struct {
+		Name         string          `json:",omitempty"`
+		Description  string          `json:",omitempty"`
+		Version      *Version        `json:",omitempty"`
+		Lagoon       *LagoonPlatform `json:",omitempty"`
+		Providers    map[string]Provider
+		Orchestrator *Orchestrator `json:",omitempty"`
+		NodeSets     map[string]NodeSet
+		Stacks       map[string]Stack
+		Tasks        map[string]Task
+		Hooks        *EnvironmentHooks `json:",omitempty"`
+	}{
+		Name:         r.Name,
+		Description:  r.Description,
+		Version:      &r.Version,
+		Lagoon:       &r.Lagoon,
+		Providers:    r.Providers,
+		Orchestrator: &r.Orchestrator,
+		NodeSets:     r.NodeSets,
+		Stacks:       r.Stacks,
+		Tasks:        r.Tasks,
 	}
+	if r.Hooks.HasTasks() {
+		t.Hooks = &r.Hooks
+	}
+	return json.Marshal(t)
+}
+
+type EnvironmentHooks struct {
+	Init      Hook
+	Provision Hook
+	Deploy    Hook
+	Undeploy  Hook
+	Destroy   Hook
+}
+
+func (r EnvironmentHooks) HasTasks() bool {
+	return r.Init.HasTasks() ||
+		r.Provision.HasTasks() ||
+		r.Deploy.HasTasks() ||
+		r.Undeploy.HasTasks() ||
+		r.Destroy.HasTasks()
+}
+
+func (r EnvironmentHooks) MarshalJSON() ([]byte, error) {
+	t := struct {
+		Init      *Hook `json:",omitempty"`
+		Provision *Hook `json:",omitempty"`
+		Deploy    *Hook `json:",omitempty"`
+		Undeploy  *Hook `json:",omitempty"`
+		Destroy   *Hook `json:",omitempty"`
+	}{}
+
+	if r.Init.HasTasks() {
+		t.Init = &r.Init
+	}
+	if r.Provision.HasTasks() {
+		t.Provision = &r.Provision
+	}
+	if r.Deploy.HasTasks() {
+		t.Deploy = &r.Deploy
+	}
+	if r.Undeploy.HasTasks() {
+		t.Undeploy = &r.Undeploy
+	}
+	if r.Destroy.HasTasks() {
+		t.Destroy = &r.Destroy
+	}
+
+	return json.Marshal(t)
 }
 
 func Parse(logger *log.Logger, u *url.URL) (*Environment, error) {

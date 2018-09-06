@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 )
 
 type Parameters map[string]interface{}
@@ -51,12 +52,28 @@ func MarshalJSONMap(m map[interface{}]interface{}) ([]byte, error) {
 	count := 0
 	for key, value := range m {
 		mII, ok := value.(map[interface{}]interface{})
+
 		if !ok {
-			jsonValue, err := json.Marshal(value)
-			if err != nil {
-				return nil, err
+			mAI, ok2 := value.([]interface{})
+			if !ok2 {
+				jsonValue, err := json.Marshal(value)
+				if err != nil {
+					return nil, err
+				}
+				buffer.WriteString(fmt.Sprintf("{\"%s\":%s}", key, string(jsonValue)))
+			} else {
+				buffer.WriteString(fmt.Sprintf("{\"%s\":[", key))
+				lengthAr := len(mAI)
+				countAr := 0
+				for _, v := range mAI {
+					buffer.WriteString(fmt.Sprintf("\"%v\"", v))
+					countAr++
+					if countAr < lengthAr {
+						buffer.WriteString(",")
+					}
+				}
+				buffer.WriteString("]}")
 			}
-			buffer.WriteString(fmt.Sprintf("{\"%s\":%s}", key, string(jsonValue)))
 		} else {
 			b, err := MarshalJSONMap(mII)
 			if err != nil {
@@ -70,5 +87,6 @@ func MarshalJSONMap(m map[interface{}]interface{}) ([]byte, error) {
 		}
 	}
 	buffer.WriteString("]")
+	log.Printf("---> Result:\n %v \n", string(buffer.Bytes()))
 	return buffer.Bytes(), nil
 }

@@ -1,7 +1,9 @@
 package model
 
 import (
+	"encoding/json"
 	"errors"
+
 	_ "gopkg.in/yaml.v2"
 )
 
@@ -19,10 +21,52 @@ type NodeSet struct {
 	// Volumes attached to each node
 	Volumes []Volume
 	// Hooks for executing tasks around provisioning and destruction
-	Hooks struct {
-		Provision Hook
-		Destroy   Hook
+	Hooks NodeHook
+}
+
+func (r NodeSet) MarshalJSON() ([]byte, error) {
+	t := struct {
+		Name         string       `json:",omitempty"`
+		Instances    int          `json:",omitempty"`
+		Provider     Provider     `json:",omitempty"`
+		Orchestrator Orchestrator `json:",omitempty"`
+		Volumes      []Volume
+		Hooks        *NodeHook `json:",omitempty"`
+	}{
+		Name:         r.Name,
+		Instances:    r.Instances,
+		Provider:     r.Provider.Resolve(),
+		Orchestrator: r.Orchestrator.Resolve(),
+		Volumes:      r.Volumes,
 	}
+	if r.Hooks.HasTasks() {
+		t.Hooks = &r.Hooks
+	}
+	return json.Marshal(t)
+}
+
+type NodeHook struct {
+	Provision Hook
+	Destroy   Hook
+}
+
+func (r NodeHook) HasTasks() bool {
+	return r.Provision.HasTasks() ||
+		r.Destroy.HasTasks()
+}
+
+func (r NodeHook) MarshalJSON() ([]byte, error) {
+	t := struct {
+		Provision *Hook `json:",omitempty"`
+		Destroy   *Hook `json:",omitempty"`
+	}{}
+	if r.Provision.HasTasks() {
+		t.Provision = &r.Provision
+	}
+	if r.Destroy.HasTasks() {
+		t.Destroy = &r.Destroy
+	}
+	return json.Marshal(t)
 }
 
 // Reference to a node set
@@ -46,10 +90,7 @@ func createNodeSets(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvi
 				Provider:     createProviderRef(vErrs, "nodes."+name+".provider", env, yamlNodeSet.Provider),
 				Orchestrator: createOrchestratorRef(env, yamlNodeSet.Orchestrator),
 				Volumes:      createVolumes(vErrs, "nodes."+name+".volumes", yamlNodeSet.Volumes),
-				Hooks: struct {
-					Provision Hook
-					Destroy   Hook
-				}{
+				Hooks: NodeHook{
 					Provision: createHook(vErrs, "nodes."+name+".hooks.provision", env, yamlNodeSet.Hooks.Provision),
 					Destroy:   createHook(vErrs, "nodes."+name+".hooks.destroy", env, yamlNodeSet.Hooks.Destroy)}}
 		}
