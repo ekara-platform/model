@@ -1,7 +1,7 @@
 package model
 
 import (
-	"encoding/json"
+	_ "encoding/json"
 	"fmt"
 	"log"
 	"os"
