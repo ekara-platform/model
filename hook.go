@@ -1,22 +1,12 @@
 package model
 
-import (
-	"encoding/json"
-)
-
 type Hook struct {
 	Before []TaskRef
 	After  []TaskRef
 }
 
-func (r Hook) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		Before *[]TaskRef `json:",omitempty"`
-		After  *[]TaskRef `json:",omitempty"`
-	}{
-		Before: &r.Before,
-		After:  &r.After,
-	})
+func (r Hook) HasTasks() bool {
+	return len(r.Before) > 0 || len(r.After) > 0
 }
 
 func createHook(vErrs *ValidationErrors, location string, env *Environment, yamlHook yamlHook) Hook {

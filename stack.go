@@ -16,17 +16,22 @@ type Stack struct {
 }
 
 func (r Stack) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
+	t := struct {
 		Name      string        `json:",omitempty"`
 		Component *ComponentRef `json:",omitempty"`
-		On        *NodeSetRef   `json:",omitempty"`
+		On        []string      `json:",omitempty"`
 		Hooks     *StackHook    `json:",omitempty"`
 	}{
 		Name:      r.Name,
 		Component: &r.Component,
-		On:        &r.On,
-		Hooks:     &r.Hooks,
-	})
+	}
+	for _, k := range r.On.nodeSets {
+		t.On = append(t.On, k.Name)
+	}
+	if r.Hooks.HasTasks() {
+		t.Hooks = &r.Hooks
+	}
+	return json.Marshal(t)
 }
 
 type StackHook struct {
@@ -34,14 +39,24 @@ type StackHook struct {
 	Undeploy Hook
 }
 
+func (r StackHook) HasTasks() bool {
+	return r.Deploy.HasTasks() ||
+		r.Undeploy.HasTasks()
+}
+
 func (r StackHook) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
+	t := struct {
 		Deploy   *Hook `json:",omitempty"`
 		Undeploy *Hook `json:",omitempty"`
-	}{
-		Deploy:   &r.Deploy,
-		Undeploy: &r.Undeploy,
-	})
+	}{}
+
+	if r.Deploy.HasTasks() {
+		t.Deploy = &r.Deploy
+	}
+	if r.Undeploy.HasTasks() {
+		t.Undeploy = &r.Undeploy
+	}
+	return json.Marshal(t)
 }
 
 func createStacks(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) map[string]Stack {

@@ -37,7 +37,7 @@ type Environment struct {
 }
 
 func (r Environment) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
+	t := struct {
 		Name         string          `json:",omitempty"`
 		Description  string          `json:",omitempty"`
 		Version      *Version        `json:",omitempty"`
@@ -58,8 +58,11 @@ func (r Environment) MarshalJSON() ([]byte, error) {
 		NodeSets:     r.NodeSets,
 		Stacks:       r.Stacks,
 		Tasks:        r.Tasks,
-		Hooks:        &r.Hooks,
-	})
+	}
+	if r.Hooks.HasTasks() {
+		t.Hooks = &r.Hooks
+	}
+	return json.Marshal(t)
 }
 
 type EnvironmentHooks struct {
@@ -70,20 +73,40 @@ type EnvironmentHooks struct {
 	Destroy   Hook
 }
 
+func (r EnvironmentHooks) HasTasks() bool {
+	return r.Init.HasTasks() ||
+		r.Provision.HasTasks() ||
+		r.Deploy.HasTasks() ||
+		r.Undeploy.HasTasks() ||
+		r.Destroy.HasTasks()
+}
+
 func (r EnvironmentHooks) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
+	t := struct {
 		Init      *Hook `json:",omitempty"`
 		Provision *Hook `json:",omitempty"`
 		Deploy    *Hook `json:",omitempty"`
 		Undeploy  *Hook `json:",omitempty"`
 		Destroy   *Hook `json:",omitempty"`
-	}{
-		Init:      &r.Init,
-		Provision: &r.Provision,
-		Deploy:    &r.Deploy,
-		Undeploy:  &r.Undeploy,
-		Destroy:   &r.Destroy,
-	})
+	}{}
+
+	if r.Init.HasTasks() {
+		t.Init = &r.Init
+	}
+	if r.Provision.HasTasks() {
+		t.Provision = &r.Provision
+	}
+	if r.Deploy.HasTasks() {
+		t.Deploy = &r.Deploy
+	}
+	if r.Undeploy.HasTasks() {
+		t.Undeploy = &r.Undeploy
+	}
+	if r.Destroy.HasTasks() {
+		t.Destroy = &r.Destroy
+	}
+
+	return json.Marshal(t)
 }
 
 func Parse(logger *log.Logger, u *url.URL) (*Environment, error) {

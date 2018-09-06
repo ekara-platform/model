@@ -25,21 +25,24 @@ type NodeSet struct {
 }
 
 func (r NodeSet) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		Name         string           `json:",omitempty"`
-		Instances    int              `json:",omitempty"`
-		Provider     *ProviderRef     `json:",omitempty"`
-		Orchestrator *OrchestratorRef `json:",omitempty"`
+	t := struct {
+		Name         string       `json:",omitempty"`
+		Instances    int          `json:",omitempty"`
+		Provider     Provider     `json:",omitempty"`
+		Orchestrator Orchestrator `json:",omitempty"`
 		Volumes      []Volume
 		Hooks        *NodeHook `json:",omitempty"`
 	}{
 		Name:         r.Name,
 		Instances:    r.Instances,
-		Provider:     &r.Provider,
-		Orchestrator: &r.Orchestrator,
+		Provider:     r.Provider.Resolve(),
+		Orchestrator: r.Orchestrator.Resolve(),
 		Volumes:      r.Volumes,
-		Hooks:        &r.Hooks,
-	})
+	}
+	if r.Hooks.HasTasks() {
+		t.Hooks = &r.Hooks
+	}
+	return json.Marshal(t)
 }
 
 type NodeHook struct {
@@ -47,14 +50,23 @@ type NodeHook struct {
 	Destroy   Hook
 }
 
+func (r NodeHook) HasTasks() bool {
+	return r.Provision.HasTasks() ||
+		r.Destroy.HasTasks()
+}
+
 func (r NodeHook) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
+	t := struct {
 		Provision *Hook `json:",omitempty"`
 		Destroy   *Hook `json:",omitempty"`
-	}{
-		Provision: &r.Provision,
-		Destroy:   &r.Destroy,
-	})
+	}{}
+	if r.Provision.HasTasks() {
+		t.Provision = &r.Provision
+	}
+	if r.Destroy.HasTasks() {
+		t.Destroy = &r.Destroy
+	}
+	return json.Marshal(t)
 }
 
 // Reference to a node set
