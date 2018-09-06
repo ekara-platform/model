@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 )
 
 type Parameters map[string]interface{}
@@ -87,6 +86,5 @@ func MarshalJSONMap(m map[interface{}]interface{}) ([]byte, error) {
 		}
 	}
 	buffer.WriteString("]")
-	log.Printf("---> Result:\n %v \n", string(buffer.Bytes()))
 	return buffer.Bytes(), nil
 }
