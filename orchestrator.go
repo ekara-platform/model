@@ -18,12 +18,12 @@ type Orchestrator struct {
 
 func (r Orchestrator) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		Component  *ComponentRef `json:",omitempty"`
-		Parameters Parameters    `json:",omitempty"`
-		Docker     Parameters    `json:",omitempty"`
-		EnvVars    EnvVars       `json:",omitempty"`
+		Component  string     `json:",omitempty"`
+		Parameters Parameters `json:",omitempty"`
+		Docker     Parameters `json:",omitempty"`
+		EnvVars    EnvVars    `json:",omitempty"`
 	}{
-		Component:  &r.Component,
+		Component:  r.Component.Resolve().Id,
 		Parameters: r.Parameters,
 		Docker:     r.Docker,
 		EnvVars:    r.EnvVars,

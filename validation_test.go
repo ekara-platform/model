@@ -1,6 +1,7 @@
 package model
 
 import (
+	_ "encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -188,3 +189,16 @@ func testHook(t *testing.T, msg string, index int, vErrs ValidationErrors) {
 	assert.Equal(t, "unknown task reference: unknown", vErrs.Errors[index].Message)
 	assert.Equal(t, Error, vErrs.Errors[index].ErrorType)
 }
+
+/*
+func TestLocal(t *testing.T) {
+	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
+	env, _ := Parse(logger, buildUrl("./testdata/yaml/test.yaml"))
+	assert.NotNil(t, env)
+	environmentJson, err := json.Marshal(env)
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("%s", string(environmentJson))
+}
+*/
