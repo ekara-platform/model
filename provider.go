@@ -20,14 +20,14 @@ type Provider struct {
 
 func (r Provider) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		Name       string        `json:",omitempty"`
-		Component  *ComponentRef `json:",omitempty"`
-		Parameters Parameters    `json:",omitempty"`
-		EnvVars    EnvVars       `json:",omitempty"`
-		Proxy      Proxy         `json:",omitempty"`
+		Name       string     `json:",omitempty"`
+		Component  string     `json:",omitempty"`
+		Parameters Parameters `json:",omitempty"`
+		EnvVars    EnvVars    `json:",omitempty"`
+		Proxy      Proxy      `json:",omitempty"`
 	}{
 		Name:       r.Name,
-		Component:  &r.Component,
+		Component:  r.Component.Resolve().Id,
 		Parameters: r.Parameters,
 		EnvVars:    r.EnvVars,
 		Proxy:      r.Proxy,
