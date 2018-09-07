@@ -2,6 +2,8 @@ package model
 
 import (
 	"fmt"
+
+	"encoding/json"
 	"regexp"
 	"strconv"
 )
@@ -13,6 +15,25 @@ type Version struct {
 	Minor int
 	Micro int
 	full  string
+}
+
+func (r Version) MarshalJSON() ([]byte, error) {
+	t := struct {
+		Major string `json:",omitempty"`
+		Minor string `json:",omitempty"`
+		Micro string `json:",omitempty"`
+		Full  string `json:",omitempty"`
+	}{}
+
+	if r.Major > -1 {
+		t.Major = strconv.Itoa(r.Major)
+		t.Minor = strconv.Itoa(r.Minor)
+		t.Micro = strconv.Itoa(r.Micro)
+	} else {
+		t.Full = r.full
+	}
+
+	return json.Marshal(t)
 }
 
 func createVersion(full string) (Version, error) {

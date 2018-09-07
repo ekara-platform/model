@@ -101,6 +101,8 @@ type yamlEnvironment struct {
 	// The description of the environment
 	Description string
 
+	Version string
+
 	// The Lagoon platform used to interact with the environment
 	Lagoon struct {
 		ComponentBase  string `yaml:"componentBase"`
@@ -209,7 +211,7 @@ func parseYamlDescriptor(logger *log.Logger, u *url.URL, data map[string]interfa
 	if err != nil {
 		return
 	}
-	
+
 	tpl.Execute(&out, data)
 
 	// Unmarshal the resulting YAML

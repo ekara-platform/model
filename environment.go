@@ -140,6 +140,12 @@ func createEnvironment(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Enviro
 	var env = Environment{}
 	env.Name = yamlEnv.Name
 	env.Description = yamlEnv.Description
+	v, e := createVersion(yamlEnv.Version)
+	if e != nil {
+		vErrs.AddError(e, "version")
+	} else {
+		env.Version = v
+	}
 	env.Lagoon = createLagoonPlatform(vErrs, yamlEnv)
 	env.Tasks = createTasks(vErrs, &env, yamlEnv)
 	env.Orchestrator = createOrchestrator(vErrs, &env, yamlEnv)
