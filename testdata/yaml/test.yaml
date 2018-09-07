@@ -4,11 +4,11 @@ version: 1.2.3
 lagoon:
   components:
     aws:
-      repository: lagoon-platform/aws-provider
-      version: master
+      repository: tbouvet/aws-provider
+      version: custom-config
     swarm:
-      repository: lagoon-platform/swarm-orchestrator
-      version: alpha1
+      repository: tbouvet/swarm-orchestrator
+      version: proxy
     stack1:
       repository: lagoon-platform/swarm-orchestrator
       version: alpha1
@@ -16,27 +16,30 @@ lagoon:
 orchestrator:
   component: swarm
   docker:
-    log-driver: json-file
-    log-opts: 
-      max-size: "20m"
-      max-file: "3"
-    disable-legacy-registry: true
-    userland-proxy: true
-    live-restore: false
-    hosts: 
-    - "unix:///var/run/docker.sock"
-    - "tcp://0.0.0.0:2376"
-    tls: true
-    tlscacert: "/etc/docker/certs/ca.pem"
-    tlscert: "/etc/docker/certs/cert.pem"
-    tlskey: "/etc/docker/certs/key.pem"
-    tlsverify: true 
+    params:
+      log-driver: json-file
+      log-opts: 
+        max-size: "20m"
+        max-file: "3"
+      disable-legacy-registry: true
+      userland-proxy: true
+      live-restore: false
+      hosts: 
+      - "unix:///var/run/docker.sock"
+      - "tcp://0.0.0.0:2376"
+      tls: true
+      tlscacert: "/etc/docker/certs/ca.pem"
+      tlscert: "/etc/docker/certs/cert.pem"
+      tlskey: "/etc/docker/certs/key.pem"
+      tlsverify: true 
 
 providers:
   aws:
     component: aws
     params:
       region: "us-west-1"
+      assign_public_ip: true
+      
     env:
       AWS_REGION: {{ .aws_region }}
       AWS_ACCESS_KEY_ID: {{ .aws_access_key_id }}
@@ -68,16 +71,6 @@ nodes:
             - 80
             cidr_ip: 0.0.0.0/0
             rule_desc: allow all on port 80
-            sub_groups:
-            - name: sub_group1
-              age: 22
-              shoes:
-              - "rouge"
-              - "bleu"
-              - "vert"
-              - "marron"
-              - "gris"
-                owner: "moi"
           - proto: tcp
             ports:
             - 8080
