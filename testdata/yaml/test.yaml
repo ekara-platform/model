@@ -32,88 +32,70 @@ orchestrator:
       tlscert: "/etc/docker/certs/cert.pem"
       tlskey: "/etc/docker/certs/key.pem"
       tlsverify: true 
+      registry-mirrors:
+      - "https://repository.inetpsa.com/"
+      
+    registries:
+      repository.inetpsa.com:
+        certificate: {{ .repository_cert }}
+        username: {{ .docker_username }}
+        password: {{ .docker_password }}
+
 
 providers:
   aws:
     component: aws
     params:
-      region: "us-west-1"
-      assign_public_ip: true
-      
+      region: "eu-west-3"
+      assign_public_ip: False
     env:
       AWS_REGION: {{ .aws_region }}
       AWS_ACCESS_KEY_ID: {{ .aws_access_key_id }}
       AWS_SECRET_ACCESS_KEY: {{ .aws_access_key }}
+    proxy:
+      http: "{{ .proxy_http }}"
+      https: "{{ .proxy_https }}"
+      noproxy: "{{ .proxy_no }}"
 
 
 nodes:
   managers:
-    instances: 3        
+    instances: 1
+    
     provider:
       name: aws
       params:
-        instance_type: "t2.micro"
-        ami_id: "ami-f90a4880"
-        vpc_id: "vpc-880aeaef"
-        region: "eu-west-1"
-        security_groups:
-        - name: group1
-          rules:
-          - proto: tcp
-            ports:
-            - 22
-            cidr_ip: 0.0.0.0/0
-            rule_desc: allow all on port 22
-        - name: group2
-          rules:
-          - proto: tcp
-            ports:
-            - 80
-            cidr_ip: 0.0.0.0/0
-            rule_desc: allow all on port 80
-          - proto: tcp
-            ports:
-            - 8080
-            cidr_ip: 0.0.0.0/0
-            rule_desc: allow all on port 8080
-        - name: swarm
-          rules:
-          - proto: tcp
-            ports:
-            - 2377
-            cidr_ip: 0.0.0.0/0
-            rule_desc: cluster management communications
-          - proto: tcp
-            ports:
-            - 7946 
-            cidr_ip: 0.0.0.0/0
-            rule_desc: communication among nodes
-          - proto: udp
-            ports:
-            - 7946 
-            cidr_ip: 0.0.0.0/0
-            rule_desc: communication among nodes
-          - proto: udp
-            ports:
-            - 4789 
-            cidr_ip: 0.0.0.0/0
-            rule_desc: overlay network traffic 
+        instance_type: "m5.4xlarge"
+        ami_id: "ami-20ee5e5d"
+        vpc_id: "vpc-e1cd7688"
+        vpc_subnet_id: "subnet-6da71a04"
+        assign_public_ip: False
+        security_groups_ids: sg-4aa6e323
+        instance_tags:
+          psa_reflex_name: noreflex
+        region: "eu-west-3"
+      proxy:
+        http: {{ .proxy_http }}
+        https: {{ .proxy_https }}
+        noproxy: {{ .proxy_no }}
+
     volumes:
-    - path: /data1
+    - path: /users
+      device_name: nvme1n1
       params:
         device_name: xvdf
         volume_type: gp2
-        volume_size: 9
+        volume_size: 200
         delete_on_termination: true
     - path: /var/lib/docker
+      device_name: nvme2n1
       params:
         device_name: xvdg
-        volume_type: standard
-        volume_size: 1
+        volume_type: gp2
+        volume_size: 100
         delete_on_termination: true
         tags:
-          Type: Docker 
-          TestTagKey: TestTagValue
+          Type: Docker
 
 stacks:
   stack1:

@@ -64,9 +64,9 @@ providers:
       aws_env_key1: aws_env_key1_value
       aws_env_key2: aws_env_key2_value
     proxy:
-      http: aws_http_proxy
-      https: aws_https_proxy
-      noProxy: aws_no_proxy
+      http_proxy: aws_http_proxy
+      https_proxy: aws_https_proxy
+      no_proxy: aws_no_proxy
   azure:
     component: azure
     params:
@@ -76,9 +76,9 @@ providers:
       azure_env_key1: azure_env_key1_value
       azure_env_key2: azure_env_key2_value
     proxy:
-      http: azure_http_proxy
-      https: azure_https_proxy
-      noProxy: azure_no_proxy
+      http_proxy: azure_http_proxy
+      https_proxy: azure_https_proxy
+      no_proxy: azure_no_proxy
 
 nodes:
   node1:

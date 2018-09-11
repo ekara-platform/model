@@ -14,9 +14,9 @@ import (
 
 // yaml tag for the proxy details
 type yamlProxy struct {
-	Http    string
-	Https   string
-	NoProxy string `yaml:"noProxy"`
+	Http    string `yaml:"http_proxy"`
+	Https   string `yaml:"https_proxy"`
+	NoProxy string `yaml:"no_proxy"`
 }
 
 // yaml tag for parameters
