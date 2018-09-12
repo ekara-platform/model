@@ -1,9 +1,9 @@
 package model
 
 type Proxy struct {
-	Http    string `json:",omitempty"`
-	Https   string `json:",omitempty"`
-	NoProxy string `json:",omitempty"`
+	Http    string `yaml:"http_proxy" json:",omitempty"`
+	Https   string `yaml:"https_proxy" json:",omitempty"`
+	NoProxy string `yaml:"no_proxy" json:",omitempty"`
 }
 
 func (p Proxy) inherit(parent Proxy) Proxy {
