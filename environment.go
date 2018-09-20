@@ -14,10 +14,11 @@ type Environment struct {
 
 	// The environment name
 	Name string
+	// The environment qualifier
+	Qualifier string
+
 	// The environment description
 	Description string
-	// The version of the environment descriptor
-	Version Version
 
 	// Lagoon platform settings
 	Lagoon LagoonPlatform
@@ -39,8 +40,8 @@ type Environment struct {
 func (r Environment) MarshalJSON() ([]byte, error) {
 	t := struct {
 		Name         string          `json:",omitempty"`
+		Qualifier    string          `json:",omitempty"`
 		Description  string          `json:",omitempty"`
-		Version      *Version        `json:",omitempty"`
 		Lagoon       *LagoonPlatform `json:",omitempty"`
 		Providers    map[string]Provider
 		Orchestrator *Orchestrator `json:",omitempty"`
@@ -49,9 +50,10 @@ func (r Environment) MarshalJSON() ([]byte, error) {
 		Tasks        map[string]Task
 		Hooks        *EnvironmentHooks `json:",omitempty"`
 	}{
-		Name:         r.Name,
-		Description:  r.Description,
-		Version:      &r.Version,
+		Name:        r.Name,
+		Qualifier:   r.Qualifier,
+		Description: r.Description,
+
 		Lagoon:       &r.Lagoon,
 		Providers:    r.Providers,
 		Orchestrator: &r.Orchestrator,
@@ -139,13 +141,9 @@ func (env *Environment) Merge(other *Environment) {
 func createEnvironment(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Environment {
 	var env = Environment{}
 	env.Name = yamlEnv.Name
+	env.Qualifier = yamlEnv.Qualifier
 	env.Description = yamlEnv.Description
-	v, e := createVersion(yamlEnv.Version)
-	if e != nil {
-		vErrs.AddError(e, "version")
-	} else {
-		env.Version = v
-	}
+
 	env.Lagoon = createLagoonPlatform(vErrs, yamlEnv)
 	env.Tasks = createTasks(vErrs, &env, yamlEnv)
 	env.Orchestrator = createOrchestrator(vErrs, &env, yamlEnv)

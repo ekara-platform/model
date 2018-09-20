@@ -98,10 +98,11 @@ type yamlEnvironment struct {
 
 	// The name of the environment
 	Name string
+	// The qualifier of the environment
+	Qualifier string
+
 	// The description of the environment
 	Description string
-
-	Version string
 
 	// The Lagoon platform used to interact with the environment
 	Lagoon struct {
@@ -225,7 +226,6 @@ func parseYamlDescriptor(logger *log.Logger, u *url.URL, data map[string]interfa
 	if err != nil {
 		return
 	}
-
 	return
 }
 

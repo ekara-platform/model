@@ -1,4 +1,6 @@
 name: testEnvironment
+qualifier: testQualifier
+
 description: This is my awesome Lagoon environment.
 
 lagoon:

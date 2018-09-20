@@ -17,6 +17,7 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.Nil(t, e)
 
 	assert.Equal(t, "testEnvironment", env.Name)
+	assert.Equal(t, "testQualifier", env.Qualifier)
 	assert.Equal(t, "This is my awesome Lagoon environment.", env.Description)
 
 	// Platform

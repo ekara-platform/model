@@ -1,4 +1,5 @@
 name: name_value
+qualifier: qualifier_value
 description: description_value
 
 lagoon:
