@@ -9,6 +9,27 @@ import (
 	"github.com/imdario/mergo"
 )
 
+// The Qualified name of an environment.
+// This name can be used to identify, using for example Tags or Labels, all the
+// content created relative to the environment on the infrastructure of the desired
+// cloud provider.
+type QualifiedName string
+
+func (qn QualifiedName) String() string {
+	return string(qn)
+}
+
+// QualifiedName returns the concatenation of the environment name and qualifier
+// separated by a "_".
+// If the environment qualifier is not defined it will return just the name
+func (r Environment) QualifiedName() QualifiedName {
+	if len(r.Qualifier) == 0 {
+		return QualifiedName(r.Name)
+	} else {
+		return QualifiedName(r.Name + "_" + r.Qualifier)
+	}
+}
+
 type Environment struct {
 	Component
 
@@ -37,22 +58,28 @@ type Environment struct {
 	Hooks EnvironmentHooks
 }
 
+func (env *Environment) Merge(other *Environment) {
+	mergo.Merge(env, other, mergo.WithOverride)
+}
+
 func (r Environment) MarshalJSON() ([]byte, error) {
 	t := struct {
-		Name         string          `json:",omitempty"`
-		Qualifier    string          `json:",omitempty"`
-		Description  string          `json:",omitempty"`
-		Lagoon       *LagoonPlatform `json:",omitempty"`
-		Providers    map[string]Provider
-		Orchestrator *Orchestrator `json:",omitempty"`
-		NodeSets     map[string]NodeSet
-		Stacks       map[string]Stack
-		Tasks        map[string]Task
-		Hooks        *EnvironmentHooks `json:",omitempty"`
+		Name          string          `json:",omitempty"`
+		Qualifier     string          `json:",omitempty"`
+		QualifiedName string          `json:",omitempty"`
+		Description   string          `json:",omitempty"`
+		Lagoon        *LagoonPlatform `json:",omitempty"`
+		Providers     map[string]Provider
+		Orchestrator  *Orchestrator `json:",omitempty"`
+		NodeSets      map[string]NodeSet
+		Stacks        map[string]Stack
+		Tasks         map[string]Task
+		Hooks         *EnvironmentHooks `json:",omitempty"`
 	}{
-		Name:        r.Name,
-		Qualifier:   r.Qualifier,
-		Description: r.Description,
+		Name:          r.Name,
+		Qualifier:     r.Qualifier,
+		QualifiedName: r.QualifiedName().String(),
+		Description:   r.Description,
 
 		Lagoon:       &r.Lagoon,
 		Providers:    r.Providers,
@@ -134,12 +161,11 @@ func ParseWithData(logger *log.Logger, u *url.URL, data map[string]interface{}) 
 	}
 }
 
-func (env *Environment) Merge(other *Environment) {
-	mergo.Merge(env, other, mergo.WithOverride)
-}
-
 func createEnvironment(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Environment {
 	var env = Environment{}
+	if len(yamlEnv.Name) == 0 {
+		vErrs.AddError(errors.New("empty environment name"), "name")
+	}
 	env.Name = yamlEnv.Name
 	env.Qualifier = yamlEnv.Qualifier
 	env.Description = yamlEnv.Description

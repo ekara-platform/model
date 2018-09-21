@@ -344,3 +344,22 @@ func buildUrl(loc string) *url.URL {
 	}
 	return u
 }
+
+func TestQualifiedName(t *testing.T) {
+	env := Environment{
+		Name:      "MyName",
+		Qualifier: "MyQualifier",
+	}
+	qn := env.QualifiedName()
+	assert.NotNil(t, qn)
+	assert.Equal(t, "MyName_MyQualifier", qn.String())
+}
+
+func TestUnqualifiedName(t *testing.T) {
+	env := Environment{
+		Name: "MyName",
+	}
+	qn := env.QualifiedName()
+	assert.NotNil(t, qn)
+	assert.Equal(t, "MyName", qn.String())
+}

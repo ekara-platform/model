@@ -31,6 +31,13 @@ func assertValidationErrors(t *testing.T, e error, logger *log.Logger, onlyWarni
 	return vErrs
 }
 
+func TestNoEnvironmentName(t *testing.T) {
+	vErrs := testEmptyContent(t, "environment_name", false)
+	assert.Equal(t, true, vErrs.HasErrors())
+	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
+	assert.Equal(t, "empty environment name", vErrs.Errors[0].Message)
+}
+
 func TestNoNodes(t *testing.T) {
 	vErrs := testEmptyContent(t, "nodes", false)
 	assert.Equal(t, true, vErrs.HasErrors())
@@ -54,9 +61,7 @@ func TestNoStacks(t *testing.T) {
 }
 
 func TestNoNodesProvider(t *testing.T) {
-	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/no_nodes_provider.yaml"))
-	vErrs := assertValidationErrors(t, e, logger, false)
+	vErrs := testEmptyContent(t, "nodes_provider", false)
 
 	assert.Equal(t, true, vErrs.HasErrors())
 	assert.Equal(t, false, vErrs.HasWarnings())
@@ -67,9 +72,7 @@ func TestNoNodesProvider(t *testing.T) {
 }
 
 func TestNoNodesInstance(t *testing.T) {
-	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/no_nodes_instance.yaml"))
-	vErrs := assertValidationErrors(t, e, logger, false)
+	vErrs := testEmptyContent(t, "nodes_instance", false)
 
 	assert.NotNil(t, vErrs)
 	assert.Equal(t, true, vErrs.HasErrors())
@@ -81,9 +84,7 @@ func TestNoNodesInstance(t *testing.T) {
 }
 
 func TestNoVolumeName(t *testing.T) {
-	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/no_volume_name.yaml"))
-	vErrs := assertValidationErrors(t, e, logger, false)
+	vErrs := testEmptyContent(t, "volume_name", false)
 
 	assert.NotNil(t, vErrs)
 	assert.Equal(t, true, vErrs.HasErrors())
@@ -135,9 +136,7 @@ func TestStacksUnknownOn(t *testing.T) {
 }
 
 func TestTasksNoPlayBook(t *testing.T) {
-	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/no_task_playbook.yaml"))
-	vErrs := assertValidationErrors(t, e, logger, false)
+	vErrs := testEmptyContent(t, "task_playbook", false)
 
 	assert.NotNil(t, vErrs)
 	assert.Equal(t, true, vErrs.HasErrors())
