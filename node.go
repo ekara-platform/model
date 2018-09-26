@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	_ "gopkg.in/yaml.v2"
 )
@@ -22,6 +23,10 @@ type NodeSet struct {
 	Volumes []Volume
 	// Hooks for executing tasks around provisioning and destruction
 	Hooks NodeHook
+}
+
+func (n NodeSet) HumanDescribe() string {
+	return fmt.Sprintf("NodeSet: %s", n.Name)
 }
 
 func (r NodeSet) MarshalJSON() ([]byte, error) {
