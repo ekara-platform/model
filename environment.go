@@ -9,27 +9,6 @@ import (
 	"github.com/imdario/mergo"
 )
 
-// The Qualified name of an environment.
-// This name can be used to identify, using for example Tags or Labels, all the
-// content created relative to the environment on the infrastructure of the desired
-// cloud provider.
-type QualifiedName string
-
-func (qn QualifiedName) String() string {
-	return string(qn)
-}
-
-// QualifiedName returns the concatenation of the environment name and qualifier
-// separated by a "_".
-// If the environment qualifier is not defined it will return just the name
-func (r Environment) QualifiedName() QualifiedName {
-	if len(r.Qualifier) == 0 {
-		return QualifiedName(r.Name)
-	} else {
-		return QualifiedName(r.Name + "_" + r.Qualifier)
-	}
-}
-
 type Environment struct {
 	Component
 
