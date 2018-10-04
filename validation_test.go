@@ -188,3 +188,23 @@ func testHook(t *testing.T, msg string, index int, vErrs ValidationErrors) {
 	assert.Equal(t, "unknown task reference: unknown", vErrs.Errors[index].Message)
 	assert.Equal(t, Error, vErrs.Errors[index].ErrorType)
 }
+
+func TestNoValidName(t *testing.T) {
+	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
+	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/no_valid_name.yaml"))
+	vErrs := assertValidationErrors(t, e, logger, false)
+	assert.NotNil(t, vErrs)
+	assert.Equal(t, true, vErrs.HasErrors())
+	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
+	assert.Equal(t, "The environment name or the qualifier contain a non alphanumeric character", vErrs.Errors[0].Message)
+}
+
+func TestNoValidQualifier(t *testing.T) {
+	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
+	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/no_valid_qualifier.yaml"))
+	vErrs := assertValidationErrors(t, e, logger, false)
+	assert.NotNil(t, vErrs)
+	assert.Equal(t, true, vErrs.HasErrors())
+	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
+	assert.Equal(t, "The environment name or the qualifier contain a non alphanumeric character", vErrs.Errors[0].Message)
+}

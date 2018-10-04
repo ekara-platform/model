@@ -145,6 +145,12 @@ func createEnvironment(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Enviro
 	if len(yamlEnv.Name) == 0 {
 		vErrs.AddError(errors.New("empty environment name"), "name")
 	}
+
+	// Check the validity of the qualified name of the environment
+	if !yamlEnv.QualifiedName().ValidQualifiedName() {
+		vErrs.AddError(errors.New("The environment name or the qualifier contain a non alphanumeric character"), "name_qualifier")
+	}
+
 	env.Name = yamlEnv.Name
 	env.Qualifier = yamlEnv.Qualifier
 	env.Description = yamlEnv.Description
