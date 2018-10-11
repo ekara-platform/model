@@ -34,6 +34,11 @@ type yamlEnv struct {
 	Env map[string]string
 }
 
+// yaml tag for labels on nodesets
+type yamlLabel struct {
+	Labels map[string]string
+}
+
 // yaml tag for component
 type yamlComponent struct {
 	Repository string
@@ -168,6 +173,8 @@ type yamlEnvironment struct {
 			Provision yamlHook
 			Destroy   yamlHook
 		}
+		// The labels associated with the nodeset
+		yamlLabel `yaml:",inline"`
 	}
 
 	// Software stacks to be installed on the environment

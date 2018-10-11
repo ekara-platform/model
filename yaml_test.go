@@ -53,14 +53,3 @@ func TestCreateEngineFromLocalWithData(t *testing.T) {
 	assert.Equal(t, "Name from data", yamlEnv.Name)
 	assert.Equal(t, "Description from data", yamlEnv.Description)
 }
-
-// Ignored
-/**
-func TestLocal(t *testing.T) {
-	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := parseYamlDescriptor(logger, buildUrl("testdata/yaml/test.yaml"), map[string]interface{}{})
-	// no error occurred
-	assert.Nil(t, e)
-	assert.NotNil(t, env)
-}
-*/

@@ -23,6 +23,8 @@ type NodeSet struct {
 	Volumes []Volume
 	// Hooks for executing tasks around provisioning and destruction
 	Hooks NodeHook
+	// The labels associated with the nodeset
+	Labels Labels
 }
 
 func (n NodeSet) HumanDescribe() string {
@@ -97,7 +99,10 @@ func createNodeSets(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvi
 				Volumes:      createVolumes(vErrs, "nodes."+name+".volumes", yamlNodeSet.Volumes),
 				Hooks: NodeHook{
 					Provision: createHook(vErrs, "nodes."+name+".hooks.provision", env, yamlNodeSet.Hooks.Provision),
-					Destroy:   createHook(vErrs, "nodes."+name+".hooks.destroy", env, yamlNodeSet.Hooks.Destroy)}}
+					Destroy:   createHook(vErrs, "nodes."+name+".hooks.destroy", env, yamlNodeSet.Hooks.Destroy),
+				},
+				Labels: yamlNodeSet.Labels,
+			}
 		}
 	}
 	return res

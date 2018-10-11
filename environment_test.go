@@ -197,6 +197,15 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.NotNil(t, vs)
 	assert.Equal(t, 2, len(vs))
 
+	la := nodeSets["node1"].Labels
+	v, ok = la["node1_label1"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "node1_label1_value")
+
+	v, ok = la["node1_label2"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "node1_label2_value")
+
 	vol := vs[0]
 	assert.Equal(t, vol.Name, "some/volume/path")
 	assert.Equal(t, vol.Parameters["param1_name"], "aws_param1_name_value")
@@ -263,6 +272,15 @@ func TestCreateEngineComplete(t *testing.T) {
 	vol = vs[1]
 	assert.Equal(t, vol.Name, "other/volume/path")
 	assert.Equal(t, vol.Parameters["param2_name"], "azure_param2_name_value")
+
+	la = nodeSets["node2"].Labels
+	v, ok = la["node2_label1"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "node2_label1_value")
+
+	v, ok = la["node2_label2"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "node2_label2_value")
 
 	//------------------------------------------------------------
 	// Environment Stacks

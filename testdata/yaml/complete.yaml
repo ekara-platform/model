@@ -110,6 +110,9 @@ nodes:
     - path: "other/volume/path"
       params:
         param2_name: aws_param2_name_value
+    labels:
+      node1_label1: node1_label1_value
+      node1_label2: node1_label2_value
 
   node2:
     instances: 20
@@ -138,6 +141,9 @@ nodes:
     - path: "other/volume/path"
       params:
         param2_name: azure_param2_name_value
+    labels:
+      node2_label1: node2_label1_value
+      node2_label2: node2_label2_value
 
 stacks:
   stack1:
