@@ -61,7 +61,7 @@ func createOrchestrator(vErrs *ValidationErrors, env *Environment, yamlEnv *yaml
 		return Orchestrator{}
 	} else {
 		return Orchestrator{
-			Component:  createComponentRef(vErrs, env.Lagoon.Components, "orchestrator", yamlO.Component),
+			Component:  createComponentRef(vErrs, env.Ekara.Components, "orchestrator", yamlO.Component),
 			Parameters: createParameters(yamlO.Params),
 			Docker:     createParameters(yamlO.Docker),
 			EnvVars:    createEnvVars(yamlO.Env)}

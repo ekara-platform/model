@@ -14,14 +14,14 @@ import (
 // Ignored
 func ignoreTestParseFromHttp(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := parseYamlDescriptor(logger, buildUrl("https://raw.githubusercontent.com/lagoon-platform/model/master/testdata/yaml/complete.yaml"), map[string]interface{}{})
+	_, e := parseYamlDescriptor(logger, buildUrl("https://raw.githubusercontent.com/ekara-platform/model/master/testdata/yaml/complete.yaml"), map[string]interface{}{})
 	// no error occurred
 	assert.Nil(t, e)
 }
 
 func TestCreateEngineFromBadHttp(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := parseYamlDescriptor(logger, buildUrl("https://github.com/lagoon-platform/engine/tree/master/testdata/DUMMY.yaml"), map[string]interface{}{})
+	_, e := parseYamlDescriptor(logger, buildUrl("https://github.com/ekara-platform/engine/tree/master/testdata/DUMMY.yaml"), map[string]interface{}{})
 	// an error occurred
 	assert.NotNil(t, e)
 	assert.True(t, strings.HasSuffix(e.Error(), "HTTP status 404"))
@@ -32,8 +32,8 @@ func TestCreateEngineFromLocal(t *testing.T) {
 	yamlEnv, e := parseYamlDescriptor(logger, buildUrl("testdata/yaml/complete.yaml"), map[string]interface{}{})
 	assert.Nil(t, e) // no error occurred
 
-	assert.Equal(t, "testEnvironment", yamlEnv.Name)                               // importing file have has precedence
-	assert.Equal(t, "This is my awesome Lagoon environment.", yamlEnv.Description) // imported files are merged
+	assert.Equal(t, "testEnvironment", yamlEnv.Name)                              // importing file have has precedence
+	assert.Equal(t, "This is my awesome Ekara environment.", yamlEnv.Description) // imported files are merged
 }
 
 func TestCreateEngineFromLocalComplexParams(t *testing.T) {

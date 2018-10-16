@@ -1,5 +1,5 @@
-# Lagoon platform model
+# Ekara platform model
 
-Go library containing the Lagoon Platform Model along with the YAML descriptor parser/validator.
+Go library containing the Ekara Platform Model along with the YAML descriptor parser/validator.
  
-Godoc here : https://godoc.org/github.com/lagoon-platform/model
+Godoc here : https://godoc.org/github.com/ekara-platform/model

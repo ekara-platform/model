@@ -6,80 +6,80 @@ import (
 	"strings"
 )
 
-// Lagoon Platform used to manipulate an environment
-type LagoonPlatform struct {
+// Ekara Platform used to manipulate an environment
+type EkaraPlatform struct {
 	ComponentBase  *url.URL
 	DockerRegistry *url.URL
 	Components     map[string]Component
 	Component      ComponentRef
 }
 
-// createLagoonPlatform create the Lagoon Platform based on the given
+// createEkaraPlatform create the Ekara Platform based on the given
 // repository and version
 //
 // The yamlRepoVersion must contains a repository and a version! If the repository
 // or the version is missing then a  error will be generated
-func createLagoonPlatform(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) LagoonPlatform {
+func createEkaraPlatform(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) EkaraPlatform {
 	base, e := createComponentBase(yamlEnv)
 	if e != nil {
-		vErrs.AddError(e, "lagoon.componentBase")
+		vErrs.AddError(e, "ekara.componentBase")
 	}
 
 	dockerReg, e := createDockerRegistry(yamlEnv)
 	if e != nil {
-		vErrs.AddError(e, "lagoon.dockerRegistry")
+		vErrs.AddError(e, "ekara.dockerRegistry")
 	}
 
-	lagoon := LagoonPlatform{
+	ekara := EkaraPlatform{
 		ComponentBase:  base,
 		DockerRegistry: dockerReg,
 		Components:     map[string]Component{}}
 
 	// Create all components
-	for componentName, yamlComponent := range yamlEnv.Lagoon.Components {
+	for componentName, yamlComponent := range yamlEnv.Ekara.Components {
 		component, e := CreateComponent(
-			lagoon.ComponentBase,
+			ekara.ComponentBase,
 			componentName,
 			yamlComponent.Repository,
 			yamlComponent.Version)
 		if e != nil {
-			vErrs.AddError(e, "lagoon.components."+componentName)
+			vErrs.AddError(e, "ekara.components."+componentName)
 		} else {
-			lagoon.Components[componentName] = component
+			ekara.Components[componentName] = component
 		}
 	}
 
 	// Core component defaults if not specified
 	var yamlCoreComponent yamlComponent
 	var ok bool
-	if yamlCoreComponent, ok = yamlEnv.Lagoon.Components[LagoonCoreId]; !ok {
+	if yamlCoreComponent, ok = yamlEnv.Ekara.Components[EkaraCoreId]; !ok {
 		yamlCoreComponent = yamlComponent{
-			Repository: LagoonCoreRepository,
+			Repository: EkaraCoreRepository,
 			Version:    ""}
 	}
 
 	// (Re-)create core component
 	coreComponent, e := CreateComponent(
-		lagoon.ComponentBase,
-		LagoonCoreId,
+		ekara.ComponentBase,
+		EkaraCoreId,
 		yamlCoreComponent.Repository,
 		yamlCoreComponent.Version)
 	if e != nil {
-		vErrs.AddError(e, "lagoon.components."+LagoonCoreId)
+		vErrs.AddError(e, "ekara.components."+EkaraCoreId)
 	} else {
-		lagoon.Components[LagoonCoreId] = coreComponent
+		ekara.Components[EkaraCoreId] = coreComponent
 	}
 
-	lagoon.Component = createComponentRef(vErrs, lagoon.Components, "lagoon", LagoonCoreId)
+	ekara.Component = createComponentRef(vErrs, ekara.Components, "ekara", EkaraCoreId)
 
-	return lagoon
+	return ekara
 }
 
 func createComponentBase(yamlEnv *yamlEnvironment) (*url.URL, error) {
 	res := DefaultComponentBase
 
-	if yamlEnv != nil && yamlEnv.Lagoon.ComponentBase != "" {
-		res = yamlEnv.Lagoon.ComponentBase
+	if yamlEnv != nil && yamlEnv.Ekara.ComponentBase != "" {
+		res = yamlEnv.Ekara.ComponentBase
 	}
 
 	// If file exists locally, resolve its absolute path and convert it to an URL
@@ -111,8 +111,8 @@ func createComponentBase(yamlEnv *yamlEnvironment) (*url.URL, error) {
 
 func createDockerRegistry(yamlEnv *yamlEnvironment) (*url.URL, error) {
 	res := DefaultDockerRegistry
-	if yamlEnv.Lagoon.DockerRegistry != "" {
-		res = yamlEnv.Lagoon.DockerRegistry
+	if yamlEnv.Ekara.DockerRegistry != "" {
+		res = yamlEnv.Ekara.DockerRegistry
 	}
 	return url.Parse(res)
 }

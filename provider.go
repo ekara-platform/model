@@ -66,7 +66,7 @@ func createProviders(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnv
 		for name, yamlProvider := range yamlEnv.Providers {
 			res[name] = Provider{
 				Name:       name,
-				Component:  createComponentRef(vErrs, env.Lagoon.Components, "provider."+name, yamlProvider.Component),
+				Component:  createComponentRef(vErrs, env.Ekara.Components, "provider."+name, yamlProvider.Component),
 				Parameters: createParameters(yamlProvider.Params),
 				Proxy:      createProxy(yamlProvider.Proxy),
 				EnvVars:    createEnvVars(yamlProvider.Env)}

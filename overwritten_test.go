@@ -11,7 +11,7 @@ import (
 
 func TestOverwrittenProviderParam(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := Parse(logger, buildUrl("./testdata/yaml/overwritten/lagoon.yaml"))
+	env, e := Parse(logger, buildUrl("./testdata/yaml/overwritten/ekara.yaml"))
 	assert.Nil(t, e)
 	aws := env.Providers["aws"]
 	assert.NotNil(t, aws)
@@ -32,7 +32,7 @@ func TestOverwrittenProviderParam(t *testing.T) {
 
 func TestOverwrittenProviderEnv(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := Parse(logger, buildUrl("./testdata/yaml/overwritten/lagoon.yaml"))
+	env, e := Parse(logger, buildUrl("./testdata/yaml/overwritten/ekara.yaml"))
 	assert.Nil(t, e)
 	aws := env.Providers["aws"]
 	assert.NotNil(t, aws)
@@ -53,7 +53,7 @@ func TestOverwrittenProviderEnv(t *testing.T) {
 
 func TestOverwrittenProviderProxy(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := Parse(logger, buildUrl("./testdata/yaml/overwritten/lagoon.yaml"))
+	env, e := Parse(logger, buildUrl("./testdata/yaml/overwritten/ekara.yaml"))
 	assert.Nil(t, e)
 	aws := env.Providers["aws"]
 	assert.NotNil(t, aws)
@@ -73,7 +73,7 @@ func TestOverwrittenProviderProxy(t *testing.T) {
 
 func TestOverwrittenOrchestratorParam(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := Parse(logger, buildUrl("./testdata/yaml/overwritten/lagoon.yaml"))
+	env, e := Parse(logger, buildUrl("./testdata/yaml/overwritten/ekara.yaml"))
 	assert.Nil(t, e)
 	assert.NotNil(t, env)
 	assert.NotNil(t, env.Orchestrator)
@@ -94,7 +94,7 @@ func TestOverwrittenOrchestratorParam(t *testing.T) {
 
 func TestOverwrittenOrchestratorDocker(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := Parse(logger, buildUrl("./testdata/yaml/overwritten/lagoon.yaml"))
+	env, e := Parse(logger, buildUrl("./testdata/yaml/overwritten/ekara.yaml"))
 	assert.Nil(t, e)
 	assert.NotNil(t, env)
 	assert.NotNil(t, env.Orchestrator)
@@ -115,7 +115,7 @@ func TestOverwrittenOrchestratorDocker(t *testing.T) {
 
 func TestOverwrittenOrchestratorEnv(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := Parse(logger, buildUrl("./testdata/yaml/overwritten/lagoon.yaml"))
+	env, e := Parse(logger, buildUrl("./testdata/yaml/overwritten/ekara.yaml"))
 	assert.Nil(t, e)
 	assert.NotNil(t, env)
 	assert.NotNil(t, env.Orchestrator)

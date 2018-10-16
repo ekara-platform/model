@@ -20,8 +20,8 @@ type Environment struct {
 	// The environment description
 	Description string
 
-	// Lagoon platform settings
-	Lagoon LagoonPlatform
+	// Ekara platform settings
+	Ekara EkaraPlatform
 
 	// The providers where to create the environment node sets
 	Providers map[string]Provider
@@ -43,11 +43,11 @@ func (env *Environment) Merge(other *Environment) {
 
 func (r Environment) MarshalJSON() ([]byte, error) {
 	t := struct {
-		Name          string          `json:",omitempty"`
-		Qualifier     string          `json:",omitempty"`
-		QualifiedName string          `json:",omitempty"`
-		Description   string          `json:",omitempty"`
-		Lagoon        *LagoonPlatform `json:",omitempty"`
+		Name          string         `json:",omitempty"`
+		Qualifier     string         `json:",omitempty"`
+		QualifiedName string         `json:",omitempty"`
+		Description   string         `json:",omitempty"`
+		Ekara         *EkaraPlatform `json:",omitempty"`
 		Providers     map[string]Provider
 		Orchestrator  *Orchestrator `json:",omitempty"`
 		NodeSets      map[string]NodeSet
@@ -60,7 +60,7 @@ func (r Environment) MarshalJSON() ([]byte, error) {
 		QualifiedName: r.QualifiedName().String(),
 		Description:   r.Description,
 
-		Lagoon:       &r.Lagoon,
+		Ekara:        &r.Ekara,
 		Providers:    r.Providers,
 		Orchestrator: &r.Orchestrator,
 		NodeSets:     r.NodeSets,
@@ -155,7 +155,7 @@ func createEnvironment(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Enviro
 	env.Qualifier = yamlEnv.Qualifier
 	env.Description = yamlEnv.Description
 
-	env.Lagoon = createLagoonPlatform(vErrs, yamlEnv)
+	env.Ekara = createEkaraPlatform(vErrs, yamlEnv)
 	env.Tasks = createTasks(vErrs, &env, yamlEnv)
 	env.Orchestrator = createOrchestrator(vErrs, &env, yamlEnv)
 	env.Providers = createProviders(vErrs, &env, yamlEnv)

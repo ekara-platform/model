@@ -1,5 +1,5 @@
 name: overriddenName
-description: This is my awesome Lagoon environment.
+description: This is my awesome Ekara environment.
 
 hooks:
   provision:

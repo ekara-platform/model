@@ -1,20 +1,20 @@
 name: testEnvironment
 qualifier: testQualifier
 
-description: This is my awesome Lagoon environment.
+description: This is my awesome Ekara environment.
 
-lagoon:
+ekara:
   componentBase: someBase
   dockerRegistry: someRegistry.org
   components:
     aws:
-      repository: lagoon-platform/aws-provider
+      repository: ekara-platform/aws-provider
       version: 1.2.3
     azure:
-      repository: lagoon-platform/azure-provider
+      repository: ekara-platform/azure-provider
       version: 1.2.3
     swarm:
-      repository: lagoon-platform/swarm-orchestrator
+      repository: ekara-platform/swarm-orchestrator
       version: 1.2.3
     stack1:
       repository: some-org/stack1

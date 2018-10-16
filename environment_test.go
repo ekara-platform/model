@@ -18,15 +18,15 @@ func TestCreateEngineComplete(t *testing.T) {
 
 	assert.Equal(t, "testEnvironment", env.Name)
 	assert.Equal(t, "testQualifier", env.Qualifier)
-	assert.Equal(t, "This is my awesome Lagoon environment.", env.Description)
+	assert.Equal(t, "This is my awesome Ekara environment.", env.Description)
 
 	// Platform
-	assert.NotNil(t, env.Lagoon)
-	assert.Equal(t, "file://someBase/", env.Lagoon.ComponentBase.String())
-	assert.Equal(t, "someRegistry.org", env.Lagoon.DockerRegistry.String())
-	assert.NotNil(t, env.Lagoon.Components)
-	assert.True(t, strings.HasSuffix(env.Lagoon.Component.Resolve().Repository.String(), "someBase/lagoon-platform/core"))
-	assert.Equal(t, "", env.Lagoon.Component.Resolve().Version.String())
+	assert.NotNil(t, env.Ekara)
+	assert.Equal(t, "file://someBase/", env.Ekara.ComponentBase.String())
+	assert.Equal(t, "someRegistry.org", env.Ekara.DockerRegistry.String())
+	assert.NotNil(t, env.Ekara.Components)
+	assert.True(t, strings.HasSuffix(env.Ekara.Component.Resolve().Repository.String(), "someBase/ekara-platform/core"))
+	assert.Equal(t, "", env.Ekara.Component.Resolve().Version.String())
 
 	//------------------------------------------------------------
 	// Orchestrator
@@ -75,7 +75,7 @@ func TestCreateEngineComplete(t *testing.T) {
 	// AWS Provider
 	assert.NotNil(t, providers["aws"])
 	assert.Equal(t, "aws", providers["aws"].Name)
-	assert.True(t, strings.HasSuffix(providers["aws"].Component.Resolve().Repository.String(), "/someBase/lagoon-platform/aws-provider"))
+	assert.True(t, strings.HasSuffix(providers["aws"].Component.Resolve().Repository.String(), "/someBase/ekara-platform/aws-provider"))
 	assert.Equal(t, "v1.2.3", providers["aws"].Component.Resolve().Version.String())
 	assert.NotNil(t, providers["aws"].Parameters)
 	c = providers["aws"].Parameters
@@ -106,7 +106,7 @@ func TestCreateEngineComplete(t *testing.T) {
 	// Azure Provider
 	assert.NotNil(t, providers["azure"])
 	assert.Equal(t, "azure", providers["azure"].Name)
-	assert.True(t, strings.HasSuffix(providers["azure"].Component.Resolve().Repository.String(), "/someBase/lagoon-platform/azure-provider"))
+	assert.True(t, strings.HasSuffix(providers["azure"].Component.Resolve().Repository.String(), "/someBase/ekara-platform/azure-provider"))
 	assert.Equal(t, "v1.2.3", providers["azure"].Component.Resolve().Version.String())
 	assert.NotNil(t, providers["azure"].Parameters)
 

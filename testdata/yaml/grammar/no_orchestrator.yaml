@@ -2,10 +2,10 @@ name: name_value
 qualifier: qualifier_value
 description: description_value
 
-lagoon:
+ekara:
   components:
     aws:
-      repository: lagoon-platform/aws-provider
+      repository: ekara-platform/aws-provider
       version: 1.2.3
 
 providers:

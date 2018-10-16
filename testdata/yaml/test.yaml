@@ -1,7 +1,7 @@
 name: testEnvironment
 qualifier: testQualifier
 
-lagoon:
+ekara:
   components:
     aws:
       repository: tbouvet/aws-provider
@@ -10,7 +10,7 @@ lagoon:
       repository: tbouvet/swarm-orchestrator
       version: proxy
     stack1:
-      repository: lagoon-platform/swarm-orchestrator
+      repository: ekara-platform/swarm-orchestrator
       version: alpha1
 
 orchestrator:

@@ -96,7 +96,7 @@ func (e *yamlEnvironment) RawContent() ([]byte, error) {
 	return yaml.Marshal(e)
 }
 
-// Definition of the Lagoon environment
+// Definition of the Ekara environment
 type yamlEnvironment struct {
 	// Imports, to be included into the environment descriptor
 	Imports []string
@@ -109,8 +109,8 @@ type yamlEnvironment struct {
 	// The description of the environment
 	Description string
 
-	// The Lagoon platform used to interact with the environment
-	Lagoon struct {
+	// The Ekara platform used to interact with the environment
+	Ekara struct {
 		ComponentBase  string `yaml:"componentBase"`
 		DockerRegistry string `yaml:"dockerRegistry"`
 		Components     map[string]yamlComponent

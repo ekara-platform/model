@@ -67,7 +67,7 @@ func createStacks(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnviro
 		for name, yamlStack := range yamlEnv.Stacks {
 			res[name] = Stack{
 				Name:      name,
-				Component: createComponentRef(vErrs, env.Lagoon.Components, "stacks."+name+".component", yamlStack.Component),
+				Component: createComponentRef(vErrs, env.Ekara.Components, "stacks."+name+".component", yamlStack.Component),
 				On:        createNodeSetRef(vErrs, env, "stacks."+name+".on", yamlStack.On...),
 				Hooks: StackHook{
 					Deploy:   createHook(vErrs, "stacks."+name+".hooks.deploy", env, yamlStack.Hooks.Deploy),
