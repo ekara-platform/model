@@ -13,15 +13,14 @@ import (
 func testEmptyContent(t *testing.T, name string, onlyWarning bool) ValidationErrors {
 	file := fmt.Sprintf("./testdata/yaml/grammar/no_%s.yaml", name)
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, buildUrl(file))
-	vErrs := assertValidationErrors(t, e, logger, onlyWarning)
+	env, e := CreateEnvironment(logger, buildUrl(file), map[string]interface{}{})
+	assert.Nil(t, e)
+	vErrs := validate(t, env, logger, onlyWarning)
 	return vErrs
 }
 
-func assertValidationErrors(t *testing.T, e error, logger *log.Logger, onlyWarning bool) ValidationErrors {
-	assert.NotNilf(t, e, "error should not be nil")
-	vErrs, ok := e.(ValidationErrors)
-	assert.True(t, ok, "error should be of type ValidationError but was: "+e.Error())
+func validate(t *testing.T, env Environment, logger *log.Logger, onlyWarning bool) ValidationErrors {
+	vErrs := env.Validate()
 	if onlyWarning {
 		assert.True(t, vErrs.HasWarnings())
 	} else {
@@ -49,7 +48,8 @@ func TestNoOrchestrator(t *testing.T) {
 	vErrs := testEmptyContent(t, "orchestrator", false)
 	assert.Equal(t, true, vErrs.HasErrors())
 	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
-	assert.Equal(t, "no orchestrator specified", vErrs.Errors[0].Message)
+	assert.Equal(t, "empty component reference", vErrs.Errors[0].Message)
+	assert.Equal(t, "orchestrator", vErrs.Errors[0].Location.Path)
 }
 
 func TestNoStacks(t *testing.T) {
@@ -66,7 +66,7 @@ func TestNoNodesProvider(t *testing.T) {
 	assert.Equal(t, true, vErrs.HasErrors())
 	assert.Equal(t, false, vErrs.HasWarnings())
 	assert.Equal(t, 1, len(vErrs.Errors))
-	assert.Equal(t, "nodes.managers.provider", vErrs.Errors[0].Location)
+	assert.Equal(t, "nodes.managers.provider.name", vErrs.Errors[0].Location.Path)
 	assert.Equal(t, "empty provider reference", vErrs.Errors[0].Message)
 	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
 }
@@ -78,8 +78,8 @@ func TestNoNodesInstance(t *testing.T) {
 	assert.Equal(t, true, vErrs.HasErrors())
 	assert.Equal(t, false, vErrs.HasWarnings())
 	assert.Equal(t, 1, len(vErrs.Errors))
-	assert.Equal(t, "nodes.managers.instances", vErrs.Errors[0].Location)
-	assert.Equal(t, "node set instances must be a positive number", vErrs.Errors[0].Message)
+	assert.Equal(t, "nodes.managers.instances", vErrs.Errors[0].Location.Path)
+	assert.Equal(t, "instances must be a positive number", vErrs.Errors[0].Message)
 	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
 }
 
@@ -90,28 +90,30 @@ func TestNoVolumeName(t *testing.T) {
 	assert.Equal(t, true, vErrs.HasErrors())
 	assert.Equal(t, false, vErrs.HasWarnings())
 	assert.Equal(t, 1, len(vErrs.Errors))
-	assert.Equal(t, "nodes.managers.volumes.path", vErrs.Errors[0].Location)
+	assert.Equal(t, "nodes.managers.volumes.path", vErrs.Errors[0].Location.Path)
 	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
 }
 
 func TestNodesUnknownProvider(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/nodes_unknown_provider.yaml"))
-	vErrs := assertValidationErrors(t, e, logger, false)
+	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/grammar/nodes_unknown_provider.yaml"), map[string]interface{}{})
+	assert.Nil(t, e)
+	vErrs := validate(t, env, logger, false)
 
 	assert.NotNil(t, vErrs)
 	assert.Equal(t, true, vErrs.HasErrors())
 	assert.Equal(t, false, vErrs.HasWarnings())
 	assert.Equal(t, 1, len(vErrs.Errors))
-	assert.Equal(t, "nodes.managers.provider.name", vErrs.Errors[0].Location)
-	assert.Equal(t, "unknown provider reference: unknown", vErrs.Errors[0].Message)
+	assert.Equal(t, "nodes.managers.provider.name", vErrs.Errors[0].Location.Path)
+	assert.Equal(t, "reference to unknown provider: unknown", vErrs.Errors[0].Message)
 	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
 }
 
 func TestNodesUnknownHook(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/nodes_unknown_hook.yaml"))
-	vErrs := assertValidationErrors(t, e, logger, false)
+	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/grammar/nodes_unknown_hook.yaml"), map[string]interface{}{})
+	assert.Nil(t, e)
+	vErrs := validate(t, env, logger, false)
 
 	assert.NotNil(t, vErrs)
 	assert.Equal(t, true, vErrs.HasErrors())
@@ -121,20 +123,6 @@ func TestNodesUnknownHook(t *testing.T) {
 	testHook(t, "nodes.managers.hooks.provision.after", 1, vErrs)
 }
 
-func TestStacksUnknownOn(t *testing.T) {
-	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/stacks_unknown_on.yaml"))
-	vErrs := assertValidationErrors(t, e, logger, false)
-
-	assert.NotNil(t, vErrs)
-	assert.Equal(t, true, vErrs.HasErrors())
-	assert.Equal(t, false, vErrs.HasWarnings())
-	assert.Equal(t, 1, len(vErrs.Errors))
-	assert.Equal(t, "stacks.monitoring.on", vErrs.Errors[0].Location)
-	assert.Equal(t, "unknown node set reference: unknown", vErrs.Errors[0].Message)
-	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
-}
-
 func TestTasksNoPlayBook(t *testing.T) {
 	vErrs := testEmptyContent(t, "task_playbook", false)
 
@@ -142,29 +130,16 @@ func TestTasksNoPlayBook(t *testing.T) {
 	assert.Equal(t, true, vErrs.HasErrors())
 	assert.Equal(t, false, vErrs.HasWarnings())
 	assert.Equal(t, 1, len(vErrs.Errors))
-	assert.Equal(t, "tasks.task1.playbook", vErrs.Errors[0].Location)
-	assert.Equal(t, "missing playbook", vErrs.Errors[0].Message)
-	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
-}
-
-func TestTasksUnknownOn(t *testing.T) {
-	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/tasks_unknown_on.yaml"))
-	vErrs := assertValidationErrors(t, e, logger, false)
-
-	assert.NotNil(t, vErrs)
-	assert.Equal(t, true, vErrs.HasErrors())
-	assert.Equal(t, false, vErrs.HasWarnings())
-	assert.Equal(t, 1, len(vErrs.Errors))
-	assert.Equal(t, "tasks.task1.on", vErrs.Errors[0].Location)
-	assert.Equal(t, "unknown node set reference: unknown", vErrs.Errors[0].Message)
+	assert.Equal(t, "tasks.task1.playbook", vErrs.Errors[0].Location.Path)
+	assert.Equal(t, "empty playbook path", vErrs.Errors[0].Message)
 	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
 }
 
 func TestUnknownGlobalHooks(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/unknown_global_hook.yaml"))
-	vErrs := assertValidationErrors(t, e, logger, false)
+	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/grammar/unknown_global_hook.yaml"), map[string]interface{}{})
+	assert.Nil(t, e)
+	vErrs := validate(t, env, logger, false)
 
 	assert.NotNil(t, vErrs)
 	assert.Equal(t, true, vErrs.HasErrors())
@@ -184,27 +159,29 @@ func TestUnknownGlobalHooks(t *testing.T) {
 }
 
 func testHook(t *testing.T, msg string, index int, vErrs ValidationErrors) {
-	assert.Equal(t, msg, vErrs.Errors[index].Location)
-	assert.Equal(t, "unknown task reference: unknown", vErrs.Errors[index].Message)
+	assert.Equal(t, msg, vErrs.Errors[index].Location.Path)
+	assert.Equal(t, "reference to unknown task: unknown", vErrs.Errors[index].Message)
 	assert.Equal(t, Error, vErrs.Errors[index].ErrorType)
 }
 
 func TestNoValidName(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/no_valid_name.yaml"))
-	vErrs := assertValidationErrors(t, e, logger, false)
+	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/grammar/no_valid_name.yaml"), map[string]interface{}{})
+	assert.Nil(t, e)
+	vErrs := validate(t, env, logger, false)
 	assert.NotNil(t, vErrs)
 	assert.Equal(t, true, vErrs.HasErrors())
 	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
-	assert.Equal(t, "The environment name or the qualifier contain a non alphanumeric character", vErrs.Errors[0].Message)
+	assert.Equal(t, "the environment name or the qualifier contains a non alphanumeric character", vErrs.Errors[0].Message)
 }
 
 func TestNoValidQualifier(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	_, e := Parse(logger, buildUrl("./testdata/yaml/grammar/no_valid_qualifier.yaml"))
-	vErrs := assertValidationErrors(t, e, logger, false)
+	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/grammar/no_valid_qualifier.yaml"), map[string]interface{}{})
+	assert.Nil(t, e)
+	vErrs := validate(t, env, logger, false)
 	assert.NotNil(t, vErrs)
 	assert.Equal(t, true, vErrs.HasErrors())
 	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
-	assert.Equal(t, "The environment name or the qualifier contain a non alphanumeric character", vErrs.Errors[0].Message)
+	assert.Equal(t, "the environment name or the qualifier contains a non alphanumeric character", vErrs.Errors[0].Message)
 }

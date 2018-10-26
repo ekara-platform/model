@@ -1,0 +1,11 @@
+orchestrator:
+  component: swarm
+  params:
+    swarm_param_key1: swarm_param_key1_value
+    swarm_param_key2: swarm_param_key2_value
+  docker:
+    docker_param_key1: docker_param_key1_value
+    docker_param_key2: docker_param_key2_value
+  env:
+    swarm_env_key1: swarm_env_key1_value
+    swarm_env_key2: swarm_env_key2_value

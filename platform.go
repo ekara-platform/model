@@ -1,80 +1,67 @@
 package model
 
 import (
+	"errors"
 	"net/url"
 	"os"
 	"strings"
 )
 
-// Ekara Platform used to manipulate an environment
-type EkaraPlatform struct {
-	ComponentBase  *url.URL
-	DockerRegistry *url.URL
-	Components     map[string]Component
-	Component      ComponentRef
+type Platform struct {
+	Component  ComponentRef
+	Components map[string]Component
 }
 
-// createEkaraPlatform create the Ekara Platform based on the given
-// repository and version
-//
-// The yamlRepoVersion must contains a repository and a version! If the repository
-// or the version is missing then a  error will be generated
-func createEkaraPlatform(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) EkaraPlatform {
+func createPlatform(env *Environment, yamlEnv *yamlEnvironment) Platform {
+	components := map[string]Component{}
+
+	// Compute the component base for the environment
 	base, e := createComponentBase(yamlEnv)
 	if e != nil {
-		vErrs.AddError(e, "ekara.componentBase")
+		env.errors.addError(e, env.location.appendPath("ekara.componentBase"))
 	}
 
-	dockerReg, e := createDockerRegistry(yamlEnv)
-	if e != nil {
-		vErrs.AddError(e, "ekara.dockerRegistry")
-	}
-
-	ekara := EkaraPlatform{
-		ComponentBase:  base,
-		DockerRegistry: dockerReg,
-		Components:     map[string]Component{}}
-
-	// Create all components
+	// Create components of the environment
 	for componentName, yamlComponent := range yamlEnv.Ekara.Components {
 		component, e := CreateComponent(
-			ekara.ComponentBase,
+			base,
 			componentName,
 			yamlComponent.Repository,
-			yamlComponent.Version,
-			"")
+			yamlComponent.Version)
 		if e != nil {
-			vErrs.AddError(e, "ekara.components."+componentName)
+			env.errors.addError(e, env.location.appendPath("ekara.components."+componentName))
 		} else {
-			ekara.Components[componentName] = component
+			components[componentName] = component
 		}
 	}
 
-	// Core component defaults if not specified
-	var yamlCoreComponent yamlComponent
-	var ok bool
-	if yamlCoreComponent, ok = yamlEnv.Ekara.Components[EkaraCoreId]; !ok {
-		yamlCoreComponent = yamlComponent{
-			Repository: EkaraCoreRepository,
-			Version:    ""}
+	// Create core component with default values if none already defined
+	if _, ok := components[CoreComponentId]; !ok {
+		components[CoreComponentId], e = CreateComponent(
+			base,
+			CoreComponentId,
+			CoreComponentRepo,
+			"")
+		if e != nil {
+			panic(errors.New("unable to create core component: " + e.Error()))
+		}
 	}
 
-	// (Re-)create core component
-	coreComponent, e := CreateComponent(
-		ekara.ComponentBase,
-		EkaraCoreId,
-		yamlCoreComponent.Repository,
-		yamlCoreComponent.Version,
-		"")
-	if e != nil {
-		vErrs.AddError(e, "ekara.components."+EkaraCoreId)
-	} else {
-		ekara.Components[EkaraCoreId] = coreComponent
+	return Platform{
+		Component:  createComponentRef(env, env.location.appendPath("ekara"), CoreComponentId, true),
+		Components: components}
+}
+
+func (r Platform) validate() ValidationErrors {
+	return r.Component.validate()
+}
+
+func (r *Platform) merge(other Platform) {
+	for id, c := range other.Components {
+		if _, ok := r.Components[id]; !ok {
+			r.Components[id] = c
+		}
 	}
-
-	ekara.Component = createComponentRef(vErrs, ekara.Components, "ekara", EkaraCoreId)
-
-	return ekara
 }
 
 func createComponentBase(yamlEnv *yamlEnvironment) (*url.URL, error) {
@@ -109,12 +96,4 @@ func createComponentBase(yamlEnv *yamlEnvironment) (*url.URL, error) {
 	}
 
 	return u, nil
-}
-
-func createDockerRegistry(yamlEnv *yamlEnvironment) (*url.URL, error) {
-	res := DefaultDockerRegistry
-	if yamlEnv.Ekara.DockerRegistry != "" {
-		res = yamlEnv.Ekara.DockerRegistry
-	}
-	return url.Parse(res)
 }
