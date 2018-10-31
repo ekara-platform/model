@@ -18,6 +18,7 @@ const (
 
 type Component struct {
 	Id         string
+	Descriptor string
 	Scm        ScmType
 	Repository *url.URL
 	Version    Version
@@ -32,7 +33,7 @@ func (c ComponentRef) Resolve() Component {
 	return *c.component
 }
 
-func CreateComponent(componentBase *url.URL, id string, repo string, version string) (Component, error) {
+func CreateComponent(componentBase *url.URL, id string, repo string, version string, descriptor string) (Component, error) {
 	repoUrl, e := ResolveRepositoryInfo(componentBase, repo)
 	if e != nil {
 		return Component{}, e
@@ -46,7 +47,7 @@ func CreateComponent(componentBase *url.URL, id string, repo string, version str
 		return Component{}, e
 	}
 
-	return Component{Id: id, Repository: repoUrl, Version: parsedVersion, Scm: scmType}, nil
+	return Component{Id: id, Repository: repoUrl, Version: parsedVersion, Scm: scmType, Descriptor: descriptor}, nil
 }
 
 func createComponentRef(vErrs *ValidationErrors, components map[string]Component, location string, componentRef string) ComponentRef {

@@ -41,7 +41,8 @@ func createEkaraPlatform(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Ekar
 			ekara.ComponentBase,
 			componentName,
 			yamlComponent.Repository,
-			yamlComponent.Version)
+			yamlComponent.Version,
+			"")
 		if e != nil {
 			vErrs.AddError(e, "ekara.components."+componentName)
 		} else {
@@ -63,7 +64,8 @@ func createEkaraPlatform(vErrs *ValidationErrors, yamlEnv *yamlEnvironment) Ekar
 		ekara.ComponentBase,
 		EkaraCoreId,
 		yamlCoreComponent.Repository,
-		yamlCoreComponent.Version)
+		yamlCoreComponent.Version,
+		"")
 	if e != nil {
 		vErrs.AddError(e, "ekara.components."+EkaraCoreId)
 	} else {
