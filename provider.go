@@ -3,7 +3,6 @@ package model
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 )
 
 type Provider struct {
@@ -19,8 +18,12 @@ type Provider struct {
 	Proxy Proxy
 }
 
-func (p Provider) HumanDescribe() string {
-	return fmt.Sprintf("Provider: %s", p.Name)
+func (p Provider) DescType() string {
+	return "Provider"
+}
+
+func (p Provider) DescName() string {
+	return p.Name
 }
 
 func (r Provider) MarshalJSON() ([]byte, error) {

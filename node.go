@@ -3,9 +3,6 @@ package model
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
-
-	_ "gopkg.in/yaml.v2"
 )
 
 // NodeSet contains the whole specification of a nodes et to create on a specific
@@ -27,8 +24,12 @@ type NodeSet struct {
 	Labels Labels
 }
 
-func (n NodeSet) HumanDescribe() string {
-	return fmt.Sprintf("NodeSet: %s", n.Name)
+func (n NodeSet) DescType() string {
+	return "NodeSet"
+}
+
+func (n NodeSet) DescName() string {
+	return n.Name
 }
 
 func (r NodeSet) MarshalJSON() ([]byte, error) {
