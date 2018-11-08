@@ -15,6 +15,14 @@ type Stack struct {
 	Hooks StackHook
 }
 
+func (n Stack) DescType() string {
+	return "Stack"
+}
+
+func (s Stack) DescName() string {
+	return s.Name
+}
+
 func (r Stack) MarshalJSON() ([]byte, error) {
 	t := struct {
 		Name      string        `json:",omitempty"`

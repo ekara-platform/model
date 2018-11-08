@@ -293,11 +293,17 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.Contains(t, stacks, "stack2")
 	assert.NotContains(t, stacks, "dummy")
 
-	assert.True(t, strings.HasSuffix(stacks["stack1"].Component.Resolve().Repository.String(), "/someBase/some-org/stack1"))
-	assert.Equal(t, "v1.2.3", stacks["stack1"].Component.Resolve().Version.String())
+	stack1 := stacks["stack1"]
+	stack2 := stacks["stack2"]
 
-	assert.True(t, strings.HasSuffix(stacks["stack2"].Component.Resolve().Repository.String(), "/someBase/some-org/stack2"))
-	assert.Equal(t, "v1.2.3", stacks["stack2"].Component.Resolve().Version.String())
+	assert.True(t, strings.HasSuffix(stack1.Component.Resolve().Repository.String(), "/someBase/some-org/stack1"))
+	assert.Equal(t, "v1.2.3", stack1.Component.Resolve().Version.String())
+
+	assert.True(t, strings.HasSuffix(stack2.Component.Resolve().Repository.String(), "/someBase/some-org/stack2"))
+	assert.Equal(t, "v1.2.3", stack2.Component.Resolve().Version.String())
+
+	assert.Equal(t, 1, len(stack1.On.nodeSets))
+	assert.Equal(t, 2, len(stack2.On.nodeSets))
 
 	//------------------------------------------------------------
 	// Environment Tasks
