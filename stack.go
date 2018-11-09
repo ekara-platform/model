@@ -33,7 +33,7 @@ func (r Stack) MarshalJSON() ([]byte, error) {
 		Name:      r.Name,
 		Component: &r.Component,
 	}
-	for _, k := range r.On.nodeSets {
+	for _, k := range r.On.NodeSets {
 		t.On = append(t.On, k.Name)
 	}
 	if r.Hooks.HasTasks() {

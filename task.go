@@ -41,7 +41,7 @@ func (r Task) MarshalJSON() ([]byte, error) {
 		EnvVars:    &r.EnvVars,
 	}
 
-	for _, k := range r.On.nodeSets {
+	for _, k := range r.On.NodeSets {
 		t.On = append(t.On, k.Name)
 	}
 

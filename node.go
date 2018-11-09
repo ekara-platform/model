@@ -79,7 +79,7 @@ func (r NodeHook) MarshalJSON() ([]byte, error) {
 
 // Reference to a node set
 type NodeSetRef struct {
-	nodeSets []*NodeSet
+	NodeSets []*NodeSet
 }
 
 func createNodeSets(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) map[string]NodeSet {
@@ -124,5 +124,5 @@ func createNodeSetRef(vErrs *ValidationErrors, env *Environment, location string
 			}
 		}
 	}
-	return NodeSetRef{nodeSets: nodeSets}
+	return NodeSetRef{NodeSets: nodeSets}
 }
