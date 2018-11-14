@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"text/template"
 
-	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
 )
 
@@ -205,7 +204,7 @@ func parseYamlDescriptor(logger *log.Logger, u *url.URL, data map[string]interfa
 	}
 
 	// Read descriptor content
-	baseLocation, content, err := ReadUrl(logger, normalizedUrl)
+	content, err := ReadUrl(logger, normalizedUrl)
 	if err != nil {
 		return
 	}
@@ -225,32 +224,5 @@ func parseYamlDescriptor(logger *log.Logger, u *url.URL, data map[string]interfa
 		return
 	}
 
-	// Process imports if any
-	err = processYamlImports(logger, baseLocation, &env, data)
-	if err != nil {
-		return
-	}
 	return
-}
-
-func processYamlImports(logger *log.Logger, base *url.URL, env *yamlEnvironment, data map[string]interface{}) error {
-	if len(env.Imports) > 0 {
-		for _, val := range env.Imports {
-			importUrl, err := url.Parse(val)
-			if err != nil {
-				return err
-			}
-			ref := base.ResolveReference(importUrl)
-			logger.Println("Processing import", ref)
-			importedDesc, err := parseYamlDescriptor(logger, ref, data)
-			if err != nil {
-				return err
-			}
-			mergo.Merge(env, importedDesc)
-		}
-		env.Imports = nil
-	} else {
-		logger.Println("No import to process")
-	}
-	return nil
 }
