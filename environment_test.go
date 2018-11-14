@@ -302,8 +302,8 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.True(t, strings.HasSuffix(stack2.Component.Resolve().Repository.String(), "/someBase/some-org/stack2"))
 	assert.Equal(t, "v1.2.3", stack2.Component.Resolve().Version.String())
 
-	assert.Equal(t, 1, len(stack1.On.nodeSets))
-	assert.Equal(t, 2, len(stack2.On.nodeSets))
+	assert.Equal(t, 1, len(stack1.On.NodeSets))
+	assert.Equal(t, 2, len(stack2.On.NodeSets))
 
 	//------------------------------------------------------------
 	// Environment Tasks
