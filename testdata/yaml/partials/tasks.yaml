@@ -1,0 +1,10 @@
+tasks:
+  task2:
+    cron: task2_cron
+    playbook: task2_playbook
+    params:
+      tasks_task2_param_key1: tasks_task2_param_key1_value
+      tasks_task2_param_key2: tasks_task2_param_key2_value
+    env:
+      tasks_task2_env_key1: tasks_task2_env_key1_value
+      tasks_task2_env_key2: tasks_task2_env_key2_value

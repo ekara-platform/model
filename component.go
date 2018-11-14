@@ -18,23 +18,13 @@ const (
 
 type Component struct {
 	Id         string
-	Descriptor string
 	Scm        ScmType
 	Repository *url.URL
 	Version    Version
 }
 
-type ComponentRef struct {
-	component *Component
-}
-
-func (c ComponentRef) Resolve() Component {
-	// just copy the component by value
-	return *c.component
-}
-
-func CreateComponent(componentBase *url.URL, id string, repo string, version string, descriptor string) (Component, error) {
-	repoUrl, e := ResolveRepositoryInfo(componentBase, repo)
+func CreateComponent(base *url.URL, id string, repo string, version string) (Component, error) {
+	repoUrl, e := resolveRepositoryInfo(base, repo)
 	if e != nil {
 		return Component{}, e
 	}
@@ -46,28 +36,53 @@ func CreateComponent(componentBase *url.URL, id string, repo string, version str
 	if e != nil {
 		return Component{}, e
 	}
-
-	return Component{Id: id, Repository: repoUrl, Version: parsedVersion, Scm: scmType, Descriptor: descriptor}, nil
+	return Component{Id: id, Repository: repoUrl, Version: parsedVersion, Scm: scmType}, nil
 }
 
-func createComponentRef(vErrs *ValidationErrors, components map[string]Component, location string, componentRef string) ComponentRef {
-	if len(componentRef) == 0 {
-		vErrs.AddError(errors.New("empty component reference"), location)
+type ComponentRef struct {
+	ref       string
+	mandatory bool
+
+	env      *Environment
+	location DescriptorLocation
+}
+
+func createComponentRef(env *Environment, location DescriptorLocation, componentRef string, mandatory bool) ComponentRef {
+	return ComponentRef{env: env, location: location, ref: componentRef, mandatory: mandatory}
+}
+
+func (r ComponentRef) validate() ValidationErrors {
+	validationErrors := ValidationErrors{}
+	if r.ref == "" {
+		if r.mandatory {
+			validationErrors.addError(errors.New("empty component reference"), r.location)
+		}
 	} else {
-		if val, ok := components[componentRef]; ok {
-			return ComponentRef{component: &val}
-		} else {
-			vErrs.AddError(errors.New("unknown component reference: "+componentRef), location)
+		if _, ok := r.env.Ekara.Components[r.ref]; !ok {
+			validationErrors.addError(errors.New("reference to unknown component: "+r.ref), r.location)
 		}
 	}
-	return ComponentRef{}
+	return validationErrors
+}
+
+func (r *ComponentRef) merge(other ComponentRef) {
+	if r.ref == "" {
+		r.ref = other.ref
+	}
+}
+
+func (r ComponentRef) Resolve() Component {
+	validationErrors := r.validate()
+	if validationErrors.HasErrors() {
+		panic(validationErrors)
+	}
+	return r.env.Ekara.Components[r.ref]
 }
 
 // ResolveRepository resolve a full URL from repository short-forms.
 //
-// - URLs starting with github.com or bitbucket.org are assumed as https://
-// - URLs without protocol and matching org/repo are assumed as being prefixed with base
-func ResolveRepositoryInfo(base *url.URL, repo string) (cUrl *url.URL, e error) {
+// URLs without protocol and matching org/repo are assumed as being prefixed with base
+func resolveRepositoryInfo(base *url.URL, repo string) (cUrl *url.URL, e error) {
 	if repo == "" {
 		e = errors.New("no repository specified")
 		return
@@ -89,9 +104,6 @@ func ResolveRepositoryInfo(base *url.URL, repo string) (cUrl *url.URL, e error) 
 				return
 			}
 		} else {
-			if hasPrefixIgnoringCase(repo, GitHubHost) || hasPrefixIgnoringCase(repo, BitBucketHost) {
-				repo = "https://" + repo
-			}
 			cUrl, e = url.Parse(repo)
 			if e != nil {
 				return

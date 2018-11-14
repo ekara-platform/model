@@ -111,21 +111,20 @@ type yamlEnvironment struct {
 
 	// The Ekara platform used to interact with the environment
 	Ekara struct {
-		ComponentBase  string `yaml:"componentBase"`
-		DockerRegistry string `yaml:"dockerRegistry"`
-		Components     map[string]yamlComponent
+		ComponentBase string `yaml:"componentBase"`
+		Components    map[string]yamlComponent
 	}
 
 	// Tasks which can be run on the created environment
 	Tasks map[string]struct {
+		// Name of the task component
+		Component string
 		// The task parameters
 		yamlParams `yaml:",inline"`
 		// The task environment variables
 		yamlEnv `yaml:",inline"`
 		// The name of the playbook to launch the task
 		Playbook string
-		// The name of the node sets to run the task on (all if not specified)
-		On []string
 		// The CRON to run cyclically the task
 		Cron string
 		// The Hooks to be executed in addition the the main task playbook
@@ -181,8 +180,6 @@ type yamlEnvironment struct {
 	Stacks map[string]struct {
 		// Name of the stack component
 		Component string
-		// Name of the nodes to deploy the stack on (all if not specified)
-		On []string
 		// The Hooks to be executed while deploying and undeploying the stack
 		Hooks struct {
 			Deploy   yamlHook

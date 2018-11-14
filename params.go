@@ -10,29 +10,26 @@ type Parameters map[string]interface{}
 
 func createParameters(src map[string]interface{}) Parameters {
 	dst := make(map[string]interface{})
-	mergeParams(dst, src)
-	return dst
-}
-
-func (p Parameters) inherit(parents ...map[string]interface{}) Parameters {
-	dst := make(map[string]interface{})
-	for i := len(parents) - 1; i >= 0; i-- {
-		mergeParams(dst, parents[i])
-	}
-	mergeParams(dst, p)
-	return dst
-}
-
-func mergeParams(dst map[string]interface{}, src map[string]interface{}) {
-	// TODO take into account map merging
 	for k, v := range src {
 		dst[k] = v
 	}
+	return dst
 }
 
-func (t Parameters) MarshalJSON() ([]byte, error) {
+func (r Parameters) inherits(parent map[string]interface{}) Parameters {
+	dst := make(map[string]interface{})
+	for k, v := range parent {
+		dst[k] = v
+	}
+	for k, v := range r {
+		dst[k] = v
+	}
+	return dst
+}
+
+func (r Parameters) MarshalJSON() ([]byte, error) {
 	dest := make(map[interface{}]interface{})
-	for k, v := range t {
+	for k, v := range r {
 		dest[k] = v
 	}
 	b, err := MarshalJSONMap(dest)

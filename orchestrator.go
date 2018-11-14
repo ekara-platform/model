@@ -2,7 +2,6 @@ package model
 
 import (
 	"encoding/json"
-	"errors"
 )
 
 type Orchestrator struct {
@@ -14,6 +13,26 @@ type Orchestrator struct {
 	Docker Parameters
 	// The orchestrator environment variables
 	EnvVars EnvVars
+}
+
+func createOrchestrator(env *Environment, yamlEnv *yamlEnvironment) Orchestrator {
+	yamlO := yamlEnv.Orchestrator
+	return Orchestrator{
+		Component:  createComponentRef(env, env.location.appendPath("orchestrator"), yamlO.Component, true),
+		Parameters: createParameters(yamlO.Params),
+		Docker:     createParameters(yamlO.Docker),
+		EnvVars:    createEnvVars(yamlO.Env)}
+}
+
+func (r Orchestrator) validate() ValidationErrors {
+	return r.Component.validate()
+}
+
+func (r *Orchestrator) merge(other Orchestrator) {
+	r.Component.merge(other.Component)
+	r.Parameters = r.Parameters.inherits(other.Parameters)
+	r.Docker = r.Docker.inherits(other.Docker)
+	r.EnvVars = r.EnvVars.inherits(other.EnvVars)
 }
 
 func (r Orchestrator) MarshalJSON() ([]byte, error) {
@@ -31,47 +50,49 @@ func (r Orchestrator) MarshalJSON() ([]byte, error) {
 }
 
 type OrchestratorRef struct {
-	orchestrator *Orchestrator
-	parameters   Parameters
-	docker       Parameters
-	envVars      EnvVars
+	parameters Parameters
+	docker     Parameters
+	envVars    EnvVars
+
+	env      *Environment
+	location DescriptorLocation
+}
+
+func createOrchestratorRef(env *Environment, location DescriptorLocation, yamlRef yamlOrchestratorRef) OrchestratorRef {
+	return OrchestratorRef{
+		env:        env,
+		parameters: createParameters(yamlRef.Params),
+		docker:     createParameters(yamlRef.Docker),
+		envVars:    createEnvVars(yamlRef.Env),
+		location:   location}
+}
+
+func (r OrchestratorRef) validate() ValidationErrors {
+	return ValidationErrors{}
+}
+
+func (r *OrchestratorRef) merge(other OrchestratorRef) {
+
+}
+
+func (r OrchestratorRef) Resolve() Orchestrator {
+	validationErrors := r.validate()
+	if validationErrors.HasErrors() {
+		panic(validationErrors)
+	}
+	orchestrator := r.env.Orchestrator
+	return Orchestrator{
+		Component:  orchestrator.Component,
+		Parameters: r.parameters.inherits(orchestrator.Parameters),
+		Docker:     r.docker.inherits(orchestrator.Docker),
+		EnvVars:    r.envVars.inherits(orchestrator.EnvVars)}
 }
 
 // OrchestratorParams returns the parameters required to install the orchestrator
-func (ref OrchestratorRef) OrchestratorParams() map[string]interface{} {
-	o := ref.Resolve()
-	r := make(map[string]interface{})
-	r["docker"] = o.Docker
-	r["params"] = o.Parameters
-	return r
-}
-
-func (o OrchestratorRef) Resolve() Orchestrator {
-	return Orchestrator{
-		Component:  o.orchestrator.Component,
-		Parameters: o.parameters.inherit(o.orchestrator.Parameters),
-		Docker:     o.docker.inherit(o.orchestrator.Docker),
-		EnvVars:    o.envVars.inherit(o.orchestrator.EnvVars)}
-}
-
-func createOrchestrator(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) Orchestrator {
-	yamlO := yamlEnv.Orchestrator
-	if yamlO.Component == "" {
-		vErrs.AddError(errors.New("no orchestrator specified"), "orchestrator")
-		return Orchestrator{}
-	} else {
-		return Orchestrator{
-			Component:  createComponentRef(vErrs, env.Ekara.Components, "orchestrator", yamlO.Component),
-			Parameters: createParameters(yamlO.Params),
-			Docker:     createParameters(yamlO.Docker),
-			EnvVars:    createEnvVars(yamlO.Env)}
-	}
-}
-
-func createOrchestratorRef(env *Environment, yamlRef yamlOrchestratorRef) OrchestratorRef {
-	return OrchestratorRef{
-		orchestrator: &env.Orchestrator,
-		parameters:   createParameters(yamlRef.Params),
-		docker:       createParameters(yamlRef.Docker),
-		envVars:      createEnvVars(yamlRef.Env)}
+func (r OrchestratorRef) OrchestratorParams() map[string]interface{} {
+	o := r.Resolve()
+	op := make(map[string]interface{})
+	op["docker"] = o.Docker
+	op["params"] = o.Parameters
+	return op
 }

@@ -13,17 +13,40 @@ import (
 
 func TestCreateEngineComplete(t *testing.T) {
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := Parse(logger, buildUrl("./testdata/yaml/complete.yaml"))
+	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/complete.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
+	assertEnv(t, env)
+}
 
+func TestCreateEnginePartials(t *testing.T) {
+	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
+	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/partials/env.yaml"), map[string]interface{}{})
+	assert.Nil(t, e)
+	env2, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/partials/core.yaml"), map[string]interface{}{})
+	assert.Nil(t, e)
+	env.Merge(env2)
+	env3, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/partials/providers.yaml"), map[string]interface{}{})
+	assert.Nil(t, e)
+	env.Merge(env3)
+	env4, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/partials/orchestrator.yaml"), map[string]interface{}{})
+	assert.Nil(t, e)
+	env.Merge(env4)
+	env5, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/partials/stacks.yaml"), map[string]interface{}{})
+	assert.Nil(t, e)
+	env.Merge(env5)
+	env6, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/partials/tasks.yaml"), map[string]interface{}{})
+	assert.Nil(t, e)
+	env.Merge(env6)
+	assertEnv(t, env)
+}
+
+func assertEnv(t *testing.T, env Environment) {
 	assert.Equal(t, "testEnvironment", env.Name)
 	assert.Equal(t, "testQualifier", env.Qualifier)
 	assert.Equal(t, "This is my awesome Ekara environment.", env.Description)
 
 	// Platform
 	assert.NotNil(t, env.Ekara)
-	assert.Equal(t, "file://someBase/", env.Ekara.ComponentBase.String())
-	assert.Equal(t, "someRegistry.org", env.Ekara.DockerRegistry.String())
 	assert.NotNil(t, env.Ekara.Components)
 	assert.True(t, strings.HasSuffix(env.Ekara.Component.Resolve().Repository.String(), "someBase/ekara-platform/core"))
 	assert.Equal(t, "", env.Ekara.Component.Resolve().Version.String())
@@ -147,7 +170,7 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.NotContains(t, nodeSets, "dummy")
 
 	assert.Equal(t, 10, nodeSets["node1"].Instances)
-	assert.Equal(t, "aws", nodeSets["node1"].Provider.provider.Name)
+	assert.Equal(t, "aws", nodeSets["node1"].Provider.Resolve().Name)
 
 	c = nodeSets["node1"].Provider.Resolve().Parameters
 	v, ok = c["aws_param_key1"]
@@ -215,7 +238,7 @@ func TestCreateEngineComplete(t *testing.T) {
 	assert.Equal(t, vol.Parameters["param2_name"], "aws_param2_name_value")
 
 	assert.Equal(t, 20, nodeSets["node2"].Instances)
-	assert.Equal(t, "azure", nodeSets["node2"].Provider.provider.Name)
+	assert.Equal(t, "azure", nodeSets["node2"].Provider.Resolve().Name)
 
 	c = nodeSets["node2"].Provider.Resolve().Parameters
 	v, ok = c["azure_param_key1"]
@@ -301,9 +324,6 @@ func TestCreateEngineComplete(t *testing.T) {
 
 	assert.True(t, strings.HasSuffix(stack2.Component.Resolve().Repository.String(), "/someBase/some-org/stack2"))
 	assert.Equal(t, "v1.2.3", stack2.Component.Resolve().Version.String())
-
-	assert.Equal(t, 1, len(stack1.On.NodeSets))
-	assert.Equal(t, 2, len(stack2.On.NodeSets))
 
 	//------------------------------------------------------------
 	// Environment Tasks

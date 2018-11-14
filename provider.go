@@ -42,57 +42,89 @@ func (r Provider) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// Reference to a provider
-type ProviderRef struct {
-	provider   *Provider
-	parameters Parameters
-	envVars    EnvVars
-	proxy      Proxy
-}
-
-func (p ProviderRef) Resolve() Provider {
-	return Provider{
-		Name:       p.provider.Name,
-		Component:  p.provider.Component,
-		Parameters: p.parameters.inherit(p.provider.Parameters),
-		EnvVars:    p.envVars.inherit(p.provider.EnvVars),
-		Proxy:      p.proxy.inherit(p.provider.Proxy),
-	}
-}
-
 // createProviders creates all the providers declared into the provided environment
-func createProviders(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) map[string]Provider {
+func createProviders(env *Environment, yamlEnv *yamlEnvironment) map[string]Provider {
 	res := map[string]Provider{}
-	if yamlEnv.Providers == nil || len(yamlEnv.Providers) == 0 {
-		vErrs.AddError(errors.New("no provider specified"), "providers")
-	} else {
-		for name, yamlProvider := range yamlEnv.Providers {
-			res[name] = Provider{
-				Name:       name,
-				Component:  createComponentRef(vErrs, env.Ekara.Components, "provider."+name, yamlProvider.Component),
-				Parameters: createParameters(yamlProvider.Params),
-				Proxy:      createProxy(yamlProvider.Proxy),
-				EnvVars:    createEnvVars(yamlProvider.Env)}
-		}
+	for name, yamlProvider := range yamlEnv.Providers {
+		res[name] = Provider{
+			Name:       name,
+			Component:  createComponentRef(env, env.location.appendPath("providers."+name), yamlProvider.Component, true),
+			Parameters: createParameters(yamlProvider.Params),
+			Proxy:      createProxy(yamlProvider.Proxy),
+			EnvVars:    createEnvVars(yamlProvider.Env)}
 	}
 	return res
 }
 
+func (r Provider) validate() ValidationErrors {
+	return r.Component.validate()
+}
+
+func (r *Provider) merge(other Provider) {
+	if r.Name == "" {
+		r.Name = other.Name
+	} else if r.Name != other.Name {
+		panic(errors.New("cannot merge unrelated providers (" + r.Name + " != " + other.Name + ")"))
+	}
+	r.Component.merge(other.Component)
+	r.Parameters = r.Parameters.inherits(other.Parameters)
+	r.EnvVars = r.EnvVars.inherits(other.EnvVars)
+	r.Proxy = r.Proxy.inherits(other.Proxy)
+}
+
+// Reference to a provider
+type ProviderRef struct {
+	ref        string
+	parameters Parameters
+	envVars    EnvVars
+	proxy      Proxy
+
+	env      *Environment
+	location DescriptorLocation
+}
+
+func (r ProviderRef) Resolve() Provider {
+	validationErrors := r.validate()
+	if validationErrors.HasErrors() {
+		panic(validationErrors)
+	}
+	provider := r.env.Providers[r.ref]
+	return Provider{
+		Name:       provider.Name,
+		Component:  provider.Component,
+		Parameters: r.parameters.inherits(provider.Parameters),
+		EnvVars:    r.envVars.inherits(provider.EnvVars),
+		Proxy:      r.proxy.inherits(provider.Proxy)}
+}
+
 // createProviderRef creates a reference to the provider declared into the yaml reference
-func createProviderRef(vErrs *ValidationErrors, location string, env *Environment, yamlRef yamlProviderRef) ProviderRef {
-	if len(yamlRef.Name) == 0 {
-		vErrs.AddError(errors.New("empty provider reference"), location)
+func createProviderRef(env *Environment, location DescriptorLocation, yamlRef yamlProviderRef) ProviderRef {
+	return ProviderRef{
+		env:        env,
+		ref:        yamlRef.Name,
+		parameters: createParameters(yamlRef.Params),
+		proxy:      createProxy(yamlRef.Proxy),
+		envVars:    createEnvVars(yamlRef.Env),
+		location:   location}
+}
+
+func (r ProviderRef) validate() ValidationErrors {
+	validationErrors := ValidationErrors{}
+	if len(r.ref) == 0 {
+		validationErrors.addError(errors.New("empty provider reference"), r.location)
 	} else {
-		if val, ok := env.Providers[yamlRef.Name]; ok {
-			return ProviderRef{
-				provider:   &val,
-				parameters: createParameters(yamlRef.Params),
-				proxy:      createProxy(yamlRef.Proxy),
-				envVars:    createEnvVars(yamlRef.Env),
-			}
-		} else {
-			vErrs.AddError(errors.New("unknown provider reference: "+yamlRef.Name), location+".name")
+		if _, ok := r.env.Providers[r.ref]; !ok {
+			validationErrors.addError(errors.New("reference to unknown provider: "+r.ref), r.location)
 		}
 	}
-	return ProviderRef{}
+	return validationErrors
+}
+
+func (r *ProviderRef) merge(other ProviderRef) {
+	if r.ref == "" {
+		r.ref = other.ref
+	}
+	r.parameters = r.parameters.inherits(other.parameters)
+	r.envVars = r.envVars.inherits(other.envVars)
+	r.proxy = r.proxy.inherits(other.proxy)
 }

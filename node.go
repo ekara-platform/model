@@ -5,6 +5,30 @@ import (
 	"errors"
 )
 
+type NodeHook struct {
+	Provision Hook
+	Destroy   Hook
+}
+
+func (r NodeHook) MarshalJSON() ([]byte, error) {
+	t := struct {
+		Provision *Hook `json:",omitempty"`
+		Destroy   *Hook `json:",omitempty"`
+	}{}
+	if r.Provision.HasTasks() {
+		t.Provision = &r.Provision
+	}
+	if r.Destroy.HasTasks() {
+		t.Destroy = &r.Destroy
+	}
+	return json.Marshal(t)
+}
+
+func (r NodeHook) HasTasks() bool {
+	return r.Provision.HasTasks() ||
+		r.Destroy.HasTasks()
+}
+
 // NodeSet contains the whole specification of a nodes et to create on a specific
 // cloud provider
 type NodeSet struct {
@@ -53,76 +77,50 @@ func (r NodeSet) MarshalJSON() ([]byte, error) {
 	return json.Marshal(t)
 }
 
-type NodeHook struct {
-	Provision Hook
-	Destroy   Hook
+func (r NodeSet) validate() ValidationErrors {
+	vErrs := ValidationErrors{}
+	vErrs.merge(r.Provider.validate())
+	vErrs.merge(r.Orchestrator.validate())
+	vErrs.merge(r.Hooks.Provision.validate())
+	vErrs.merge(r.Hooks.Destroy.validate())
+	return vErrs
 }
 
-func (r NodeHook) HasTasks() bool {
-	return r.Provision.HasTasks() ||
-		r.Destroy.HasTasks()
-}
-
-func (r NodeHook) MarshalJSON() ([]byte, error) {
-	t := struct {
-		Provision *Hook `json:",omitempty"`
-		Destroy   *Hook `json:",omitempty"`
-	}{}
-	if r.Provision.HasTasks() {
-		t.Provision = &r.Provision
+func (r *NodeSet) merge(other NodeSet) {
+	if r.Name != other.Name {
+		panic(errors.New("cannot merge unrelated node sets (" + r.Name + " != " + other.Name + ")"))
 	}
-	if r.Destroy.HasTasks() {
-		t.Destroy = &r.Destroy
+	if r.Instances < other.Instances {
+		r.Instances = other.Instances
 	}
-	return json.Marshal(t)
+	r.Provider.merge(other.Provider)
+	r.Orchestrator.merge(other.Orchestrator)
+	for id, v := range other.Volumes {
+		r.Volumes[id].merge(v)
+	}
+	r.Hooks.Provision.merge(other.Hooks.Provision)
+	r.Hooks.Destroy.merge(other.Hooks.Destroy)
+	r.Labels = r.Labels.inherits(other.Labels)
 }
 
-// Reference to a node set
-type NodeSetRef struct {
-	NodeSets []*NodeSet
-}
-
-func createNodeSets(vErrs *ValidationErrors, env *Environment, yamlEnv *yamlEnvironment) map[string]NodeSet {
+func createNodeSets(env *Environment, yamlEnv *yamlEnvironment) map[string]NodeSet {
 	res := map[string]NodeSet{}
-	if yamlEnv.Nodes == nil || len(yamlEnv.Nodes) == 0 {
-		vErrs.AddError(errors.New("no node specified"), "nodes")
-	} else {
-		for name, yamlNodeSet := range yamlEnv.Nodes {
-			if yamlNodeSet.Instances <= 0 {
-				vErrs.AddError(errors.New("node set instances must be a positive number"), "nodes."+name+".instances")
-			}
-
-			res[name] = NodeSet{
-				Name:         name,
-				Instances:    yamlNodeSet.Instances,
-				Provider:     createProviderRef(vErrs, "nodes."+name+".provider", env, yamlNodeSet.Provider),
-				Orchestrator: createOrchestratorRef(env, yamlNodeSet.Orchestrator),
-				Volumes:      createVolumes(vErrs, "nodes."+name+".volumes", yamlNodeSet.Volumes),
-				Hooks: NodeHook{
-					Provision: createHook(vErrs, "nodes."+name+".hooks.provision", env, yamlNodeSet.Hooks.Provision),
-					Destroy:   createHook(vErrs, "nodes."+name+".hooks.destroy", env, yamlNodeSet.Hooks.Destroy),
-				},
-				Labels: yamlNodeSet.Labels,
-			}
+	for name, yamlNodeSet := range yamlEnv.Nodes {
+		if yamlNodeSet.Instances <= 0 {
+			env.errors.addError(errors.New("instances must be a positive number"), env.location.appendPath("nodes."+name+".instances"))
+		}
+		res[name] = NodeSet{
+			Name:         name,
+			Instances:    yamlNodeSet.Instances,
+			Provider:     createProviderRef(env, env.location.appendPath("nodes."+name+".provider.name"), yamlNodeSet.Provider),
+			Orchestrator: createOrchestratorRef(env, env.location.appendPath("nodes."+name+".orchestrator"), yamlNodeSet.Orchestrator),
+			Volumes:      createVolumes(env, env.location.appendPath("nodes."+name+".volumes"), yamlNodeSet.Volumes),
+			Hooks: NodeHook{
+				Provision: createHook(env, env.location.appendPath("nodes."+name+".hooks.provision"), yamlNodeSet.Hooks.Provision),
+				Destroy:   createHook(env, env.location.appendPath("nodes."+name+".hooks.destroy"), yamlNodeSet.Hooks.Destroy),
+			},
+			Labels: yamlNodeSet.Labels,
 		}
 	}
 	return res
-}
-
-func createNodeSetRef(vErrs *ValidationErrors, env *Environment, location string, nodeSetRefs ...string) NodeSetRef {
-	nodeSets := make([]*NodeSet, 0, 10)
-	if len(nodeSetRefs) == 0 {
-		for _, nodeSet := range env.NodeSets {
-			nodeSets = append(nodeSets, &nodeSet)
-		}
-	} else {
-		for _, nodeSetRef := range nodeSetRefs {
-			if nodeSet, ok := env.NodeSets[nodeSetRef]; ok {
-				nodeSets = append(nodeSets, &nodeSet)
-			} else {
-				vErrs.AddError(errors.New("unknown node set reference: "+nodeSetRef), location)
-			}
-		}
-	}
-	return NodeSetRef{NodeSets: nodeSets}
 }
