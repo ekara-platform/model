@@ -40,8 +40,12 @@ type yamlLabel struct {
 
 // yaml tag for component
 type yamlComponent struct {
+	// The source repository where the component lives
 	Repository string
-	Version    string
+	// The version of the component to use
+	Version string
+	// Local imports for the component
+	Imports []string
 }
 
 // yaml tag for a volume and its parameters
@@ -91,13 +95,13 @@ type yamlHook struct {
 	After []yamlTaskRef
 }
 
-func (e *yamlEnvironment) RawContent() ([]byte, error) {
-	return yaml.Marshal(e)
+func (r *yamlEnvironment) RawContent() ([]byte, error) {
+	return yaml.Marshal(r)
 }
 
 // Definition of the Ekara environment
 type yamlEnvironment struct {
-	// Imports, to be included into the environment descriptor
+	// Global imports
 	Imports []string
 
 	// The name of the environment
