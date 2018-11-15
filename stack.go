@@ -39,12 +39,12 @@ type Stack struct {
 	Hooks StackHook
 }
 
-func (n Stack) DescType() string {
+func (r Stack) DescType() string {
 	return "Stack"
 }
 
-func (s Stack) DescName() string {
-	return s.Name
+func (r Stack) DescName() string {
+	return r.Name
 }
 
 func (r Stack) MarshalJSON() ([]byte, error) {
@@ -63,8 +63,10 @@ func (r Stack) MarshalJSON() ([]byte, error) {
 	return json.Marshal(t)
 }
 
-func createStacks(env *Environment, yamlEnv *yamlEnvironment) map[string]Stack {
-	res := map[string]Stack{}
+type Stacks map[string]Stack
+
+func createStacks(env *Environment, yamlEnv *yamlEnvironment) Stacks {
+	res := Stacks{}
 	for name, yamlStack := range yamlEnv.Stacks {
 		res[name] = Stack{
 			Name:      name,

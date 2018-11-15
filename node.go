@@ -48,12 +48,12 @@ type NodeSet struct {
 	Labels Labels
 }
 
-func (n NodeSet) DescType() string {
+func (r NodeSet) DescType() string {
 	return "NodeSet"
 }
 
-func (n NodeSet) DescName() string {
-	return n.Name
+func (r NodeSet) DescName() string {
+	return r.Name
 }
 
 func (r NodeSet) MarshalJSON() ([]byte, error) {
@@ -103,8 +103,10 @@ func (r *NodeSet) merge(other NodeSet) {
 	r.Labels = r.Labels.inherits(other.Labels)
 }
 
-func createNodeSets(env *Environment, yamlEnv *yamlEnvironment) map[string]NodeSet {
-	res := map[string]NodeSet{}
+type NodeSets map[string]NodeSet
+
+func createNodeSets(env *Environment, yamlEnv *yamlEnvironment) NodeSets {
+	res := NodeSets{}
 	for name, yamlNodeSet := range yamlEnv.Nodes {
 		if yamlNodeSet.Instances <= 0 {
 			env.errors.addError(errors.New("instances must be a positive number"), env.location.appendPath("nodes."+name+".instances"))

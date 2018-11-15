@@ -18,12 +18,12 @@ type Provider struct {
 	Proxy Proxy
 }
 
-func (p Provider) DescType() string {
+func (r Provider) DescType() string {
 	return "Provider"
 }
 
-func (p Provider) DescName() string {
-	return p.Name
+func (r Provider) DescName() string {
+	return r.Name
 }
 
 func (r Provider) MarshalJSON() ([]byte, error) {
@@ -42,9 +42,11 @@ func (r Provider) MarshalJSON() ([]byte, error) {
 	})
 }
 
+type Providers map[string]Provider
+
 // createProviders creates all the providers declared into the provided environment
-func createProviders(env *Environment, yamlEnv *yamlEnvironment) map[string]Provider {
-	res := map[string]Provider{}
+func createProviders(env *Environment, yamlEnv *yamlEnvironment) Providers {
+	res := Providers{}
 	for name, yamlProvider := range yamlEnv.Providers {
 		res[name] = Provider{
 			Name:       name,
