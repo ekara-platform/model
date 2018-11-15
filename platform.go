@@ -27,7 +27,8 @@ func createPlatform(env *Environment, yamlEnv *yamlEnvironment) Platform {
 			base,
 			componentName,
 			yamlComponent.Repository,
-			yamlComponent.Version)
+			yamlComponent.Version,
+			yamlComponent.Imports...)
 		if e != nil {
 			env.errors.addError(e, env.location.appendPath("ekara.components."+componentName))
 		} else {

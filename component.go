@@ -21,9 +21,10 @@ type Component struct {
 	Scm        ScmType
 	Repository *url.URL
 	Version    Version
+	Imports    []string
 }
 
-func CreateComponent(base *url.URL, id string, repo string, version string) (Component, error) {
+func CreateComponent(base *url.URL, id string, repo string, version string, imports ...string) (Component, error) {
 	repoUrl, e := resolveRepositoryInfo(base, repo)
 	if e != nil {
 		return Component{}, e
@@ -36,7 +37,10 @@ func CreateComponent(base *url.URL, id string, repo string, version string) (Com
 	if e != nil {
 		return Component{}, e
 	}
-	return Component{Id: id, Repository: repoUrl, Version: parsedVersion, Scm: scmType}, nil
+	if len(imports) == 0 {
+		imports = append(imports, DefaultDescriptorName)
+	}
+	return Component{Id: id, Repository: repoUrl, Version: parsedVersion, Scm: scmType, Imports: imports}, nil
 }
 
 type ComponentRef struct {

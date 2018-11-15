@@ -17,6 +17,8 @@ type Environment struct {
 	// The location of the environment root
 	location DescriptorLocation
 
+	// Global imports
+	Imports []string
 	// The environment name
 	Name string
 	// The environment qualifier
@@ -225,6 +227,7 @@ func (r *Environment) parse(logger *log.Logger, u *url.URL, data map[string]inte
 
 func (r *Environment) build(url *url.URL, yamlEnv *yamlEnvironment) {
 	r.location = DescriptorLocation{Path: "", Descriptor: url.String()}
+	r.Imports = yamlEnv.Imports
 	r.Name = yamlEnv.Name
 	r.Qualifier = yamlEnv.Qualifier
 	r.Description = yamlEnv.Description

@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"text/template"
 
-	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
 )
 
@@ -41,8 +40,12 @@ type yamlLabel struct {
 
 // yaml tag for component
 type yamlComponent struct {
+	// The source repository where the component lives
 	Repository string
-	Version    string
+	// The version of the component to use
+	Version string
+	// Local imports for the component
+	Imports []string
 }
 
 // yaml tag for a volume and its parameters
@@ -92,13 +95,13 @@ type yamlHook struct {
 	After []yamlTaskRef
 }
 
-func (e *yamlEnvironment) RawContent() ([]byte, error) {
-	return yaml.Marshal(e)
+func (r *yamlEnvironment) RawContent() ([]byte, error) {
+	return yaml.Marshal(r)
 }
 
 // Definition of the Ekara environment
 type yamlEnvironment struct {
-	// Imports, to be included into the environment descriptor
+	// Global imports
 	Imports []string
 
 	// The name of the environment
@@ -205,7 +208,7 @@ func parseYamlDescriptor(logger *log.Logger, u *url.URL, data map[string]interfa
 	}
 
 	// Read descriptor content
-	baseLocation, content, err := ReadUrl(logger, normalizedUrl)
+	content, err := ReadUrl(logger, normalizedUrl)
 	if err != nil {
 		return
 	}
@@ -225,32 +228,5 @@ func parseYamlDescriptor(logger *log.Logger, u *url.URL, data map[string]interfa
 		return
 	}
 
-	// Process imports if any
-	err = processYamlImports(logger, baseLocation, &env, data)
-	if err != nil {
-		return
-	}
 	return
-}
-
-func processYamlImports(logger *log.Logger, base *url.URL, env *yamlEnvironment, data map[string]interface{}) error {
-	if len(env.Imports) > 0 {
-		for _, val := range env.Imports {
-			importUrl, err := url.Parse(val)
-			if err != nil {
-				return err
-			}
-			ref := base.ResolveReference(importUrl)
-			logger.Println("Processing import", ref)
-			importedDesc, err := parseYamlDescriptor(logger, ref, data)
-			if err != nil {
-				return err
-			}
-			mergo.Merge(env, importedDesc)
-		}
-		env.Imports = nil
-	} else {
-		logger.Println("No import to process")
-	}
-	return nil
 }
