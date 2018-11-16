@@ -64,8 +64,10 @@ func (r Task) MarshalJSON() ([]byte, error) {
 	return json.Marshal(t)
 }
 
-func createTasks(env *Environment, yamlEnv *yamlEnvironment) map[string]Task {
-	res := map[string]Task{}
+type Tasks map[string]Task
+
+func createTasks(env *Environment, yamlEnv *yamlEnvironment) Tasks {
+	res := Tasks{}
 	for name, yamlTask := range yamlEnv.Tasks {
 		if len(yamlTask.Playbook) == 0 {
 			env.errors.addError(errors.New("empty playbook path"), env.location.appendPath("tasks."+name+".playbook"))

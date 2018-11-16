@@ -77,7 +77,7 @@ func NormalizeUrl(u *url.URL) (*url.URL, error) {
 	return &res, nil
 }
 
-func ReadUrl(logger *log.Logger, u *url.URL) (*url.URL, []byte, error) {
+func ReadUrl(logger *log.Logger, u *url.URL) ([]byte, error) {
 	if hasPrefixIgnoringCase(u.Scheme, "http") {
 		logger.Println("loading remote URL", u.String())
 
@@ -85,58 +85,38 @@ func ReadUrl(logger *log.Logger, u *url.URL) (*url.URL, []byte, error) {
 		var response *http.Response
 		response, err := http.Get(u.String())
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 		defer response.Body.Close()
 		if response.StatusCode != 200 {
 			err = fmt.Errorf("error reading URL "+u.String()+", HTTP status %d", response.StatusCode)
-			return nil, nil, err
+			return nil, err
 		}
 		content, err := ioutil.ReadAll(response.Body)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
-
-		// Compute the base
-		i := strings.LastIndex(u.EscapedPath(), "/")
-		if i == -1 {
-			err = errors.New("cannot determine base URL for " + u.String())
-			return nil, nil, err
-		}
-		base := *u
-		base.Path = base.Path[0 : i+1]
-
-		return &base, content, nil
+		return content, nil
 	} else if strings.ToUpper(u.Scheme) == "FILE" {
 		logger.Println("loading local URL", u.String())
 
 		// Fetch the content
 		location, err := UrlToPath(u)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 		file, err := os.Open(location)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 		defer file.Close()
 		content, err := ioutil.ReadAll(file)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
-
-		// Compute the base
-		base, err := PathToUrl(filepath.Dir(location))
-		if err != nil {
-			return nil, nil, err
-		}
-		if !strings.HasSuffix(base.Path, "/") {
-			base.Path = base.Path + "/"
-		}
-
-		return base, content, nil
+		return content, nil
 	} else {
-		return nil, nil, errors.New("unsupported protocol <" + u.Scheme + ">")
+		return nil, errors.New("unsupported protocol <" + u.Scheme + ">")
 	}
 }
 

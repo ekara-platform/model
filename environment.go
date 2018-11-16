@@ -17,6 +17,8 @@ type Environment struct {
 	// The location of the environment root
 	location DescriptorLocation
 
+	// Global imports
+	Imports []string
 	// The environment name
 	Name string
 	// The environment qualifier
@@ -28,13 +30,13 @@ type Environment struct {
 	// The orchestrator used to manage the environment
 	Orchestrator Orchestrator
 	// The providers where to create the environment node sets
-	Providers map[string]Provider
+	Providers Providers
 	// The node sets to create
-	NodeSets map[string]NodeSet
+	NodeSets NodeSets
 	// The software stacks to install on the created node sets
-	Stacks map[string]Stack
+	Stacks Stacks
 	// The tasks which can be ran against the environment
-	Tasks map[string]Task
+	Tasks Tasks
 	// Global hooks
 	Hooks EnvironmentHooks
 }
@@ -46,11 +48,11 @@ func (r Environment) MarshalJSON() ([]byte, error) {
 		QualifiedName string    `json:",omitempty"`
 		Description   string    `json:",omitempty"`
 		Ekara         *Platform `json:",omitempty"`
-		Providers     map[string]Provider
+		Providers     *Providers
 		Orchestrator  *Orchestrator `json:",omitempty"`
-		NodeSets      map[string]NodeSet
-		Stacks        map[string]Stack
-		Tasks         map[string]Task
+		NodeSets      *NodeSets
+		Stacks        *Stacks
+		Tasks         *Tasks
 		Hooks         *EnvironmentHooks `json:",omitempty"`
 	}{
 		Name:          r.Name,
@@ -59,11 +61,11 @@ func (r Environment) MarshalJSON() ([]byte, error) {
 		Description:   r.Description,
 
 		Ekara:        &r.Ekara,
-		Providers:    r.Providers,
+		Providers:    &r.Providers,
 		Orchestrator: &r.Orchestrator,
-		NodeSets:     r.NodeSets,
-		Stacks:       r.Stacks,
-		Tasks:        r.Tasks,
+		NodeSets:     &r.NodeSets,
+		Stacks:       &r.Stacks,
+		Tasks:        &r.Tasks,
 	}
 	if r.Hooks.HasTasks() {
 		t.Hooks = &r.Hooks
@@ -115,11 +117,32 @@ func (r EnvironmentHooks) MarshalJSON() ([]byte, error) {
 	return json.Marshal(t)
 }
 
-func CreateEnvironment(logger *log.Logger, u *url.URL, data map[string]interface{}) (Environment, error) {
+func CreateEnvironment(logger *log.Logger, url *url.URL, data map[string]interface{}) (Environment, error) {
 	env := Environment{}
-	err := env.parse(logger, u, data)
-	if err != nil {
-		return env, err
+	if hasSuffixIgnoringCase(url.Path, ".yaml") || hasSuffixIgnoringCase(url.Path, ".yml") {
+		var yamlEnv yamlEnvironment
+		yamlEnv, err := parseYamlDescriptor(logger, url, data)
+		if err != nil {
+			return env, err
+		}
+		env.location = DescriptorLocation{Descriptor: url.String()}
+		env.Imports = yamlEnv.Imports
+		env.Name = yamlEnv.Name
+		env.Qualifier = yamlEnv.Qualifier
+		env.Description = yamlEnv.Description
+		env.Ekara = createPlatform(&env, &yamlEnv)
+		env.Tasks = createTasks(&env, &yamlEnv)
+		env.Orchestrator = createOrchestrator(&env, &yamlEnv)
+		env.Providers = createProviders(&env, &yamlEnv)
+		env.NodeSets = createNodeSets(&env, &yamlEnv)
+		env.Stacks = createStacks(&env, &yamlEnv)
+		env.Hooks.Init = createHook(&env, env.location.appendPath("hooks.init"), yamlEnv.Hooks.Init)
+		env.Hooks.Provision = createHook(&env, env.location.appendPath("hooks.provision"), yamlEnv.Hooks.Provision)
+		env.Hooks.Deploy = createHook(&env, env.location.appendPath("hooks.deploy"), yamlEnv.Hooks.Deploy)
+		env.Hooks.Undeploy = createHook(&env, env.location.appendPath("hooks.undeploy"), yamlEnv.Hooks.Undeploy)
+		env.Hooks.Destroy = createHook(&env, env.location.appendPath("hooks.destroy"), yamlEnv.Hooks.Destroy)
+	} else {
+		return env, errors.New("unsupported file format")
 	}
 	return env, nil
 }
@@ -207,36 +230,4 @@ func (r Environment) Validate() ValidationErrors {
 	vErrs.merge(r.Hooks.Undeploy.validate())
 	vErrs.merge(r.Hooks.Destroy.validate())
 	return vErrs
-}
-
-func (r *Environment) parse(logger *log.Logger, u *url.URL, data map[string]interface{}) error {
-	if hasSuffixIgnoringCase(u.Path, ".yaml") || hasSuffixIgnoringCase(u.Path, ".yml") {
-		var yamlEnv yamlEnvironment
-		yamlEnv, err := parseYamlDescriptor(logger, u, data)
-		if err != nil {
-			return err
-		}
-		r.build(u, &yamlEnv)
-		return nil
-	} else {
-		return errors.New("unsupported file format")
-	}
-}
-
-func (r *Environment) build(url *url.URL, yamlEnv *yamlEnvironment) {
-	r.location = DescriptorLocation{Path: "", Descriptor: url.String()}
-	r.Name = yamlEnv.Name
-	r.Qualifier = yamlEnv.Qualifier
-	r.Description = yamlEnv.Description
-	r.Ekara = createPlatform(r, yamlEnv)
-	r.Tasks = createTasks(r, yamlEnv)
-	r.Orchestrator = createOrchestrator(r, yamlEnv)
-	r.Providers = createProviders(r, yamlEnv)
-	r.NodeSets = createNodeSets(r, yamlEnv)
-	r.Stacks = createStacks(r, yamlEnv)
-	r.Hooks.Init = createHook(r, r.location.appendPath("hooks.init"), yamlEnv.Hooks.Init)
-	r.Hooks.Provision = createHook(r, r.location.appendPath("hooks.provision"), yamlEnv.Hooks.Provision)
-	r.Hooks.Deploy = createHook(r, r.location.appendPath("hooks.deploy"), yamlEnv.Hooks.Deploy)
-	r.Hooks.Undeploy = createHook(r, r.location.appendPath("hooks.undeploy"), yamlEnv.Hooks.Undeploy)
-	r.Hooks.Destroy = createHook(r, r.location.appendPath("hooks.destroy"), yamlEnv.Hooks.Destroy)
 }

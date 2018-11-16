@@ -1,7 +1,0 @@
-name: overriddenName
-description: This is my awesome Ekara environment.
-
-hooks:
-  provision:
-    after:
-      - {name: task3}
