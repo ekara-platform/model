@@ -72,5 +72,3 @@ nodes:
 stacks:
   monitoring:
     component: monitoring
-    on:
-    - managers

@@ -1,5 +1,3 @@
 stacks:
   stack1:
     component: stack1
-    on:
-    - node1

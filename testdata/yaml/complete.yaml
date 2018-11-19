@@ -147,11 +147,6 @@ nodes:
 stacks:
   stack1:
     component: stack1
-    on:
-    - node1
 
   stack2:
     component: stack2
-    on:
-    - node1
-    - node2
