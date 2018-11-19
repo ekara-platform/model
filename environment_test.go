@@ -169,6 +169,9 @@ func assertEnv(t *testing.T, env Environment) {
 	assert.Contains(t, nodeSets, "node2")
 	assert.NotContains(t, nodeSets, "dummy")
 
+	//------------------------------------------------------------
+	// Node1
+	//------------------------------------------------------------
 	assert.Equal(t, 10, nodeSets["node1"].Instances)
 	assert.Equal(t, "aws", nodeSets["node1"].Provider.Resolve().Name)
 
@@ -237,6 +240,24 @@ func assertEnv(t *testing.T, env Environment) {
 	assert.Equal(t, vol.Name, "other/volume/path")
 	assert.Equal(t, vol.Parameters["param2_name"], "aws_param2_name_value")
 
+	//------------------------------------------------------------
+	// Node1 Hook
+	//------------------------------------------------------------
+	no := nodeSets["node1"]
+	assert.Equal(t, 1, len(no.Hooks.Provision.Before))
+	assert.Equal(t, 1, len(no.Hooks.Provision.After))
+	assert.Equal(t, 1, len(no.Hooks.Destroy.Before))
+	assert.Equal(t, 1, len(no.Hooks.Destroy.After))
+
+	assert.Equal(t, "task1", no.Hooks.Provision.Before[0].ref)
+	assert.Equal(t, "task2", no.Hooks.Provision.After[0].ref)
+
+	assert.Equal(t, "task1", no.Hooks.Destroy.Before[0].ref)
+	assert.Equal(t, "task2", no.Hooks.Destroy.After[0].ref)
+
+	//------------------------------------------------------------
+	// Node2
+	//------------------------------------------------------------
 	assert.Equal(t, 20, nodeSets["node2"].Instances)
 	assert.Equal(t, "azure", nodeSets["node2"].Provider.Resolve().Name)
 
@@ -306,6 +327,21 @@ func assertEnv(t *testing.T, env Environment) {
 	assert.Equal(t, v, "node2_label2_value")
 
 	//------------------------------------------------------------
+	// Node2 Hook
+	//------------------------------------------------------------
+	no = nodeSets["node2"]
+	assert.Equal(t, 1, len(no.Hooks.Provision.Before))
+	assert.Equal(t, 1, len(no.Hooks.Provision.After))
+	assert.Equal(t, 1, len(no.Hooks.Destroy.Before))
+	assert.Equal(t, 1, len(no.Hooks.Destroy.After))
+
+	assert.Equal(t, "task1", no.Hooks.Provision.Before[0].ref)
+	assert.Equal(t, "task2", no.Hooks.Provision.After[0].ref)
+
+	assert.Equal(t, "task1", no.Hooks.Destroy.Before[0].ref)
+	assert.Equal(t, "task2", no.Hooks.Destroy.After[0].ref)
+
+	//------------------------------------------------------------
 	// Environment Stacks
 	//------------------------------------------------------------
 	stacks := env.Stacks
@@ -326,11 +362,25 @@ func assertEnv(t *testing.T, env Environment) {
 	assert.Equal(t, "v1.2.3", stack2.Component.Resolve().Version.String())
 
 	//------------------------------------------------------------
+	// Stack1 Hook
+	//------------------------------------------------------------
+	assert.Equal(t, 1, len(stack1.Hooks.Deploy.Before))
+	assert.Equal(t, 1, len(stack1.Hooks.Deploy.After))
+	assert.Equal(t, 1, len(stack1.Hooks.Undeploy.Before))
+	assert.Equal(t, 1, len(stack1.Hooks.Undeploy.After))
+
+	assert.Equal(t, "task1", stack1.Hooks.Deploy.Before[0].ref)
+	assert.Equal(t, "task2", stack1.Hooks.Deploy.After[0].ref)
+
+	assert.Equal(t, "task1", stack1.Hooks.Undeploy.Before[0].ref)
+	assert.Equal(t, "task2", stack1.Hooks.Undeploy.After[0].ref)
+
+	//------------------------------------------------------------
 	// Environment Tasks
 	//------------------------------------------------------------
 	tasks := env.Tasks
 	assert.NotNil(t, tasks)
-	assert.Equal(t, 2, len(tasks))
+	assert.Equal(t, 3, len(tasks))
 
 	assert.Contains(t, tasks, "task1")
 
@@ -379,6 +429,17 @@ func assertEnv(t *testing.T, env Environment) {
 
 	assert.Equal(t, "task2_playbook", tasks["task2"].Playbook)
 	assert.Equal(t, "task2_cron", tasks["task2"].Cron)
+
+	//------------------------------------------------------------
+	// Environment Tasks Hooks
+	//------------------------------------------------------------
+	ta := tasks["task3"]
+	assert.Equal(t, 1, len(ta.Hooks.Execute.Before))
+	assert.Equal(t, 1, len(ta.Hooks.Execute.After))
+
+	assert.Equal(t, "task1", ta.Hooks.Execute.Before[0].ref)
+	assert.Equal(t, "task2", ta.Hooks.Execute.After[0].ref)
+
 }
 
 func buildUrl(loc string) *url.URL {

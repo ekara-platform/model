@@ -22,6 +22,7 @@ ekara:
       repository: some-org/stack2
       version: 1.2.3
 
+
 tasks:
   task1:
     cron: task1_cron
@@ -42,6 +43,15 @@ tasks:
     env:
       tasks_task2_env_key1: tasks_task2_env_key1_value
       tasks_task2_env_key2: tasks_task2_env_key2_value
+
+  task3:
+    playbook: task3_playbook
+    hooks:
+      execute:
+        before:
+          - task: task1  
+        after:
+          - task: task2  
 
 orchestrator:
   component: swarm
@@ -112,7 +122,17 @@ nodes:
     labels:
       node1_label1: node1_label1_value
       node1_label2: node1_label2_value
-
+    hooks:
+      provision:
+        before:
+          - task: task1  
+        after:
+          - task: task2  
+      destroy:
+        before:
+          - task: task1  
+        after:
+          - task: task2  
   node2:
     instances: 20
     provider:
@@ -143,10 +163,32 @@ nodes:
     labels:
       node2_label1: node2_label1_value
       node2_label2: node2_label2_value
+    hooks:
+      provision:
+        before:
+          - task: task1  
+        after:
+          - task: task2  
+      destroy:
+        before:
+          - task: task1  
+        after:
+          - task: task2  
 
 stacks:
   stack1:
     component: stack1
+    hooks:
+      deploy:
+        before:
+          - task: task1  
+        after:
+          - task: task2  
+      undeploy:
+        before:
+          - task: task1  
+        after:
+          - task: task2  
 
   stack2:
     component: stack2

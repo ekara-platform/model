@@ -87,7 +87,11 @@ func createTasks(env *Environment, yamlEnv *yamlEnvironment) Tasks {
 			Component:  createComponentRef(env, env.location.appendPath("tasks."+name+".component"), yamlTask.Component, false),
 			Cron:       yamlTask.Cron,
 			Parameters: createParameters(yamlTask.Params),
-			EnvVars:    createEnvVars(yamlTask.Env)}
+			EnvVars:    createEnvVars(yamlTask.Env),
+			Hooks: TaskHook{
+				Execute: createHook(env, env.location.appendPath("tasks."+name+".hooks.execute"), yamlTask.Hooks.Execute),
+			},
+		}
 	}
 	return res
 }

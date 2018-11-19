@@ -8,3 +8,12 @@ tasks:
     env:
       tasks_task2_env_key1: tasks_task2_env_key1_value
       tasks_task2_env_key2: tasks_task2_env_key2_value
+
+  task3:
+    playbook: task3_playbook
+    hooks:
+      execute:
+        before:
+          - task: task1  
+        after:
+          - task: task2  
