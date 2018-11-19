@@ -28,21 +28,28 @@ func (r Orchestrator) validate() ValidationErrors {
 	return r.Component.validate()
 }
 
-func (r *Orchestrator) merge(other Orchestrator) {
-	r.Component.merge(other.Component)
+func (r *Orchestrator) merge(other Orchestrator) error {
+	if err := r.Component.merge(other.Component); err != nil {
+		return err
+	}
 	r.Parameters = r.Parameters.inherits(other.Parameters)
 	r.Docker = r.Docker.inherits(other.Docker)
 	r.EnvVars = r.EnvVars.inherits(other.EnvVars)
+	return nil
 }
 
 func (r Orchestrator) MarshalJSON() ([]byte, error) {
+	component, e := r.Component.Resolve()
+	if e != nil {
+		return nil, e
+	}
 	return json.Marshal(struct {
 		Component  string     `json:",omitempty"`
 		Parameters Parameters `json:",omitempty"`
 		Docker     Parameters `json:",omitempty"`
 		EnvVars    EnvVars    `json:",omitempty"`
 	}{
-		Component:  r.Component.Resolve().Id,
+		Component:  component.Id,
 		Parameters: r.Parameters,
 		Docker:     r.Docker,
 		EnvVars:    r.EnvVars,
@@ -71,28 +78,19 @@ func (r OrchestratorRef) validate() ValidationErrors {
 	return ValidationErrors{}
 }
 
-func (r *OrchestratorRef) merge(other OrchestratorRef) {
-
+func (r *OrchestratorRef) merge(other OrchestratorRef) error {
+	return nil
 }
 
-func (r OrchestratorRef) Resolve() Orchestrator {
+func (r OrchestratorRef) Resolve() (Orchestrator, error) {
 	validationErrors := r.validate()
 	if validationErrors.HasErrors() {
-		panic(validationErrors)
+		return Orchestrator{}, validationErrors
 	}
 	orchestrator := r.env.Orchestrator
 	return Orchestrator{
 		Component:  orchestrator.Component,
 		Parameters: r.parameters.inherits(orchestrator.Parameters),
 		Docker:     r.docker.inherits(orchestrator.Docker),
-		EnvVars:    r.envVars.inherits(orchestrator.EnvVars)}
-}
-
-// OrchestratorParams returns the parameters required to install the orchestrator
-func (r OrchestratorRef) OrchestratorParams() map[string]interface{} {
-	o := r.Resolve()
-	op := make(map[string]interface{})
-	op["docker"] = o.Docker
-	op["params"] = o.Parameters
-	return op
+		EnvVars:    r.envVars.inherits(orchestrator.EnvVars)}, nil
 }

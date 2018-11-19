@@ -32,9 +32,10 @@ func (r Hook) validate() ValidationErrors {
 	return vErrs
 }
 
-func (r *Hook) merge(other Hook) {
+func (r *Hook) merge(other Hook) error {
 	r.Before = append(r.Before, other.Before...)
 	r.After = append(other.After, r.After...)
+	return nil
 }
 
 func (r Hook) HasTasks() bool {

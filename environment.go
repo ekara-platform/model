@@ -7,10 +7,6 @@ import (
 	"net/url"
 )
 
-type Reference interface {
-	attach(env *Environment)
-}
-
 type Environment struct {
 	// Validation errors that occurred during the building of the environment
 	errors ValidationErrors
@@ -89,6 +85,35 @@ func (r EnvironmentHooks) HasTasks() bool {
 		r.Destroy.HasTasks()
 }
 
+func (r *EnvironmentHooks) merge(other EnvironmentHooks) error {
+	if err := r.Init.merge(other.Init); err != nil {
+		return err
+	}
+	if err := r.Provision.merge(other.Provision); err != nil {
+		return err
+	}
+	if err := r.Deploy.merge(other.Deploy); err != nil {
+		return err
+	}
+	if err := r.Undeploy.merge(other.Undeploy); err != nil {
+		return err
+	}
+	if err := r.Destroy.merge(other.Destroy); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r EnvironmentHooks) validate() ValidationErrors {
+	vErrs := ValidationErrors{}
+	vErrs.merge(r.Init.validate())
+	vErrs.merge(r.Provision.validate())
+	vErrs.merge(r.Deploy.validate())
+	vErrs.merge(r.Undeploy.validate())
+	vErrs.merge(r.Destroy.validate())
+	return vErrs
+}
+
 func (r EnvironmentHooks) MarshalJSON() ([]byte, error) {
 	t := struct {
 		Init      *Hook `json:",omitempty"`
@@ -149,46 +174,27 @@ func CreateEnvironment(logger *log.Logger, url *url.URL, data map[string]interfa
 
 func (r *Environment) Merge(other Environment) error {
 	// Data and basic info (name, qualifier, description) are only accepted in root descriptor
-	r.Ekara.merge(other.Ekara)
-	r.Orchestrator.merge(other.Orchestrator)
-	for id, p := range other.Providers {
-		if provider, ok := r.Providers[id]; ok {
-			provider.merge(p)
-		} else {
-			p.Component.env = r
-			r.Providers[id] = p
-		}
+	if err := r.Ekara.merge(other.Ekara); err != nil {
+		return err
 	}
-	for id, n := range other.NodeSets {
-		if nodeSet, ok := r.NodeSets[id]; ok {
-			nodeSet.merge(n)
-		} else {
-			n.Provider.env = r
-			n.Orchestrator.env = r
-			r.NodeSets[id] = n
-		}
+	if err := r.Orchestrator.merge(other.Orchestrator); err != nil {
+		return err
 	}
-	for id, s := range other.Stacks {
-		if stack, ok := r.Stacks[id]; ok {
-			stack.merge(s)
-		} else {
-			s.Component.env = r
-			r.Stacks[id] = s
-		}
+	if err := r.Providers.merge(r, other.Providers); err != nil {
+		return err
 	}
-	for id, t := range other.Tasks {
-		if task, ok := r.Tasks[id]; ok {
-			task.merge(t)
-		} else {
-			t.Component.env = r
-			r.Tasks[id] = t
-		}
+	if err := r.NodeSets.merge(r, other.NodeSets); err != nil {
+		return err
 	}
-	r.Hooks.Init.merge(r.Hooks.Init)
-	r.Hooks.Provision.merge(r.Hooks.Provision)
-	r.Hooks.Deploy.merge(r.Hooks.Deploy)
-	r.Hooks.Undeploy.merge(r.Hooks.Undeploy)
-	r.Hooks.Destroy.merge(r.Hooks.Destroy)
+	if err := r.Stacks.merge(r, other.Stacks); err != nil {
+		return err
+	}
+	if err := r.Tasks.merge(r, other.Tasks); err != nil {
+		return err
+	}
+	if err := r.Hooks.merge(other.Hooks); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -224,10 +230,6 @@ func (r Environment) Validate() ValidationErrors {
 	for _, t := range r.Tasks {
 		vErrs.merge(t.validate())
 	}
-	vErrs.merge(r.Hooks.Init.validate())
-	vErrs.merge(r.Hooks.Provision.validate())
-	vErrs.merge(r.Hooks.Deploy.validate())
-	vErrs.merge(r.Hooks.Undeploy.validate())
-	vErrs.merge(r.Hooks.Destroy.validate())
+	vErrs.merge(r.Hooks.validate())
 	return vErrs
 }

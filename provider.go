@@ -27,6 +27,10 @@ func (r Provider) DescName() string {
 }
 
 func (r Provider) MarshalJSON() ([]byte, error) {
+	component, e := r.Component.Resolve()
+	if e != nil {
+		return nil, e
+	}
 	return json.Marshal(struct {
 		Name       string     `json:",omitempty"`
 		Component  string     `json:",omitempty"`
@@ -35,11 +39,28 @@ func (r Provider) MarshalJSON() ([]byte, error) {
 		Proxy      Proxy      `json:",omitempty"`
 	}{
 		Name:       r.Name,
-		Component:  r.Component.Resolve().Id,
+		Component:  component.Id,
 		Parameters: r.Parameters,
 		EnvVars:    r.EnvVars,
 		Proxy:      r.Proxy,
 	})
+}
+
+func (r Provider) validate() ValidationErrors {
+	return r.Component.validate()
+}
+
+func (r *Provider) merge(other Provider) error {
+	if r.Name != other.Name {
+		return errors.New("cannot merge unrelated providers (" + r.Name + " != " + other.Name + ")")
+	}
+	if err := r.Component.merge(other.Component); err != nil {
+		return err
+	}
+	r.Parameters = r.Parameters.inherits(other.Parameters)
+	r.EnvVars = r.EnvVars.inherits(other.EnvVars)
+	r.Proxy = r.Proxy.inherits(other.Proxy)
+	return nil
 }
 
 type Providers map[string]Provider
@@ -58,20 +79,18 @@ func createProviders(env *Environment, yamlEnv *yamlEnvironment) Providers {
 	return res
 }
 
-func (r Provider) validate() ValidationErrors {
-	return r.Component.validate()
-}
-
-func (r *Provider) merge(other Provider) {
-	if r.Name == "" {
-		r.Name = other.Name
-	} else if r.Name != other.Name {
-		panic(errors.New("cannot merge unrelated providers (" + r.Name + " != " + other.Name + ")"))
+func (r Providers) merge(env *Environment, other Providers) error {
+	for id, p := range other {
+		if provider, ok := r[id]; ok {
+			if err := provider.merge(p); err != nil {
+				return err
+			}
+		} else {
+			p.Component.env = env
+			r[id] = p
+		}
 	}
-	r.Component.merge(other.Component)
-	r.Parameters = r.Parameters.inherits(other.Parameters)
-	r.EnvVars = r.EnvVars.inherits(other.EnvVars)
-	r.Proxy = r.Proxy.inherits(other.Proxy)
+	return nil
 }
 
 // Reference to a provider
@@ -85,10 +104,10 @@ type ProviderRef struct {
 	location DescriptorLocation
 }
 
-func (r ProviderRef) Resolve() Provider {
+func (r ProviderRef) Resolve() (Provider, error) {
 	validationErrors := r.validate()
 	if validationErrors.HasErrors() {
-		panic(validationErrors)
+		return Provider{}, validationErrors
 	}
 	provider := r.env.Providers[r.ref]
 	return Provider{
@@ -96,7 +115,7 @@ func (r ProviderRef) Resolve() Provider {
 		Component:  provider.Component,
 		Parameters: r.parameters.inherits(provider.Parameters),
 		EnvVars:    r.envVars.inherits(provider.EnvVars),
-		Proxy:      r.proxy.inherits(provider.Proxy)}
+		Proxy:      r.proxy.inherits(provider.Proxy)}, nil
 }
 
 // createProviderRef creates a reference to the provider declared into the yaml reference
@@ -122,11 +141,12 @@ func (r ProviderRef) validate() ValidationErrors {
 	return validationErrors
 }
 
-func (r *ProviderRef) merge(other ProviderRef) {
+func (r *ProviderRef) merge(other ProviderRef) error {
 	if r.ref == "" {
 		r.ref = other.ref
 	}
 	r.parameters = r.parameters.inherits(other.parameters)
 	r.envVars = r.envVars.inherits(other.envVars)
 	r.proxy = r.proxy.inherits(other.proxy)
+	return nil
 }

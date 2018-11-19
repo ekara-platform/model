@@ -48,8 +48,10 @@ func assertEnv(t *testing.T, env Environment) {
 	// Platform
 	assert.NotNil(t, env.Ekara)
 	assert.NotNil(t, env.Ekara.Components)
-	assert.True(t, strings.HasSuffix(env.Ekara.Component.Resolve().Repository.String(), "someBase/ekara-platform/core"))
-	assert.Equal(t, "", env.Ekara.Component.Resolve().Version.String())
+	ekaraComponent, e := env.Ekara.Component.Resolve()
+	assert.Nil(t, e)
+	assert.True(t, strings.HasSuffix(ekaraComponent.Repository.String(), "someBase/ekara-platform/core"))
+	assert.Equal(t, "", ekaraComponent.Version.String())
 
 	//------------------------------------------------------------
 	// Orchestrator
@@ -98,8 +100,10 @@ func assertEnv(t *testing.T, env Environment) {
 	// AWS Provider
 	assert.NotNil(t, providers["aws"])
 	assert.Equal(t, "aws", providers["aws"].Name)
-	assert.True(t, strings.HasSuffix(providers["aws"].Component.Resolve().Repository.String(), "/someBase/ekara-platform/aws-provider"))
-	assert.Equal(t, "v1.2.3", providers["aws"].Component.Resolve().Version.String())
+	awsComponent, e := providers["aws"].Component.Resolve()
+	assert.Nil(t, e)
+	assert.True(t, strings.HasSuffix(awsComponent.Repository.String(), "/someBase/ekara-platform/aws-provider"))
+	assert.Equal(t, "v1.2.3", awsComponent.Version.String())
 	assert.NotNil(t, providers["aws"].Parameters)
 	c = providers["aws"].Parameters
 	v, ok = c["aws_param_key1"]
@@ -129,8 +133,10 @@ func assertEnv(t *testing.T, env Environment) {
 	// Azure Provider
 	assert.NotNil(t, providers["azure"])
 	assert.Equal(t, "azure", providers["azure"].Name)
-	assert.True(t, strings.HasSuffix(providers["azure"].Component.Resolve().Repository.String(), "/someBase/ekara-platform/azure-provider"))
-	assert.Equal(t, "v1.2.3", providers["azure"].Component.Resolve().Version.String())
+	azureComponent, e := providers["azure"].Component.Resolve()
+	assert.Nil(t, e)
+	assert.True(t, strings.HasSuffix(azureComponent.Repository.String(), "/someBase/ekara-platform/azure-provider"))
+	assert.Equal(t, "v1.2.3", azureComponent.Version.String())
 	assert.NotNil(t, providers["azure"].Parameters)
 
 	c = providers["azure"].Parameters
@@ -173,9 +179,11 @@ func assertEnv(t *testing.T, env Environment) {
 	// Node1
 	//------------------------------------------------------------
 	assert.Equal(t, 10, nodeSets["node1"].Instances)
-	assert.Equal(t, "aws", nodeSets["node1"].Provider.Resolve().Name)
+	ns1Provider, e := nodeSets["node1"].Provider.Resolve()
+	assert.Nil(t, e)
+	assert.Equal(t, "aws", ns1Provider.Name)
 
-	c = nodeSets["node1"].Provider.Resolve().Parameters
+	c = ns1Provider.Parameters
 	v, ok = c["aws_param_key1"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "aws_param_key1_value")
@@ -192,7 +200,9 @@ func assertEnv(t *testing.T, env Environment) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "provider_node1_param_key2_value")
 
-	c = nodeSets["node1"].Orchestrator.Resolve().Parameters
+	ns1Orchestrator, e := nodeSets["node1"].Orchestrator.Resolve()
+	assert.Nil(t, e)
+	c = ns1Orchestrator.Parameters
 	v, ok = c["orchestrator_node1_param_key1"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "orchestrator_node1_param_key1_value")
@@ -201,7 +211,7 @@ func assertEnv(t *testing.T, env Environment) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "orchestrator_node1_param_key2_value")
 
-	c = nodeSets["node1"].Orchestrator.Resolve().Docker
+	c = ns1Orchestrator.Docker
 	v, ok = c["docker_node1_param_key1"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "docker_node1_param_key1_value")
@@ -210,7 +220,7 @@ func assertEnv(t *testing.T, env Environment) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "docker_node1_param_key2_value")
 
-	en = nodeSets["node1"].Orchestrator.Resolve().EnvVars
+	en = ns1Orchestrator.EnvVars
 	v, ok = en["orchestrator_node1_env_key1"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "orchestrator_node1_env_key1_value")
@@ -232,12 +242,12 @@ func assertEnv(t *testing.T, env Environment) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "node1_label2_value")
 
-	vol := vs[0]
-	assert.Equal(t, vol.Name, "some/volume/path")
+	vol := vs["some/volume/path"]
+	assert.Equal(t, vol.Path, "some/volume/path")
 	assert.Equal(t, vol.Parameters["param1_name"], "aws_param1_name_value")
 
-	vol = vs[1]
-	assert.Equal(t, vol.Name, "other/volume/path")
+	vol = vs["other/volume/path"]
+	assert.Equal(t, vol.Path, "other/volume/path")
 	assert.Equal(t, vol.Parameters["param2_name"], "aws_param2_name_value")
 
 	//------------------------------------------------------------
@@ -259,9 +269,11 @@ func assertEnv(t *testing.T, env Environment) {
 	// Node2
 	//------------------------------------------------------------
 	assert.Equal(t, 20, nodeSets["node2"].Instances)
-	assert.Equal(t, "azure", nodeSets["node2"].Provider.Resolve().Name)
+	ns2Provider, e := nodeSets["node2"].Provider.Resolve()
+	assert.Nil(t, e)
+	assert.Equal(t, "azure", ns2Provider.Name)
 
-	c = nodeSets["node2"].Provider.Resolve().Parameters
+	c = ns2Provider.Parameters
 	v, ok = c["azure_param_key1"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "azure_param_key1_value")
@@ -278,7 +290,9 @@ func assertEnv(t *testing.T, env Environment) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "provider_node2_param_key2_value")
 
-	c = nodeSets["node2"].Orchestrator.Resolve().Parameters
+	ns2Orchestrator, e := nodeSets["node2"].Orchestrator.Resolve()
+	assert.Nil(t, e)
+	c = ns2Orchestrator.Parameters
 	v, ok = c["orchestrator_node2_param_key1"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "orchestrator_node2_param_key1_value")
@@ -287,7 +301,7 @@ func assertEnv(t *testing.T, env Environment) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "orchestrator_node2_param_key2_value")
 
-	c = nodeSets["node2"].Orchestrator.Resolve().Docker
+	c = ns2Orchestrator.Docker
 	v, ok = c["docker_node2_param_key1"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "docker_node2_param_key1_value")
@@ -296,7 +310,7 @@ func assertEnv(t *testing.T, env Environment) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "docker_node2_param_key2_value")
 
-	en = nodeSets["node2"].Orchestrator.Resolve().EnvVars
+	en = ns2Orchestrator.EnvVars
 	v, ok = en["orchestrator_node2_env_key1"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "orchestrator_node2_env_key1_value")
@@ -309,12 +323,12 @@ func assertEnv(t *testing.T, env Environment) {
 	assert.NotNil(t, vs)
 	assert.Equal(t, 2, len(vs))
 
-	vol = vs[0]
-	assert.Equal(t, vol.Name, "some/volume/path")
+	vol = vs["some/volume/path"]
+	assert.Equal(t, vol.Path, "some/volume/path")
 	assert.Equal(t, vol.Parameters["param1_name"], "azure_param1_name_value")
 
-	vol = vs[1]
-	assert.Equal(t, vol.Name, "other/volume/path")
+	vol = vs["other/volume/path"]
+	assert.Equal(t, vol.Path, "other/volume/path")
 	assert.Equal(t, vol.Parameters["param2_name"], "azure_param2_name_value")
 
 	la = nodeSets["node2"].Labels
@@ -355,11 +369,15 @@ func assertEnv(t *testing.T, env Environment) {
 	stack1 := stacks["stack1"]
 	stack2 := stacks["stack2"]
 
-	assert.True(t, strings.HasSuffix(stack1.Component.Resolve().Repository.String(), "/someBase/some-org/stack1"))
-	assert.Equal(t, "v1.2.3", stack1.Component.Resolve().Version.String())
+	st1Component, e := stack1.Component.Resolve()
+	assert.Nil(t, e)
+	assert.True(t, strings.HasSuffix(st1Component.Repository.String(), "/someBase/some-org/stack1"))
+	assert.Equal(t, "v1.2.3", st1Component.Version.String())
 
-	assert.True(t, strings.HasSuffix(stack2.Component.Resolve().Repository.String(), "/someBase/some-org/stack2"))
-	assert.Equal(t, "v1.2.3", stack2.Component.Resolve().Version.String())
+	st2Component, e := stack2.Component.Resolve()
+	assert.Nil(t, e)
+	assert.True(t, strings.HasSuffix(st2Component.Repository.String(), "/someBase/some-org/stack2"))
+	assert.Equal(t, "v1.2.3", st2Component.Version.String())
 
 	//------------------------------------------------------------
 	// Stack1 Hook

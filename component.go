@@ -69,18 +69,19 @@ func (r ComponentRef) validate() ValidationErrors {
 	return validationErrors
 }
 
-func (r *ComponentRef) merge(other ComponentRef) {
+func (r *ComponentRef) merge(other ComponentRef) error {
 	if r.ref == "" {
 		r.ref = other.ref
 	}
+	return nil
 }
 
-func (r ComponentRef) Resolve() Component {
+func (r ComponentRef) Resolve() (Component, error) {
 	validationErrors := r.validate()
 	if validationErrors.HasErrors() {
-		panic(validationErrors)
+		return Component{}, validationErrors
 	}
-	return r.env.Ekara.Components[r.ref]
+	return r.env.Ekara.Components[r.ref], nil
 }
 
 // ResolveRepository resolve a full URL from repository short-forms.

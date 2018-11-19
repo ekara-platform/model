@@ -44,7 +44,7 @@ func createPlatform(env *Environment, yamlEnv *yamlEnvironment) Platform {
 			CoreComponentRepo,
 			"")
 		if e != nil {
-			panic(errors.New("unable to create core component: " + e.Error()))
+			env.errors.addError(errors.New("unable to create core component: "+e.Error()), env.location.appendPath("ekara"))
 		}
 	}
 
@@ -57,12 +57,13 @@ func (r Platform) validate() ValidationErrors {
 	return r.Component.validate()
 }
 
-func (r *Platform) merge(other Platform) {
+func (r *Platform) merge(other Platform) error {
 	for id, c := range other.Components {
 		if _, ok := r.Components[id]; !ok {
 			r.Components[id] = c
 		}
 	}
+	return nil
 }
 
 func createComponentBase(yamlEnv *yamlEnvironment) (*url.URL, error) {

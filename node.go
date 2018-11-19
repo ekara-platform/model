@@ -29,6 +29,23 @@ func (r NodeHook) HasTasks() bool {
 		r.Destroy.HasTasks()
 }
 
+func (r NodeHook) validate() ValidationErrors {
+	vErrs := ValidationErrors{}
+	vErrs.merge(r.Provision.validate())
+	vErrs.merge(r.Destroy.validate())
+	return vErrs
+}
+
+func (r *NodeHook) merge(other NodeHook) error {
+	if err := r.Provision.merge(other.Provision); err != nil {
+		return err
+	}
+	if err := r.Destroy.merge(other.Destroy); err != nil {
+		return err
+	}
+	return nil
+}
+
 // NodeSet contains the whole specification of a nodes et to create on a specific
 // cloud provider
 type NodeSet struct {
@@ -41,7 +58,7 @@ type NodeSet struct {
 	// The parameters related to the orchestrator used to manage the machines
 	Orchestrator OrchestratorRef
 	// Volumes attached to each node
-	Volumes []Volume
+	Volumes Volumes
 	// Hooks for executing tasks around provisioning and destruction
 	Hooks NodeHook
 	// The labels associated with the nodeset
@@ -57,18 +74,26 @@ func (r NodeSet) DescName() string {
 }
 
 func (r NodeSet) MarshalJSON() ([]byte, error) {
+	provider, e := r.Provider.Resolve()
+	if e != nil {
+		return nil, e
+	}
+	orchestrator, e := r.Orchestrator.Resolve()
+	if e != nil {
+		return nil, e
+	}
 	t := struct {
 		Name         string       `json:",omitempty"`
 		Instances    int          `json:",omitempty"`
 		Provider     Provider     `json:",omitempty"`
 		Orchestrator Orchestrator `json:",omitempty"`
-		Volumes      []Volume
+		Volumes      Volumes
 		Hooks        *NodeHook `json:",omitempty"`
 	}{
 		Name:         r.Name,
 		Instances:    r.Instances,
-		Provider:     r.Provider.Resolve(),
-		Orchestrator: r.Orchestrator.Resolve(),
+		Provider:     provider,
+		Orchestrator: orchestrator,
 		Volumes:      r.Volumes,
 	}
 	if r.Hooks.HasTasks() {
@@ -81,26 +106,31 @@ func (r NodeSet) validate() ValidationErrors {
 	vErrs := ValidationErrors{}
 	vErrs.merge(r.Provider.validate())
 	vErrs.merge(r.Orchestrator.validate())
-	vErrs.merge(r.Hooks.Provision.validate())
-	vErrs.merge(r.Hooks.Destroy.validate())
+	vErrs.merge(r.Hooks.validate())
 	return vErrs
 }
 
-func (r *NodeSet) merge(other NodeSet) {
+func (r *NodeSet) merge(other NodeSet) error {
 	if r.Name != other.Name {
-		panic(errors.New("cannot merge unrelated node sets (" + r.Name + " != " + other.Name + ")"))
+		return errors.New("cannot merge unrelated node sets (" + r.Name + " != " + other.Name + ")")
+	}
+	if err := r.Provider.merge(other.Provider); err != nil {
+		return err
+	}
+	if err := r.Orchestrator.merge(other.Orchestrator); err != nil {
+		return err
+	}
+	if err := r.Volumes.merge(other.Volumes); err != nil {
+		return err
+	}
+	if err := r.Hooks.merge(other.Hooks); err != nil {
+		return err
 	}
 	if r.Instances < other.Instances {
 		r.Instances = other.Instances
 	}
-	r.Provider.merge(other.Provider)
-	r.Orchestrator.merge(other.Orchestrator)
-	for id, v := range other.Volumes {
-		r.Volumes[id].merge(v)
-	}
-	r.Hooks.Provision.merge(other.Hooks.Provision)
-	r.Hooks.Destroy.merge(other.Hooks.Destroy)
 	r.Labels = r.Labels.inherits(other.Labels)
+	return nil
 }
 
 type NodeSets map[string]NodeSet
@@ -125,4 +155,19 @@ func createNodeSets(env *Environment, yamlEnv *yamlEnvironment) NodeSets {
 		}
 	}
 	return res
+}
+
+func (r NodeSets) merge(env *Environment, other NodeSets) error {
+	for id, n := range other {
+		if nodeSet, ok := r[id]; ok {
+			if err := nodeSet.merge(n); err != nil {
+				return err
+			}
+		} else {
+			n.Provider.env = env
+			n.Orchestrator.env = env
+			r[id] = n
+		}
+	}
+	return nil
 }

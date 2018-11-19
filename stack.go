@@ -63,6 +63,23 @@ func (r Stack) MarshalJSON() ([]byte, error) {
 	return json.Marshal(t)
 }
 
+func (r Stack) validate() ValidationErrors {
+	vErrs := r.Component.validate()
+	vErrs.merge(r.Hooks.Deploy.validate())
+	vErrs.merge(r.Hooks.Undeploy.validate())
+	return vErrs
+}
+
+func (r *Stack) merge(other Stack) error {
+	if r.Name != other.Name {
+		return errors.New("cannot merge unrelated stacks (" + r.Name + " != " + other.Name + ")")
+	}
+	if err := r.Component.merge(other.Component); err != nil {
+		return err
+	}
+	return nil
+}
+
 type Stacks map[string]Stack
 
 func createStacks(env *Environment, yamlEnv *yamlEnvironment) Stacks {
@@ -78,16 +95,16 @@ func createStacks(env *Environment, yamlEnv *yamlEnvironment) Stacks {
 	return res
 }
 
-func (r Stack) validate() ValidationErrors {
-	vErrs := r.Component.validate()
-	vErrs.merge(r.Hooks.Deploy.validate())
-	vErrs.merge(r.Hooks.Undeploy.validate())
-	return vErrs
-}
-
-func (r *Stack) merge(other Stack) {
-	if r.Name != other.Name {
-		panic(errors.New("cannot merge unrelated stacks (" + r.Name + " != " + other.Name + ")"))
+func (r Stacks) merge(env *Environment, other Stacks) error {
+	for id, s := range other {
+		if stack, ok := r[id]; ok {
+			if err := stack.merge(s); err != nil {
+				return err
+			}
+		} else {
+			s.Component.env = env
+			r[id] = s
+		}
 	}
-	r.Component.merge(other.Component)
+	return nil
 }

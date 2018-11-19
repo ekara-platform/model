@@ -21,6 +21,13 @@ func (r TaskHook) MarshalJSON() ([]byte, error) {
 	return json.Marshal(t)
 }
 
+func (r *TaskHook) merge(other TaskHook) error {
+	if err := r.Execute.merge(other.Execute); err != nil {
+		return err
+	}
+	return nil
+}
+
 type Task struct {
 	// Name of the task
 	Name string
@@ -64,6 +71,33 @@ func (r Task) MarshalJSON() ([]byte, error) {
 	return json.Marshal(t)
 }
 
+func (r Task) validate() ValidationErrors {
+	vErrs := r.Component.validate()
+	vErrs.merge(r.Hooks.Execute.validate())
+	return vErrs
+}
+
+func (r *Task) merge(other Task) error {
+	if r.Name != other.Name {
+		return errors.New("cannot merge unrelated stacks (" + r.Name + " != " + other.Name + ")")
+	}
+	if err := r.Component.merge(other.Component); err != nil {
+		return err
+	}
+	if err := r.Hooks.merge(other.Hooks); err != nil {
+		return err
+	}
+	if r.Playbook == "" {
+		r.Playbook = other.Playbook
+	}
+	if r.Cron == "" {
+		r.Cron = other.Cron
+	}
+	r.Parameters = r.Parameters.inherits(other.Parameters)
+	r.EnvVars = r.EnvVars.inherits(other.EnvVars)
+	return nil
+}
+
 type Tasks map[string]Task
 
 func createTasks(env *Environment, yamlEnv *yamlEnvironment) Tasks {
@@ -96,26 +130,18 @@ func createTasks(env *Environment, yamlEnv *yamlEnvironment) Tasks {
 	return res
 }
 
-func (r Task) validate() ValidationErrors {
-	vErrs := r.Component.validate()
-	vErrs.merge(r.Hooks.Execute.validate())
-	return vErrs
-}
-
-func (r *Task) merge(other Task) {
-	if r.Name != other.Name {
-		panic(errors.New("cannot merge unrelated stacks (" + r.Name + " != " + other.Name + ")"))
+func (r Tasks) merge(env *Environment, other Tasks) error {
+	for id, t := range other {
+		if task, ok := r[id]; ok {
+			if err := task.merge(t); err != nil {
+				return err
+			}
+		} else {
+			t.Component.env = env
+			r[id] = t
+		}
 	}
-	r.Component.merge(other.Component)
-	if r.Playbook == "" {
-		r.Playbook = other.Playbook
-	}
-	if r.Cron == "" {
-		r.Cron = other.Cron
-	}
-	r.Parameters = r.Parameters.inherits(other.Parameters)
-	r.EnvVars = r.EnvVars.inherits(other.EnvVars)
-	r.Hooks.Execute.merge(other.Hooks.Execute)
+	return nil
 }
 
 type TaskRef struct {
@@ -127,16 +153,16 @@ type TaskRef struct {
 	location DescriptorLocation
 }
 
-func (r TaskRef) Resolve() Task {
+func (r TaskRef) Resolve() (Task, error) {
 	validationErrors := r.validate()
 	if validationErrors.HasErrors() {
-		panic(validationErrors)
+		return Task{}, validationErrors
 	}
 	task := r.env.Tasks[r.ref]
 	return Task{
 		Name:       task.Name,
 		Parameters: r.parameters.inherits(task.Parameters),
-		EnvVars:    r.envVars.inherits(task.EnvVars)}
+		EnvVars:    r.envVars.inherits(task.EnvVars)}, nil
 }
 
 func createTaskRef(env *Environment, location DescriptorLocation, taskRef yamlTaskRef) TaskRef {

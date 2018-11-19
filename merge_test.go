@@ -12,7 +12,7 @@ func TestMergeVolume(t *testing.T) {
 	paramV1["paramV1_key2"] = "paramV1_val2"
 
 	v1 := Volume{
-		Name:       "name1",
+		Path:       "name1",
 		Parameters: paramV1,
 	}
 
@@ -21,12 +21,12 @@ func TestMergeVolume(t *testing.T) {
 	paramV2["paramV2_key2"] = "paramV2_val2"
 
 	v2 := Volume{
-		Name:       "name1",
+		Path:       "name1",
 		Parameters: paramV2,
 	}
 
 	v1.merge(v2)
-	assert.Equal(t, v1.Name, "name1")
+	assert.Equal(t, v1.Path, "name1")
 	assert.Equal(t, 4, len(v1.Parameters))
 
 }
