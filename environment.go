@@ -203,32 +203,21 @@ func (r *Environment) Merge(other Environment) error {
 func (r Environment) Validate() ValidationErrors {
 	vErrs := ValidationErrors{}
 	vErrs.merge(r.errors)
-	if len(r.Name) == 0 {
-		vErrs.addError(errors.New("empty environment name"), r.location.appendPath("name"))
-	}
-	if !r.QualifiedName().ValidQualifiedName() {
+	vEr, e, _ := ErrorOnEmpty(r.Name, r.location.appendPath("name"), "empty environment name")
+	vErrs.merge(vEr)
+	if !e && !r.QualifiedName().ValidQualifiedName() {
 		vErrs.addError(errors.New("the environment name or the qualifier contains a non alphanumeric character"), r.location.appendPath("name|qualifier"))
 	}
 	vErrs.merge(r.Ekara.validate())
 	vErrs.merge(r.Orchestrator.validate())
-	if len(r.Providers) == 0 {
-		vErrs.addError(errors.New("no provider specified"), r.location.appendPath("providers"))
-	}
-	for _, p := range r.Providers {
-		vErrs.merge(p.validate())
-	}
-	if len(r.NodeSets) == 0 {
-		vErrs.addError(errors.New("no node specified"), r.location.appendPath("nodes"))
-	}
-	for _, n := range r.NodeSets {
-		vErrs.merge(n.validate())
-	}
-	if len(r.Stacks) == 0 {
-		vErrs.addWarning("no stack specified", r.location.appendPath("stacks"))
-	}
-	for _, s := range r.Stacks {
-		vErrs.merge(s.validate())
-	}
+
+	vEr, _, _ = ErrorOnEmpty(r.Providers, r.location.appendPath("providers"), "no provider specified")
+	vErrs.merge(vEr)
+	vEr, _, _ = ErrorOnEmpty(r.NodeSets, r.location.appendPath("nodes"), "no node specified")
+	vErrs.merge(vEr)
+	vEr, _, _ = WarningOnEmpty(r.Stacks, r.location.appendPath("stacks"), "no stack specified")
+	vErrs.merge(vEr)
+
 	for _, t := range r.Tasks {
 		vErrs.merge(t.validate())
 	}

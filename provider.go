@@ -60,6 +60,10 @@ func (r Provider) MarshalJSON() ([]byte, error) {
 	})
 }
 
+func (r Provider) valid(location DescriptorLocation) ValidationErrors {
+	return r.Component.validate()
+}
+
 func (r Provider) validate() ValidationErrors {
 	return r.Component.validate()
 }

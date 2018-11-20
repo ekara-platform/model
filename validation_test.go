@@ -1,15 +1,26 @@
 package model
 
 import (
-	_ "encoding/json"
-	"fmt"
-	"log"
-	"os"
+	_ "fmt"
+
+	_ "os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
+func TestEmpty(t *testing.T) {
+	env := Environment{}
+	vErrs := env.Validate()
+	assert.Equal(t, false, vErrs.HasErrors())
+
+	//assert.True(t, vErrs.contains("empty environment name", "@name"))
+	//assert.True(t, vErrs.contains("no provider specified", "@providers"))
+	//assert.True(t, vErrs.contains("no node specified", "@nodes"))
+	//assert.True(t, vErrs.contains("no stack specified @stacks", "@stacks"))
+}
+
+/*
 func testEmptyContent(t *testing.T, name string, onlyWarning bool) ValidationErrors {
 	file := fmt.Sprintf("./testdata/yaml/grammar/no_%s.yaml", name)
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
@@ -197,3 +208,4 @@ func TestNoValidQualifier(t *testing.T) {
 	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
 	assert.Equal(t, "the environment name or the qualifier contains a non alphanumeric character", vErrs.Errors[0].Message)
 }
+*/
