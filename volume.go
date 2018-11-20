@@ -5,13 +5,17 @@ import (
 	"errors"
 )
 
-// Volume contains the specifications of a volume to create
-type Volume struct {
-	// The mounting path of the created volume
-	Path string
-	// The parameters required to create the volume.
-	Parameters Parameters `yaml:"params"`
-}
+type (
+	// Volume contains the specifications of a volume to create
+	Volume struct {
+		// The mounting path of the created volume
+		Path string
+		// The parameters required to create the volume.
+		Parameters Parameters `yaml:"params"`
+	}
+
+	Volumes map[string]Volume
+)
 
 func (r Volume) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
@@ -30,8 +34,6 @@ func (r *Volume) merge(other Volume) error {
 	r.Parameters = r.Parameters.inherits(other.Parameters)
 	return nil
 }
-
-type Volumes map[string]Volume
 
 func createVolumes(env *Environment, location DescriptorLocation, yamlRef []yamlVolume) Volumes {
 	volumes := Volumes{}

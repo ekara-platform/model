@@ -4,16 +4,18 @@ import (
 	"strings"
 )
 
-// A Describable is a type that can describe itself with a type and a name
-type Describable interface {
-	DescType() string
-	DescName() string
-}
+type (
+	// A Describable is a type that can describe itself with a type and a name
+	Describable interface {
+		DescType() string
+		DescName() string
+	}
 
-type chained struct {
-	descTypes []string
-	descNames []string
-}
+	chained struct {
+		descTypes []string
+		descNames []string
+	}
+)
 
 func (c chained) DescType() string {
 	return strings.Join(c.descTypes, "-")

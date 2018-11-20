@@ -5,10 +5,23 @@ import (
 	"errors"
 )
 
-type StackHook struct {
-	Deploy   Hook
-	Undeploy Hook
-}
+type (
+	Stack struct {
+		// The name of the stack
+		Name string
+		// The component containing the stack
+		Component ComponentRef
+		// The hooks linked to the stack lifecycle
+		Hooks StackHook
+	}
+
+	Stacks map[string]Stack
+
+	StackHook struct {
+		Deploy   Hook
+		Undeploy Hook
+	}
+)
 
 func (r StackHook) HasTasks() bool {
 	return r.Deploy.HasTasks() ||
@@ -28,15 +41,6 @@ func (r StackHook) MarshalJSON() ([]byte, error) {
 		t.Undeploy = &r.Undeploy
 	}
 	return json.Marshal(t)
-}
-
-type Stack struct {
-	// The name of the stack
-	Name string
-	// The component containing the stack
-	Component ComponentRef
-	// The hooks linked to the stack lifecycle
-	Hooks StackHook
 }
 
 func (r Stack) DescType() string {
@@ -79,8 +83,6 @@ func (r *Stack) merge(other Stack) error {
 	}
 	return nil
 }
-
-type Stacks map[string]Stack
 
 func createStacks(env *Environment, yamlEnv *yamlEnvironment) Stacks {
 	res := Stacks{}

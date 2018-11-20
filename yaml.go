@@ -11,193 +11,195 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// yaml tag for the proxy details
-type yamlProxy struct {
-	Http    string `yaml:"http_proxy"`
-	Https   string `yaml:"https_proxy"`
-	NoProxy string `yaml:"no_proxy"`
-}
-
-// yaml tag for parameters
-type yamlParams struct {
-	Params map[string]interface{}
-}
-
-// yaml tag for Docker parameters
-type yamlDockerParams struct {
-	Docker map[string]interface{}
-}
-
-// yaml tag for environment variables
-type yamlEnv struct {
-	Env map[string]string
-}
-
-// yaml tag for labels on nodesets
-type yamlLabel struct {
-	Labels map[string]string
-}
-
-// yaml tag for component
-type yamlComponent struct {
-	// The source repository where the component lives
-	Repository string
-	// The version of the component to use
-	Version string
-	// Local imports for the component
-	Imports []string
-}
-
-// yaml tag for a volume and its parameters
-type yamlVolume struct {
-	// The mounting path of the created volume
-	Path string
-	// The parameters required to create the volume (typically provider dependent)
-	yamlParams `yaml:",inline"`
-}
-
-// yaml reference to provider
-type yamlProviderRef struct {
-	Name string
-	// The overriding provider parameters
-	yamlParams `yaml:",inline"`
-	// The overriding provider environment variables
-	yamlEnv `yaml:",inline"`
-	// The overriding provider proxy
-	Proxy yamlProxy
-}
-
-// yaml reference to orchestrator
-type yamlOrchestratorRef struct {
-	// The overriding orchestrator parameters
-	yamlParams `yaml:",inline"`
-	// The overriding docker parameters
-	yamlDockerParams `yaml:",inline"`
-	// The overriding orchestrator environment variables
-	yamlEnv `yaml:",inline"`
-}
-
-// yaml reference to task
-type yamlTaskRef struct {
-	// The referenced task
-	Task string
-	// The overriding parameters
-	yamlParams `yaml:",inline"`
-	// The overriding environment variables
-	yamlEnv `yaml:",inline"`
-}
-
-//yaml tag for hooks
-type yamlHook struct {
-	// Hooks to be executed before the corresponding process step
-	Before []yamlTaskRef
-	// Hooks to be executed after the corresponding process step
-	After []yamlTaskRef
-}
-
-func (r *yamlEnvironment) RawContent() ([]byte, error) {
-	return yaml.Marshal(r)
-}
-
-// Definition of the Ekara environment
-type yamlEnvironment struct {
-	// Global imports
-	Imports []string
-
-	// The name of the environment
-	Name string
-	// The qualifier of the environment
-	Qualifier string
-
-	// The description of the environment
-	Description string
-
-	// The Ekara platform used to interact with the environment
-	Ekara struct {
-		ComponentBase string `yaml:"componentBase"`
-		Components    map[string]yamlComponent
+type (
+	// yaml tag for the proxy details
+	yamlProxy struct {
+		Http    string `yaml:"http_proxy"`
+		Https   string `yaml:"https_proxy"`
+		NoProxy string `yaml:"no_proxy"`
 	}
 
-	// Tasks which can be run on the created environment
-	Tasks map[string]struct {
-		// Name of the task component
-		Component string
-		// The task parameters
-		yamlParams `yaml:",inline"`
-		// The task environment variables
-		yamlEnv `yaml:",inline"`
-		// The name of the playbook to launch the task
-		Playbook string
-		// The CRON to run cyclically the task
-		Cron string
-		// The Hooks to be executed in addition the the main task playbook
-		Hooks struct {
-			Execute yamlHook
-		}
+	// yaml tag for parameters
+	yamlParams struct {
+		Params map[string]interface{}
 	}
 
-	// Global definition of the orchestrator to install on the environment
-	Orchestrator struct {
-		// Name of the orchestrator component
-		Component string
-		// The orchestrator parameters
-		yamlParams `yaml:",inline"`
-		// The orchestrator environment variables
-		yamlEnv `yaml:",inline"`
-		// The Docker parameters
-		yamlDockerParams `yaml:",inline"`
+	// yaml tag for Docker parameters
+	yamlDockerParams struct {
+		Docker map[string]interface{}
 	}
 
-	// The list of all cloud providers required to create the environment
-	Providers map[string]struct {
-		// Name of the provider component
-		Component string
-		// The provider parameters
+	// yaml tag for environment variables
+	yamlEnv struct {
+		Env map[string]string
+	}
+
+	// yaml tag for labels on nodesets
+	yamlLabel struct {
+		Labels map[string]string
+	}
+
+	// yaml tag for component
+	yamlComponent struct {
+		// The source repository where the component lives
+		Repository string
+		// The version of the component to use
+		Version string
+		// Local imports for the component
+		Imports []string
+	}
+
+	// yaml tag for a volume and its parameters
+	yamlVolume struct {
+		// The mounting path of the created volume
+		Path string
+		// The parameters required to create the volume (typically provider dependent)
 		yamlParams `yaml:",inline"`
-		// The provider environment variables
+	}
+
+	// yaml reference to provider
+	yamlProviderRef struct {
+		Name string
+		// The overriding provider parameters
+		yamlParams `yaml:",inline"`
+		// The overriding provider environment variables
 		yamlEnv `yaml:",inline"`
-		// The provider proxy
+		// The overriding provider proxy
 		Proxy yamlProxy
 	}
 
-	// The list of node sets to create
-	Nodes map[string]struct {
-		// The number of instances to create within the node set
-		Instances int
-		// The provider used to create the node set and its settings
-		Provider yamlProviderRef
-		// The orchestrator settings for this node set
-		Orchestrator yamlOrchestratorRef
-		// The orchestrator settings for this node set
-		Volumes []yamlVolume
-		// The Hooks to be executed while provisioning and destroying the node set
+	// yaml reference to orchestrator
+	yamlOrchestratorRef struct {
+		// The overriding orchestrator parameters
+		yamlParams `yaml:",inline"`
+		// The overriding docker parameters
+		yamlDockerParams `yaml:",inline"`
+		// The overriding orchestrator environment variables
+		yamlEnv `yaml:",inline"`
+	}
+
+	// yaml reference to task
+	yamlTaskRef struct {
+		// The referenced task
+		Task string
+		// The overriding parameters
+		yamlParams `yaml:",inline"`
+		// The overriding environment variables
+		yamlEnv `yaml:",inline"`
+	}
+
+	//yaml tag for hooks
+	yamlHook struct {
+		// Hooks to be executed before the corresponding process step
+		Before []yamlTaskRef
+		// Hooks to be executed after the corresponding process step
+		After []yamlTaskRef
+	}
+
+	// Definition of the Ekara environment
+	yamlEnvironment struct {
+		// Global imports
+		Imports []string
+
+		// The name of the environment
+		Name string
+		// The qualifier of the environment
+		Qualifier string
+
+		// The description of the environment
+		Description string
+
+		// The Ekara platform used to interact with the environment
+		Ekara struct {
+			ComponentBase string `yaml:"componentBase"`
+			Components    map[string]yamlComponent
+		}
+
+		// Tasks which can be run on the created environment
+		Tasks map[string]struct {
+			// Name of the task component
+			Component string
+			// The task parameters
+			yamlParams `yaml:",inline"`
+			// The task environment variables
+			yamlEnv `yaml:",inline"`
+			// The name of the playbook to launch the task
+			Playbook string
+			// The CRON to run cyclically the task
+			Cron string
+			// The Hooks to be executed in addition the the main task playbook
+			Hooks struct {
+				Execute yamlHook
+			}
+		}
+
+		// Global definition of the orchestrator to install on the environment
+		Orchestrator struct {
+			// Name of the orchestrator component
+			Component string
+			// The orchestrator parameters
+			yamlParams `yaml:",inline"`
+			// The orchestrator environment variables
+			yamlEnv `yaml:",inline"`
+			// The Docker parameters
+			yamlDockerParams `yaml:",inline"`
+		}
+
+		// The list of all cloud providers required to create the environment
+		Providers map[string]struct {
+			// Name of the provider component
+			Component string
+			// The provider parameters
+			yamlParams `yaml:",inline"`
+			// The provider environment variables
+			yamlEnv `yaml:",inline"`
+			// The provider proxy
+			Proxy yamlProxy
+		}
+
+		// The list of node sets to create
+		Nodes map[string]struct {
+			// The number of instances to create within the node set
+			Instances int
+			// The provider used to create the node set and its settings
+			Provider yamlProviderRef
+			// The orchestrator settings for this node set
+			Orchestrator yamlOrchestratorRef
+			// The orchestrator settings for this node set
+			Volumes []yamlVolume
+			// The Hooks to be executed while provisioning and destroying the node set
+			Hooks struct {
+				Provision yamlHook
+				Destroy   yamlHook
+			}
+			// The labels associated with the nodeset
+			yamlLabel `yaml:",inline"`
+		}
+
+		// Software stacks to be installed on the environment
+		Stacks map[string]struct {
+			// Name of the stack component
+			Component string
+			// The Hooks to be executed while deploying and undeploying the stack
+			Hooks struct {
+				Deploy   yamlHook
+				Undeploy yamlHook
+			}
+		}
+
+		// Global hooks
 		Hooks struct {
+			Init      yamlHook
 			Provision yamlHook
+			Deploy    yamlHook
+			Undeploy  yamlHook
 			Destroy   yamlHook
 		}
-		// The labels associated with the nodeset
-		yamlLabel `yaml:",inline"`
 	}
+)
 
-	// Software stacks to be installed on the environment
-	Stacks map[string]struct {
-		// Name of the stack component
-		Component string
-		// The Hooks to be executed while deploying and undeploying the stack
-		Hooks struct {
-			Deploy   yamlHook
-			Undeploy yamlHook
-		}
-	}
-
-	// Global hooks
-	Hooks struct {
-		Init      yamlHook
-		Provision yamlHook
-		Deploy    yamlHook
-		Undeploy  yamlHook
-		Destroy   yamlHook
-	}
+func (r *yamlEnvironment) RawContent() ([]byte, error) {
+	return yaml.Marshal(r)
 }
 
 func parseYamlDescriptor(logger *log.Logger, u *url.URL, data map[string]interface{}) (env yamlEnvironment, err error) {

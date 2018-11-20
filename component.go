@@ -23,9 +23,8 @@ type (
 	ComponentRef struct {
 		ref       string
 		mandatory bool
-
-		env      *Environment
-		location DescriptorLocation
+		env       *Environment
+		location  DescriptorLocation
 	}
 )
 
@@ -93,7 +92,7 @@ func (r ComponentRef) Resolve() (Component, error) {
 	return r.env.Ekara.Components[r.ref], nil
 }
 
-// ResolveRepository resolve a full URL from repository short-forms.
+// resolveRepository resolves a full URL from repository short-forms.
 //
 // URLs without protocol and matching org/repo are assumed as being prefixed with base
 func resolveRepositoryInfo(base *url.URL, repo string) (cUrl *url.URL, e error) {
@@ -132,8 +131,8 @@ func resolveRepositoryInfo(base *url.URL, repo string) (cUrl *url.URL, e error) 
 	}
 
 	// If it's HTTP(S), assume it's GIT and add the suffix
-	if (strings.ToUpper(cUrl.Scheme) == SchemeHttp || strings.ToUpper(cUrl.Scheme) == SchemeHttps) && !hasSuffixIgnoringCase(cUrl.Path, ".git") {
-		cUrl.Path = cUrl.Path + ".git"
+	if (strings.ToUpper(cUrl.Scheme) == SchemeHttp || strings.ToUpper(cUrl.Scheme) == SchemeHttps) && !hasSuffixIgnoringCase(cUrl.Path, GitExtentsion) {
+		cUrl.Path = cUrl.Path + GitExtentsion
 	}
 
 	return
@@ -149,7 +148,7 @@ func resolveScm(url *url.URL) (ScmType, error) {
 	case SchemeSvn:
 		return Svn, nil
 	case SchemeHttp, SchemeHttps:
-		if hasSuffixIgnoringCase(url.Path, ".git") {
+		if hasSuffixIgnoringCase(url.Path, GitExtentsion) {
 			return Git, nil
 		}
 	}

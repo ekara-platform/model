@@ -7,35 +7,45 @@ import (
 	"net/url"
 )
 
-type Environment struct {
-	// Validation errors that occurred during the building of the environment
-	errors ValidationErrors
-	// The location of the environment root
-	location DescriptorLocation
+type (
+	Environment struct {
+		// Validation errors that occurred during the building of the environment
+		errors ValidationErrors
+		// The location of the environment root
+		location DescriptorLocation
 
-	// Global imports
-	Imports []string
-	// The environment name
-	Name string
-	// The environment qualifier
-	Qualifier string
-	// The environment description
-	Description string
-	// Ekara platform settings
-	Ekara Platform
-	// The orchestrator used to manage the environment
-	Orchestrator Orchestrator
-	// The providers where to create the environment node sets
-	Providers Providers
-	// The node sets to create
-	NodeSets NodeSets
-	// The software stacks to install on the created node sets
-	Stacks Stacks
-	// The tasks which can be ran against the environment
-	Tasks Tasks
-	// Global environment hooks
-	Hooks EnvironmentHooks
-}
+		// Global imports
+		Imports []string
+		// The environment name
+		Name string
+		// The environment qualifier
+		Qualifier string
+		// The environment description
+		Description string
+		// Ekara platform settings
+		Ekara Platform
+		// The orchestrator used to manage the environment
+		Orchestrator Orchestrator
+		// The providers where to create the environment node sets
+		Providers Providers
+		// The node sets to create
+		NodeSets NodeSets
+		// The software stacks to install on the created node sets
+		Stacks Stacks
+		// The tasks which can be ran against the environment
+		Tasks Tasks
+		// Global environment hooks
+		Hooks EnvironmentHooks
+	}
+
+	EnvironmentHooks struct {
+		Init      Hook
+		Provision Hook
+		Deploy    Hook
+		Undeploy  Hook
+		Destroy   Hook
+	}
+)
 
 func (r Environment) MarshalJSON() ([]byte, error) {
 	t := struct {
@@ -67,14 +77,6 @@ func (r Environment) MarshalJSON() ([]byte, error) {
 		t.Hooks = &r.Hooks
 	}
 	return json.Marshal(t)
-}
-
-type EnvironmentHooks struct {
-	Init      Hook
-	Provision Hook
-	Deploy    Hook
-	Undeploy  Hook
-	Destroy   Hook
 }
 
 func (r EnvironmentHooks) HasTasks() bool {

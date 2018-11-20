@@ -5,18 +5,32 @@ import (
 	"errors"
 )
 
-type Provider struct {
-	// The Name of the provider
-	Name string
-	// The component containing the provider
-	Component ComponentRef
-	// The provider parameters
-	Parameters Parameters
-	// The provider environment variables
-	EnvVars EnvVars
-	// The provider proxy
-	Proxy Proxy
-}
+type (
+	Provider struct {
+		// The Name of the provider
+		Name string
+		// The component containing the provider
+		Component ComponentRef
+		// The provider parameters
+		Parameters Parameters
+		// The provider environment variables
+		EnvVars EnvVars
+		// The provider proxy
+		Proxy Proxy
+	}
+
+	Providers map[string]Provider
+
+	// Reference to a provider
+	ProviderRef struct {
+		ref        string
+		parameters Parameters
+		envVars    EnvVars
+		proxy      Proxy
+		env        *Environment
+		location   DescriptorLocation
+	}
+)
 
 func (r Provider) DescType() string {
 	return "Provider"
@@ -63,8 +77,6 @@ func (r *Provider) merge(other Provider) error {
 	return nil
 }
 
-type Providers map[string]Provider
-
 // createProviders creates all the providers declared into the provided environment
 func createProviders(env *Environment, yamlEnv *yamlEnvironment) Providers {
 	res := Providers{}
@@ -91,17 +103,6 @@ func (r Providers) merge(env *Environment, other Providers) error {
 		}
 	}
 	return nil
-}
-
-// Reference to a provider
-type ProviderRef struct {
-	ref        string
-	parameters Parameters
-	envVars    EnvVars
-	proxy      Proxy
-
-	env      *Environment
-	location DescriptorLocation
 }
 
 func (r ProviderRef) Resolve() (Provider, error) {

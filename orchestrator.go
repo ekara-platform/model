@@ -4,16 +4,27 @@ import (
 	"encoding/json"
 )
 
-type Orchestrator struct {
-	// The component containing the orchestrator
-	Component ComponentRef
-	// The orchestrator parameters
-	Parameters Parameters
-	// The Docker parameters
-	Docker Parameters
-	// The orchestrator environment variables
-	EnvVars EnvVars
-}
+type (
+	Orchestrator struct {
+		// The component containing the orchestrator
+		Component ComponentRef
+		// The orchestrator parameters
+		Parameters Parameters
+		// The Docker parameters
+		Docker Parameters
+		// The orchestrator environment variables
+		EnvVars EnvVars
+	}
+
+	OrchestratorRef struct {
+		parameters Parameters
+		docker     Parameters
+		envVars    EnvVars
+
+		env      *Environment
+		location DescriptorLocation
+	}
+)
 
 func createOrchestrator(env *Environment, yamlEnv *yamlEnvironment) Orchestrator {
 	yamlO := yamlEnv.Orchestrator
@@ -54,15 +65,6 @@ func (r Orchestrator) MarshalJSON() ([]byte, error) {
 		Docker:     r.Docker,
 		EnvVars:    r.EnvVars,
 	})
-}
-
-type OrchestratorRef struct {
-	parameters Parameters
-	docker     Parameters
-	envVars    EnvVars
-
-	env      *Environment
-	location DescriptorLocation
 }
 
 func createOrchestratorRef(env *Environment, location DescriptorLocation, yamlRef yamlOrchestratorRef) OrchestratorRef {

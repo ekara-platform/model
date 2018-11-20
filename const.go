@@ -5,4 +5,6 @@ const (
 	CoreComponentId       = "__core__"
 	CoreComponentRepo     = "ekara-platform/core"
 	DefaultDescriptorName = "ekara.yaml"
+
+	GitExtentsion = ".git"
 )

@@ -7,9 +7,41 @@ import (
 	"fmt"
 )
 
-type TaskHook struct {
-	Execute Hook
-}
+type (
+	Task struct {
+		// Name of the task
+		Name string
+		// The component containing the task
+		Component ComponentRef
+		// The playbook to execute
+		Playbook string
+		// The cron expression when the task must be scheduled
+		Cron string
+		// The task parameters
+		Parameters Parameters
+		// The task environment variables
+		EnvVars EnvVars
+		// Hooks for executing other tasks around execution
+		Hooks TaskHook
+	}
+
+	Tasks map[string]Task
+
+	TaskHook struct {
+		Execute Hook
+	}
+
+	TaskRef struct {
+		ref        string
+		parameters Parameters
+		envVars    EnvVars
+
+		env      *Environment
+		location DescriptorLocation
+	}
+
+	circularRefTracking map[string]interface{}
+)
 
 func (r TaskHook) MarshalJSON() ([]byte, error) {
 	t := struct {
@@ -26,23 +58,6 @@ func (r *TaskHook) merge(other TaskHook) error {
 		return err
 	}
 	return nil
-}
-
-type Task struct {
-	// Name of the task
-	Name string
-	// The component containing the task
-	Component ComponentRef
-	// The playbook to execute
-	Playbook string
-	// The cron expression when the task must be scheduled
-	Cron string
-	// The task parameters
-	Parameters Parameters
-	// The task environment variables
-	EnvVars EnvVars
-	// Hooks for executing other tasks around execution
-	Hooks TaskHook
 }
 
 func (r TaskHook) HasTasks() bool {
@@ -98,8 +113,6 @@ func (r *Task) merge(other Task) error {
 	return nil
 }
 
-type Tasks map[string]Task
-
 func createTasks(env *Environment, yamlEnv *yamlEnvironment) Tasks {
 	res := Tasks{}
 	for name, yamlTask := range yamlEnv.Tasks {
@@ -142,15 +155,6 @@ func (r Tasks) merge(env *Environment, other Tasks) error {
 		}
 	}
 	return nil
-}
-
-type TaskRef struct {
-	ref        string
-	parameters Parameters
-	envVars    EnvVars
-
-	env      *Environment
-	location DescriptorLocation
 }
 
 func (r TaskRef) Resolve() (Task, error) {
@@ -207,8 +211,6 @@ func checkCircularRefs(taskRefs []yamlTaskRef, alreadyEncountered *circularRefTr
 	}
 	return nil
 }
-
-type circularRefTracking map[string]interface{}
 
 func (r *circularRefTracking) String() string {
 	b := new(bytes.Buffer)

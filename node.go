@@ -5,10 +5,33 @@ import (
 	"errors"
 )
 
-type NodeHook struct {
-	Provision Hook
-	Destroy   Hook
-}
+type (
+	// NodeSet contains the whole specification of a nodes et to create on a specific
+	// cloud provider
+	NodeSet struct {
+		// The name of the machines
+		Name string
+		// The number of machines to create
+		Instances int
+		// The ref to the provider where to create the machines
+		Provider ProviderRef
+		// The parameters related to the orchestrator used to manage the machines
+		Orchestrator OrchestratorRef
+		// Volumes attached to each node
+		Volumes Volumes
+		// Hooks for executing tasks around provisioning and destruction
+		Hooks NodeHook
+		// The labels associated with the nodeset
+		Labels Labels
+	}
+
+	NodeSets map[string]NodeSet
+
+	NodeHook struct {
+		Provision Hook
+		Destroy   Hook
+	}
+)
 
 func (r NodeHook) MarshalJSON() ([]byte, error) {
 	t := struct {
@@ -44,25 +67,6 @@ func (r *NodeHook) merge(other NodeHook) error {
 		return err
 	}
 	return nil
-}
-
-// NodeSet contains the whole specification of a nodes et to create on a specific
-// cloud provider
-type NodeSet struct {
-	// The name of the machines
-	Name string
-	// The number of machines to create
-	Instances int
-	// The ref to the provider where to create the machines
-	Provider ProviderRef
-	// The parameters related to the orchestrator used to manage the machines
-	Orchestrator OrchestratorRef
-	// Volumes attached to each node
-	Volumes Volumes
-	// Hooks for executing tasks around provisioning and destruction
-	Hooks NodeHook
-	// The labels associated with the nodeset
-	Labels Labels
 }
 
 func (r NodeSet) DescType() string {
@@ -132,8 +136,6 @@ func (r *NodeSet) merge(other NodeSet) error {
 	r.Labels = r.Labels.inherits(other.Labels)
 	return nil
 }
-
-type NodeSets map[string]NodeSet
 
 func createNodeSets(env *Environment, yamlEnv *yamlEnvironment) NodeSets {
 	res := NodeSets{}

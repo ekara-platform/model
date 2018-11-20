@@ -12,20 +12,22 @@ const (
 	Error   ErrorType = 1
 )
 
-type ValidationErrors struct {
-	Errors []ValidationError
-}
+type (
+	ValidationErrors struct {
+		Errors []ValidationError
+	}
 
-type DescriptorLocation struct {
-	Descriptor string
-	Path       string
-}
+	DescriptorLocation struct {
+		Descriptor string
+		Path       string
+	}
 
-type ValidationError struct {
-	ErrorType ErrorType
-	Location  DescriptorLocation
-	Message   string
-}
+	ValidationError struct {
+		ErrorType ErrorType
+		Location  DescriptorLocation
+		Message   string
+	}
+)
 
 func (ve ValidationErrors) Error() string {
 	s := "Validation errors or warnings have occurred:\n"
