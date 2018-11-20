@@ -22,7 +22,9 @@ func TestOverwrittenProviderParam(t *testing.T) {
 
 	managers := env.NodeSets["managers"]
 	assert.NotNil(t, managers)
-	params := managers.Provider.Resolve().Parameters
+	managersProvider, e := managers.Provider.Resolve()
+	assert.Nil(t, e)
+	params := managersProvider.Parameters
 	assert.NotNil(t, params)
 	assert.Equal(t, 3, len(params))
 	assert.Equal(t, "overwritten_param1", params["param1"])
@@ -43,7 +45,9 @@ func TestOverwrittenProviderEnv(t *testing.T) {
 
 	managers := env.NodeSets["managers"]
 	assert.NotNil(t, managers)
-	envs := managers.Provider.Resolve().EnvVars
+	managersProvider, e := managers.Provider.Resolve()
+	assert.Nil(t, e)
+	envs := managersProvider.EnvVars
 	assert.NotNil(t, envs)
 	assert.Equal(t, 3, len(envs))
 	assert.Equal(t, "overwritten_env1", envs["env1"])
@@ -64,7 +68,9 @@ func TestOverwrittenProviderProxy(t *testing.T) {
 
 	managers := env.NodeSets["managers"]
 	assert.NotNil(t, managers)
-	pr := managers.Provider.Resolve().Proxy
+	managersProvider, e := managers.Provider.Resolve()
+	assert.Nil(t, e)
+	pr := managersProvider.Proxy
 	assert.NotNil(t, pr)
 	assert.Equal(t, "", pr.Http)
 	assert.Equal(t, "", pr.Https)
@@ -84,12 +90,14 @@ func TestOverwrittenOrchestratorParam(t *testing.T) {
 
 	managers := env.NodeSets["managers"]
 	assert.NotNil(t, managers)
-	orchestrator := managers.Orchestrator.Resolve().Parameters
-	assert.NotNil(t, orchestrator)
-	assert.Equal(t, 3, len(orchestrator))
-	assert.Equal(t, "param_overwritten_orchestrator1", orchestrator["orchestrator1"])
-	assert.Equal(t, "param_new_orchestrator2", orchestrator["orchestrator2"])
-	assert.Equal(t, "param_initial_orchestrator3", orchestrator["orchestrator3"])
+	managersOrchestrator, e := managers.Orchestrator.Resolve()
+	assert.Nil(t, e)
+	orchestratorParams := managersOrchestrator.Parameters
+	assert.NotNil(t, orchestratorParams)
+	assert.Equal(t, 3, len(orchestratorParams))
+	assert.Equal(t, "param_overwritten_orchestrator1", orchestratorParams["orchestrator1"])
+	assert.Equal(t, "param_new_orchestrator2", orchestratorParams["orchestrator2"])
+	assert.Equal(t, "param_initial_orchestrator3", orchestratorParams["orchestrator3"])
 }
 
 func TestOverwrittenOrchestratorDocker(t *testing.T) {
@@ -105,12 +113,14 @@ func TestOverwrittenOrchestratorDocker(t *testing.T) {
 
 	managers := env.NodeSets["managers"]
 	assert.NotNil(t, managers)
-	orchestrator := managers.Orchestrator.Resolve().Docker
-	assert.NotNil(t, orchestrator)
-	assert.Equal(t, 3, len(orchestrator))
-	assert.Equal(t, "docker_overwritten_orchestrator1", orchestrator["orchestrator1"])
-	assert.Equal(t, "docker_new_orchestrator2", orchestrator["orchestrator2"])
-	assert.Equal(t, "docker_initial_orchestrator3", orchestrator["orchestrator3"])
+	managersOrchestrator, e := managers.Orchestrator.Resolve()
+	assert.Nil(t, e)
+	orchestratorDocker := managersOrchestrator.Docker
+	assert.NotNil(t, orchestratorDocker)
+	assert.Equal(t, 3, len(orchestratorDocker))
+	assert.Equal(t, "docker_overwritten_orchestrator1", orchestratorDocker["orchestrator1"])
+	assert.Equal(t, "docker_new_orchestrator2", orchestratorDocker["orchestrator2"])
+	assert.Equal(t, "docker_initial_orchestrator3", orchestratorDocker["orchestrator3"])
 }
 
 func TestOverwrittenOrchestratorEnv(t *testing.T) {
@@ -126,12 +136,14 @@ func TestOverwrittenOrchestratorEnv(t *testing.T) {
 
 	managers := env.NodeSets["managers"]
 	assert.NotNil(t, managers)
-	orchestrator := managers.Orchestrator.Resolve().EnvVars
-	assert.NotNil(t, orchestrator)
-	assert.Equal(t, 3, len(orchestrator))
-	assert.Equal(t, "env_overwritten_orchestrator1", orchestrator["orchestrator1"])
-	assert.Equal(t, "env_new_orchestrator2", orchestrator["orchestrator2"])
-	assert.Equal(t, "env_initial_orchestrator3", orchestrator["orchestrator3"])
+	managersOrchestrator, e := managers.Orchestrator.Resolve()
+	assert.Nil(t, e)
+	orchestratorEnvVars := managersOrchestrator.EnvVars
+	assert.NotNil(t, orchestratorEnvVars)
+	assert.Equal(t, 3, len(orchestratorEnvVars))
+	assert.Equal(t, "env_overwritten_orchestrator1", orchestratorEnvVars["orchestrator1"])
+	assert.Equal(t, "env_new_orchestrator2", orchestratorEnvVars["orchestrator2"])
+	assert.Equal(t, "env_initial_orchestrator3", orchestratorEnvVars["orchestrator3"])
 }
 
 // TODO Add test for TaskRef ans Task
