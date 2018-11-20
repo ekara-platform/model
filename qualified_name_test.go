@@ -6,6 +6,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestRegexp(t *testing.T) {
+	assert.True(t, IsAValidQualifier("aa_bb"))
+	assert.True(t, IsAValidQualifier("AA_BB"))
+	assert.True(t, IsAValidQualifier("11_22"))
+	assert.True(t, IsAValidQualifier("aaAA11_aaBB11"))
+
+	assert.True(t, IsAValidQualifier("aa_BB"))
+	assert.True(t, IsAValidQualifier("aa_11"))
+	assert.True(t, IsAValidQualifier("11_bb"))
+	assert.True(t, IsAValidQualifier("11_BB"))
+
+	assert.True(t, IsAValidQualifier("aaAA11_aaBB11"))
+
+	assert.False(t, IsAValidQualifier("a-b"))
+}
+
 func TestValidQualifiedName(t *testing.T) {
 	env := Environment{
 		Name:      "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
@@ -35,4 +51,12 @@ func TestValidQualifiedName(t *testing.T) {
 	env.Name = "!"
 	assert.False(t, env.QualifiedName().ValidQualifiedName())
 
+	env.Name = "-"
+	assert.False(t, env.QualifiedName().ValidQualifiedName())
+
+	env.Name = "&"
+	assert.False(t, env.QualifiedName().ValidQualifiedName())
+
+	env.Name = "#"
+	assert.False(t, env.QualifiedName().ValidQualifiedName())
 }

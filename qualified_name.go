@@ -14,7 +14,7 @@ func (qn QualifiedName) String() string {
 	return string(qn)
 }
 
-var IsAValidQualifier = regexp.MustCompile(`^[a-zA-Z_0-9]+$`).MatchString
+var IsAValidQualifier = regexp.MustCompile(`^[a-zA-Z0-9_a-zA-Z0-90-9]+$`).MatchString
 
 func (qn QualifiedName) ValidQualifiedName() bool {
 	return IsAValidQualifier(qn.String())
