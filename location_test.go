@@ -55,3 +55,28 @@ func TestAppendPathOnNothing(t *testing.T) {
 	assert.Equal(t, d2.Path, "suffix")
 
 }
+
+func TestDescriptorLocationEquals(t *testing.T) {
+	d1 := DescriptorLocation{
+		Descriptor: "desc",
+		Path:       "path",
+	}
+
+	d2 := DescriptorLocation{
+		Descriptor: "desc",
+		Path:       "path",
+	}
+	assert.True(t, d1.equals(d2))
+
+	d2.Descriptor = "dummy"
+	assert.False(t, d1.equals(d2))
+
+	d2.Descriptor = "desc"
+	d2.Path = "dummy"
+	assert.False(t, d1.equals(d2))
+
+	d2.Descriptor = "dummy"
+	d2.Path = "dummy"
+	assert.False(t, d1.equals(d2))
+
+}
