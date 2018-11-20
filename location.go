@@ -9,6 +9,10 @@ type (
 	}
 )
 
+func (r DescriptorLocation) equals(o DescriptorLocation) bool {
+	return r.Descriptor == o.Descriptor && r.Path == o.Path
+}
+
 func (r DescriptorLocation) appendPath(suffix string) DescriptorLocation {
 	newLoc := DescriptorLocation{Path: r.Path, Descriptor: r.Descriptor}
 	if newLoc.Path == "" {
