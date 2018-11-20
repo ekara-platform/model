@@ -123,6 +123,18 @@ func TestNodesUnknownHook(t *testing.T) {
 	testHook(t, "nodes.managers.hooks.provision.after", 1, vErrs)
 }
 
+func TestNodesKnownHook(t *testing.T) {
+	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
+	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/grammar/nodes_known_hook.yaml"), map[string]interface{}{})
+	assert.Nil(t, e)
+	vErrs := env.Validate()
+	logger.Printf("Validation errors %v", vErrs)
+	assert.NotNil(t, vErrs)
+	assert.Equal(t, false, vErrs.HasErrors())
+	assert.Equal(t, false, vErrs.HasWarnings())
+	assert.Equal(t, 0, len(vErrs.Errors))
+}
+
 func TestTasksNoPlayBook(t *testing.T) {
 	vErrs := testEmptyContent(t, "task_playbook", false)
 

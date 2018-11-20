@@ -6,7 +6,7 @@ import (
 
 // The Qualified name of an environment.
 // This name can be used to identify, using for example Tags or Labels, all the
-// content created relative to the environment on the infrastructure of the desired
+// content created relatively to the environment on the infrastructure of the desired
 // cloud provider.
 type QualifiedName string
 

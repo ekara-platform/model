@@ -35,9 +35,8 @@ type (
 		ref        string
 		parameters Parameters
 		envVars    EnvVars
-
-		env      *Environment
-		location DescriptorLocation
+		env        *Environment
+		location   DescriptorLocation
 	}
 
 	circularRefTracking map[string]interface{}
@@ -188,7 +187,7 @@ func (r TaskRef) validate() ValidationErrors {
 	if len(r.ref) == 0 {
 		vErrs.addError(errors.New("empty task reference"), r.location)
 	} else {
-		if _, ok := r.env.Providers[r.ref]; !ok {
+		if _, ok := r.env.Tasks[r.ref]; !ok {
 			vErrs.addError(errors.New("reference to unknown task: "+r.ref), r.location)
 		}
 	}
