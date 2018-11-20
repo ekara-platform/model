@@ -17,11 +17,6 @@ type (
 		Errors []ValidationError
 	}
 
-	DescriptorLocation struct {
-		Descriptor string
-		Path       string
-	}
-
 	ValidationError struct {
 		ErrorType ErrorType
 		Location  DescriptorLocation
@@ -53,16 +48,6 @@ func (r ErrorType) String() string {
 	} else {
 		return names[r]
 	}
-}
-
-func (r DescriptorLocation) appendPath(suffix string) DescriptorLocation {
-	newLoc := DescriptorLocation{Path: r.Path, Descriptor: r.Descriptor}
-	if newLoc.Path == "" {
-		newLoc.Path = suffix
-	} else {
-		newLoc.Path = newLoc.Path + "." + suffix
-	}
-	return newLoc
 }
 
 func (ve *ValidationErrors) merge(other ValidationErrors) {
