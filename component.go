@@ -8,21 +8,38 @@ import (
 	"strings"
 )
 
-type ScmType string
+// ScmType is the type used to identify the Source Control Management system
+type (
+	ScmType string
+
+	Component struct {
+		Id         string
+		Scm        ScmType
+		Repository *url.URL
+		Version    Version
+		Imports    []string
+	}
+
+	ComponentRef struct {
+		ref       string
+		mandatory bool
+
+		env      *Environment
+		location DescriptorLocation
+	}
+)
 
 const (
 	Git     ScmType = "GIT"
 	Svn     ScmType = "SVN"
 	Unknown ScmType = ""
-)
 
-type Component struct {
-	Id         string
-	Scm        ScmType
-	Repository *url.URL
-	Version    Version
-	Imports    []string
-}
+	SchemeFile  string = "FILE"
+	SchemeGit   string = "GIT"
+	SchemeSvn   string = "SVN"
+	SchemeHttp  string = "HTTP"
+	SchemeHttps string = "HTTPS"
+)
 
 func CreateComponent(base *url.URL, id string, repo string, version string, imports ...string) (Component, error) {
 	repoUrl, e := resolveRepositoryInfo(base, repo)
@@ -41,14 +58,6 @@ func CreateComponent(base *url.URL, id string, repo string, version string, impo
 		imports = append(imports, DefaultDescriptorName)
 	}
 	return Component{Id: id, Repository: repoUrl, Version: parsedVersion, Scm: scmType, Imports: imports}, nil
-}
-
-type ComponentRef struct {
-	ref       string
-	mandatory bool
-
-	env      *Environment
-	location DescriptorLocation
 }
 
 func createComponentRef(env *Environment, location DescriptorLocation, componentRef string, mandatory bool) ComponentRef {
@@ -122,7 +131,7 @@ func resolveRepositoryInfo(base *url.URL, repo string) (cUrl *url.URL, e error) 
 	}
 
 	// If it's HTTP(S), assume it's GIT and add the suffix
-	if (strings.ToUpper(cUrl.Scheme) == "HTTP" || strings.ToUpper(cUrl.Scheme) == "HTTPS") && !hasSuffixIgnoringCase(cUrl.Path, ".git") {
+	if (strings.ToUpper(cUrl.Scheme) == SchemeHttp || strings.ToUpper(cUrl.Scheme) == SchemeHttps) && !hasSuffixIgnoringCase(cUrl.Path, ".git") {
 		cUrl.Path = cUrl.Path + ".git"
 	}
 
@@ -131,14 +140,14 @@ func resolveRepositoryInfo(base *url.URL, repo string) (cUrl *url.URL, e error) 
 
 func resolveScm(url *url.URL) (ScmType, error) {
 	switch strings.ToUpper(url.Scheme) {
-	case "FILE":
+	case SchemeFile:
 		// TODO: for now assume git on local directories, later try to detect
 		return Git, nil
-	case "GIT":
+	case SchemeGit:
 		return Git, nil
-	case "SVN":
+	case SchemeSvn:
 		return Svn, nil
-	case "HTTP", "HTTPS":
+	case SchemeHttp, SchemeHttps:
 		if hasSuffixIgnoringCase(url.Path, ".git") {
 			return Git, nil
 		}

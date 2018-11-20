@@ -37,7 +37,7 @@ type Environment struct {
 	Stacks Stacks
 	// The tasks which can be ran against the environment
 	Tasks Tasks
-	// Global hooks
+	// Global environment hooks
 	Hooks EnvironmentHooks
 }
 
