@@ -36,8 +36,53 @@ type (
 	}
 )
 
+// WarningOnEmptyOrInvalid allows to validate interfaces maching the following content:
+//
+//  // - "string": The string must not be empty.
+//  //   The string content will be trimmed before the validation.
+//  //
+//  // - Any Map: The map cannot be empty
+//  //   if the map content implementing ValidableContent or ValidableReference then it will be validated
+//  //
+//  // - Any Slice: The slice cannot be empty
+//  //   if the slice content implementing ValidableContent or ValidableReference then it will be validated
+//  //
+//
+// The Created validation errors will be warnings
 var WarningOnEmptyOrInvalid = validNotEmpty(Warning)
+
+// ErrorOnEmptyOrInvalid allows to validate interfaces maching the following content:
+//
+//  // - "string": The string must not be empty.
+//  //   The string content will be trimmed before the validation.
+//  //
+//  // - Any Map: The map cannot be empty
+//  //   if the map content implementing ValidableContent or ValidableReference then it will be validated
+//  //
+//  // - Any Slice: The slice cannot be empty
+//  //   if the slice content implementing ValidableContent or ValidableReference then it will be validated
+//  //
+//
+// The Created validation errors will be errors
 var ErrorOnEmptyOrInvalid = validNotEmpty(Error)
+
+// ErrorOnInvalid allows to validate interfaces maching the following content:
+//
+//  // - Maps of structs implementing ValidableContent or ValidableReference
+//  //
+//  // map[interface{}]ValidableContent
+//  // map[interface{}]ValidableReference
+//  //
+//  // - Slices of structs implementing ValidableContent or ValidableReference
+//  //
+//  // []ValidableContent
+//  // []ValidableReference
+//  //
+//  //
+//  // - Any struct implementing ValidableContent or ValidableReference
+//  //
+//
+// The Created validation errors will be errors
 var ErrorOnInvalid = valid(Error)
 
 // Error returns the message resulting of the concatenation of all included ValidationError
@@ -141,15 +186,6 @@ func (ve ValidationErrors) Log(logger *log.Logger) {
 	}
 }
 
-// validNotEmpty allows to validate interfaces maching the following content:
-//
-//  // - "string" The string content will be trimmed before the validation
-//  //
-//  // - Any Map, if the map content implementing ValidableContent or ValidableReference then it will be validated
-//  //
-//  // - Any Slice, if the slice content implementing ValidableContent or ValidableReference then it will be validated
-//  //
-//
 func validNotEmpty(t ErrorType) func(in interface{}, location DescriptorLocation, message string) (ValidationErrors, bool, bool) {
 	return func(in interface{}, location DescriptorLocation, message string) (ValidationErrors, bool, bool) {
 		vErrs := ValidationErrors{}
@@ -179,22 +215,6 @@ func validNotEmpty(t ErrorType) func(in interface{}, location DescriptorLocation
 	}
 }
 
-// valid allows to validate interfaces maching the following content:
-//
-//  // - Maps of struct implementing ValidableContent or ValidableReference
-//  //
-//  // map[interface]ValidableContent
-//  // map[interface]ValidableReference
-//  //
-//  // - Slices of struct implementing ValidableContent or ValidableReference
-//  //
-//  // []ValidableContent
-//  // []ValidableReference
-//  //
-//  //
-//  // - Any struct implementing ValidableContent or ValidableReference
-//  //
-//
 func valid(t ErrorType) func(ins ...interface{}) ValidationErrors {
 	return func(ins ...interface{}) ValidationErrors {
 		vErrs := ValidationErrors{}
