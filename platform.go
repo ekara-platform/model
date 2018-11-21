@@ -54,7 +54,7 @@ func createPlatform(env *Environment, yamlEnv *yamlEnvironment) Platform {
 }
 
 func (r Platform) validate() ValidationErrors {
-	return ErrorOn(r.Component)
+	return ErrorOnInvalid(r.Component)
 }
 
 func (r *Platform) merge(other Platform) error {

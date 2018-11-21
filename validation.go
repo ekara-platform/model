@@ -4,37 +4,43 @@ import (
 	"encoding/json"
 	"log"
 	"reflect"
+	"strings"
 )
 
 type (
+	//ErrorType type used to represent the type of a validation error
 	ErrorType int
 
+	// ValidationErrors represents a list of all error resulting of the construction
+	// or the validation of an environment
 	ValidationErrors struct {
 		Errors []ValidationError
 	}
 
+	//ValidationError represents an error created during the construction of the
+	// validation of an environment
 	ValidationError struct {
+		// ErrorType represents the type of the error
 		ErrorType ErrorType
-		Location  DescriptorLocation
-		Message   string
+		// Location represents the place, within the descriptor, where the error occurred
+		Location DescriptorLocation
+		// Message represents a human readable message telling what need to be
+		// fixed into the descriptor to get rid of this error
+		Message string
 	}
 
-	ValidContent interface {
+	// ValidableContent represents any structs which can be validated and then
+	// produce ValidationErrors
+	ValidableContent interface {
 		validate() ValidationErrors
 	}
 )
 
-var WarningOnEmpty = validEmpty(Warning)
+var WarningOnEmptyOrInvalid = validNotEmpty(Warning)
+var ErrorOnEmptyOrInvalid = validNotEmpty(Error)
+var ErrorOnInvalid = valid(Error)
 
-var ErrorOnEmpty = validEmpty(Error)
-
-var ErrorOn = valid(Error)
-
-const (
-	Warning ErrorType = 0
-	Error   ErrorType = 1
-)
-
+// Error returns the message resulting of the concatenation of all included ValidationError
 func (ve ValidationErrors) Error() string {
 	s := "Validation errors or warnings have occurred:\n"
 	for _, err := range ve.Errors {
@@ -50,6 +56,14 @@ func (ve ValidationErrors) JSonContent() (b []byte, e error) {
 	return
 }
 
+const (
+	// Allows to mark validation error as Warning
+	Warning ErrorType = 0
+	// Allows to mark validation error as Error
+	Error ErrorType = 1
+)
+
+// String return the name of the given ErrorType
 func (r ErrorType) String() string {
 	names := [...]string{
 		"Warning",
@@ -127,12 +141,21 @@ func (ve ValidationErrors) Log(logger *log.Logger) {
 	}
 }
 
-func validEmpty(t ErrorType) func(in interface{}, location DescriptorLocation, message string) (ValidationErrors, bool, bool) {
+// validNotEmpty allows to validate interfaces maching the following content:
+//
+//  // - "string" The string content will be trimmed before the validation
+//  //
+//  // - Any Map, if the map content implementing ValidableContent or ValidableReference then it will be validated
+//  //
+//  // - Any Slice, if the slice content implementing ValidableContent or ValidableReference then it will be validated
+//  //
+//
+func validNotEmpty(t ErrorType) func(in interface{}, location DescriptorLocation, message string) (ValidationErrors, bool, bool) {
 	return func(in interface{}, location DescriptorLocation, message string) (ValidationErrors, bool, bool) {
 		vErrs := ValidationErrors{}
 		switch v := in.(type) {
 		case string:
-			if len(v) == 0 {
+			if len(strings.Trim(v, " ")) == 0 {
 				vErrs.append(t, message, location)
 			}
 		default:
@@ -156,13 +179,28 @@ func validEmpty(t ErrorType) func(in interface{}, location DescriptorLocation, m
 	}
 }
 
+// valid allows to validate interfaces maching the following content:
+//
+//  // - Maps of struct implementing ValidableContent or ValidableReference
+//  //
+//  // map[interface]ValidableContent
+//  // map[interface]ValidableReference
+//  //
+//  // - Slices of struct implementing ValidableContent or ValidableReference
+//  //
+//  // []ValidableContent
+//  // []ValidableReference
+//  //
+//  //
+//  // - Any struct implementing ValidableContent or ValidableReference
+//  //
+//
 func valid(t ErrorType) func(ins ...interface{}) ValidationErrors {
-
 	return func(ins ...interface{}) ValidationErrors {
 		vErrs := ValidationErrors{}
 
-		validatorType := reflect.TypeOf((*ValidContent)(nil)).Elem()
-		validatorRefType := reflect.TypeOf((*ValidReference)(nil)).Elem()
+		validatorType := reflect.TypeOf((*ValidableContent)(nil)).Elem()
+		validatorRefType := reflect.TypeOf((*ValidableReference)(nil)).Elem()
 
 		for _, in := range ins {
 
@@ -173,7 +211,7 @@ func valid(t ErrorType) func(ins ...interface{}) ValidationErrors {
 					val := vOf.MapIndex(key)
 					okImpl := reflect.TypeOf(val.Interface()).Implements(validatorType)
 					if okImpl {
-						concreteVal, ok := val.Interface().(ValidContent)
+						concreteVal, ok := val.Interface().(ValidableContent)
 						if ok {
 							vErrs.merge(checkValidContent(t, concreteVal))
 						}
@@ -181,7 +219,7 @@ func valid(t ErrorType) func(ins ...interface{}) ValidationErrors {
 
 					okImpl = reflect.TypeOf(val.Interface()).Implements(validatorRefType)
 					if okImpl {
-						concreteVal, ok := val.Interface().(ValidReference)
+						concreteVal, ok := val.Interface().(ValidableReference)
 						if ok {
 							vErrs.merge(checkValidReference(t, concreteVal))
 						}
@@ -192,14 +230,14 @@ func valid(t ErrorType) func(ins ...interface{}) ValidationErrors {
 					val := vOf.Index(i)
 					okImpl := reflect.TypeOf(val.Interface()).Implements(validatorType)
 					if okImpl {
-						concreteVal, ok := val.Interface().(ValidContent)
+						concreteVal, ok := val.Interface().(ValidableContent)
 						if ok {
 							vErrs.merge(checkValidContent(t, concreteVal))
 						}
 					}
 					okImpl = reflect.TypeOf(val.Interface()).Implements(validatorRefType)
 					if okImpl {
-						concreteVal, ok := val.Interface().(ValidReference)
+						concreteVal, ok := val.Interface().(ValidableReference)
 						if ok {
 							vErrs.merge(checkValidReference(t, concreteVal))
 						}
@@ -208,14 +246,14 @@ func valid(t ErrorType) func(ins ...interface{}) ValidationErrors {
 			default:
 				okImpl := reflect.TypeOf(in).Implements(validatorType)
 				if okImpl {
-					concreteVal, ok := in.(ValidContent)
+					concreteVal, ok := in.(ValidableContent)
 					if ok {
 						vErrs.merge(checkValidContent(t, concreteVal))
 					}
 				}
 				okImpl = reflect.TypeOf(in).Implements(validatorRefType)
 				if okImpl {
-					concreteVal, ok := in.(ValidReference)
+					concreteVal, ok := in.(ValidableReference)
 					if ok {
 						vErrs.merge(checkValidReference(t, concreteVal))
 					}
@@ -226,11 +264,13 @@ func valid(t ErrorType) func(ins ...interface{}) ValidationErrors {
 	}
 }
 
-func checkValidContent(t ErrorType, c ValidContent) ValidationErrors {
+//checkValidContent validates a ValidableContent
+func checkValidContent(t ErrorType, c ValidableContent) ValidationErrors {
 	return c.validate()
 }
 
-func checkValidReference(t ErrorType, c ValidReference) ValidationErrors {
+//checkValidReference validates a ValidableReference
+func checkValidReference(t ErrorType, c ValidableReference) ValidationErrors {
 	vErrs := ValidationErrors{}
 	if c.Reference().Id == "" {
 		if c.Reference().Mandatory {

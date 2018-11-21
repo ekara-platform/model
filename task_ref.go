@@ -38,7 +38,7 @@ func (r *TaskRef) merge(other TaskRef) {
 }
 
 func (r TaskRef) Resolve() (Task, error) {
-	validationErrors := ErrorOn(r)
+	validationErrors := ErrorOnInvalid(r)
 	if validationErrors.HasErrors() {
 		return Task{}, validationErrors
 	}

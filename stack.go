@@ -43,7 +43,7 @@ func (r Stack) MarshalJSON() ([]byte, error) {
 }
 
 func (r Stack) validate() ValidationErrors {
-	return ErrorOn(r.Component, r.Hooks)
+	return ErrorOnInvalid(r.Component, r.Hooks)
 }
 
 func (r *Stack) merge(other Stack) error {

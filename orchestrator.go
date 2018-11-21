@@ -27,7 +27,7 @@ func createOrchestrator(env *Environment, yamlEnv *yamlEnvironment) Orchestrator
 }
 
 func (r Orchestrator) validate() ValidationErrors {
-	return ErrorOn(r.Component)
+	return ErrorOnInvalid(r.Component)
 }
 
 func (r *Orchestrator) merge(other Orchestrator) error {

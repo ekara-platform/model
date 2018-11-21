@@ -42,7 +42,7 @@ func (r *EnvironmentHooks) merge(other EnvironmentHooks) error {
 }
 
 func (r EnvironmentHooks) validate() ValidationErrors {
-	return ErrorOn(r.Init, r.Provision, r.Deploy, r.Undeploy, r.Destroy)
+	return ErrorOnInvalid(r.Init, r.Provision, r.Deploy, r.Undeploy, r.Destroy)
 }
 
 func (r EnvironmentHooks) MarshalJSON() ([]byte, error) {

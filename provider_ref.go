@@ -39,7 +39,7 @@ func (r *ProviderRef) merge(other ProviderRef) error {
 }
 
 func (r ProviderRef) Resolve() (Provider, error) {
-	validationErrors := ErrorOn(r)
+	validationErrors := ErrorOnInvalid(r)
 	if validationErrors.HasErrors() {
 		return Provider{}, validationErrors
 	}

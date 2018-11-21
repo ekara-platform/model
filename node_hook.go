@@ -27,7 +27,7 @@ func (r *NodeHook) merge(other NodeHook) error {
 }
 
 func (r NodeHook) validate() ValidationErrors {
-	return ErrorOn(r.Provision, r.Destroy)
+	return ErrorOnInvalid(r.Provision, r.Destroy)
 }
 
 func (r NodeHook) MarshalJSON() ([]byte, error) {

@@ -51,7 +51,7 @@ func (r Provider) MarshalJSON() ([]byte, error) {
 }
 
 func (r Provider) validate() ValidationErrors {
-	return ErrorOn(r.Component)
+	return ErrorOnInvalid(r.Component)
 }
 
 func (r *Provider) merge(other Provider) error {

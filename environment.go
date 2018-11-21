@@ -131,25 +131,25 @@ func (r Environment) Validate() ValidationErrors {
 	vErrs := ValidationErrors{}
 	vErrs.merge(r.errors)
 
-	vEr, e, _ := ErrorOnEmpty(r.Name, r.location.appendPath("name"), "empty environment name")
+	vEr, e, _ := ErrorOnEmptyOrInvalid(r.Name, r.location.appendPath("name"), "empty environment name")
 	vErrs.merge(vEr)
 	if !e {
-		vErrs.merge(ErrorOn(r.QualifiedName()))
+		vErrs.merge(ErrorOnInvalid(r.QualifiedName()))
 	}
 
-	vErrs.merge(ErrorOn(r.Ekara))
-	vErrs.merge(ErrorOn(r.Orchestrator))
+	vErrs.merge(ErrorOnInvalid(r.Ekara))
+	vErrs.merge(ErrorOnInvalid(r.Orchestrator))
 
-	vEr, e, _ = ErrorOnEmpty(r.Providers, r.location.appendPath("providers"), "no provider specified")
+	vEr, e, _ = ErrorOnEmptyOrInvalid(r.Providers, r.location.appendPath("providers"), "no provider specified")
 	vErrs.merge(vEr)
 
-	vEr, e, _ = ErrorOnEmpty(r.NodeSets, r.location.appendPath("nodes"), "no node specified")
+	vEr, e, _ = ErrorOnEmptyOrInvalid(r.NodeSets, r.location.appendPath("nodes"), "no node specified")
 	vErrs.merge(vEr)
 
-	vEr, e, _ = WarningOnEmpty(r.Stacks, r.location.appendPath("stacks"), "no stack specified")
+	vEr, e, _ = WarningOnEmptyOrInvalid(r.Stacks, r.location.appendPath("stacks"), "no stack specified")
 	vErrs.merge(vEr)
 
-	vErrs.merge(ErrorOn(r.Tasks))
-	vErrs.merge(ErrorOn(r.Hooks))
+	vErrs.merge(ErrorOnInvalid(r.Tasks))
+	vErrs.merge(ErrorOnInvalid(r.Hooks))
 	return vErrs
 }

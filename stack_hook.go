@@ -17,7 +17,7 @@ func (r StackHook) HasTasks() bool {
 }
 
 func (r StackHook) validate() ValidationErrors {
-	return ErrorOn(r.Deploy, r.Undeploy)
+	return ErrorOnInvalid(r.Deploy, r.Undeploy)
 }
 
 func (r StackHook) MarshalJSON() ([]byte, error) {

@@ -22,7 +22,7 @@ func createHook(env *Environment, location DescriptorLocation, yamlHook yamlHook
 }
 
 func (r Hook) validate() ValidationErrors {
-	return ErrorOn(r.Before, r.After)
+	return ErrorOnInvalid(r.Before, r.After)
 }
 
 func (r *Hook) merge(other Hook) error {

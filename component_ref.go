@@ -31,7 +31,7 @@ func (r *ComponentRef) merge(other ComponentRef) error {
 }
 
 func (r ComponentRef) Resolve() (Component, error) {
-	validationErrors := ErrorOn(r)
+	validationErrors := ErrorOnInvalid(r)
 	if validationErrors.HasErrors() {
 		return Component{}, validationErrors
 	}
