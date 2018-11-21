@@ -27,10 +27,6 @@ type (
 
 	Tasks map[string]Task
 
-	TaskHook struct {
-		Execute Hook
-	}
-
 	TaskRef struct {
 		ref        string
 		parameters Parameters
@@ -41,27 +37,6 @@ type (
 
 	circularRefTracking map[string]interface{}
 )
-
-func (r TaskHook) MarshalJSON() ([]byte, error) {
-	t := struct {
-		Execute *Hook `json:",omitempty"`
-	}{}
-	if r.Execute.HasTasks() {
-		t.Execute = &r.Execute
-	}
-	return json.Marshal(t)
-}
-
-func (r *TaskHook) merge(other TaskHook) error {
-	if err := r.Execute.merge(other.Execute); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (r TaskHook) HasTasks() bool {
-	return r.Execute.HasTasks()
-}
 
 func (r Task) MarshalJSON() ([]byte, error) {
 	t := struct {
@@ -86,8 +61,8 @@ func (r Task) MarshalJSON() ([]byte, error) {
 }
 
 func (r Task) validate() ValidationErrors {
-	vErrs := r.Component.validate()
-	vErrs.merge(r.Hooks.Execute.validate())
+	vErrs := ErrorOn(r.Component)
+	vErrs.merge(ErrorOn(r.Hooks))
 	return vErrs
 }
 

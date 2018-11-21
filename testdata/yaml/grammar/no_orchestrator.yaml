@@ -7,7 +7,22 @@ ekara:
     aws:
       repository: ekara-platform/aws-provider
       version: 1.2.3
+    stack1:
+      repository: some-org/stack1
+      version: 1.2.3
 
 providers:
   aws:
     component: aws
+
+
+nodes:
+  managers:
+    instances: 1
+    provider:
+      name: aws
+   
+
+stacks:
+  monitoring:
+    component: stack1

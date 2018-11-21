@@ -26,48 +26,7 @@ type (
 	}
 
 	NodeSets map[string]NodeSet
-
-	NodeHook struct {
-		Provision Hook
-		Destroy   Hook
-	}
 )
-
-func (r NodeHook) MarshalJSON() ([]byte, error) {
-	t := struct {
-		Provision *Hook `json:",omitempty"`
-		Destroy   *Hook `json:",omitempty"`
-	}{}
-	if r.Provision.HasTasks() {
-		t.Provision = &r.Provision
-	}
-	if r.Destroy.HasTasks() {
-		t.Destroy = &r.Destroy
-	}
-	return json.Marshal(t)
-}
-
-func (r NodeHook) HasTasks() bool {
-	return r.Provision.HasTasks() ||
-		r.Destroy.HasTasks()
-}
-
-func (r NodeHook) validate() ValidationErrors {
-	vErrs := ValidationErrors{}
-	vErrs.merge(r.Provision.validate())
-	vErrs.merge(r.Destroy.validate())
-	return vErrs
-}
-
-func (r *NodeHook) merge(other NodeHook) error {
-	if err := r.Provision.merge(other.Provision); err != nil {
-		return err
-	}
-	if err := r.Destroy.merge(other.Destroy); err != nil {
-		return err
-	}
-	return nil
-}
 
 func (r NodeSet) DescType() string {
 	return "NodeSet"
@@ -108,9 +67,9 @@ func (r NodeSet) MarshalJSON() ([]byte, error) {
 
 func (r NodeSet) validate() ValidationErrors {
 	vErrs := ValidationErrors{}
-	vErrs.merge(r.Provider.validate())
-	vErrs.merge(r.Orchestrator.validate())
-	vErrs.merge(r.Hooks.validate())
+	vErrs.merge(ErrorOn(r.Provider))
+	vErrs.merge(ErrorOn(r.Orchestrator))
+	vErrs.merge(ErrorOn(r.Hooks))
 	return vErrs
 }
 

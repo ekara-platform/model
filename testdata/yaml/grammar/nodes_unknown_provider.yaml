@@ -30,7 +30,7 @@ nodes:
   managers:
     instances: 1
     provider:
-      name: unknown
+      name: dummy
 
 stacks:
   monitoring:

@@ -23,12 +23,8 @@ func createHook(env *Environment, location DescriptorLocation, yamlHook yamlHook
 
 func (r Hook) validate() ValidationErrors {
 	vErrs := ValidationErrors{}
-	for _, t := range r.Before {
-		vErrs.merge(t.validate())
-	}
-	for _, t := range r.After {
-		vErrs.merge(t.validate())
-	}
+	vErrs.merge(ErrorOn(r.Before))
+	vErrs.merge(ErrorOn(r.After))
 	return vErrs
 }
 

@@ -1,5 +1,9 @@
 package model
 
+import (
+	"reflect"
+)
+
 type (
 	// Type used to describe the location of any element within the environment
 	// descriptor
@@ -10,7 +14,7 @@ type (
 )
 
 func (r DescriptorLocation) equals(o DescriptorLocation) bool {
-	return r.Descriptor == o.Descriptor && r.Path == o.Path
+	return reflect.DeepEqual(r, o)
 }
 
 func (r DescriptorLocation) appendPath(suffix string) DescriptorLocation {

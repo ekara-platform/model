@@ -27,7 +27,22 @@ orchestrator:
   component: swarm
 
 nodes:
-
+  managers:
+    instances: 1
+    provider:
+      name: aws
+ 
 stacks:
   monitoring:
     component: stack1
+
+tasks:
+  task1:
+    playbook: task1_playbook
+    hooks:
+      execute:
+        before:
+          - task: unknown  
+        after:
+          - task: unknown  	
+

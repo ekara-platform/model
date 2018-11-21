@@ -10,13 +10,260 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func testEmptyContent(t *testing.T, name string, onlyWarning bool) ValidationErrors {
+// Test loading an empty yaml file.
+//
+// The validation must complain about all root elements missing
+//- Error: empty environment name @name
+//- Error: empty component reference @orchestrator
+//- Error: no provider specified @providers
+//- Error: no node specified @nodes
+//- Warning: no stack specified @stacks
+//
+// There is no message about a missing ekera platform because it has been defaulted
+//
+func TestValidationNoContent(t *testing.T) {
+	vErrs, _ := testEmptyContent(t, "content", false)
+	//log.Printf("Errors %v: ", vErrs)
+	assert.True(t, vErrs.HasErrors())
+	assert.True(t, vErrs.HasWarnings())
+	assert.Equal(t, 5, len(vErrs.Errors))
+	assert.True(t, vErrs.contains(Error, "empty environment name", "name"))
+	assert.True(t, vErrs.contains(Error, "empty component reference", "orchestrator"))
+	assert.True(t, vErrs.contains(Error, "no provider specified", "providers"))
+	assert.True(t, vErrs.contains(Error, "no node specified", "nodes"))
+	assert.True(t, vErrs.contains(Warning, "no stack specified", "stacks"))
+}
+
+// Test loading an environment without name.
+//
+// The validation must complain only about the missing name
+//- Error: empty environment name @name
+//
+func TestValidationNoEnvironmentName(t *testing.T) {
+	vErrs, _ := testEmptyContent(t, "environment_name", false)
+	//log.Printf("Errors %v: ", vErrs)
+	assert.True(t, vErrs.HasErrors())
+	assert.False(t, vErrs.HasWarnings())
+	assert.Equal(t, 1, len(vErrs.Errors))
+	assert.True(t, vErrs.contains(Error, "empty environment name", "name"))
+}
+
+// Test loading an environment with an invalid name
+//
+// The validation must complain only about the invalid name
+//- Error: the environment name or the qualifier contains a non alphanumeric character @name|qualifier
+//
+func TestValidateNoValidName(t *testing.T) {
+	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
+	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/grammar/no_valid_name.yaml"), map[string]interface{}{})
+	assert.Nil(t, e)
+	vErrs := env.Validate()
+	//log.Printf("Errors %v: ", vErrs)
+	assert.True(t, vErrs.HasErrors())
+	assert.False(t, vErrs.HasWarnings())
+	assert.Equal(t, 1, len(vErrs.Errors))
+	assert.True(t, vErrs.contains(Error, "the environment name or the qualifier contains a non alphanumeric character", "name|qualifier"))
+}
+
+// Test loading an environment with an invalid qualifier
+//
+// The validation must complain only about the invalid qualifier
+//- Error: the environment name or the qualifier contains a non alphanumeric character @name|qualifier
+//
+func TestValidateNoValidQualifier(t *testing.T) {
+	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
+	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/grammar/no_valid_qualifier.yaml"), map[string]interface{}{})
+	assert.Nil(t, e)
+	vErrs := env.Validate()
+	//log.Printf("Errors %v: ", vErrs)
+	assert.True(t, vErrs.HasErrors())
+	assert.False(t, vErrs.HasWarnings())
+	assert.Equal(t, 1, len(vErrs.Errors))
+	assert.True(t, vErrs.contains(Error, "the environment name or the qualifier contains a non alphanumeric character", "name|qualifier"))
+}
+
+// Test loading an environment without nodes.
+//
+// The validation must complain only about the missing nodes
+//- Error: no node specified @nodes
+//
+func TestValidationNoNodes(t *testing.T) {
+	vErrs, _ := testEmptyContent(t, "nodes", false)
+	//log.Printf("Errors %v: ", vErrs)
+	assert.True(t, vErrs.HasErrors())
+	assert.False(t, vErrs.HasWarnings())
+	assert.Equal(t, 1, len(vErrs.Errors))
+	assert.True(t, vErrs.contains(Error, "no node specified", "nodes"))
+}
+
+// Test loading an environment without providers.
+//
+// The validation must complain only about the missing providers and the reference
+// to a missing provider into the node set specification
+//
+//- Error: no provider specified @providers
+//- Error: reference to unknown provider: aws @nodes.managers.provider.name
+//
+func TestValidationNoProviders(t *testing.T) {
+	vErrs, _ := testEmptyContent(t, "providers", false)
+	//log.Printf("Errors %v: ", vErrs)
+	assert.True(t, vErrs.HasErrors())
+	assert.False(t, vErrs.HasWarnings())
+	assert.Equal(t, 2, len(vErrs.Errors))
+	assert.True(t, vErrs.contains(Error, "no provider specified", "providers"))
+	assert.True(t, vErrs.contains(Error, "reference to unknown provider: aws", "nodes.managers.provider.name"))
+}
+
+// Test loading an nodeset referencing an unknown provider.
+//
+// The validation must complain only about the reference on unknown provider
+//
+//- Error: reference to unknown provider: dummy @nodes.managers.provider.name
+//
+func TestValidationNodesUnknownProvider(t *testing.T) {
+	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
+	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/grammar/nodes_unknown_provider.yaml"), map[string]interface{}{})
+	assert.Nil(t, e)
+	vErrs := env.Validate()
+	//log.Printf("Errors %v: ", vErrs)
+	assert.True(t, vErrs.HasErrors())
+	assert.False(t, vErrs.HasWarnings())
+	assert.Equal(t, 1, len(vErrs.Errors))
+	assert.True(t, vErrs.contains(Error, "reference to unknown provider: dummy", "nodes.managers.provider.name"))
+}
+
+// Test loading an node set without a reference on a provider.
+//
+// The validation must complain only about the missing provider reference
+//- Error: empty provider reference @nodes.managers.provider.name
+//
+func TestValidationNoNodesProvider(t *testing.T) {
+	vErrs, _ := testEmptyContent(t, "nodes_provider", false)
+	//log.Printf("Errors %v: ", vErrs)
+	assert.True(t, vErrs.HasErrors())
+	assert.False(t, vErrs.HasWarnings())
+	assert.Equal(t, 1, len(vErrs.Errors))
+	assert.True(t, vErrs.contains(Error, "empty provider reference", "nodes.managers.provider.name"))
+}
+
+// Test loading an environment without orchestator.
+//
+// The validation must complain only about the missing orchestator
+//- Error: empty component reference @orchestrator
+//
+func TestValidationNoOrchestrator(t *testing.T) {
+	vErrs, _ := testEmptyContent(t, "orchestrator", false)
+	//log.Printf("Errors %v: ", vErrs)
+	assert.True(t, vErrs.HasErrors())
+	assert.False(t, vErrs.HasWarnings())
+	assert.Equal(t, 1, len(vErrs.Errors))
+	assert.True(t, vErrs.contains(Error, "empty component reference", "orchestrator"))
+}
+
+// Test loading an environment referencing an unknown orchestrator.
+//
+// The validation must complain only about the reference on unknown orchestrator
+//
+//- Error: reference to unknown component: dummy @orchestrator
+//
+func TestValidationUnknownOrchestrator(t *testing.T) {
+	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
+	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/grammar/unknown_orchestrator.yaml"), map[string]interface{}{})
+	assert.Nil(t, e)
+	vErrs := env.Validate()
+	//log.Printf("Errors %v: ", vErrs)
+	assert.True(t, vErrs.HasErrors())
+	assert.False(t, vErrs.HasWarnings())
+	assert.Equal(t, 1, len(vErrs.Errors))
+	assert.True(t, vErrs.contains(Error, "reference to unknown component: dummy", "orchestrator"))
+
+}
+
+// Test loading an environment without stacks.
+//
+// The validation must complain only about the missing stacks
+//- Warning: no stack specified @stacks
+//
+func TestValidationNoStacks(t *testing.T) {
+	vErrs, _ := testEmptyContent(t, "stacks", true)
+	//log.Printf("Errors %v: ", vErrs)
+	assert.False(t, vErrs.HasErrors())
+	assert.True(t, vErrs.HasWarnings())
+	assert.Equal(t, 1, len(vErrs.Errors))
+	assert.True(t, vErrs.contains(Warning, "no stack specified", "stacks"))
+}
+
+// Test loading an environment referencing an unknown stack.
+//
+// The validation must complain only about the reference on unknown stack
+//
+//- Error: reference to unknown component: dummy @stacks.monitoring.component
+//
+func TestValidationUnknownStack(t *testing.T) {
+	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
+	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/grammar/unknown_stack.yaml"), map[string]interface{}{})
+	assert.Nil(t, e)
+	vErrs := env.Validate()
+	//log.Printf("Errors %v: ", vErrs)
+	assert.True(t, vErrs.HasErrors())
+	assert.False(t, vErrs.HasWarnings())
+	assert.Equal(t, 1, len(vErrs.Errors))
+	assert.True(t, vErrs.contains(Error, "reference to unknown component: dummy", "stacks.monitoring.component"))
+
+}
+
+// Test loading an task without any playbook .
+//
+// The validation must complain only about the missing playbook
+//
+//- Error: empty playbook path @tasks.task1.playbook
+//
+func TestValidationTasksNoPlayBook(t *testing.T) {
+	vErrs, _ := testEmptyContent(t, "task_playbook", false)
+	//log.Printf("Errors %v: ", vErrs)
+	assert.True(t, vErrs.HasErrors())
+	assert.False(t, vErrs.HasWarnings())
+	assert.Equal(t, 1, len(vErrs.Errors))
+	assert.True(t, vErrs.contains(Error, "empty playbook path", "tasks.task1.playbook"))
+}
+
+// Test loading an node set without instances.
+//
+// The validation must complain only about the instances number being a positive number
+//
+//- Error: instances must be a positive number @nodes.managers.instances
+//
+func TestValidationNoNodesInstance(t *testing.T) {
+	vErrs, _ := testEmptyContent(t, "nodes_instance", false)
+	//log.Printf("Errors %v: ", vErrs)
+	assert.True(t, vErrs.HasErrors())
+	assert.False(t, vErrs.HasWarnings())
+	assert.Equal(t, 1, len(vErrs.Errors))
+	assert.True(t, vErrs.contains(Error, "instances must be a positive number", "nodes.managers.instances"))
+}
+
+// Test loading an node set with no volume names
+//
+// The validation must complain only about the missing name
+//
+//- Error: empty volume path @nodes.managers.volumes.path
+//
+func TestValidationNoNoVolumeName(t *testing.T) {
+	vErrs, _ := testEmptyContent(t, "volume_name", false)
+	//log.Printf("Errors %v: ", vErrs)
+	assert.True(t, vErrs.HasErrors())
+	assert.False(t, vErrs.HasWarnings())
+	assert.Equal(t, 1, len(vErrs.Errors))
+	assert.True(t, vErrs.contains(Error, "empty volume path", "nodes.managers.volumes.path"))
+}
+
+func testEmptyContent(t *testing.T, name string, onlyWarning bool) (ValidationErrors, Environment) {
 	file := fmt.Sprintf("./testdata/yaml/grammar/no_%s.yaml", name)
 	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
 	env, e := CreateEnvironment(logger, buildUrl(file), map[string]interface{}{})
 	assert.Nil(t, e)
 	vErrs := validate(t, env, logger, onlyWarning)
-	return vErrs
+	return vErrs, env
 }
 
 func validate(t *testing.T, env Environment, logger *log.Logger, onlyWarning bool) ValidationErrors {
@@ -28,172 +275,4 @@ func validate(t *testing.T, env Environment, logger *log.Logger, onlyWarning boo
 	}
 	vErrs.Log(logger)
 	return vErrs
-}
-
-func TestNoEnvironmentName(t *testing.T) {
-	vErrs := testEmptyContent(t, "environment_name", false)
-	assert.Equal(t, true, vErrs.HasErrors())
-	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
-	assert.Equal(t, "empty environment name", vErrs.Errors[0].Message)
-}
-
-func TestNoNodes(t *testing.T) {
-	vErrs := testEmptyContent(t, "nodes", false)
-	assert.Equal(t, true, vErrs.HasErrors())
-	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
-	assert.Equal(t, "no node specified", vErrs.Errors[0].Message)
-}
-
-func TestNoOrchestrator(t *testing.T) {
-	vErrs := testEmptyContent(t, "orchestrator", false)
-	assert.Equal(t, true, vErrs.HasErrors())
-	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
-	assert.Equal(t, "empty component reference", vErrs.Errors[0].Message)
-	assert.Equal(t, "orchestrator", vErrs.Errors[0].Location.Path)
-}
-
-func TestNoStacks(t *testing.T) {
-	vErrs := testEmptyContent(t, "stacks", true)
-	assert.Equal(t, false, vErrs.HasErrors())
-	assert.Equal(t, true, vErrs.HasWarnings())
-	assert.Equal(t, Warning, vErrs.Errors[0].ErrorType)
-	assert.Equal(t, "no stack specified", vErrs.Errors[0].Message)
-}
-
-func TestNoNodesProvider(t *testing.T) {
-	vErrs := testEmptyContent(t, "nodes_provider", false)
-
-	assert.Equal(t, true, vErrs.HasErrors())
-	assert.Equal(t, false, vErrs.HasWarnings())
-	assert.Equal(t, 1, len(vErrs.Errors))
-	assert.Equal(t, "nodes.managers.provider.name", vErrs.Errors[0].Location.Path)
-	assert.Equal(t, "empty provider reference", vErrs.Errors[0].Message)
-	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
-}
-
-func TestNoNodesInstance(t *testing.T) {
-	vErrs := testEmptyContent(t, "nodes_instance", false)
-
-	assert.NotNil(t, vErrs)
-	assert.Equal(t, true, vErrs.HasErrors())
-	assert.Equal(t, false, vErrs.HasWarnings())
-	assert.Equal(t, 1, len(vErrs.Errors))
-	assert.Equal(t, "nodes.managers.instances", vErrs.Errors[0].Location.Path)
-	assert.Equal(t, "instances must be a positive number", vErrs.Errors[0].Message)
-	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
-}
-
-func TestNoVolumeName(t *testing.T) {
-	vErrs := testEmptyContent(t, "volume_name", false)
-
-	assert.NotNil(t, vErrs)
-	assert.Equal(t, true, vErrs.HasErrors())
-	assert.Equal(t, false, vErrs.HasWarnings())
-	assert.Equal(t, 1, len(vErrs.Errors))
-	assert.Equal(t, "nodes.managers.volumes.path", vErrs.Errors[0].Location.Path)
-	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
-}
-
-func TestNodesUnknownProvider(t *testing.T) {
-	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/grammar/nodes_unknown_provider.yaml"), map[string]interface{}{})
-	assert.Nil(t, e)
-	vErrs := validate(t, env, logger, false)
-
-	assert.NotNil(t, vErrs)
-	assert.Equal(t, true, vErrs.HasErrors())
-	assert.Equal(t, false, vErrs.HasWarnings())
-	assert.Equal(t, 1, len(vErrs.Errors))
-	assert.Equal(t, "nodes.managers.provider.name", vErrs.Errors[0].Location.Path)
-	assert.Equal(t, "reference to unknown provider: unknown", vErrs.Errors[0].Message)
-	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
-}
-
-func TestNodesUnknownHook(t *testing.T) {
-	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/grammar/nodes_unknown_hook.yaml"), map[string]interface{}{})
-	assert.Nil(t, e)
-	vErrs := validate(t, env, logger, false)
-
-	assert.NotNil(t, vErrs)
-	assert.Equal(t, true, vErrs.HasErrors())
-	assert.Equal(t, false, vErrs.HasWarnings())
-	assert.Equal(t, 2, len(vErrs.Errors))
-	testHook(t, "nodes.managers.hooks.provision.before", 0, vErrs)
-	testHook(t, "nodes.managers.hooks.provision.after", 1, vErrs)
-}
-
-func TestNodesKnownHook(t *testing.T) {
-	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/grammar/nodes_known_hook.yaml"), map[string]interface{}{})
-	assert.Nil(t, e)
-	vErrs := env.Validate()
-	logger.Printf("Validation errors %v", vErrs)
-	assert.NotNil(t, vErrs)
-	assert.Equal(t, false, vErrs.HasErrors())
-	assert.Equal(t, false, vErrs.HasWarnings())
-	assert.Equal(t, 0, len(vErrs.Errors))
-}
-
-func TestTasksNoPlayBook(t *testing.T) {
-	vErrs := testEmptyContent(t, "task_playbook", false)
-
-	assert.NotNil(t, vErrs)
-	assert.Equal(t, true, vErrs.HasErrors())
-	assert.Equal(t, false, vErrs.HasWarnings())
-	assert.Equal(t, 1, len(vErrs.Errors))
-	assert.Equal(t, "tasks.task1.playbook", vErrs.Errors[0].Location.Path)
-	assert.Equal(t, "empty playbook path", vErrs.Errors[0].Message)
-	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
-}
-
-func TestUnknownGlobalHooks(t *testing.T) {
-	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/grammar/unknown_global_hook.yaml"), map[string]interface{}{})
-	assert.Nil(t, e)
-	vErrs := validate(t, env, logger, false)
-
-	assert.NotNil(t, vErrs)
-	assert.Equal(t, true, vErrs.HasErrors())
-	assert.Equal(t, false, vErrs.HasWarnings())
-	assert.Equal(t, 10, len(vErrs.Errors))
-
-	testHook(t, "hooks.init.before", 0, vErrs)
-	testHook(t, "hooks.init.after", 1, vErrs)
-	testHook(t, "hooks.provision.before", 2, vErrs)
-	testHook(t, "hooks.provision.after", 3, vErrs)
-	testHook(t, "hooks.deploy.before", 4, vErrs)
-	testHook(t, "hooks.deploy.after", 5, vErrs)
-	testHook(t, "hooks.undeploy.before", 6, vErrs)
-	testHook(t, "hooks.undeploy.after", 7, vErrs)
-	testHook(t, "hooks.destroy.before", 8, vErrs)
-	testHook(t, "hooks.destroy.after", 9, vErrs)
-}
-
-func testHook(t *testing.T, msg string, index int, vErrs ValidationErrors) {
-	assert.Equal(t, msg, vErrs.Errors[index].Location.Path)
-	assert.Equal(t, "reference to unknown task: unknown", vErrs.Errors[index].Message)
-	assert.Equal(t, Error, vErrs.Errors[index].ErrorType)
-}
-
-func TestNoValidName(t *testing.T) {
-	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/grammar/no_valid_name.yaml"), map[string]interface{}{})
-	assert.Nil(t, e)
-	vErrs := validate(t, env, logger, false)
-	assert.NotNil(t, vErrs)
-	assert.Equal(t, true, vErrs.HasErrors())
-	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
-	assert.Equal(t, "the environment name or the qualifier contains a non alphanumeric character", vErrs.Errors[0].Message)
-}
-
-func TestNoValidQualifier(t *testing.T) {
-	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/grammar/no_valid_qualifier.yaml"), map[string]interface{}{})
-	assert.Nil(t, e)
-	vErrs := validate(t, env, logger, false)
-	assert.NotNil(t, vErrs)
-	assert.Equal(t, true, vErrs.HasErrors())
-	assert.Equal(t, Error, vErrs.Errors[0].ErrorType)
-	assert.Equal(t, "the environment name or the qualifier contains a non alphanumeric character", vErrs.Errors[0].Message)
 }

@@ -27,7 +27,12 @@ orchestrator:
   component: swarm
 
 nodes:
+  managers:
+    instances: 1
+    provider:
+      name: aws
+   
 
 stacks:
   monitoring:
-    component: stack1
+    component: dummy

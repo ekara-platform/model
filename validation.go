@@ -29,6 +29,8 @@ var WarningOnEmpty = validEmpty(Warning)
 
 var ErrorOnEmpty = validEmpty(Error)
 
+var ErrorOn = valid(Error)
+
 const (
 	Warning ErrorType = 0
 	Error   ErrorType = 1
@@ -72,13 +74,23 @@ func (ve *ValidationErrors) append(t ErrorType, e string, l DescriptorLocation) 
 	})
 }
 
-func (ve *ValidationErrors) contains(m string, location DescriptorLocation) bool {
+func (ve *ValidationErrors) contains(ty ErrorType, m string, path string) bool {
 	for _, v := range ve.Errors {
-		if v.Message == m && v.Location.equals(location) {
+		if v.ErrorType.String() == ty.String() && v.Message == m && v.Location.Path == path {
 			return true
 		}
 	}
 	return false
+}
+
+func (ve *ValidationErrors) locate(m string) []ValidationError {
+	result := make([]ValidationError, 0)
+	for _, v := range ve.Errors {
+		if v.Message == m {
+			result = append(result, v)
+		}
+	}
+	return result
 }
 
 func (ve *ValidationErrors) addError(err error, location DescriptorLocation) {
@@ -130,21 +142,61 @@ func validEmpty(t ErrorType) func(in interface{}, location DescriptorLocation, m
 				if len(vOf.MapKeys()) == 0 {
 					vErrs.append(t, message, location)
 				} else {
-					for _, key := range vOf.MapKeys() {
-						val := vOf.MapIndex(key)
-
-						validatorType := reflect.TypeOf((*Valid)(nil)).Elem()
-						okImpl := reflect.TypeOf(val.Interface()).Implements(validatorType)
-						if okImpl {
-							concreteval, ok := val.Interface().(Valid)
-							if ok {
-								vErrs.merge(concreteval.validate())
-							}
-						}
-					}
+					vErrs.merge(valid(t)(in))
 				}
+			} else if vOf.Kind() == reflect.Slice {
+				if vOf.Len() == 0 {
+					vErrs.append(t, message, location)
+				} else {
+					vErrs.merge(valid(t)(in))
+				}
+
 			}
 		}
 		return vErrs, vErrs.HasErrors(), vErrs.HasWarnings()
+	}
+}
+
+func valid(t ErrorType) func(in interface{}) ValidationErrors {
+
+	return func(in interface{}) ValidationErrors {
+		vErrs := ValidationErrors{}
+
+		validatorType := reflect.TypeOf((*Valid)(nil)).Elem()
+
+		vOf := reflect.ValueOf(in)
+		switch vOf.Kind() {
+		case reflect.Map:
+			for _, key := range vOf.MapKeys() {
+				val := vOf.MapIndex(key)
+				okImpl := reflect.TypeOf(val.Interface()).Implements(validatorType)
+				if okImpl {
+					concreteVal, ok := val.Interface().(Valid)
+					if ok {
+						vErrs.merge(concreteVal.validate())
+					}
+				}
+			}
+		case reflect.Slice:
+			for i := 0; i < vOf.Len(); i++ {
+				val := vOf.Index(i)
+				okImpl := reflect.TypeOf(val.Interface()).Implements(validatorType)
+				if okImpl {
+					concreteVal, ok := val.Interface().(Valid)
+					if ok {
+						vErrs.merge(concreteVal.validate())
+					}
+				}
+			}
+		default:
+			okImpl := reflect.TypeOf(in).Implements(validatorType)
+			if okImpl {
+				concreteVal, ok := in.(Valid)
+				if ok {
+					vErrs.merge(concreteVal.validate())
+				}
+			}
+		}
+		return vErrs
 	}
 }

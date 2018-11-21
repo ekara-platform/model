@@ -24,9 +24,14 @@ providers:
     component: azure
 
 orchestrator:
-  component: swarm
+  component: dummy
 
 nodes:
+  managers:
+    instances: 1
+    provider:
+      name: aws
+   
 
 stacks:
   monitoring:
