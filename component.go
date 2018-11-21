@@ -8,8 +8,8 @@ import (
 	"strings"
 )
 
-// ScmType is the type used to identify the Source Control Management system
 type (
+	// ScmType is the type used to identify the Source Control Management system
 	ScmType string
 
 	Component struct {
@@ -18,13 +18,6 @@ type (
 		Repository *url.URL
 		Version    Version
 		Imports    []string
-	}
-
-	ComponentRef struct {
-		ref       string
-		mandatory bool
-		env       *Environment
-		location  DescriptorLocation
 	}
 )
 
@@ -57,39 +50,6 @@ func CreateComponent(base *url.URL, id string, repo string, version string, impo
 		imports = append(imports, DefaultDescriptorName)
 	}
 	return Component{Id: id, Repository: repoUrl, Version: parsedVersion, Scm: scmType, Imports: imports}, nil
-}
-
-func createComponentRef(env *Environment, location DescriptorLocation, componentRef string, mandatory bool) ComponentRef {
-	return ComponentRef{env: env, location: location, ref: componentRef, mandatory: mandatory}
-}
-
-func (r ComponentRef) validate() ValidationErrors {
-	validationErrors := ValidationErrors{}
-	if r.ref == "" {
-		if r.mandatory {
-			validationErrors.addError(errors.New("empty component reference"), r.location)
-		}
-	} else {
-		if _, ok := r.env.Ekara.Components[r.ref]; !ok {
-			validationErrors.addError(errors.New("reference to unknown component: "+r.ref), r.location)
-		}
-	}
-	return validationErrors
-}
-
-func (r *ComponentRef) merge(other ComponentRef) error {
-	if r.ref == "" {
-		r.ref = other.ref
-	}
-	return nil
-}
-
-func (r ComponentRef) Resolve() (Component, error) {
-	validationErrors := r.validate()
-	if validationErrors.HasErrors() {
-		return Component{}, validationErrors
-	}
-	return r.env.Ekara.Components[r.ref], nil
 }
 
 // resolveRepository resolves a full URL from repository short-forms.

@@ -15,15 +15,6 @@ type (
 		// The orchestrator environment variables
 		EnvVars EnvVars
 	}
-
-	OrchestratorRef struct {
-		parameters Parameters
-		docker     Parameters
-		envVars    EnvVars
-
-		env      *Environment
-		location DescriptorLocation
-	}
 )
 
 func createOrchestrator(env *Environment, yamlEnv *yamlEnvironment) Orchestrator {
@@ -36,7 +27,7 @@ func createOrchestrator(env *Environment, yamlEnv *yamlEnvironment) Orchestrator
 }
 
 func (r Orchestrator) validate() ValidationErrors {
-	return r.Component.validate()
+	return ErrorOn(r.Component)
 }
 
 func (r *Orchestrator) merge(other Orchestrator) error {
@@ -65,34 +56,4 @@ func (r Orchestrator) MarshalJSON() ([]byte, error) {
 		Docker:     r.Docker,
 		EnvVars:    r.EnvVars,
 	})
-}
-
-func createOrchestratorRef(env *Environment, location DescriptorLocation, yamlRef yamlOrchestratorRef) OrchestratorRef {
-	return OrchestratorRef{
-		env:        env,
-		parameters: createParameters(yamlRef.Params),
-		docker:     createParameters(yamlRef.Docker),
-		envVars:    createEnvVars(yamlRef.Env),
-		location:   location}
-}
-
-func (r OrchestratorRef) validate() ValidationErrors {
-	return ValidationErrors{}
-}
-
-func (r *OrchestratorRef) merge(other OrchestratorRef) error {
-	return nil
-}
-
-func (r OrchestratorRef) Resolve() (Orchestrator, error) {
-	validationErrors := r.validate()
-	if validationErrors.HasErrors() {
-		return Orchestrator{}, validationErrors
-	}
-	orchestrator := r.env.Orchestrator
-	return Orchestrator{
-		Component:  orchestrator.Component,
-		Parameters: r.parameters.inherits(orchestrator.Parameters),
-		Docker:     r.docker.inherits(orchestrator.Docker),
-		EnvVars:    r.envVars.inherits(orchestrator.EnvVars)}, nil
 }

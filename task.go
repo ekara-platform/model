@@ -27,14 +27,6 @@ type (
 
 	Tasks map[string]Task
 
-	TaskRef struct {
-		ref        string
-		parameters Parameters
-		envVars    EnvVars
-		env        *Environment
-		location   DescriptorLocation
-	}
-
 	circularRefTracking map[string]interface{}
 )
 
@@ -61,9 +53,7 @@ func (r Task) MarshalJSON() ([]byte, error) {
 }
 
 func (r Task) validate() ValidationErrors {
-	vErrs := ErrorOn(r.Component)
-	vErrs.merge(ErrorOn(r.Hooks))
-	return vErrs
+	return ErrorOn(r.Component, r.Hooks)
 }
 
 func (r *Task) merge(other Task) error {
@@ -126,61 +116,6 @@ func (r Tasks) merge(env *Environment, other Tasks) error {
 		} else {
 			t.Component.env = env
 			r[id] = t
-		}
-	}
-	return nil
-}
-
-func (r TaskRef) Resolve() (Task, error) {
-	validationErrors := r.validate()
-	if validationErrors.HasErrors() {
-		return Task{}, validationErrors
-	}
-	task := r.env.Tasks[r.ref]
-	return Task{
-		Name:       task.Name,
-		Parameters: r.parameters.inherits(task.Parameters),
-		EnvVars:    r.envVars.inherits(task.EnvVars)}, nil
-}
-
-func createTaskRef(env *Environment, location DescriptorLocation, taskRef yamlTaskRef) TaskRef {
-	if len(taskRef.Task) == 0 {
-		env.errors.addError(errors.New("empty task reference"), location)
-	} else {
-		return TaskRef{
-			env:        env,
-			ref:        taskRef.Task,
-			parameters: createParameters(taskRef.Params),
-			envVars:    createEnvVars(taskRef.Env),
-			location:   location}
-	}
-	return TaskRef{}
-}
-
-func (r TaskRef) validate() ValidationErrors {
-	vErrs := ValidationErrors{}
-	if len(r.ref) == 0 {
-		vErrs.addError(errors.New("empty task reference"), r.location)
-	} else {
-		if _, ok := r.env.Tasks[r.ref]; !ok {
-			vErrs.addError(errors.New("reference to unknown task: "+r.ref), r.location)
-		}
-	}
-	return vErrs
-}
-
-func (r *TaskRef) merge(other TaskRef) {
-	if r.ref == "" {
-		r.ref = other.ref
-	}
-	r.parameters = r.parameters.inherits(other.parameters)
-	r.envVars = r.envVars.inherits(other.envVars)
-}
-
-func checkCircularRefs(taskRefs []yamlTaskRef, alreadyEncountered *circularRefTracking) error {
-	for _, ref := range taskRefs {
-		if _, ok := (*alreadyEncountered)[ref.Task]; ok {
-			return errors.New("circular task reference: " + alreadyEncountered.String() + ref.Task)
 		}
 	}
 	return nil

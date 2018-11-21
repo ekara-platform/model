@@ -17,10 +17,7 @@ func (r StackHook) HasTasks() bool {
 }
 
 func (r StackHook) validate() ValidationErrors {
-	vErrs := ValidationErrors{}
-	vErrs.merge(ErrorOn(r.Deploy))
-	vErrs.merge(ErrorOn(r.Undeploy))
-	return vErrs
+	return ErrorOn(r.Deploy, r.Undeploy)
 }
 
 func (r StackHook) MarshalJSON() ([]byte, error) {

@@ -66,11 +66,7 @@ func (r NodeSet) MarshalJSON() ([]byte, error) {
 }
 
 func (r NodeSet) validate() ValidationErrors {
-	vErrs := ValidationErrors{}
-	vErrs.merge(ErrorOn(r.Provider))
-	vErrs.merge(ErrorOn(r.Orchestrator))
-	vErrs.merge(ErrorOn(r.Hooks))
-	return vErrs
+	return ErrorOn(r.Provider, r.Orchestrator, r.Hooks)
 }
 
 func (r *NodeSet) merge(other NodeSet) error {

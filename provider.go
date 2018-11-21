@@ -20,16 +20,6 @@ type (
 	}
 
 	Providers map[string]Provider
-
-	// Reference to a provider
-	ProviderRef struct {
-		ref        string
-		parameters Parameters
-		envVars    EnvVars
-		proxy      Proxy
-		env        *Environment
-		location   DescriptorLocation
-	}
 )
 
 func (r Provider) DescType() string {
@@ -60,12 +50,8 @@ func (r Provider) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (r Provider) valid(location DescriptorLocation) ValidationErrors {
-	return r.Component.validate()
-}
-
 func (r Provider) validate() ValidationErrors {
-	return r.Component.validate()
+	return ErrorOn(r.Component)
 }
 
 func (r *Provider) merge(other Provider) error {
@@ -106,52 +92,5 @@ func (r Providers) merge(env *Environment, other Providers) error {
 			r[id] = p
 		}
 	}
-	return nil
-}
-
-func (r ProviderRef) Resolve() (Provider, error) {
-	validationErrors := r.validate()
-	if validationErrors.HasErrors() {
-		return Provider{}, validationErrors
-	}
-	provider := r.env.Providers[r.ref]
-	return Provider{
-		Name:       provider.Name,
-		Component:  provider.Component,
-		Parameters: r.parameters.inherits(provider.Parameters),
-		EnvVars:    r.envVars.inherits(provider.EnvVars),
-		Proxy:      r.proxy.inherits(provider.Proxy)}, nil
-}
-
-// createProviderRef creates a reference to the provider declared into the yaml reference
-func createProviderRef(env *Environment, location DescriptorLocation, yamlRef yamlProviderRef) ProviderRef {
-	return ProviderRef{
-		env:        env,
-		ref:        yamlRef.Name,
-		parameters: createParameters(yamlRef.Params),
-		proxy:      createProxy(yamlRef.Proxy),
-		envVars:    createEnvVars(yamlRef.Env),
-		location:   location}
-}
-
-func (r ProviderRef) validate() ValidationErrors {
-	validationErrors := ValidationErrors{}
-	if len(r.ref) == 0 {
-		validationErrors.addError(errors.New("empty provider reference"), r.location)
-	} else {
-		if _, ok := r.env.Providers[r.ref]; !ok {
-			validationErrors.addError(errors.New("reference to unknown provider: "+r.ref), r.location)
-		}
-	}
-	return validationErrors
-}
-
-func (r *ProviderRef) merge(other ProviderRef) error {
-	if r.ref == "" {
-		r.ref = other.ref
-	}
-	r.parameters = r.parameters.inherits(other.parameters)
-	r.envVars = r.envVars.inherits(other.envVars)
-	r.proxy = r.proxy.inherits(other.proxy)
 	return nil
 }

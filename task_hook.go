@@ -22,9 +22,7 @@ func (r *TaskHook) merge(other TaskHook) error {
 }
 
 func (r TaskHook) validate() ValidationErrors {
-	vErrs := ValidationErrors{}
-	vErrs.merge(ErrorOn(r.Execute))
-	return vErrs
+	return ErrorOn(r.Execute)
 }
 
 func (r TaskHook) MarshalJSON() ([]byte, error) {

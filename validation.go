@@ -2,7 +2,6 @@ package model
 
 import (
 	"encoding/json"
-
 	"log"
 	"reflect"
 )
@@ -20,7 +19,7 @@ type (
 		Message   string
 	}
 
-	Valid interface {
+	ValidContent interface {
 		validate() ValidationErrors
 	}
 )
@@ -157,46 +156,90 @@ func validEmpty(t ErrorType) func(in interface{}, location DescriptorLocation, m
 	}
 }
 
-func valid(t ErrorType) func(in interface{}) ValidationErrors {
+func valid(t ErrorType) func(ins ...interface{}) ValidationErrors {
 
-	return func(in interface{}) ValidationErrors {
+	return func(ins ...interface{}) ValidationErrors {
 		vErrs := ValidationErrors{}
 
-		validatorType := reflect.TypeOf((*Valid)(nil)).Elem()
+		validatorType := reflect.TypeOf((*ValidContent)(nil)).Elem()
+		validatorRefType := reflect.TypeOf((*ValidReference)(nil)).Elem()
 
-		vOf := reflect.ValueOf(in)
-		switch vOf.Kind() {
-		case reflect.Map:
-			for _, key := range vOf.MapKeys() {
-				val := vOf.MapIndex(key)
-				okImpl := reflect.TypeOf(val.Interface()).Implements(validatorType)
-				if okImpl {
-					concreteVal, ok := val.Interface().(Valid)
-					if ok {
-						vErrs.merge(concreteVal.validate())
+		for _, in := range ins {
+
+			vOf := reflect.ValueOf(in)
+			switch vOf.Kind() {
+			case reflect.Map:
+				for _, key := range vOf.MapKeys() {
+					val := vOf.MapIndex(key)
+					okImpl := reflect.TypeOf(val.Interface()).Implements(validatorType)
+					if okImpl {
+						concreteVal, ok := val.Interface().(ValidContent)
+						if ok {
+							vErrs.merge(checkValidContent(t, concreteVal))
+						}
+					}
+
+					okImpl = reflect.TypeOf(val.Interface()).Implements(validatorRefType)
+					if okImpl {
+						concreteVal, ok := val.Interface().(ValidReference)
+						if ok {
+							vErrs.merge(checkValidReference(t, concreteVal))
+						}
 					}
 				}
-			}
-		case reflect.Slice:
-			for i := 0; i < vOf.Len(); i++ {
-				val := vOf.Index(i)
-				okImpl := reflect.TypeOf(val.Interface()).Implements(validatorType)
-				if okImpl {
-					concreteVal, ok := val.Interface().(Valid)
-					if ok {
-						vErrs.merge(concreteVal.validate())
+			case reflect.Slice:
+				for i := 0; i < vOf.Len(); i++ {
+					val := vOf.Index(i)
+					okImpl := reflect.TypeOf(val.Interface()).Implements(validatorType)
+					if okImpl {
+						concreteVal, ok := val.Interface().(ValidContent)
+						if ok {
+							vErrs.merge(checkValidContent(t, concreteVal))
+						}
+					}
+					okImpl = reflect.TypeOf(val.Interface()).Implements(validatorRefType)
+					if okImpl {
+						concreteVal, ok := val.Interface().(ValidReference)
+						if ok {
+							vErrs.merge(checkValidReference(t, concreteVal))
+						}
 					}
 				}
-			}
-		default:
-			okImpl := reflect.TypeOf(in).Implements(validatorType)
-			if okImpl {
-				concreteVal, ok := in.(Valid)
-				if ok {
-					vErrs.merge(concreteVal.validate())
+			default:
+				okImpl := reflect.TypeOf(in).Implements(validatorType)
+				if okImpl {
+					concreteVal, ok := in.(ValidContent)
+					if ok {
+						vErrs.merge(checkValidContent(t, concreteVal))
+					}
+				}
+				okImpl = reflect.TypeOf(in).Implements(validatorRefType)
+				if okImpl {
+					concreteVal, ok := in.(ValidReference)
+					if ok {
+						vErrs.merge(checkValidReference(t, concreteVal))
+					}
 				}
 			}
 		}
 		return vErrs
 	}
+}
+
+func checkValidContent(t ErrorType, c ValidContent) ValidationErrors {
+	return c.validate()
+}
+
+func checkValidReference(t ErrorType, c ValidReference) ValidationErrors {
+	vErrs := ValidationErrors{}
+	if c.Reference().Id == "" {
+		if c.Reference().Mandatory {
+			vErrs.append(t, "empty "+c.Reference().Type+" reference", c.Reference().Location)
+		}
+	} else {
+		if _, ok := c.Reference().Repo[c.Reference().Id]; !ok {
+			vErrs.append(t, "reference to unknown "+c.Reference().Type+": "+c.Reference().Id, c.Reference().Location)
+		}
+	}
+	return vErrs
 }
