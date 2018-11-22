@@ -25,8 +25,7 @@ func ExampleChainDescribable() {
 	n := NodeSet{Name: "MyNodesetName"}
 
 	c := ChainDescribable(p, n)
-	fmt.Printf("Chained types :%s", c.DescType())
-	fmt.Printf("Chained names :%s", c.DescName())
-	// Output: Chained types :Provider-NodeSet
-	// Chained names :MyProviderName-MyNodesetName
+	fmt.Printf("Chained types:%s, names:%s", c.DescType(), c.DescName())
+	// Output: Chained types:Provider-NodeSet, names:MyProviderName-MyNodesetName
+
 }
