@@ -10,6 +10,7 @@ import (
 
 var semanticVersioningPattern = regexp.MustCompile("^(?P<major>0|[1-9]\\d*)(\\.(?P<minor>0|[1-9]\\d*))?(\\.(?P<patch>0|[1-9]\\d*))?(?:-(?P<prerelease>(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$")
 
+//Version represents the version of a component
 type Version struct {
 	Major int
 	Minor int
@@ -17,6 +18,7 @@ type Version struct {
 	full  string
 }
 
+// MarshalJSON returns the serialized content of the version as JSON
 func (r Version) MarshalJSON() ([]byte, error) {
 	t := struct {
 		Major string `json:",omitempty"`
@@ -74,7 +76,6 @@ func createVersion(full string) (Version, error) {
 		}
 		// TODO take prerelease tag into account
 	}
-
 	return v, nil
 }
 
@@ -95,6 +96,7 @@ func (v Version) IncludesVersion(other Version) bool {
 	}
 }
 
+// String returns the string representation of the version
 func (v Version) String() string {
 	if v.Major >= 0 {
 		return fmt.Sprintf("v%d.%d.%d", v.Major, v.Minor, v.Micro)

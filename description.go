@@ -5,9 +5,17 @@ import (
 )
 
 type (
-	// A Describable is a type that can describe itself with a type and a name
+	// Describable represents an part of the environment descriptor
+	// which can describe itself with a type and a name.
+	//
+	// Describable is implemented by :
+	//  Nodeset
+	//  Provider
+	//  Stack
 	Describable interface {
+		// DescType returns the type of the environment part being described, Nodeset, Provider...
 		DescType() string
+		// DescName returns the name of the environment part being described
 		DescName() string
 	}
 
@@ -25,7 +33,8 @@ func (c chained) DescName() string {
 	return strings.Join(c.descNames, "-")
 }
 
-func ChainDescribable(descs ...Describable) chained {
+// ChainDescribable merge the types and names of several Describable
+func ChainDescribable(descs ...Describable) Describable {
 	r := chained{}
 	for _, v := range descs {
 		r.descTypes = append(r.descTypes, v.DescType())

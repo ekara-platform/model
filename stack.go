@@ -6,6 +6,7 @@ import (
 )
 
 type (
+	//Stack represent an Stack installable on the built environment
 	Stack struct {
 		// The name of the stack
 		Name string
@@ -15,6 +16,7 @@ type (
 		Hooks StackHook
 	}
 
+	//Stacks represent all the stacks of an environment
 	Stacks map[string]Stack
 )
 
@@ -26,6 +28,7 @@ func (r Stack) DescName() string {
 	return r.Name
 }
 
+// MarshalJSON returns the serialized content of the stack as JSON
 func (r Stack) MarshalJSON() ([]byte, error) {
 	t := struct {
 		Name      string        `json:",omitempty"`

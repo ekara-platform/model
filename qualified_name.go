@@ -18,6 +18,13 @@ func (qn QualifiedName) String() string {
 	return qn.name
 }
 
+// IsAValidQualifier is the regular expresison used to validate the qualified name
+// of an environment
+//
+// The qualified name is the concatenation if the environment name and its qualifier
+// separated by a "_"
+//
+// The name and the qualifier can contain only alphanumerical characters
 var IsAValidQualifier = regexp.MustCompile(`^[a-zA-Z0-9_a-zA-Z0-90-9]+$`).MatchString
 
 func (n QualifiedName) validate() ValidationErrors {

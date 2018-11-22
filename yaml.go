@@ -198,6 +198,7 @@ type (
 	}
 )
 
+// RawContent returns the serialized content of the environement as YAML
 func (r *yamlEnvironment) RawContent() ([]byte, error) {
 	return yaml.Marshal(r)
 }

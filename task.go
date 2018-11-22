@@ -8,6 +8,7 @@ import (
 )
 
 type (
+	//Task represent an task executable on the built environment
 	Task struct {
 		// Name of the task
 		Name string
@@ -25,11 +26,13 @@ type (
 		Hooks TaskHook
 	}
 
+	//Tasks represent all the tasks of an environment
 	Tasks map[string]Task
 
 	circularRefTracking map[string]interface{}
 )
 
+// MarshalJSON returns the serialized content of the task as JSON
 func (r Task) MarshalJSON() ([]byte, error) {
 	t := struct {
 		Name       string      `json:",omitempty"`

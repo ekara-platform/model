@@ -14,9 +14,11 @@ type (
 		Parameters Parameters `yaml:"params"`
 	}
 
+	// Volume represents all the volumes to create
 	Volumes map[string]Volume
 )
 
+// MarshalJSON returns the serialized content of a volume as JSON
 func (r Volume) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		Name       string      `json:",omitempty"`

@@ -2,10 +2,9 @@ package model
 
 type (
 
-	// ScmType is the type used to identify a reference on a remote block whitin
+	// Reference is the type used to identify a reference on a remote block whitin
 	// the environment descriptor
 	Reference struct {
-		//
 		Id        string
 		Type      string
 		Mandatory bool

@@ -36,53 +36,47 @@ type (
 	}
 )
 
-// WarningOnEmptyOrInvalid allows to validate interfaces maching the following content:
+//WarningOnEmptyOrInvalid allows to validate interfaces maching the following content:
 //
-//  // - "string": The string must not be empty.
-//  //   The string content will be trimmed before the validation.
-//  //
-//  // - Any Map: The map cannot be empty
-//  //   if the map content implementing ValidableContent or ValidableReference then it will be validated
-//  //
-//  // - Any Slice: The slice cannot be empty
-//  //   if the slice content implementing ValidableContent or ValidableReference then it will be validated
-//  //
+//  -"string": The string must not be empty.
+//  The string content will be trimmed before the validation.
 //
-// The Created validation errors will be warnings
+//  -Any Map: The map cannot be empty.
+//  if the map content implements ValidableContent or ValidableReference then it will be validated.
+//
+//  -Any Slice: The slice cannot be empty.
+//  if the slice content implements ValidableContent or ValidableReference then it will be validated.
+//
+//  The Created validation errors will be warnings
 var WarningOnEmptyOrInvalid = validNotEmpty(Warning)
 
 // ErrorOnEmptyOrInvalid allows to validate interfaces maching the following content:
 //
-//  // - "string": The string must not be empty.
-//  //   The string content will be trimmed before the validation.
-//  //
-//  // - Any Map: The map cannot be empty
-//  //   if the map content implementing ValidableContent or ValidableReference then it will be validated
-//  //
-//  // - Any Slice: The slice cannot be empty
-//  //   if the slice content implementing ValidableContent or ValidableReference then it will be validated
-//  //
+//  -"string": The string must not be empty.
+//  The string content will be trimmed before the validation.
 //
-// The Created validation errors will be errors
+//  -Any Map: The map cannot be empty.
+//  if the map content implements ValidableContent or ValidableReference then it will be validated.
+//
+//  -Any Slice: The slice cannot be empty.
+//  if the slice content implements ValidableContent or ValidableReference then it will be validated.
+//
+//  The Created validation errors will be errors
 var ErrorOnEmptyOrInvalid = validNotEmpty(Error)
 
 // ErrorOnInvalid allows to validate interfaces maching the following content:
 //
-//  // - Maps of structs implementing ValidableContent or ValidableReference
-//  //
-//  // map[interface{}]ValidableContent
-//  // map[interface{}]ValidableReference
-//  //
-//  // - Slices of structs implementing ValidableContent or ValidableReference
-//  //
-//  // []ValidableContent
-//  // []ValidableReference
-//  //
-//  //
-//  // - Any struct implementing ValidableContent or ValidableReference
-//  //
+//  -Maps of structs implementing ValidableContent or ValidableReference
+//  map[interface{}]ValidableContent
+//  map[interface{}]ValidableReference
 //
-// The Created validation errors will be errors
+//  -Slices of structs implementing ValidableContent or ValidableReference
+//  []ValidableContent
+//  []ValidableReference
+//
+//  -Any struct implementing ValidableContent or ValidableReference
+//
+//  The Created validation errors will be errors
 var ErrorOnInvalid = valid(Error)
 
 // Error returns the message resulting of the concatenation of all included ValidationError
