@@ -1,5 +1,7 @@
 package model
 
+//Labels represents used defined labels which will be placed on the created environment
+//machines and also on the nodes for Docker
 type Labels map[string]string
 
 func (r Labels) inherits(parent Labels) Labels {

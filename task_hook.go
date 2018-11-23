@@ -5,12 +5,7 @@ import (
 )
 
 type (
-	//TaskHook represents a hook associated to a task
-	//
-	// For example, the code of the first lines of this section looks like this:
-	//  // You can embed blocks of code in your godoc, such as this:
-	//  //  fmt.Println("Hello")
-	//  // To do that, simply add an extra indent to your comment's text.
+	//TaskHook represents hooks associated to a task
 	TaskHook struct {
 		//Execute specifies the hook tasks to run when a task is executed
 		Execute Hook

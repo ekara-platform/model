@@ -5,7 +5,7 @@ import (
 )
 
 type (
-	//StackHook represents a hook associated to a task
+	//StackHook represents hooks associated to a task
 	StackHook struct {
 		//Deploy specifies the hook tasks to run when a stack is deployed
 		Deploy Hook

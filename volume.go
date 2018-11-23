@@ -14,7 +14,7 @@ type (
 		Parameters Parameters `yaml:"params"`
 	}
 
-	// Volume represents all the volumes to create
+	// Volume represents all the volumes to create for a Node set
 	Volumes map[string]Volume
 )
 

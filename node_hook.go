@@ -5,12 +5,16 @@ import (
 )
 
 type (
+	//NodeHook represents hooks associated to a node set
 	NodeHook struct {
+		//Provisioned specifies the hook tasks to run when a node set is provisioned
 		Provision Hook
-		Destroy   Hook
+		//Destroy specifies the hook tasks to run when a node set is destroyed
+		Destroy Hook
 	}
 )
 
+//HasTasks returns true if the hook contains at least one task reference
 func (r NodeHook) HasTasks() bool {
 	return r.Provision.HasTasks() ||
 		r.Destroy.HasTasks()
@@ -30,6 +34,7 @@ func (r NodeHook) validate() ValidationErrors {
 	return ErrorOnInvalid(r.Provision, r.Destroy)
 }
 
+// MarshalJSON returns the serialized content of the hook as JSON
 func (r NodeHook) MarshalJSON() ([]byte, error) {
 	t := struct {
 		Provision *Hook `json:",omitempty"`
