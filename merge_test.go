@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMergeVolume(t *testing.T) {
+func TestMergeParameterViaVolume(t *testing.T) {
 	paramV1 := make(map[string]interface{})
 	paramV1["paramV1_key1"] = "paramV1_val1"
 	paramV1["paramV1_key2"] = "paramV1_val2"

@@ -75,8 +75,8 @@ func createStacks(env *Environment, yamlEnv *yamlEnvironment) Stacks {
 	return res
 }
 
-func (r Stacks) merge(env *Environment, other Stacks) error {
-	for id, s := range other {
+func (r Stacks) merge(env *Environment, others Stacks) error {
+	for id, s := range others {
 		if stack, ok := r[id]; ok {
 			if err := stack.merge(s); err != nil {
 				return err

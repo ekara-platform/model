@@ -344,16 +344,18 @@ func assertEnv(t *testing.T, env Environment) {
 	// Node2 Hook
 	//------------------------------------------------------------
 	no = nodeSets["node2"]
-	assert.Equal(t, 1, len(no.Hooks.Provision.Before))
-	assert.Equal(t, 1, len(no.Hooks.Provision.After))
-	assert.Equal(t, 1, len(no.Hooks.Destroy.Before))
-	assert.Equal(t, 1, len(no.Hooks.Destroy.After))
-
-	assert.Equal(t, "task1", no.Hooks.Provision.Before[0].ref)
-	assert.Equal(t, "task2", no.Hooks.Provision.After[0].ref)
-
-	assert.Equal(t, "task1", no.Hooks.Destroy.Before[0].ref)
-	assert.Equal(t, "task2", no.Hooks.Destroy.After[0].ref)
+	if assert.Equal(t, 1, len(no.Hooks.Provision.Before)) {
+		assert.Equal(t, "task1", no.Hooks.Provision.Before[0].ref)
+	}
+	if assert.Equal(t, 1, len(no.Hooks.Provision.After)) {
+		assert.Equal(t, "task2", no.Hooks.Provision.After[0].ref)
+	}
+	if assert.Equal(t, 1, len(no.Hooks.Destroy.Before)) {
+		assert.Equal(t, "task1", no.Hooks.Destroy.Before[0].ref)
+	}
+	if assert.Equal(t, 1, len(no.Hooks.Destroy.After)) {
+		assert.Equal(t, "task2", no.Hooks.Destroy.After[0].ref)
+	}
 
 	//------------------------------------------------------------
 	// Environment Stacks
@@ -382,16 +384,18 @@ func assertEnv(t *testing.T, env Environment) {
 	//------------------------------------------------------------
 	// Stack1 Hook
 	//------------------------------------------------------------
-	assert.Equal(t, 1, len(stack1.Hooks.Deploy.Before))
-	assert.Equal(t, 1, len(stack1.Hooks.Deploy.After))
-	assert.Equal(t, 1, len(stack1.Hooks.Undeploy.Before))
-	assert.Equal(t, 1, len(stack1.Hooks.Undeploy.After))
-
-	assert.Equal(t, "task1", stack1.Hooks.Deploy.Before[0].ref)
-	assert.Equal(t, "task2", stack1.Hooks.Deploy.After[0].ref)
-
-	assert.Equal(t, "task1", stack1.Hooks.Undeploy.Before[0].ref)
-	assert.Equal(t, "task2", stack1.Hooks.Undeploy.After[0].ref)
+	if assert.Equal(t, 1, len(stack1.Hooks.Deploy.Before)) {
+		assert.Equal(t, "task1", stack1.Hooks.Deploy.Before[0].ref)
+	}
+	if assert.Equal(t, 1, len(stack1.Hooks.Deploy.After)) {
+		assert.Equal(t, "task2", stack1.Hooks.Deploy.After[0].ref)
+	}
+	if assert.Equal(t, 1, len(stack1.Hooks.Undeploy.Before)) {
+		assert.Equal(t, "task1", stack1.Hooks.Undeploy.Before[0].ref)
+	}
+	if assert.Equal(t, 1, len(stack1.Hooks.Undeploy.After)) {
+		assert.Equal(t, "task2", stack1.Hooks.Undeploy.After[0].ref)
+	}
 
 	//------------------------------------------------------------
 	// Environment Tasks
@@ -452,11 +456,12 @@ func assertEnv(t *testing.T, env Environment) {
 	// Environment Tasks Hooks
 	//------------------------------------------------------------
 	ta := tasks["task3"]
-	assert.Equal(t, 1, len(ta.Hooks.Execute.Before))
-	assert.Equal(t, 1, len(ta.Hooks.Execute.After))
-
-	assert.Equal(t, "task1", ta.Hooks.Execute.Before[0].ref)
-	assert.Equal(t, "task2", ta.Hooks.Execute.After[0].ref)
+	if assert.Equal(t, 1, len(ta.Hooks.Execute.Before)) {
+		assert.Equal(t, "task1", ta.Hooks.Execute.Before[0].ref)
+	}
+	if assert.Equal(t, 1, len(ta.Hooks.Execute.After)) {
+		assert.Equal(t, "task2", ta.Hooks.Execute.After[0].ref)
+	}
 
 }
 
