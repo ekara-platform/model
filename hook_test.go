@@ -34,11 +34,13 @@ func TestMergeHookBefore(t *testing.T) {
 	err := h.merge(o)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
-	assert.Equal(t, 2, len(h.Before))
-	// Check if the appended content is after the genuine one
-	assert.Equal(t, "ref1", h.Before[0].ref)
-	assert.Equal(t, "ref2", h.Before[1].ref)
-	assert.Equal(t, 0, len(h.After))
+	if assert.Equal(t, 2, len(h.Before)) {
+		assert.Equal(t, 0, len(h.After))
+		// Check if the appended content is after the genuine one
+		// Fixing : https://github.com/ekara-platform/model/issues/20
+		assert.Equal(t, task1.ref, h.Before[0].ref)
+		assert.Equal(t, task2.ref, h.Before[1].ref)
+	}
 }
 
 func TestMergeHookAfter(t *testing.T) {
@@ -52,9 +54,25 @@ func TestMergeHookAfter(t *testing.T) {
 	err := h.merge(o)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
+	if assert.Equal(t, 2, len(h.After)) {
+		assert.Equal(t, 0, len(h.Before))
+		// Check if the appended content is after the genuine one
+		// Fixing : https://github.com/ekara-platform/model/issues/20
+		assert.Equal(t, task1.ref, h.After[0].ref)
+		assert.Equal(t, task2.ref, h.After[1].ref)
+	}
+}
+
+func TestMergeHookItself(t *testing.T) {
+	task1 := taskRef{ref: "ref1"}
+	h := Hook{}
+	h.After = append(h.After, task1)
+
+	err := h.merge(h)
+	assert.Nil(t, err)
+	assert.True(t, h.HasTasks())
 	assert.Equal(t, 0, len(h.Before))
-	assert.Equal(t, 2, len(h.After))
-	// Check if the appended content is after the genuine one
-	assert.Equal(t, "ref1", h.After[0].ref)
-	assert.Equal(t, "ref2", h.After[1].ref)
+	// Just on after because de hook caanot merge its own content
+	assert.Equal(t, 1, len(h.After))
+	assert.Equal(t, task1.ref, h.After[0].ref)
 }

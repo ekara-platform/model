@@ -1,5 +1,10 @@
 package model
 
+import (
+	"log"
+	"reflect"
+)
+
 // Hook represents tasks to be executed linked to an ekara life cycle event
 type Hook struct {
 	//Before specifies the tasks to run before the ekara life cycle event occurs
@@ -29,8 +34,11 @@ func (r Hook) validate() ValidationErrors {
 }
 
 func (r *Hook) merge(other Hook) error {
-	r.Before = append(r.Before, other.Before...)
-	r.After = append(r.After, other.After...)
+	if !reflect.DeepEqual(r, &other) {
+		log.Println("in if")
+		r.Before = append(r.Before, other.Before...)
+		r.After = append(r.After, other.After...)
+	}
 	return nil
 }
 
