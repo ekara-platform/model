@@ -1,7 +1,7 @@
 package model
 
 type (
-	OrchestratorRef struct {
+	orchestratorRef struct {
 		parameters Parameters
 		docker     Parameters
 		envVars    EnvVars
@@ -11,19 +11,7 @@ type (
 	}
 )
 
-func (r OrchestratorRef) validate() ValidationErrors {
-	return ValidationErrors{}
-}
-
-func (r *OrchestratorRef) merge(other OrchestratorRef) error {
-	return nil
-}
-
-func (r OrchestratorRef) Resolve() (Orchestrator, error) {
-	validationErrors := r.validate()
-	if validationErrors.HasErrors() {
-		return Orchestrator{}, validationErrors
-	}
+func (r orchestratorRef) Resolve() (Orchestrator, error) {
 	orchestrator := r.env.Orchestrator
 	return Orchestrator{
 		Component:  orchestrator.Component,
@@ -32,12 +20,25 @@ func (r OrchestratorRef) Resolve() (Orchestrator, error) {
 		EnvVars:    r.envVars.inherits(orchestrator.EnvVars)}, nil
 }
 
-func createOrchestratorRef(env *Environment, location DescriptorLocation, yamlRef yamlOrchestratorRef) OrchestratorRef {
-	return OrchestratorRef{
+func createOrchestratorRef(env *Environment, location DescriptorLocation, yamlRef yamlOrchestratorRef) orchestratorRef {
+	return orchestratorRef{
 		env:        env,
 		parameters: createParameters(yamlRef.Params),
 		docker:     createParameters(yamlRef.Docker),
 		envVars:    createEnvVars(yamlRef.Env),
 		location:   location,
 	}
+}
+
+// OrchestratorParams returns the parameters required to install the orchestrator
+func (r orchestratorRef) OrchestratorParams() (map[string]interface{}, error) {
+	op := make(map[string]interface{})
+	o, err := r.Resolve()
+	if err != nil {
+		return op, err
+	}
+
+	op["docker"] = o.Docker
+	op["params"] = o.Parameters
+	return op, nil
 }

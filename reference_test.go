@@ -7,10 +7,10 @@ import (
 )
 
 type ReContent struct {
-	ref Reference
+	ref validatableReference
 }
 
-func (r ReContent) Reference() Reference {
+func (r ReContent) reference() validatableReference {
 	return r.ref
 }
 
@@ -19,7 +19,7 @@ func TestMatchingReference(t *testing.T) {
 	repo := make(map[string]interface{})
 	repo[id] = "blablabla"
 
-	r := Reference{
+	r := validatableReference{
 		Id:        id,
 		Type:      "my_ref",
 		Mandatory: true,
@@ -37,7 +37,7 @@ func TestUnmatchingReference(t *testing.T) {
 	repo := make(map[string]interface{})
 	repo[id] = "blablabla"
 
-	r := Reference{
+	r := validatableReference{
 		Id:        "dummy_id",
 		Type:      "my_type",
 		Mandatory: true,

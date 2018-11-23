@@ -7,7 +7,34 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestChain(t *testing.T) {
+func TestDescribableNodeSet(t *testing.T) {
+	o := NodeSet{Name: "Name1"}
+	assert.Equal(t, "Name1", o.DescName())
+	assert.Equal(t, "NodeSet", o.DescType())
+}
+
+func TestDescribableStack(t *testing.T) {
+	o := Stack{Name: "Name1"}
+	assert.Equal(t, "Name1", o.DescName())
+	assert.Equal(t, "Stack", o.DescType())
+}
+
+func TestDescribableProvider(t *testing.T) {
+	o := Provider{Name: "Name1"}
+	assert.Equal(t, "Name1", o.DescName())
+	assert.Equal(t, "Provider", o.DescType())
+}
+
+func TestChainOne(t *testing.T) {
+
+	n1 := NodeSet{Name: "NameNode1"}
+	chained := ChainDescribable(n1)
+
+	assert.Equal(t, "NameNode1", chained.DescName())
+	assert.Equal(t, "NodeSet", chained.DescType())
+}
+
+func TestChainMultiples(t *testing.T) {
 
 	n1 := NodeSet{Name: "NameNode1"}
 	n2 := NodeSet{Name: "NameNode2"}

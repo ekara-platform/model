@@ -11,8 +11,8 @@ type (
 		// The name of the stack
 		Name string
 		// The component containing the stack
-		Component ComponentRef
-		// The hooks linked to the stack lifecycle
+		Component componentRef
+		// The hooks linked to the stack lifecycle events
 		Hooks StackHook
 	}
 
@@ -20,10 +20,13 @@ type (
 	Stacks map[string]Stack
 )
 
+//DescType returns the Describable type of the stack
+//  Hardcoded to : "Stack"
 func (r Stack) DescType() string {
 	return "Stack"
 }
 
+//DescName returns the Describable name of the stack
 func (r Stack) DescName() string {
 	return r.Name
 }
@@ -32,7 +35,7 @@ func (r Stack) DescName() string {
 func (r Stack) MarshalJSON() ([]byte, error) {
 	t := struct {
 		Name      string        `json:",omitempty"`
-		Component *ComponentRef `json:",omitempty"`
+		Component *componentRef `json:",omitempty"`
 		On        []string      `json:",omitempty"`
 		Hooks     *StackHook    `json:",omitempty"`
 	}{

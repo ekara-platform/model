@@ -11,14 +11,14 @@ type (
 	//ErrorType type used to represent the type of a validation error
 	ErrorType int
 
-	// ValidationErrors represents a list of all error resulting of the construction
-	// or the validation of an environment
+	//ValidationErrors represents a list of all error resulting of the construction
+	//or the validation of an environment
 	ValidationErrors struct {
 		Errors []ValidationError
 	}
 
 	//ValidationError represents an error created during the construction of the
-	// validation of an environment
+	// validation or an environment
 	ValidationError struct {
 		// ErrorType represents the type of the error
 		ErrorType ErrorType
@@ -29,57 +29,88 @@ type (
 		Message string
 	}
 
-	// ValidableContent represents any structs which can be validated and then
+	// validatableContent represents any structs which can be validated and then
 	// produce ValidationErrors
-	ValidableContent interface {
+	//
+	// If a structure implements validatableContent then it will be validated invoking:
+	//  ErrorOnInvalid(myStruct)
+	validatableContent interface {
 		validate() ValidationErrors
 	}
 )
 
-//WarningOnEmptyOrInvalid allows to validate interfaces maching the following content:
+// WarningOnEmptyOrInvalid allows to validate interfaces maching the following content:
 //
-//  -"string": The string must not be empty.
-//  The string content will be trimmed before the validation.
+// The created validation errors will be warnings.
 //
-//  -Any Map: The map cannot be empty.
-//  if the map content implements ValidableContent or ValidableReference then it will be validated.
+// A string
 //
-//  -Any Slice: The slice cannot be empty.
-//  if the slice content implements ValidableContent or ValidableReference then it will be validated.
+// The string must not be empty.
 //
-//  The Created validation errors will be warnings
+// The string content will be trimmed before the validation.
+//
+// Any Map
+//
+// The map cannot be empty.
+//
+// If the map content implements validatableContent or validatableReference then it will be validated.
+//
+// Any Slice
+//
+// The slice cannot be empty.
+//
+// If the slice content implements validatableContent or validatableReference then it will be validated.
+//
+//
 var WarningOnEmptyOrInvalid = validNotEmpty(Warning)
 
 // ErrorOnEmptyOrInvalid allows to validate interfaces maching the following content:
 //
-//  -"string": The string must not be empty.
-//  The string content will be trimmed before the validation.
+// The created validation errors will be errors.
 //
-//  -Any Map: The map cannot be empty.
-//  if the map content implements ValidableContent or ValidableReference then it will be validated.
+// A String
 //
-//  -Any Slice: The slice cannot be empty.
-//  if the slice content implements ValidableContent or ValidableReference then it will be validated.
+// The string must not be empty.
 //
-//  The Created validation errors will be errors
+// The string content will be trimmed before the validation.
+//
+// Any Map
+//
+// The map cannot be empty.
+//
+// If the map content implements validatableContent or validatableReference then it will be validated.
+//
+// Any Slice
+//
+// The slice cannot be empty.
+//
+// If the slice content implements validatableContent or validatableReference then it will be validated.
 var ErrorOnEmptyOrInvalid = validNotEmpty(Error)
 
 // ErrorOnInvalid allows to validate interfaces maching the following content:
 //
-//  -Maps of structs implementing ValidableContent or ValidableReference
-//  map[interface{}]ValidableContent
-//  map[interface{}]ValidableReference
+// The created validation errors will be errors.
 //
-//  -Slices of structs implementing ValidableContent or ValidableReference
-//  []ValidableContent
-//  []ValidableReference
+// Maps of structs implementing validatableContent or validatableReference
 //
-//  -Any struct implementing ValidableContent or ValidableReference
+// map[interface{}]validatableContent.
 //
-//  The Created validation errors will be errors
+// map[interface{}]validatableReference.
+//
+// Slices of structs implementing validatableContent or validatableReference
+//
+// []validatableContent.
+//
+// []validatableReference.
+//
+// Any struct
+//
+// The structure must implement validatableContent or validatableReference
+//
+//
 var ErrorOnInvalid = valid(Error)
 
-// Error returns the message resulting of the concatenation of all included ValidationError
+// Error returns the message resulting of the concatenation of all included ValidationError(s)
 func (ve ValidationErrors) Error() string {
 	s := "Validation errors or warnings have occurred:\n"
 	for _, err := range ve.Errors {
@@ -153,7 +184,7 @@ func (ve *ValidationErrors) addWarning(message string, location DescriptorLocati
 	ve.append(Warning, message, location)
 }
 
-// HasErrors returns true if the ValidationErrors contains at least on error
+// HasErrors returns true if the ValidationErrors contains at least one error
 func (ve ValidationErrors) HasErrors() bool {
 	for _, v := range ve.Errors {
 		if v.ErrorType == Error {
@@ -163,7 +194,7 @@ func (ve ValidationErrors) HasErrors() bool {
 	return false
 }
 
-// HasWarnings returns true if the ValidationErrors contains at least on warning
+// HasWarnings returns true if the ValidationErrors contains at least one warning
 func (ve ValidationErrors) HasWarnings() bool {
 	for _, v := range ve.Errors {
 		if v.ErrorType == Warning {
@@ -213,8 +244,8 @@ func valid(t ErrorType) func(ins ...interface{}) ValidationErrors {
 	return func(ins ...interface{}) ValidationErrors {
 		vErrs := ValidationErrors{}
 
-		validatorType := reflect.TypeOf((*ValidableContent)(nil)).Elem()
-		validatorRefType := reflect.TypeOf((*ValidableReference)(nil)).Elem()
+		validatorType := reflect.TypeOf((*validatableContent)(nil)).Elem()
+		validatorRefType := reflect.TypeOf((*validatableReferencer)(nil)).Elem()
 
 		for _, in := range ins {
 
@@ -225,7 +256,7 @@ func valid(t ErrorType) func(ins ...interface{}) ValidationErrors {
 					val := vOf.MapIndex(key)
 					okImpl := reflect.TypeOf(val.Interface()).Implements(validatorType)
 					if okImpl {
-						concreteVal, ok := val.Interface().(ValidableContent)
+						concreteVal, ok := val.Interface().(validatableContent)
 						if ok {
 							vErrs.merge(checkValidContent(t, concreteVal))
 						}
@@ -233,7 +264,7 @@ func valid(t ErrorType) func(ins ...interface{}) ValidationErrors {
 
 					okImpl = reflect.TypeOf(val.Interface()).Implements(validatorRefType)
 					if okImpl {
-						concreteVal, ok := val.Interface().(ValidableReference)
+						concreteVal, ok := val.Interface().(validatableReferencer)
 						if ok {
 							vErrs.merge(checkValidReference(t, concreteVal))
 						}
@@ -244,14 +275,14 @@ func valid(t ErrorType) func(ins ...interface{}) ValidationErrors {
 					val := vOf.Index(i)
 					okImpl := reflect.TypeOf(val.Interface()).Implements(validatorType)
 					if okImpl {
-						concreteVal, ok := val.Interface().(ValidableContent)
+						concreteVal, ok := val.Interface().(validatableContent)
 						if ok {
 							vErrs.merge(checkValidContent(t, concreteVal))
 						}
 					}
 					okImpl = reflect.TypeOf(val.Interface()).Implements(validatorRefType)
 					if okImpl {
-						concreteVal, ok := val.Interface().(ValidableReference)
+						concreteVal, ok := val.Interface().(validatableReferencer)
 						if ok {
 							vErrs.merge(checkValidReference(t, concreteVal))
 						}
@@ -260,14 +291,14 @@ func valid(t ErrorType) func(ins ...interface{}) ValidationErrors {
 			default:
 				okImpl := reflect.TypeOf(in).Implements(validatorType)
 				if okImpl {
-					concreteVal, ok := in.(ValidableContent)
+					concreteVal, ok := in.(validatableContent)
 					if ok {
 						vErrs.merge(checkValidContent(t, concreteVal))
 					}
 				}
 				okImpl = reflect.TypeOf(in).Implements(validatorRefType)
 				if okImpl {
-					concreteVal, ok := in.(ValidableReference)
+					concreteVal, ok := in.(validatableReferencer)
 					if ok {
 						vErrs.merge(checkValidReference(t, concreteVal))
 					}
@@ -278,21 +309,22 @@ func valid(t ErrorType) func(ins ...interface{}) ValidationErrors {
 	}
 }
 
-//checkValidContent validates a ValidableContent
-func checkValidContent(t ErrorType, c ValidableContent) ValidationErrors {
+//checkValidContent validates a validatableContent
+func checkValidContent(t ErrorType, c validatableContent) ValidationErrors {
 	return c.validate()
 }
 
-//checkValidReference validates a ValidableReference
-func checkValidReference(t ErrorType, c ValidableReference) ValidationErrors {
+//checkValidReference validates a validatableReference
+func checkValidReference(t ErrorType, c validatableReferencer) ValidationErrors {
 	vErrs := ValidationErrors{}
-	if c.Reference().Id == "" {
-		if c.Reference().Mandatory {
-			vErrs.append(t, "empty "+c.Reference().Type+" reference", c.Reference().Location)
+	ref := c.reference()
+	if ref.Id == "" {
+		if ref.Mandatory {
+			vErrs.append(t, "empty "+ref.Type+" reference", ref.Location)
 		}
 	} else {
-		if _, ok := c.Reference().Repo[c.Reference().Id]; !ok {
-			vErrs.append(t, "reference to unknown "+c.Reference().Type+": "+c.Reference().Id, c.Reference().Location)
+		if _, ok := ref.Repo[ref.Id]; !ok {
+			vErrs.append(t, "reference to unknown "+ref.Type+": "+ref.Id, ref.Location)
 		}
 	}
 	return vErrs

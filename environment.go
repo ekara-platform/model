@@ -8,12 +8,12 @@ import (
 )
 
 type (
+	//Environment represents an environment build based on a descriptor
 	Environment struct {
 		// Validation errors that occurred during the building of the environment
 		errors ValidationErrors
 		// The location of the environment root
 		location DescriptorLocation
-
 		// Global imports
 		Imports []string
 		// The environment name
@@ -34,11 +34,12 @@ type (
 		Stacks Stacks
 		// The tasks which can be ran against the environment
 		Tasks Tasks
-		// Global environment hooks
+		// The hooks linked to the environment lifecycle events
 		Hooks EnvironmentHooks
 	}
 )
 
+// MarshalJSON returns the serialized content of the whole environment as JSON
 func (r Environment) MarshalJSON() ([]byte, error) {
 	t := struct {
 		Name          string    `json:",omitempty"`
@@ -71,6 +72,14 @@ func (r Environment) MarshalJSON() ([]byte, error) {
 	return json.Marshal(t)
 }
 
+//CreateEnvironment creates a new environment
+//	Parameters
+//
+//		logger: The looger where to log during the environment creation
+//		url: 	The complete url pointing on the descritor used to build the environment.
+//			The two only supported extension are ".yaml" and ".yml"!
+//		data: The data used to substitute variables into the environment descriptor
+//
 func CreateEnvironment(logger *log.Logger, url *url.URL, data map[string]interface{}) (Environment, error) {
 	env := Environment{}
 	if hasSuffixIgnoringCase(url.Path, ".yaml") || hasSuffixIgnoringCase(url.Path, ".yml") {
@@ -101,8 +110,11 @@ func CreateEnvironment(logger *log.Logger, url *url.URL, data map[string]interfa
 	return env, nil
 }
 
+//Merge merges the content of the other environment into the receiver
+//
+// Note: basic informations (name, qualifier, description) are only accepted in root descriptor
 func (r *Environment) Merge(other Environment) error {
-	// Data and basic info (name, qualifier, description) are only accepted in root descriptor
+	// basic informations (name, qualifier, description) are only accepted in root descriptor
 	if err := r.Ekara.merge(other.Ekara); err != nil {
 		return err
 	}
@@ -127,6 +139,7 @@ func (r *Environment) Merge(other Environment) error {
 	return nil
 }
 
+//Validate validate an environment
 func (r Environment) Validate() ValidationErrors {
 	vErrs := ValidationErrors{}
 	vErrs.merge(r.errors)

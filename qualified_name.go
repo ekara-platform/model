@@ -14,6 +14,7 @@ type QualifiedName struct {
 	r    Environment
 }
 
+//String returns the qualified name as string
 func (qn QualifiedName) String() string {
 	return qn.name
 }
@@ -35,6 +36,7 @@ func (n QualifiedName) validate() ValidationErrors {
 	return vErrs
 }
 
+//ValidQualifiedName returns true if the qualified name is valid
 func (qn QualifiedName) ValidQualifiedName() bool {
 	return IsAValidQualifier(qn.String())
 }

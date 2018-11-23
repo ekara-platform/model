@@ -5,11 +5,21 @@ import (
 )
 
 type (
-	// Type used to describe the location of any element within the environment
+	// DescriptorLocation represents the location of any element within the environment
 	// descriptor
 	DescriptorLocation struct {
+		//Descriptor is the url of the descriptor
 		Descriptor string
-		Path       string
+		//Path is the location into the descriptor
+		//
+		// For example if the descriptor contains this:
+		//  level1:
+		//    level2:
+		//      level3: ekara-platform/aws-provider
+		//
+		// The location of "level3" will be "level1.level2.level3"
+		//
+		Path string
 	}
 )
 

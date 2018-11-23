@@ -13,7 +13,7 @@ type (
 		// Name of the task
 		Name string
 		// The component containing the task
-		Component ComponentRef
+		Component componentRef
 		// The playbook to execute
 		Playbook string
 		// The cron expression when the task must be scheduled
@@ -22,7 +22,7 @@ type (
 		Parameters Parameters
 		// The task environment variables
 		EnvVars EnvVars
-		// Hooks for executing other tasks around execution
+		//The hooks linked to the task lifecycle events
 		Hooks TaskHook
 	}
 

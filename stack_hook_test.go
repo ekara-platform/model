@@ -31,3 +31,32 @@ func TestValidateUnknownStackHooks(t *testing.T) {
 	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "stacks.monitoring.hooks.undeploy.after"))
 
 }
+
+func TestHasNoTaskStack(t *testing.T) {
+	h := StackHook{}
+	assert.False(t, h.HasTasks())
+}
+
+func TestHasTaskBeforeStackDeploy(t *testing.T) {
+	h := StackHook{}
+	h.Deploy.Before = append(h.Deploy.Before, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
+func TestHasTaskAfterStackDeploy(t *testing.T) {
+	h := StackHook{}
+	h.Deploy.After = append(h.Deploy.After, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
+func TestHasTaskBeforeStackUndeploy(t *testing.T) {
+	h := StackHook{}
+	h.Undeploy.Before = append(h.Undeploy.Before, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
+func TestHasTaskAfterStackUndeploy(t *testing.T) {
+	h := StackHook{}
+	h.Undeploy.After = append(h.Undeploy.After, oneTask)
+	assert.True(t, h.HasTasks())
+}

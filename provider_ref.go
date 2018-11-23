@@ -2,8 +2,8 @@ package model
 
 type (
 
-	// Reference to a provider
-	ProviderRef struct {
+	// providerRef represents a reference to a provider
+	providerRef struct {
 		ref        string
 		parameters Parameters
 		envVars    EnvVars
@@ -14,12 +14,13 @@ type (
 	}
 )
 
-func (r ProviderRef) Reference() Reference {
+//reference return a validatable representation of the reference on a provider
+func (r providerRef) reference() validatableReference {
 	result := make(map[string]interface{})
 	for k, v := range r.env.Providers {
 		result[k] = v
 	}
-	return Reference{
+	return validatableReference{
 		Id:        r.ref,
 		Type:      "provider",
 		Mandatory: r.mandatory,
@@ -28,7 +29,7 @@ func (r ProviderRef) Reference() Reference {
 	}
 }
 
-func (r *ProviderRef) merge(other ProviderRef) error {
+func (r *providerRef) merge(other providerRef) error {
 	if r.ref == "" {
 		r.ref = other.ref
 	}
@@ -38,7 +39,7 @@ func (r *ProviderRef) merge(other ProviderRef) error {
 	return nil
 }
 
-func (r ProviderRef) Resolve() (Provider, error) {
+func (r providerRef) Resolve() (Provider, error) {
 	validationErrors := ErrorOnInvalid(r)
 	if validationErrors.HasErrors() {
 		return Provider{}, validationErrors
@@ -53,8 +54,8 @@ func (r ProviderRef) Resolve() (Provider, error) {
 }
 
 // createProviderRef creates a reference to the provider declared into the yaml reference
-func createProviderRef(env *Environment, location DescriptorLocation, yamlRef yamlProviderRef) ProviderRef {
-	return ProviderRef{
+func createProviderRef(env *Environment, location DescriptorLocation, yamlRef yamlProviderRef) providerRef {
+	return providerRef{
 		env:        env,
 		ref:        yamlRef.Name,
 		parameters: createParameters(yamlRef.Params),

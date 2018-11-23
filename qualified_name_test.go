@@ -22,6 +22,52 @@ func TestRegexp(t *testing.T) {
 	assert.False(t, IsAValidQualifier("a-b"))
 }
 
+// Tests on Envionment
+func TestFullQualifiedName(t *testing.T) {
+	env := Environment{
+		Name:      "ABC",
+		Qualifier: "DEF",
+	}
+	assert.Equal(t, "ABC_DEF", env.QualifiedName().String())
+}
+
+func TestPartialQualifiedName(t *testing.T) {
+	env := Environment{
+		Name: "ABC",
+	}
+	assert.Equal(t, "ABC", env.QualifiedName().String())
+}
+
+func TestEmptyQualifiedName(t *testing.T) {
+	env := Environment{}
+	// check the zero value
+	assert.Equal(t, QualifiedName{}, env.QualifiedName())
+	assert.Equal(t, "", env.QualifiedName().String())
+}
+
+// Tests on Yaml Envionment
+func TestFullQualifiedNameYaml(t *testing.T) {
+	env := yamlEnvironment{
+		Name:      "ABC",
+		Qualifier: "DEF",
+	}
+	assert.Equal(t, "ABC_DEF", env.QualifiedName().String())
+}
+
+func TestPartialQualifiedNameYaml(t *testing.T) {
+	env := yamlEnvironment{
+		Name: "ABC",
+	}
+	assert.Equal(t, "ABC", env.QualifiedName().String())
+}
+
+func TestEmptyQualifiedNameYaml(t *testing.T) {
+	env := yamlEnvironment{}
+	// check the zero value
+	assert.Equal(t, QualifiedName{}, env.QualifiedName())
+	assert.Equal(t, "", env.QualifiedName().String())
+}
+
 func TestValidQualifiedName(t *testing.T) {
 	env := Environment{
 		Name:      "ABCDEFGHIJKLMNOPQRSTUVWXYZ",

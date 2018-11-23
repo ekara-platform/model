@@ -36,3 +36,68 @@ func TestValidateUnknownGlobalHooks(t *testing.T) {
 	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.destroy.before"))
 	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.destroy.after"))
 }
+
+func TestHasNoTaskEnv(t *testing.T) {
+	h := EnvironmentHooks{}
+	assert.False(t, h.HasTasks())
+}
+
+func TestHasTaskBeforeEnvInit(t *testing.T) {
+	h := EnvironmentHooks{}
+	h.Init.Before = append(h.Init.Before, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
+func TestHasTaskAfterEnvInit(t *testing.T) {
+	h := EnvironmentHooks{}
+	h.Init.After = append(h.Init.After, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
+func TestHasTaskBeforeEnvProvision(t *testing.T) {
+	h := EnvironmentHooks{}
+	h.Provision.Before = append(h.Provision.Before, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
+func TestHasTaskAfterEnvProvision(t *testing.T) {
+	h := EnvironmentHooks{}
+	h.Provision.After = append(h.Provision.After, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
+func TestHasTaskBeforeEnvDeploy(t *testing.T) {
+	h := EnvironmentHooks{}
+	h.Deploy.Before = append(h.Deploy.Before, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
+func TestHasTaskAfterEnvDeploy(t *testing.T) {
+	h := EnvironmentHooks{}
+	h.Deploy.After = append(h.Deploy.After, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
+func TestHasTaskBeforeEnvUndeploy(t *testing.T) {
+	h := EnvironmentHooks{}
+	h.Undeploy.Before = append(h.Undeploy.Before, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
+func TestHasTaskAfterEnvUndeploy(t *testing.T) {
+	h := EnvironmentHooks{}
+	h.Undeploy.After = append(h.Undeploy.After, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
+func TestHasTaskBeforeEnvDestroy(t *testing.T) {
+	h := EnvironmentHooks{}
+	h.Destroy.Before = append(h.Destroy.Before, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
+func TestHasTaskAfterEnvDestroy(t *testing.T) {
+	h := EnvironmentHooks{}
+	h.Destroy.After = append(h.Destroy.After, oneTask)
+	assert.True(t, h.HasTasks())
+}

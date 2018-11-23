@@ -6,6 +6,7 @@ import (
 	"fmt"
 )
 
+//Parameters represents the paramters comming from a descriptor
 type Parameters map[string]interface{}
 
 func createParameters(src map[string]interface{}) Parameters {
@@ -27,6 +28,7 @@ func (r Parameters) inherits(parent map[string]interface{}) Parameters {
 	return dst
 }
 
+// MarshalJSON returns the serialized content of the hook as JSON
 func (r Parameters) MarshalJSON() ([]byte, error) {
 	dest := make(map[interface{}]interface{})
 	for k, v := range r {

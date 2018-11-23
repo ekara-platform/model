@@ -1,5 +1,6 @@
 package model
 
+//EnvVars Represents environment variable
 type EnvVars map[string]string
 
 func createEnvVars(src map[string]string) EnvVars {

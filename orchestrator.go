@@ -5,9 +5,10 @@ import (
 )
 
 type (
+	//Orchestrator specifies the orchestrator used to manage the environemt
 	Orchestrator struct {
 		// The component containing the orchestrator
-		Component ComponentRef
+		Component componentRef
 		// The orchestrator parameters
 		Parameters Parameters
 		// The Docker parameters
@@ -40,6 +41,7 @@ func (r *Orchestrator) merge(other Orchestrator) error {
 	return nil
 }
 
+// MarshalJSON returns the serialized content of orchestator as JSON
 func (r Orchestrator) MarshalJSON() ([]byte, error) {
 	component, e := r.Component.Resolve()
 	if e != nil {

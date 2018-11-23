@@ -5,15 +5,22 @@ import (
 )
 
 type (
-	// Describable represents an part of the environment descriptor
+	// Describable represents a part of the environment descriptor
 	// which can describe itself with a type and a name.
 	//
 	// Describable is implemented by :
 	//  Nodeset
 	//  Provider
 	//  Stack
+	//
+	// The Describable interface can be used for example in logs or even in
+	// execution report files in order to provider a human readable vision of what
+	// occured instead providing technical concepts.
+	//
 	Describable interface {
-		// DescType returns the type of the environment part being described, Nodeset, Provider...
+		//DescType returns the type of the environment part being described,
+		//Nodeset, Provider, Stack... Usually the type is harcoded into the
+		//implementation
 		DescType() string
 		// DescName returns the name of the environment part being described
 		DescName() string
@@ -33,7 +40,7 @@ func (c chained) DescName() string {
 	return strings.Join(c.descNames, "-")
 }
 
-// ChainDescribable merge the types and names of several Describable
+// ChainDescribable merges the types and names of several Describables
 func ChainDescribable(descs ...Describable) Describable {
 	r := chained{}
 	for _, v := range descs {

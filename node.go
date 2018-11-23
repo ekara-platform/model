@@ -6,7 +6,7 @@ import (
 )
 
 type (
-	// NodeSet contains the whole specification of a nodes et to create on a specific
+	// NodeSet contains the whole specification of a nodeset to create on a specific
 	// cloud provider
 	NodeSet struct {
 		// The name of the machines
@@ -14,28 +14,33 @@ type (
 		// The number of machines to create
 		Instances int
 		// The ref to the provider where to create the machines
-		Provider ProviderRef
+		Provider providerRef
 		// The parameters related to the orchestrator used to manage the machines
-		Orchestrator OrchestratorRef
+		Orchestrator orchestratorRef
 		// Volumes attached to each node
 		Volumes Volumes
-		// Hooks for executing tasks around provisioning and destruction
+		// The hooks linked to the node set lifecycle events
 		Hooks NodeHook
 		// The labels associated with the nodeset
 		Labels Labels
 	}
 
+	//NodeSets represents all the node sets of the environment
 	NodeSets map[string]NodeSet
 )
 
+//DescType returns the Describable type of the node set
+//  Hardcoded to : "NodeSet"
 func (r NodeSet) DescType() string {
 	return "NodeSet"
 }
 
+//DescName returns the Describable name of the node set
 func (r NodeSet) DescName() string {
 	return r.Name
 }
 
+// MarshalJSON returns the serialized content of node set as JSON
 func (r NodeSet) MarshalJSON() ([]byte, error) {
 	provider, e := r.Provider.Resolve()
 	if e != nil {
@@ -76,9 +81,7 @@ func (r *NodeSet) merge(other NodeSet) error {
 	if err := r.Provider.merge(other.Provider); err != nil {
 		return err
 	}
-	if err := r.Orchestrator.merge(other.Orchestrator); err != nil {
-		return err
-	}
+
 	if err := r.Volumes.merge(other.Volumes); err != nil {
 		return err
 	}

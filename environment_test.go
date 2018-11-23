@@ -1,12 +1,12 @@
 package model
 
 import (
+	"fmt"
 	"log"
-	"os"
-	"testing"
-
 	"net/url"
+	"os"
 	"strings"
+	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -485,4 +485,12 @@ func TestUnqualifiedName(t *testing.T) {
 	qn := env.QualifiedName()
 	assert.NotNil(t, qn)
 	assert.Equal(t, "MyName", qn.String())
+}
+
+func ExampleEnvironment_Merge() {
+	root := Environment{Name: "RootName", Qualifier: "RootQualifier"}
+	other := Environment{Name: "OtherName", Qualifier: "OtherQualifier"}
+	root.Merge(other)
+	fmt.Println(root.QualifiedName())
+	// Outpur: RootName_RootQualifier
 }

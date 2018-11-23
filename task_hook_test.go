@@ -28,3 +28,20 @@ func TestValidateUnknownTaskHooks(t *testing.T) {
 	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "tasks.task1.hooks.execute.before"))
 	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "tasks.task1.hooks.execute.after"))
 }
+
+func TestHasNoTaskTask(t *testing.T) {
+	h := TaskHook{}
+	assert.False(t, h.HasTasks())
+}
+
+func TestHasTaskBeforeTaskExecute(t *testing.T) {
+	h := TaskHook{}
+	h.Execute.Before = append(h.Execute.Before, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
+func TestHasTaskAfterTaskExecute(t *testing.T) {
+	h := TaskHook{}
+	h.Execute.After = append(h.Execute.After, oneTask)
+	assert.True(t, h.HasTasks())
+}

@@ -1,20 +1,26 @@
 package model
 
 type (
-	ComponentRef struct {
-		ref       string
+	//componentRef represents a reference to a component
+	componentRef struct {
+		//ref specifies id of the component
+		ref string
+		//mandatory indicates if the reference is mandatory
 		mandatory bool
-		env       *Environment
-		location  DescriptorLocation
+		//env specifies the environment holding the referenced component
+		env *Environment
+		//location indicates where the reference is located into the descriptor
+		location DescriptorLocation
 	}
 )
 
-func (r ComponentRef) Reference() Reference {
+//reference return a validatable representation of the reference on the component
+func (r componentRef) reference() validatableReference {
 	result := make(map[string]interface{})
 	for k, v := range r.env.Ekara.Components {
 		result[k] = v
 	}
-	return Reference{
+	return validatableReference{
 		Id:        r.ref,
 		Type:      "component",
 		Mandatory: r.mandatory,
@@ -23,14 +29,14 @@ func (r ComponentRef) Reference() Reference {
 	}
 }
 
-func (r *ComponentRef) merge(other ComponentRef) error {
+func (r *componentRef) merge(other componentRef) error {
 	if r.ref == "" {
 		r.ref = other.ref
 	}
 	return nil
 }
 
-func (r ComponentRef) Resolve() (Component, error) {
+func (r componentRef) Resolve() (Component, error) {
 	validationErrors := ErrorOnInvalid(r)
 	if validationErrors.HasErrors() {
 		return Component{}, validationErrors
@@ -38,11 +44,11 @@ func (r ComponentRef) Resolve() (Component, error) {
 	return r.env.Ekara.Components[r.ref], nil
 }
 
-func createComponentRef(env *Environment, location DescriptorLocation, componentRef string, mandatory bool) ComponentRef {
-	return ComponentRef{
+func createComponentRef(env *Environment, location DescriptorLocation, ref string, mandatory bool) componentRef {
+	return componentRef{
 		env:       env,
 		location:  location,
-		ref:       componentRef,
+		ref:       ref,
 		mandatory: mandatory,
 	}
 }

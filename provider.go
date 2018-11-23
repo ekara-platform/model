@@ -6,11 +6,13 @@ import (
 )
 
 type (
+	// Provider contains the whole specification of a cloud provider where to
+	// create an environemt
 	Provider struct {
 		// The Name of the provider
 		Name string
 		// The component containing the provider
-		Component ComponentRef
+		Component componentRef
 		// The provider parameters
 		Parameters Parameters
 		// The provider environment variables
@@ -19,17 +21,22 @@ type (
 		Proxy Proxy
 	}
 
+	//Providers lists all the providers required to build the environemt
 	Providers map[string]Provider
 )
 
+//DescType returns the Describable type of the provider
+//  Hardcoded to : "Provider"
 func (r Provider) DescType() string {
 	return "Provider"
 }
 
+//DescName returns the Describable name of the provider
 func (r Provider) DescName() string {
 	return r.Name
 }
 
+// MarshalJSON returns the serialized content of provider as JSON
 func (r Provider) MarshalJSON() ([]byte, error) {
 	component, e := r.Component.Resolve()
 	if e != nil {

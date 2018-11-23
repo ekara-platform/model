@@ -5,7 +5,7 @@ import (
 )
 
 type (
-	TaskRef struct {
+	taskRef struct {
 		ref        string
 		parameters Parameters
 		envVars    EnvVars
@@ -15,12 +15,13 @@ type (
 	}
 )
 
-func (r TaskRef) Reference() Reference {
+//reference return a validatable representation of the reference on a task
+func (r taskRef) reference() validatableReference {
 	result := make(map[string]interface{})
 	for k, v := range r.env.Tasks {
 		result[k] = v
 	}
-	return Reference{
+	return validatableReference{
 		Id:        r.ref,
 		Type:      "task",
 		Mandatory: r.mandatory,
@@ -29,7 +30,7 @@ func (r TaskRef) Reference() Reference {
 	}
 }
 
-func (r *TaskRef) merge(other TaskRef) {
+func (r *taskRef) merge(other taskRef) {
 	if r.ref == "" {
 		r.ref = other.ref
 	}
@@ -37,7 +38,7 @@ func (r *TaskRef) merge(other TaskRef) {
 	r.envVars = r.envVars.inherits(other.envVars)
 }
 
-func (r TaskRef) Resolve() (Task, error) {
+func (r taskRef) Resolve() (Task, error) {
 	validationErrors := ErrorOnInvalid(r)
 	if validationErrors.HasErrors() {
 		return Task{}, validationErrors
@@ -49,20 +50,20 @@ func (r TaskRef) Resolve() (Task, error) {
 		EnvVars:    r.envVars.inherits(task.EnvVars)}, nil
 }
 
-func createTaskRef(env *Environment, location DescriptorLocation, taskRef yamlTaskRef) TaskRef {
-	if len(taskRef.Task) == 0 {
+func createTaskRef(env *Environment, location DescriptorLocation, tRef yamlTaskRef) taskRef {
+	if len(tRef.Task) == 0 {
 		env.errors.addError(errors.New("empty task reference"), location)
 	} else {
-		return TaskRef{
+		return taskRef{
 			env:        env,
-			ref:        taskRef.Task,
-			parameters: createParameters(taskRef.Params),
-			envVars:    createEnvVars(taskRef.Env),
+			ref:        tRef.Task,
+			parameters: createParameters(tRef.Params),
+			envVars:    createEnvVars(tRef.Env),
 			location:   location,
 			mandatory:  true,
 		}
 	}
-	return TaskRef{}
+	return taskRef{}
 }
 
 func checkCircularRefs(taskRefs []yamlTaskRef, alreadyEncountered *circularRefTracking) error {

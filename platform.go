@@ -8,7 +8,7 @@ import (
 )
 
 type Platform struct {
-	Component  ComponentRef
+	Component  componentRef
 	Components map[string]Component
 }
 

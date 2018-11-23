@@ -42,3 +42,32 @@ func TestValidationNodesKnownHook(t *testing.T) {
 	assert.False(t, vErrs.HasWarnings())
 	assert.Equal(t, 0, len(vErrs.Errors))
 }
+
+func TestHasNoTaskNode(t *testing.T) {
+	h := NodeHook{}
+	assert.False(t, h.HasTasks())
+}
+
+func TestHasTaskBeforeNodeProvision(t *testing.T) {
+	h := NodeHook{}
+	h.Provision.Before = append(h.Provision.Before, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
+func TestHasTaskAfterNodeProvision(t *testing.T) {
+	h := NodeHook{}
+	h.Provision.After = append(h.Provision.After, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
+func TestHasTaskBeforeNodeDestroy(t *testing.T) {
+	h := NodeHook{}
+	h.Destroy.Before = append(h.Destroy.Before, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
+func TestHasTaskAfterNodeDestroy(t *testing.T) {
+	h := NodeHook{}
+	h.Destroy.After = append(h.Destroy.After, oneTask)
+	assert.True(t, h.HasTasks())
+}

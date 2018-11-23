@@ -9,21 +9,37 @@ import (
 )
 
 type (
-	// ScmType is the type used to identify the Source Control Management system
+	// ScmType represents a type of Source Control Management system
 	ScmType string
 
+	//Component represents an element composing an ekara environment
+	//
+	//A component is always hosted into a source control management system.
+	//
+	//It can be for example a Provider or Software to deploy on the environment
+	//
 	Component struct {
-		Id         string
-		Scm        ScmType
+		//Id specifies id of the component
+		Id string
+		//Scm specifies type of source sontrol management system holding the
+		// component
+		Scm ScmType
+		//Repository specifies the repository Url where to fetch the compoment
 		Repository *url.URL
-		Version    Version
-		Imports    []string
+		//Version specifies the version to fetch, if the version is not specified
+		//then the "master" will be fetched
+		Version Version
+		//Imports contains all the imports being declared within the component
+		Imports []string
 	}
 )
 
 const (
-	Git     ScmType = "GIT"
-	Svn     ScmType = "SVN"
+	// GIT type of source control management system
+	Git ScmType = "GIT"
+	// SVN type of source control management system
+	Svn ScmType = "SVN"
+	// Unknown source control management system
 	Unknown ScmType = ""
 
 	SchemeFile  string = "FILE"
@@ -33,6 +49,14 @@ const (
 	SchemeHttps string = "HTTPS"
 )
 
+//CreateComponent creates a new component
+//	Parameters
+//
+//		base: the base URL where to look for the component, if not profided we will assume it's https://github.com
+//		id: the id of the component
+//		repo: the repository Url where to fetch the compoment
+//		version: the version to fetch, if the version is not specified then the "master" will be fetched
+//		imports:
 func CreateComponent(base *url.URL, id string, repo string, version string, imports ...string) (Component, error) {
 	repoUrl, e := resolveRepositoryInfo(base, repo)
 	if e != nil {
