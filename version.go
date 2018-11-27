@@ -8,15 +8,15 @@ import (
 	"strconv"
 )
 
-var semanticVersioningPattern = regexp.MustCompile("^(?P<major>0|[1-9]\\d*)(\\.(?P<minor>0|[1-9]\\d*))?(\\.(?P<patch>0|[1-9]\\d*))?(?:-(?P<prerelease>(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$")
+var semanticVersioningPattern = regexp.MustCompile("^(?P<major>0|[1-9]\\d*)(\\.(?P<minor>0|[1-9]\\d*))?(\\.(?P<patch>0|[1-9]\\d*))?(?:-(?P<qualifier>(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$")
 
 //Version represents the version of a component
 type Version struct {
-	Major int
-	Minor int
-	Micro int
-	Tag   string
-	full  string
+	Major     int
+	Minor     int
+	Micro     int
+	Qualifier string
+	full      string
 }
 
 // MarshalJSON returns the serialized content of the version as JSON
@@ -75,8 +75,8 @@ func createVersion(full string) (Version, error) {
 				v.Micro = int(patch)
 			}
 		}
-		if result["prerelease"] != "" {
-			v.Tag = result["prerelease"]
+		if result["qualifier"] != "" {
+			v.Qualifier = result["qualifier"]
 		}
 	}
 	return v, nil
@@ -103,8 +103,8 @@ func (r Version) IncludesVersion(other Version) bool {
 func (r Version) String() string {
 	if r.Major >= 0 {
 		s := fmt.Sprintf("v%d.%d.%d", r.Major, r.Minor, r.Micro)
-		if r.Tag != "" {
-			s = fmt.Sprintf("%s-%s", s, r.Tag)
+		if r.Qualifier != "" {
+			s = fmt.Sprintf("%s-%s", s, r.Qualifier)
 		}
 		return s
 	} else {

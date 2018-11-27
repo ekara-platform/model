@@ -24,7 +24,7 @@ func TestString(t *testing.T) {
 	assert.Equal(t, "master", createTestVersion("master").String())
 }
 
-func TestPrerelease(t *testing.T) {
+func TestQualifier(t *testing.T) {
 	assert.Equal(t, "v1.2.3-beta1", createTestVersion("1.2.3-beta1").String())
 }
 
