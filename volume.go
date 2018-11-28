@@ -61,3 +61,12 @@ func (r Volumes) merge(other Volumes) error {
 	}
 	return nil
 }
+
+//AsArray return an array of volumes
+func (r Volumes) AsArray() []Volume {
+	res := make([]Volume, 0)
+	for _, v := range r {
+		res = append(res, v)
+	}
+	return res
+}
