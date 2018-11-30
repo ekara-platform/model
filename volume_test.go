@@ -1,7 +1,6 @@
 package model
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -115,8 +114,5 @@ func TestVolumesAsArray(t *testing.T) {
 	vs[v2.Path] = v2
 
 	arr := vs.AsArray()
-	if assert.Equal(t, len(arr), len(vs)) {
-		assert.True(t, reflect.DeepEqual(vs[v1.Path], arr[0]))
-		assert.True(t, reflect.DeepEqual(vs[v2.Path], arr[1]))
-	}
+	assert.Equal(t, len(arr), len(vs))
 }

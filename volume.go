@@ -21,7 +21,7 @@ type (
 // MarshalJSON returns the serialized content of a volume as JSON
 func (r Volume) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		Name       string      `json:",omitempty"`
+		Path       string      `json:",omitempty"`
 		Parameters *Parameters `json:",omitempty"`
 	}{
 		Path:       r.Path,

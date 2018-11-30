@@ -3,7 +3,6 @@ package model
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"net/url"
 )
 
@@ -75,16 +74,15 @@ func (r Environment) MarshalJSON() ([]byte, error) {
 //CreateEnvironment creates a new environment
 //	Parameters
 //
-//		logger: The looger where to log during the environment creation
 //		url: 	The complete url pointing on the descritor used to build the environment.
 //			The two only supported extension are ".yaml" and ".yml"!
 //		data: The data used to substitute variables into the environment descriptor
 //
-func CreateEnvironment(logger *log.Logger, url *url.URL, data map[string]interface{}) (Environment, error) {
+func CreateEnvironment(url *url.URL, data map[string]interface{}) (Environment, error) {
 	env := Environment{}
 	if hasSuffixIgnoringCase(url.Path, ".yaml") || hasSuffixIgnoringCase(url.Path, ".yml") {
 		var yamlEnv yamlEnvironment
-		yamlEnv, err := parseYamlDescriptor(logger, url, data)
+		yamlEnv, err := parseYamlDescriptor(url, data)
 		if err != nil {
 			return env, err
 		}

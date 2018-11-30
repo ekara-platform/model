@@ -1,8 +1,6 @@
 package model
 
 import (
-	"log"
-
 	"net/url"
 
 	"bytes"
@@ -203,7 +201,7 @@ func (r *yamlEnvironment) RawContent() ([]byte, error) {
 	return yaml.Marshal(r)
 }
 
-func parseYamlDescriptor(logger *log.Logger, u *url.URL, data map[string]interface{}) (env yamlEnvironment, err error) {
+func parseYamlDescriptor(u *url.URL, data map[string]interface{}) (env yamlEnvironment, err error) {
 	var normalizedUrl *url.URL
 	normalizedUrl, err = NormalizeUrl(u)
 	if err != nil {
@@ -211,7 +209,7 @@ func parseYamlDescriptor(logger *log.Logger, u *url.URL, data map[string]interfa
 	}
 
 	// Read descriptor content
-	content, err := ReadUrl(logger, normalizedUrl)
+	content, err := ReadUrl(normalizedUrl)
 	if err != nil {
 		return
 	}

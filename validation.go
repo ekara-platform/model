@@ -2,7 +2,6 @@ package model
 
 import (
 	"encoding/json"
-	"log"
 	"reflect"
 	"strings"
 )
@@ -202,13 +201,6 @@ func (ve ValidationErrors) HasWarnings() bool {
 		}
 	}
 	return false
-}
-
-// Log logs all the validation errors to the specified logger
-func (ve ValidationErrors) Log(logger *log.Logger) {
-	for _, err := range ve.Errors {
-		logger.Println(err.ErrorType.String() + " @" + err.Location.Path + ": " + err.Message)
-	}
 }
 
 func validNotEmpty(t ErrorType) func(in interface{}, location DescriptorLocation, message string) (ValidationErrors, bool, bool) {

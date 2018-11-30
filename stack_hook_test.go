@@ -1,9 +1,6 @@
 package model
 
 import (
-	"log"
-	"os"
-
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,11 +13,9 @@ import (
 //- Error: empty volume path @nodes.managers.volumes.path
 //
 func TestValidateUnknownStackHooks(t *testing.T) {
-	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/grammar/stack_unknown_hook.yaml"), map[string]interface{}{})
+	env, e := CreateEnvironment(buildUrl("./testdata/yaml/grammar/stack_unknown_hook.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
 	vErrs := env.Validate()
-	//log.Printf("Errors %v: ", vErrs)
 	assert.True(t, vErrs.HasErrors())
 	assert.False(t, vErrs.HasWarnings())
 	assert.Equal(t, 4, len(vErrs.Errors))

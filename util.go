@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -77,10 +76,8 @@ func NormalizeUrl(u *url.URL) (*url.URL, error) {
 	return &res, nil
 }
 
-func ReadUrl(logger *log.Logger, u *url.URL) ([]byte, error) {
+func ReadUrl(u *url.URL) ([]byte, error) {
 	if hasPrefixIgnoringCase(u.Scheme, "http") {
-		logger.Println("loading remote URL", u.String())
-
 		// Fetch the content
 		var response *http.Response
 		response, err := http.Get(u.String())
@@ -98,8 +95,6 @@ func ReadUrl(logger *log.Logger, u *url.URL) ([]byte, error) {
 		}
 		return content, nil
 	} else if strings.ToUpper(u.Scheme) == "FILE" {
-		logger.Println("loading local URL", u.String())
-
 		// Fetch the content
 		location, err := UrlToPath(u)
 		if err != nil {

@@ -1,9 +1,6 @@
 package model
 
 import (
-	"log"
-	"os"
-
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,8 +14,7 @@ import (
 //
 
 func TestValidationNodesUnknownHook(t *testing.T) {
-	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/grammar/nodes_unknown_hook.yaml"), map[string]interface{}{})
+	env, e := CreateEnvironment(buildUrl("./testdata/yaml/grammar/nodes_unknown_hook.yaml"), map[string]interface{}{})
 
 	assert.Nil(t, e)
 	vErrs := env.Validate()
@@ -33,8 +29,7 @@ func TestValidationNodesUnknownHook(t *testing.T) {
 
 // Test loading an nodeset with valid hooks
 func TestValidationNodesKnownHook(t *testing.T) {
-	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/grammar/nodes_known_hook.yaml"), map[string]interface{}{})
+	env, e := CreateEnvironment(buildUrl("./testdata/yaml/grammar/nodes_known_hook.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
 	vErrs := env.Validate()
 	assert.NotNil(t, vErrs)

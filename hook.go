@@ -1,7 +1,6 @@
 package model
 
 import (
-	"log"
 	"reflect"
 )
 
@@ -35,7 +34,6 @@ func (r Hook) validate() ValidationErrors {
 
 func (r *Hook) merge(other Hook) error {
 	if !reflect.DeepEqual(r, &other) {
-		log.Println("in if")
 		r.Before = append(r.Before, other.Before...)
 		r.After = append(r.After, other.After...)
 	}

@@ -2,9 +2,7 @@ package model
 
 import (
 	"fmt"
-	"log"
 	"net/url"
-	"os"
 	"strings"
 	"testing"
 
@@ -12,29 +10,27 @@ import (
 )
 
 func TestCreateEngineComplete(t *testing.T) {
-	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/complete.yaml"), map[string]interface{}{})
+	env, e := CreateEnvironment(buildUrl("./testdata/yaml/complete.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
 	assertEnv(t, env)
 }
 
 func TestCreateEnginePartials(t *testing.T) {
-	logger := log.New(os.Stdout, "TEST: ", log.Ldate|log.Ltime)
-	env, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/partials/env.yaml"), map[string]interface{}{})
+	env, e := CreateEnvironment(buildUrl("./testdata/yaml/partials/env.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
-	env2, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/partials/core.yaml"), map[string]interface{}{})
+	env2, e := CreateEnvironment(buildUrl("./testdata/yaml/partials/core.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
 	env.Merge(env2)
-	env3, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/partials/providers.yaml"), map[string]interface{}{})
+	env3, e := CreateEnvironment(buildUrl("./testdata/yaml/partials/providers.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
 	env.Merge(env3)
-	env4, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/partials/orchestrator.yaml"), map[string]interface{}{})
+	env4, e := CreateEnvironment(buildUrl("./testdata/yaml/partials/orchestrator.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
 	env.Merge(env4)
-	env5, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/partials/stacks.yaml"), map[string]interface{}{})
+	env5, e := CreateEnvironment(buildUrl("./testdata/yaml/partials/stacks.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
 	env.Merge(env5)
-	env6, e := CreateEnvironment(logger, buildUrl("./testdata/yaml/partials/tasks.yaml"), map[string]interface{}{})
+	env6, e := CreateEnvironment(buildUrl("./testdata/yaml/partials/tasks.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
 	env.Merge(env6)
 	assertEnv(t, env)
