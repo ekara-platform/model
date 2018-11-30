@@ -24,7 +24,7 @@ func (r Volume) MarshalJSON() ([]byte, error) {
 		Name       string      `json:",omitempty"`
 		Parameters *Parameters `json:",omitempty"`
 	}{
-		Name:       r.Path,
+		Path:       r.Path,
 		Parameters: &r.Parameters,
 	})
 }
