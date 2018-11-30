@@ -44,10 +44,9 @@ func assertEnv(t *testing.T, env Environment) {
 	// Platform
 	assert.NotNil(t, env.Ekara)
 	assert.NotNil(t, env.Ekara.Components)
-	ekaraComponent, e := env.Ekara.Component.Resolve()
-	assert.Nil(t, e)
-	assert.True(t, strings.HasSuffix(ekaraComponent.Repository.String(), "someBase/ekara-platform/core"))
-	assert.Equal(t, "", ekaraComponent.Version.String())
+	assert.Equal(t, 5, len(env.Ekara.Components))
+	assert.Equal(t, "file://someBase/", env.Ekara.Base.String())
+	assert.Equal(t, "file:///someBase/ekara-platform/distribution", env.Ekara.Distribution.Repository.String())
 
 	//------------------------------------------------------------
 	// Orchestrator

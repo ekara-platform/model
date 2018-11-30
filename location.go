@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"reflect"
 )
 
@@ -35,4 +36,7 @@ func (r DescriptorLocation) appendPath(suffix string) DescriptorLocation {
 		newLoc.Path = newLoc.Path + "." + suffix
 	}
 	return newLoc
+}
+func (r DescriptorLocation) appendIndex(i int) DescriptorLocation {
+	return DescriptorLocation{Path: r.Path + fmt.Sprintf("[%d]", i), Descriptor: r.Descriptor}
 }

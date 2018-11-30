@@ -62,15 +62,16 @@ func (r *Stack) merge(other Stack) error {
 	return nil
 }
 
-func createStacks(env *Environment, yamlEnv *yamlEnvironment) Stacks {
+func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) Stacks {
 	res := Stacks{}
 	for name, yamlStack := range yamlEnv.Stacks {
+		stackLocation := location.appendPath(name)
 		res[name] = Stack{
 			Name:      name,
-			Component: createComponentRef(env, env.location.appendPath("stacks."+name+".component"), yamlStack.Component, false),
+			Component: createComponentRef(env, stackLocation.appendPath("component"), yamlStack.Component, false),
 			Hooks: StackHook{
-				Deploy:   createHook(env, env.location.appendPath("stacks."+name+".hooks.deploy"), yamlStack.Hooks.Deploy),
-				Undeploy: createHook(env, env.location.appendPath("stacks."+name+".hooks.undeploy"), yamlStack.Hooks.Undeploy)}}
+				Deploy:   createHook(env, stackLocation.appendPath("hooks.deploy"), yamlStack.Hooks.Deploy),
+				Undeploy: createHook(env, stackLocation.appendPath("hooks.undeploy"), yamlStack.Hooks.Undeploy)}}
 	}
 	return res
 }

@@ -75,12 +75,13 @@ func (r *Provider) merge(other Provider) error {
 }
 
 // createProviders creates all the providers declared into the provided environment
-func createProviders(env *Environment, yamlEnv *yamlEnvironment) Providers {
+func createProviders(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) Providers {
 	res := Providers{}
 	for name, yamlProvider := range yamlEnv.Providers {
+		providerLocation := location.appendPath(name)
 		res[name] = Provider{
 			Name:       name,
-			Component:  createComponentRef(env, env.location.appendPath("providers."+name), yamlProvider.Component, true),
+			Component:  createComponentRef(env, providerLocation.appendPath("component"), yamlProvider.Component, true),
 			Parameters: createParameters(yamlProvider.Params),
 			Proxy:      createProxy(yamlProvider.Proxy),
 			EnvVars:    createEnvVars(yamlProvider.Env)}

@@ -4,7 +4,10 @@ qualifier: testQualifier
 description: This is my awesome Ekara environment.
 
 ekara:
-  componentBase: someBase
+  base: someBase
+  distribution:
+    repository: ekara-platform/distribution
+    version: 1.2.3
   components:
     aws:
       repository: ekara-platform/aws-provider

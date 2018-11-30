@@ -8,20 +8,32 @@ import (
 )
 
 type Platform struct {
-	Component  componentRef
-	Components map[string]Component
+	Base         *url.URL
+	Distribution Component
+	Components   map[string]Component
 }
 
-func createPlatform(env *Environment, yamlEnv *yamlEnvironment) Platform {
+func createPlatform(yamlEnv *yamlEnvironment) (Platform, error) {
 	components := map[string]Component{}
 
 	// Compute the component base for the environment
 	base, e := createComponentBase(yamlEnv)
 	if e != nil {
-		env.errors.addError(e, env.location.appendPath("ekara.componentBase"))
+		return Platform{}, errors.New("missing component base: " + e.Error())
 	}
 
-	// Create components of the environment
+	// Create the distribution component (mandatory)
+	ekaraRepo := yamlEnv.Ekara.Distribution.Repository
+	if ekaraRepo == "" {
+		ekaraRepo = EkaraComponentRepo
+	}
+	ekaraComponent, e := CreateComponent(base, EkaraComponentId, ekaraRepo, yamlEnv.Ekara.Distribution.Version)
+	if e != nil {
+		return Platform{}, errors.New("invalid distribution: " + e.Error())
+	}
+	setCredentials(&ekaraComponent, yamlEnv.Ekara.Distribution)
+
+	// Create other components of the environment
 	for componentName, yamlComponent := range yamlEnv.Ekara.Components {
 		component, e := CreateComponent(
 			base,
@@ -30,31 +42,25 @@ func createPlatform(env *Environment, yamlEnv *yamlEnvironment) Platform {
 			yamlComponent.Version,
 			yamlComponent.Imports...)
 		if e != nil {
-			env.errors.addError(e, env.location.appendPath("ekara.components."+componentName))
+			return Platform{}, errors.New("invalid component " + componentName + ": " + e.Error())
 		} else {
+			setCredentials(&component, yamlComponent.yamlComponent)
 			components[componentName] = component
 		}
 	}
 
-	// Create core component with default values if none already defined
-	if _, ok := components[CoreComponentId]; !ok {
-		components[CoreComponentId], e = CreateComponent(
-			base,
-			CoreComponentId,
-			CoreComponentRepo,
-			"")
-		if e != nil {
-			env.errors.addError(errors.New("unable to create core component: "+e.Error()), env.location.appendPath("ekara"))
-		}
-	}
-
 	return Platform{
-		Component:  createComponentRef(env, env.location.appendPath("ekara"), CoreComponentId, true),
-		Components: components}
+		Base:         base,
+		Distribution: ekaraComponent,
+		Components:   components}, nil
 }
 
 func (r Platform) validate() ValidationErrors {
-	return ErrorOnInvalid(r.Component)
+	vErrs := ValidationErrors{}
+	for _, c := range r.Components {
+		vErrs.merge(ErrorOnInvalid(c))
+	}
+	return vErrs
 }
 
 func (r *Platform) merge(other Platform) error {
@@ -66,11 +72,17 @@ func (r *Platform) merge(other Platform) error {
 	return nil
 }
 
+func setCredentials(component *Component, yamlComponent yamlComponent) {
+	if len(yamlComponent.Auth) > 0 {
+		component.Authentication = createParameters(yamlComponent.Auth)
+	}
+}
+
 func createComponentBase(yamlEnv *yamlEnvironment) (*url.URL, error) {
 	res := DefaultComponentBase
 
-	if yamlEnv != nil && yamlEnv.Ekara.ComponentBase != "" {
-		res = yamlEnv.Ekara.ComponentBase
+	if yamlEnv != nil && yamlEnv.Ekara.Base != "" {
+		res = yamlEnv.Ekara.Base
 	}
 
 	// If file exists locally, resolve its absolute path and convert it to an URL

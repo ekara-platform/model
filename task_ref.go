@@ -51,25 +51,20 @@ func (r taskRef) Resolve() (Task, error) {
 }
 
 func createTaskRef(env *Environment, location DescriptorLocation, tRef yamlTaskRef) taskRef {
-	if len(tRef.Task) == 0 {
-		env.errors.addError(errors.New("empty task reference"), location)
-	} else {
-		return taskRef{
-			env:        env,
-			ref:        tRef.Task,
-			parameters: createParameters(tRef.Params),
-			envVars:    createEnvVars(tRef.Env),
-			location:   location,
-			mandatory:  true,
-		}
+	return taskRef{
+		env:        env,
+		ref:        tRef.Task,
+		parameters: createParameters(tRef.Params),
+		envVars:    createEnvVars(tRef.Env),
+		location:   location,
+		mandatory:  true,
 	}
-	return taskRef{}
 }
 
-func checkCircularRefs(taskRefs []yamlTaskRef, alreadyEncountered *circularRefTracking) error {
-	for _, ref := range taskRefs {
-		if _, ok := (*alreadyEncountered)[ref.Task]; ok {
-			return errors.New("circular task reference: " + alreadyEncountered.String() + ref.Task)
+func checkCircularRefs(taskRefs []taskRef, alreadyEncountered *circularRefTracking) error {
+	for _, taskRef := range taskRefs {
+		if _, ok := (*alreadyEncountered)[taskRef.ref]; ok {
+			return errors.New("circular task reference: " + alreadyEncountered.String() + taskRef.ref)
 		}
 	}
 	return nil

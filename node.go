@@ -9,6 +9,7 @@ type (
 	// NodeSet contains the whole specification of a nodeset to create on a specific
 	// cloud provider
 	NodeSet struct {
+		location DescriptorLocation
 		// The name of the machines
 		Name string
 		// The number of machines to create
@@ -71,7 +72,12 @@ func (r NodeSet) MarshalJSON() ([]byte, error) {
 }
 
 func (r NodeSet) validate() ValidationErrors {
-	return ErrorOnInvalid(r.Provider, r.Orchestrator, r.Hooks)
+	vErrs := ValidationErrors{}
+	if r.Instances <= 0 {
+		vErrs.addError(errors.New("instances must be a positive number"), r.location.appendPath("instances"))
+	}
+	vErrs.merge(ErrorOnInvalid(r.Provider, r.Orchestrator, r.Hooks, r.Volumes))
+	return vErrs
 }
 
 func (r *NodeSet) merge(other NodeSet) error {
@@ -95,21 +101,20 @@ func (r *NodeSet) merge(other NodeSet) error {
 	return nil
 }
 
-func createNodeSets(env *Environment, yamlEnv *yamlEnvironment) NodeSets {
+func createNodeSets(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) NodeSets {
 	res := NodeSets{}
 	for name, yamlNodeSet := range yamlEnv.Nodes {
-		if yamlNodeSet.Instances <= 0 {
-			env.errors.addError(errors.New("instances must be a positive number"), env.location.appendPath("nodes."+name+".instances"))
-		}
+		nodeSetLocation := location.appendPath(name)
 		res[name] = NodeSet{
+			location:     nodeSetLocation,
 			Name:         name,
 			Instances:    yamlNodeSet.Instances,
-			Provider:     createProviderRef(env, env.location.appendPath("nodes."+name+".provider.name"), yamlNodeSet.Provider),
-			Orchestrator: createOrchestratorRef(env, env.location.appendPath("nodes."+name+".orchestrator"), yamlNodeSet.Orchestrator),
-			Volumes:      createVolumes(env, env.location.appendPath("nodes."+name+".volumes"), yamlNodeSet.Volumes),
+			Provider:     createProviderRef(env, nodeSetLocation.appendPath("provider"), yamlNodeSet.Provider),
+			Orchestrator: createOrchestratorRef(env, nodeSetLocation.appendPath("orchestrator"), yamlNodeSet.Orchestrator),
+			Volumes:      createVolumes(nodeSetLocation.appendPath("volumes"), yamlNodeSet.Volumes),
 			Hooks: NodeHook{
-				Provision: createHook(env, env.location.appendPath("nodes."+name+".hooks.provision"), yamlNodeSet.Hooks.Provision),
-				Destroy:   createHook(env, env.location.appendPath("nodes."+name+".hooks.destroy"), yamlNodeSet.Hooks.Destroy),
+				Provision: createHook(env, nodeSetLocation.appendPath("hooks.provision"), yamlNodeSet.Hooks.Provision),
+				Destroy:   createHook(env, nodeSetLocation.appendPath("hooks.destroy"), yamlNodeSet.Hooks.Destroy),
 			},
 			Labels: yamlNodeSet.Labels,
 		}

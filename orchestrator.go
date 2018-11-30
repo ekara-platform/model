@@ -18,10 +18,10 @@ type (
 	}
 )
 
-func createOrchestrator(env *Environment, yamlEnv *yamlEnvironment) Orchestrator {
+func createOrchestrator(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) Orchestrator {
 	yamlO := yamlEnv.Orchestrator
 	return Orchestrator{
-		Component:  createComponentRef(env, env.location.appendPath("orchestrator"), yamlO.Component, true),
+		Component:  createComponentRef(env, location.appendPath("component"), yamlO.Component, true),
 		Parameters: createParameters(yamlO.Params),
 		Docker:     createParameters(yamlO.Docker),
 		EnvVars:    createEnvVars(yamlO.Env)}

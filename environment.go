@@ -9,8 +9,6 @@ import (
 type (
 	//Environment represents an environment build based on a descriptor
 	Environment struct {
-		// Validation errors that occurred during the building of the environment
-		errors ValidationErrors
 		// The location of the environment root
 		location DescriptorLocation
 		// Global imports
@@ -91,21 +89,24 @@ func CreateEnvironment(url *url.URL, data map[string]interface{}) (Environment, 
 		env.Name = yamlEnv.Name
 		env.Qualifier = yamlEnv.Qualifier
 		env.Description = yamlEnv.Description
-		env.Ekara = createPlatform(&env, &yamlEnv)
-		env.Tasks = createTasks(&env, &yamlEnv)
-		env.Orchestrator = createOrchestrator(&env, &yamlEnv)
-		env.Providers = createProviders(&env, &yamlEnv)
-		env.NodeSets = createNodeSets(&env, &yamlEnv)
-		env.Stacks = createStacks(&env, &yamlEnv)
+		env.Ekara, err = createPlatform(&yamlEnv)
+		if err != nil {
+			return env, err
+		}
+		env.Tasks = createTasks(&env, env.location.appendPath("tasks"), &yamlEnv)
+		env.Orchestrator = createOrchestrator(&env, env.location.appendPath("orchestrator"), &yamlEnv)
+		env.Providers = createProviders(&env, env.location.appendPath("providers"), &yamlEnv)
+		env.NodeSets = createNodeSets(&env, env.location.appendPath("nodes"), &yamlEnv)
+		env.Stacks = createStacks(&env, env.location.appendPath("stacks"), &yamlEnv)
 		env.Hooks.Init = createHook(&env, env.location.appendPath("hooks.init"), yamlEnv.Hooks.Init)
 		env.Hooks.Provision = createHook(&env, env.location.appendPath("hooks.provision"), yamlEnv.Hooks.Provision)
 		env.Hooks.Deploy = createHook(&env, env.location.appendPath("hooks.deploy"), yamlEnv.Hooks.Deploy)
 		env.Hooks.Undeploy = createHook(&env, env.location.appendPath("hooks.undeploy"), yamlEnv.Hooks.Undeploy)
 		env.Hooks.Destroy = createHook(&env, env.location.appendPath("hooks.destroy"), yamlEnv.Hooks.Destroy)
+		return env, nil
 	} else {
 		return env, errors.New("unsupported file format")
 	}
-	return env, nil
 }
 
 //Merge merges the content of the other environment into the receiver
@@ -140,7 +141,6 @@ func (r *Environment) Merge(other Environment) error {
 //Validate validate an environment
 func (r Environment) Validate() ValidationErrors {
 	vErrs := ValidationErrors{}
-	vErrs.merge(r.errors)
 
 	vEr, e, _ := ErrorOnEmptyOrInvalid(r.Name, r.location.appendPath("name"), "empty environment name")
 	vErrs.merge(vEr)

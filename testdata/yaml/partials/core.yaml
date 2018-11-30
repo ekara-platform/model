@@ -1,5 +1,5 @@
 ekara:
-  componentBase: someBase
+  base: someBase
   components:
     aws:
       repository: ekara-platform/aws-provider
