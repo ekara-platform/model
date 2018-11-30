@@ -85,11 +85,11 @@ func TestMergeVolumeAddition(t *testing.T) {
 	assert.Equal(t, v.Parameters["p2"], "val2")
 }
 
-func TestMergeNoVolumes(t *testing.T) {
-	v1 := Volume{
+func TestMergeNoVolume(t *testing.T) {
+	v1 := &Volume{
 		Path: "Path1",
 	}
-	v2 := Volume{
+	v2 := &Volume{
 		Path: "Path2",
 	}
 	vs := Volumes{}
@@ -102,11 +102,64 @@ func TestMergeNoVolumes(t *testing.T) {
 	assert.Equal(t, 2, len(vs))
 }
 
+func TestMergeVolumes(t *testing.T) {
+	v1 := &Volume{
+		Path:       "Path1",
+		Parameters: Parameters{},
+	}
+	v1.Parameters["p1"] = "val1_1"
+
+	v2 := &Volume{
+		Path:       "Path2",
+		Parameters: Parameters{},
+	}
+	v2.Parameters["p1"] = "val2_1"
+
+	vs := Volumes{}
+	vs[v1.Path] = v1
+	vs[v2.Path] = v2
+
+	o1 := &Volume{
+		Path:       "Path1",
+		Parameters: Parameters{},
+	}
+	o1.Parameters["p1"] = "update" // Not supposed to be merge
+	o1.Parameters["p2"] = "new"    // Must be merged
+
+	o3 := &Volume{ // The whole volume is supposed to be merged
+		Path:       "Path3",
+		Parameters: Parameters{},
+	}
+	o3.Parameters["p1"] = "val3_1"
+	o3.Parameters["p2"] = "val3_2"
+
+	os := Volumes{}
+	os[o1.Path] = o1
+	os[o3.Path] = o3
+
+	vs.merge(os)
+
+	assert.Equal(t, 3, len(vs))
+	if assert.Equal(t, 2, len(vs[v1.Path].Parameters)) {
+		assert.Equal(t, "val1_1", vs[v1.Path].Parameters["p1"])
+		assert.Equal(t, "new", vs[v1.Path].Parameters["p2"])
+	}
+
+	if assert.Equal(t, 1, len(vs[v2.Path].Parameters)) {
+		assert.Equal(t, "val2_1", vs[v2.Path].Parameters["p1"])
+	}
+
+	if assert.Equal(t, 2, len(vs[o3.Path].Parameters)) {
+		assert.Equal(t, "val3_1", vs[o3.Path].Parameters["p1"])
+		assert.Equal(t, "val3_2", vs[o3.Path].Parameters["p2"])
+	}
+}
+
 func TestVolumesAsArray(t *testing.T) {
-	v1 := Volume{
+	v1 := &Volume{
 		Path: "Path1",
 	}
-	v2 := Volume{
+	v2 := &Volume{
 		Path: "Path2",
 	}
 	vs := Volumes{}

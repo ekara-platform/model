@@ -15,7 +15,7 @@ type (
 	}
 
 	// Volume represents all the volumes to create for a Node set
-	Volumes map[string]Volume
+	Volumes map[string]*Volume
 )
 
 // MarshalJSON returns the serialized content of a volume as JSON
@@ -43,7 +43,7 @@ func createVolumes(env *Environment, location DescriptorLocation, yamlRef []yaml
 		if len(v.Path) == 0 {
 			env.errors.addError(errors.New("empty volume path"), location.appendPath("path"))
 		} else {
-			volumes[v.Path] = Volume{Parameters: createParameters(v.Params), Path: v.Path}
+			volumes[v.Path] = &Volume{Parameters: createParameters(v.Params), Path: v.Path}
 		}
 	}
 	return volumes
@@ -52,7 +52,7 @@ func createVolumes(env *Environment, location DescriptorLocation, yamlRef []yaml
 func (r Volumes) merge(other Volumes) error {
 	for id, v := range other {
 		if volume, ok := r[id]; ok {
-			if err := volume.merge(v); err != nil {
+			if err := volume.merge(*v); err != nil {
 				return err
 			}
 		} else {
@@ -66,7 +66,7 @@ func (r Volumes) merge(other Volumes) error {
 func (r Volumes) AsArray() []Volume {
 	res := make([]Volume, 0)
 	for _, v := range r {
-		res = append(res, v)
+		res = append(res, *v)
 	}
 	return res
 }
