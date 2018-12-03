@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"errors"
+	"reflect"
 )
 
 type (
@@ -30,10 +31,12 @@ func (r Volume) MarshalJSON() ([]byte, error) {
 }
 
 func (r *Volume) merge(other Volume) error {
-	if r.Path != other.Path {
-		return errors.New("cannot merge unrelated volumes (" + r.Path + " != " + other.Path + ")")
+	if !reflect.DeepEqual(r, &other) {
+		if r.Path != other.Path {
+			return errors.New("cannot merge unrelated volumes (" + r.Path + " != " + other.Path + ")")
+		}
+		r.Parameters = r.Parameters.inherits(other.Parameters)
 	}
-	r.Parameters = r.Parameters.inherits(other.Parameters)
 	return nil
 }
 

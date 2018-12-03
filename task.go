@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"reflect"
 )
 
 type (
@@ -27,7 +28,7 @@ type (
 	}
 
 	//Tasks represent all the tasks of an environment
-	Tasks map[string]Task
+	Tasks map[string]*Task
 
 	circularRefTracking map[string]interface{}
 )
@@ -60,23 +61,25 @@ func (r Task) validate() ValidationErrors {
 }
 
 func (r *Task) merge(other Task) error {
-	if r.Name != other.Name {
-		return errors.New("cannot merge unrelated stacks (" + r.Name + " != " + other.Name + ")")
+	if !reflect.DeepEqual(r, &other) {
+		if r.Name != other.Name {
+			return errors.New("cannot merge unrelated tasks (" + r.Name + " != " + other.Name + ")")
+		}
+		if err := r.Component.merge(other.Component); err != nil {
+			return err
+		}
+		if err := r.Hooks.merge(other.Hooks); err != nil {
+			return err
+		}
+		if r.Playbook == "" {
+			r.Playbook = other.Playbook
+		}
+		if r.Cron == "" {
+			r.Cron = other.Cron
+		}
+		r.Parameters = r.Parameters.inherits(other.Parameters)
+		r.EnvVars = r.EnvVars.inherits(other.EnvVars)
 	}
-	if err := r.Component.merge(other.Component); err != nil {
-		return err
-	}
-	if err := r.Hooks.merge(other.Hooks); err != nil {
-		return err
-	}
-	if r.Playbook == "" {
-		r.Playbook = other.Playbook
-	}
-	if r.Cron == "" {
-		r.Cron = other.Cron
-	}
-	r.Parameters = r.Parameters.inherits(other.Parameters)
-	r.EnvVars = r.EnvVars.inherits(other.EnvVars)
 	return nil
 }
 
@@ -95,7 +98,7 @@ func createTasks(env *Environment, yamlEnv *yamlEnvironment) Tasks {
 			env.errors.addError(err, env.location.appendPath("tasks."+name+".hooks.execute.after"))
 		}
 
-		res[name] = Task{
+		res[name] = &Task{
 			Name:       name,
 			Playbook:   yamlTask.Playbook,
 			Component:  createComponentRef(env, env.location.appendPath("tasks."+name+".component"), yamlTask.Component, false),
@@ -113,7 +116,7 @@ func createTasks(env *Environment, yamlEnv *yamlEnvironment) Tasks {
 func (r Tasks) merge(env *Environment, other Tasks) error {
 	for id, t := range other {
 		if task, ok := r[id]; ok {
-			if err := task.merge(t); err != nil {
+			if err := task.merge(*t); err != nil {
 				return err
 			}
 		} else {
