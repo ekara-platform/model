@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-var semanticVersioningPattern = regexp.MustCompile("^(?P<major>0|[1-9]\\d*)(\\.(?P<minor>0|[1-9]\\d*))?(\\.(?P<patch>0|[1-9]\\d*))?(?:-(?P<qualifier>(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$")
+var semanticVersioningPattern = regexp.MustCompile("^(?P<prefix>\\w*)(?P<major>0|[1-9]\\d*)(\\.(?P<minor>0|[1-9]\\d*))?(\\.(?P<patch>0|[1-9]\\d*))?(?:-(?P<qualifier>(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$")
 
 //Version represents the version of a component
 type Version struct {
@@ -16,6 +16,7 @@ type Version struct {
 	Minor     int
 	Micro     int
 	Qualifier string
+	prefix    string
 	full      string
 }
 
@@ -50,7 +51,6 @@ func createVersion(full string) (Version, error) {
 				result[name] = match[i]
 			}
 		}
-
 		if result["major"] != "" {
 			major, err := strconv.Atoi(result["major"])
 			if err != nil {
@@ -78,6 +78,9 @@ func createVersion(full string) (Version, error) {
 		if result["qualifier"] != "" {
 			v.Qualifier = result["qualifier"]
 		}
+		if result["prefix"] != "" {
+			v.prefix = result["prefix"]
+		}
 	}
 	return v, nil
 }
@@ -102,7 +105,7 @@ func (r Version) IncludesVersion(other Version) bool {
 // String returns the string representation of the version
 func (r Version) String() string {
 	if r.Major >= 0 {
-		// GBE previously this was s := fmt.Sprintf("v%d.%d.%d", r.Major, r.Minor, r.Micro)
+		// GBE previously this was s := fmt.Sprintf("%s%d.%d.%d", r.prefix, r.Major, r.Minor, r.Micro)
 		// I just removed the prefix "v" in order to pass tests with components names 1.0.0-beta1 for the beta1
 		s := fmt.Sprintf("%d.%d.%d", r.Major, r.Minor, r.Micro)
 		if r.Qualifier != "" {
