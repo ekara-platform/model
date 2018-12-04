@@ -1,33 +1,11 @@
 package model
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
-
-/*
-func (r *Task) merge(other Task) error {
-	if r.Name != other.Name {
-		return errors.New("cannot merge unrelated stacks (" + r.Name + " != " + other.Name + ")")
-	}
-	if err := r.Component.merge(other.Component); err != nil {
-		return err
-	}
-	if err := r.Hooks.merge(other.Hooks); err != nil {
-		return err
-	}
-	if r.Playbook == "" {
-		r.Playbook = other.Playbook
-	}
-	if r.Cron == "" {
-		r.Cron = other.Cron
-	}
-	r.Parameters = r.Parameters.inherits(other.Parameters)
-	r.EnvVars = r.EnvVars.inherits(other.EnvVars)
-	return nil
-}
-*/
 
 func TestMergeTaskUnrelated(t *testing.T) {
 	ta := Task{
@@ -54,15 +32,41 @@ func TestMergeTaskUnrelated(t *testing.T) {
 func TestMergeTaskItself(t *testing.T) {
 	ta := Task{
 		Name:       "Name",
+		Playbook:   "Playbook",
+		Cron:       "Cron",
 		Parameters: Parameters{},
+		EnvVars:    EnvVars{},
 	}
 	ta.Parameters["p1"] = "val1"
+	ta.EnvVars["e1"] = "env1"
+
+	ta.Component = componentRef{
+		ref:       "cRef",
+		mandatory: true,
+	}
+
+	task1 := taskRef{ref: "ref1"}
+	task2 := taskRef{ref: "ref2"}
+	h := TaskHook{}
+	h.Execute.Before = append(h.Execute.Before, task1)
+	h.Execute.After = append(h.Execute.After, task2)
+
+	ta.Hooks = h
 
 	err := ta.merge(ta)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(ta.Parameters))
 	assert.Contains(t, ta.Parameters, "p1")
 	assert.Equal(t, ta.Parameters["p1"], "val1")
+
+	assert.Equal(t, 1, len(ta.EnvVars))
+	assert.Contains(t, ta.EnvVars, "e1")
+	assert.Equal(t, ta.EnvVars["e1"], "env1")
+
+	assert.Equal(t, ta.Component.ref, "cRef")
+	assert.True(t, ta.Component.mandatory)
+
+	assert.True(t, reflect.DeepEqual(h, ta.Hooks))
 }
 
 func TestMergeTaskNoUpdate(t *testing.T) {
@@ -75,8 +79,19 @@ func TestMergeTaskNoUpdate(t *testing.T) {
 	}
 	ta.Parameters["p1"] = "val1"
 	ta.EnvVars["e1"] = "env1"
-	// Hooks have specific tests
-	// Componebt has specific tests
+
+	ta.Component = componentRef{
+		ref:       "cRef",
+		mandatory: true,
+	}
+
+	task1 := taskRef{ref: "ref1"}
+	task2 := taskRef{ref: "ref2"}
+	h := TaskHook{}
+	h.Execute.Before = append(h.Execute.Before, task1)
+	h.Execute.After = append(h.Execute.After, task2)
+
+	ta.Hooks = h
 
 	o := Task{
 		Name:       "Name",
@@ -88,6 +103,19 @@ func TestMergeTaskNoUpdate(t *testing.T) {
 	o.Parameters["p1"] = "val1_updated"
 	o.EnvVars["e1"] = "env1_updated"
 
+	o.Component = componentRef{
+		ref:       "cRef_updated",
+		mandatory: false,
+	}
+
+	tasko1 := taskRef{ref: "ref1_updated"}
+	tasko2 := taskRef{ref: "ref2_updated"}
+	ho := TaskHook{}
+	ho.Execute.Before = append(ho.Execute.Before, tasko1)
+	ho.Execute.After = append(ho.Execute.After, tasko2)
+
+	o.Hooks = ho
+
 	err := ta.merge(o)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(ta.Parameters))
@@ -98,6 +126,16 @@ func TestMergeTaskNoUpdate(t *testing.T) {
 	assert.Equal(t, ta.EnvVars["e1"], "env1")
 	assert.Equal(t, ta.Playbook, "Playbook")
 	assert.Equal(t, ta.Cron, "Cron")
+
+	// The component should not be updated
+	assert.Equal(t, ta.Component.ref, "cRef")
+	assert.True(t, ta.Component.mandatory)
+
+	// The hook should be updated with the news tasks
+	if assert.False(t, reflect.DeepEqual(h, ta.Hooks)) {
+		assert.Equal(t, 2, len(ta.Hooks.Execute.Before))
+		assert.Equal(t, 2, len(ta.Hooks.Execute.After))
+	}
 }
 
 func TestMergeTaskAddition(t *testing.T) {
@@ -109,8 +147,6 @@ func TestMergeTaskAddition(t *testing.T) {
 	}
 	ta.Parameters["p1"] = "val1"
 	ta.EnvVars["e1"] = "env1"
-	// Hooks have specific tests
-	// Componebt has specific tests
 
 	o := Task{
 		Name:       "Name",
@@ -121,6 +157,19 @@ func TestMergeTaskAddition(t *testing.T) {
 	}
 	o.Parameters["p2"] = "val2_added"
 	o.EnvVars["e2"] = "env2_added"
+
+	o.Component = componentRef{
+		ref:       "cRef_added",
+		mandatory: false,
+	}
+
+	tasko1 := taskRef{ref: "ref1_added"}
+	tasko2 := taskRef{ref: "ref2_added"}
+	ho := TaskHook{}
+	ho.Execute.Before = append(ho.Execute.Before, tasko1)
+	ho.Execute.After = append(ho.Execute.After, tasko2)
+
+	o.Hooks = ho
 
 	err := ta.merge(o)
 	assert.Nil(t, err)
@@ -136,6 +185,14 @@ func TestMergeTaskAddition(t *testing.T) {
 	assert.Equal(t, ta.EnvVars["e2"], "env2_added")
 	assert.Equal(t, ta.Playbook, "Playbook")
 	assert.Equal(t, ta.Cron, "Cron")
+
+	// The component should be added
+	assert.Equal(t, ta.Component.ref, "cRef_added")
+	assert.False(t, ta.Component.mandatory)
+
+	// The hook should be updated with the news tasks
+	assert.Equal(t, 1, len(ta.Hooks.Execute.Before))
+	assert.Equal(t, 1, len(ta.Hooks.Execute.After))
 }
 
 func TestMergeNoTasks(t *testing.T) {
