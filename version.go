@@ -102,7 +102,9 @@ func (r Version) IncludesVersion(other Version) bool {
 // String returns the string representation of the version
 func (r Version) String() string {
 	if r.Major >= 0 {
-		s := fmt.Sprintf("v%d.%d.%d", r.Major, r.Minor, r.Micro)
+		// GBE previously this was s := fmt.Sprintf("v%d.%d.%d", r.Major, r.Minor, r.Micro)
+		// I just removed the prefix "v" in order to pass tests with components names 1.0.0-beta1 for the beta1
+		s := fmt.Sprintf("%d.%d.%d", r.Major, r.Minor, r.Micro)
 		if r.Qualifier != "" {
 			s = fmt.Sprintf("%s-%s", s, r.Qualifier)
 		}
