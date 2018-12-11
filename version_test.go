@@ -20,12 +20,12 @@ func TestIncludesVersion(t *testing.T) {
 }
 
 func TestString(t *testing.T) {
-	assert.Equal(t, "v1.2.3", createTestVersion("1.2.3").String())
+	assert.Equal(t, "1.2.3", createTestVersion("1.2.3").String())
 	assert.Equal(t, "master", createTestVersion("master").String())
 }
 
 func TestQualifier(t *testing.T) {
-	assert.Equal(t, "v1.2.3-beta1", createTestVersion("1.2.3-beta1").String())
+	assert.Equal(t, "1.2.3-beta1", createTestVersion("1.2.3-beta1").String())
 }
 
 func createTestVersion(full string) Version {
