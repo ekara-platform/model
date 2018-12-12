@@ -11,6 +11,7 @@ import (
 type (
 	//Task represent an task executable on the built environment
 	Task struct {
+		location DescriptorLocation
 		// Name of the task
 		Name string
 		// The component containing the task
@@ -57,7 +58,20 @@ func (r Task) MarshalJSON() ([]byte, error) {
 }
 
 func (r Task) validate() ValidationErrors {
-	return ErrorOnInvalid(r.Component, r.Hooks)
+	vErrs := ValidationErrors{}
+	if len(r.Playbook) == 0 {
+		vErrs.addError(errors.New("empty playbook path"), r.location.appendPath("playbook"))
+	}
+	err := checkCircularRefs(r.Hooks.Execute.Before, &circularRefTracking{})
+	if err != nil {
+		vErrs.addError(err, r.location.appendPath("hooks.execute.before"))
+	}
+	err = checkCircularRefs(r.Hooks.Execute.After, &circularRefTracking{})
+	if err != nil {
+		vErrs.addError(err, r.location.appendPath("hooks.execute.after"))
+	}
+	vErrs.merge(ErrorOnInvalid(r.Component, r.Hooks))
+	return vErrs
 }
 
 func (r *Task) merge(other Task) error {
@@ -83,30 +97,20 @@ func (r *Task) merge(other Task) error {
 	return nil
 }
 
-func createTasks(env *Environment, yamlEnv *yamlEnvironment) Tasks {
+func createTasks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) Tasks {
 	res := Tasks{}
 	for name, yamlTask := range yamlEnv.Tasks {
-		if len(yamlTask.Playbook) == 0 {
-			env.errors.addError(errors.New("empty playbook path"), env.location.appendPath("tasks."+name+".playbook"))
-		}
-		err := checkCircularRefs(yamlTask.Hooks.Execute.Before, &circularRefTracking{})
-		if err != nil {
-			env.errors.addError(err, env.location.appendPath("tasks."+name+".hooks.execute.before"))
-		}
-		err = checkCircularRefs(yamlTask.Hooks.Execute.After, &circularRefTracking{})
-		if err != nil {
-			env.errors.addError(err, env.location.appendPath("tasks."+name+".hooks.execute.after"))
-		}
-
+		taskLocation := location.appendPath(name)
 		res[name] = &Task{
+			location:   taskLocation,
 			Name:       name,
 			Playbook:   yamlTask.Playbook,
-			Component:  createComponentRef(env, env.location.appendPath("tasks."+name+".component"), yamlTask.Component, false),
+			Component:  createComponentRef(env, taskLocation.appendPath("component"), yamlTask.Component, false),
 			Cron:       yamlTask.Cron,
 			Parameters: createParameters(yamlTask.Params),
 			EnvVars:    createEnvVars(yamlTask.Env),
 			Hooks: TaskHook{
-				Execute: createHook(env, env.location.appendPath("tasks."+name+".hooks.execute"), yamlTask.Hooks.Execute),
+				Execute: createHook(env, taskLocation.appendPath("hooks.execute"), yamlTask.Hooks.Execute),
 			},
 		}
 	}

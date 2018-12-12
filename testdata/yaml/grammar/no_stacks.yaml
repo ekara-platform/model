@@ -6,13 +6,13 @@ ekara:
   components:
     swarm:
       repository: ekara-platform/swarm-orchestrator
-      version: 1.2.3
+      ref: 1.2.3
     aws:
       repository: ekara-platform/aws-provider
-      version: 1.2.3
+      ref: 1.2.3
     azure:
       repository: ekara-platform/azure-provider
-      version: 1.2.3
+      ref: 1.2.3
 
 providers:
   aws:

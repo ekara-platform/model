@@ -27,6 +27,11 @@ type (
 		Docker map[string]interface{}
 	}
 
+	// yaml tag for authentication parameters
+	yamlAuth struct {
+		Auth map[string]interface{}
+	}
+
 	// yaml tag for environment variables
 	yamlEnv struct {
 		Env map[string]string
@@ -41,8 +46,15 @@ type (
 	yamlComponent struct {
 		// The source repository where the component lives
 		Repository string
-		// The version of the component to use
-		Version string
+		// The ref (branch or tag) of the component to use
+		Ref string
+		// The authentication parameters
+		yamlAuth `yaml:",inline"`
+	}
+
+	// yaml tag for component with imports
+	yamlComponentWithImports struct {
+		yamlComponent `yaml:",inline"`
 		// Local imports for the component
 		Imports []string
 	}
@@ -96,9 +108,6 @@ type (
 
 	// Definition of the Ekara environment
 	yamlEnvironment struct {
-		// Global imports
-		Imports []string
-
 		// The name of the environment
 		Name string
 		// The qualifier of the environment
@@ -109,9 +118,13 @@ type (
 
 		// The Ekara platform used to interact with the environment
 		Ekara struct {
-			ComponentBase string `yaml:"componentBase"`
-			Components    map[string]yamlComponent
+			Base         string
+			Distribution yamlComponent
+			Components   map[string]yamlComponentWithImports
 		}
+
+		// Global imports
+		Imports []string
 
 		// Tasks which can be run on the created environment
 		Tasks map[string]struct {

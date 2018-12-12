@@ -44,10 +44,9 @@ func assertEnv(t *testing.T, env Environment) {
 	// Platform
 	assert.NotNil(t, env.Ekara)
 	assert.NotNil(t, env.Ekara.Components)
-	ekaraComponent, e := env.Ekara.Component.Resolve()
-	assert.Nil(t, e)
-	assert.True(t, strings.HasSuffix(ekaraComponent.Repository.String(), "someBase/ekara-platform/core"))
-	assert.Equal(t, "", ekaraComponent.Version.String())
+	assert.Equal(t, 5, len(env.Ekara.Components))
+	assert.Equal(t, "file://someBase/", env.Ekara.Base.String())
+	assert.Equal(t, "file:///someBase/ekara-platform/distribution", env.Ekara.Distribution.Repository.String())
 
 	//------------------------------------------------------------
 	// Orchestrator
@@ -99,7 +98,7 @@ func assertEnv(t *testing.T, env Environment) {
 	awsComponent, e := providers["aws"].Component.Resolve()
 	assert.Nil(t, e)
 	assert.True(t, strings.HasSuffix(awsComponent.Repository.String(), "/someBase/ekara-platform/aws-provider"))
-	assert.Equal(t, "1.2.3", awsComponent.Version.String())
+	assert.Equal(t, "1.2.3", awsComponent.Ref)
 	assert.NotNil(t, providers["aws"].Parameters)
 	c = providers["aws"].Parameters
 	v, ok = c["aws_param_key1"]
@@ -132,7 +131,7 @@ func assertEnv(t *testing.T, env Environment) {
 	azureComponent, e := providers["azure"].Component.Resolve()
 	assert.Nil(t, e)
 	assert.True(t, strings.HasSuffix(azureComponent.Repository.String(), "/someBase/ekara-platform/azure-provider"))
-	assert.Equal(t, "1.2.3", azureComponent.Version.String())
+	assert.Equal(t, "1.2.3", azureComponent.Ref)
 	assert.NotNil(t, providers["azure"].Parameters)
 
 	c = providers["azure"].Parameters
@@ -370,12 +369,12 @@ func assertEnv(t *testing.T, env Environment) {
 	st1Component, e := stack1.Component.Resolve()
 	assert.Nil(t, e)
 	assert.True(t, strings.HasSuffix(st1Component.Repository.String(), "/someBase/some-org/stack1"))
-	assert.Equal(t, "1.2.3", st1Component.Version.String())
+	assert.Equal(t, "1.2.3", st1Component.Ref)
 
 	st2Component, e := stack2.Component.Resolve()
 	assert.Nil(t, e)
 	assert.True(t, strings.HasSuffix(st2Component.Repository.String(), "/someBase/some-org/stack2"))
-	assert.Equal(t, "1.2.3", st2Component.Version.String())
+	assert.Equal(t, "1.2.3", st2Component.Ref)
 
 	//------------------------------------------------------------
 	// Stack1 Hook

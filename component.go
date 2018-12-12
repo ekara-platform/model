@@ -19,17 +19,18 @@ type (
 	//It can be for example a Provider or Software to deploy on the environment
 	//
 	Component struct {
-		//Id specifies id of the component
+		// Id specifies id of the component
 		Id string
-		//Scm specifies type of source sontrol management system holding the
+		// Scm specifies type of source sontrol management system holding the
 		// component
 		Scm ScmType
-		//Repository specifies the repository Url where to fetch the compoment
+		// Repository specifies the repository Url where to fetch the component
 		Repository *url.URL
-		//Version specifies the version to fetch, if the version is not specified
-		//then the "master" will be fetched
-		Version Version
-		//Imports contains all the imports being declared within the component
+		// The reference to the branch or tag to fetch. If not specified the default branch will be fetched
+		Ref string
+		// The authentication parameters to use if repository is not publicly accessible
+		Authentication Parameters
+		// Imports contains all the imports being declared within the component
 		Imports []string
 	}
 )
@@ -52,12 +53,12 @@ const (
 //CreateComponent creates a new component
 //	Parameters
 //
-//		base: the base URL where to look for the component, if not profided we will assume it's https://github.com
+//		base: the base URL where to look for the component
 //		id: the id of the component
-//		repo: the repository Url where to fetch the compoment
-//		version: the version to fetch, if the version is not specified then the "master" will be fetched
-//		imports:
-func CreateComponent(base *url.URL, id string, repo string, version string, imports ...string) (Component, error) {
+//		repo: the repository Url where to fetch the component
+//		ref: the ref to fetch, if the ref is not specified then the default branch will be fetched
+//		imports: the imports located within the component
+func CreateComponent(base *url.URL, id string, repo string, ref string, imports ...string) (Component, error) {
 	repoUrl, e := resolveRepositoryInfo(base, repo)
 	if e != nil {
 		return Component{}, e
@@ -66,14 +67,10 @@ func CreateComponent(base *url.URL, id string, repo string, version string, impo
 	if e != nil {
 		return Component{}, e
 	}
-	parsedVersion, e := createVersion(version)
-	if e != nil {
-		return Component{}, e
-	}
 	if len(imports) == 0 {
 		imports = append(imports, DefaultDescriptorName)
 	}
-	return Component{Id: id, Repository: repoUrl, Version: parsedVersion, Scm: scmType, Imports: imports}, nil
+	return Component{Id: id, Repository: repoUrl, Ref: ref, Scm: scmType, Imports: imports}, nil
 }
 
 // resolveRepository resolves a full URL from repository short-forms.
@@ -115,8 +112,8 @@ func resolveRepositoryInfo(base *url.URL, repo string) (cUrl *url.URL, e error) 
 	}
 
 	// If it's HTTP(S), assume it's GIT and add the suffix
-	if (strings.ToUpper(cUrl.Scheme) == SchemeHttp || strings.ToUpper(cUrl.Scheme) == SchemeHttps) && !hasSuffixIgnoringCase(cUrl.Path, GitExtentsion) {
-		cUrl.Path = cUrl.Path + GitExtentsion
+	if (strings.ToUpper(cUrl.Scheme) == SchemeHttp || strings.ToUpper(cUrl.Scheme) == SchemeHttps) && !hasSuffixIgnoringCase(cUrl.Path, GitExtension) {
+		cUrl.Path = cUrl.Path + GitExtension
 	}
 
 	return
@@ -132,7 +129,7 @@ func resolveScm(url *url.URL) (ScmType, error) {
 	case SchemeSvn:
 		return Svn, nil
 	case SchemeHttp, SchemeHttps:
-		if hasSuffixIgnoringCase(url.Path, GitExtentsion) {
+		if hasSuffixIgnoringCase(url.Path, GitExtension) {
 			return Git, nil
 		}
 	}

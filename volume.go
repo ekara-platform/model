@@ -9,6 +9,7 @@ import (
 type (
 	// Volume contains the specifications of a volume to create
 	Volume struct {
+		location DescriptorLocation
 		// The mounting path of the created volume
 		Path string
 		// The parameters required to create the volume.
@@ -40,14 +41,19 @@ func (r *Volume) merge(other Volume) error {
 	return nil
 }
 
-func createVolumes(env *Environment, location DescriptorLocation, yamlRef []yamlVolume) Volumes {
+func (r Volume) validate() ValidationErrors {
+	vErrs := ValidationErrors{}
+	if r.Path == "" {
+		vErrs.addError(errors.New("empty volume path"), r.location.appendPath("path"))
+	}
+	return vErrs
+}
+
+func createVolumes(location DescriptorLocation, yamlRef []yamlVolume) Volumes {
 	volumes := Volumes{}
-	for _, v := range yamlRef {
-		if len(v.Path) == 0 {
-			env.errors.addError(errors.New("empty volume path"), location.appendPath("path"))
-		} else {
-			volumes[v.Path] = &Volume{Parameters: createParameters(v.Params), Path: v.Path}
-		}
+	for i, v := range yamlRef {
+		volumeLocation := location.appendIndex(i)
+		volumes[v.Path] = &Volume{location: volumeLocation, Parameters: createParameters(v.Params), Path: v.Path}
 	}
 	return volumes
 }

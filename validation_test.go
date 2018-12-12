@@ -24,7 +24,7 @@ func TestValidationNoContent(t *testing.T) {
 	assert.True(t, vErrs.HasWarnings())
 	assert.Equal(t, 5, len(vErrs.Errors))
 	assert.True(t, vErrs.contains(Error, "empty environment name", "name"))
-	assert.True(t, vErrs.contains(Error, "empty component reference", "orchestrator"))
+	assert.True(t, vErrs.contains(Error, "empty component reference", "orchestrator.component"))
 	assert.True(t, vErrs.contains(Error, "no provider specified", "providers"))
 	assert.True(t, vErrs.contains(Error, "no node specified", "nodes"))
 	assert.True(t, vErrs.contains(Warning, "no stack specified", "stacks"))
@@ -92,7 +92,7 @@ func TestValidationNoNodes(t *testing.T) {
 // to a missing provider into the node set specification
 //
 //- Error: no provider specified @providers
-//- Error: reference to unknown provider: aws @nodes.managers.provider.name
+//- Error: reference to unknown provider: aws @nodes.managers.provider
 //
 func TestValidationNoProviders(t *testing.T) {
 	vErrs, _ := testEmptyContent(t, "providers", false)
@@ -100,14 +100,14 @@ func TestValidationNoProviders(t *testing.T) {
 	assert.False(t, vErrs.HasWarnings())
 	assert.Equal(t, 2, len(vErrs.Errors))
 	assert.True(t, vErrs.contains(Error, "no provider specified", "providers"))
-	assert.True(t, vErrs.contains(Error, "reference to unknown provider: aws", "nodes.managers.provider.name"))
+	assert.True(t, vErrs.contains(Error, "reference to unknown provider: aws", "nodes.managers.provider"))
 }
 
 // Test loading an nodeset referencing an unknown provider.
 //
 // The validation must complain only about the reference on unknown provider
 //
-//- Error: reference to unknown provider: dummy @nodes.managers.provider.name
+//- Error: reference to unknown provider: dummy @nodes.managers.provider
 //
 func TestValidationNodesUnknownProvider(t *testing.T) {
 	env, e := CreateEnvironment(buildUrl("./testdata/yaml/grammar/nodes_unknown_provider.yaml"), map[string]interface{}{})
@@ -116,20 +116,20 @@ func TestValidationNodesUnknownProvider(t *testing.T) {
 	assert.True(t, vErrs.HasErrors())
 	assert.False(t, vErrs.HasWarnings())
 	assert.Equal(t, 1, len(vErrs.Errors))
-	assert.True(t, vErrs.contains(Error, "reference to unknown provider: dummy", "nodes.managers.provider.name"))
+	assert.True(t, vErrs.contains(Error, "reference to unknown provider: dummy", "nodes.managers.provider"))
 }
 
 // Test loading an node set without a reference on a provider.
 //
 // The validation must complain only about the missing provider reference
-//- Error: empty provider reference @nodes.managers.provider.name
+//- Error: empty provider reference @nodes.managers.provider
 //
 func TestValidationNoNodesProvider(t *testing.T) {
 	vErrs, _ := testEmptyContent(t, "nodes_provider", false)
 	assert.True(t, vErrs.HasErrors())
 	assert.False(t, vErrs.HasWarnings())
 	assert.Equal(t, 1, len(vErrs.Errors))
-	assert.True(t, vErrs.contains(Error, "empty provider reference", "nodes.managers.provider.name"))
+	assert.True(t, vErrs.contains(Error, "empty provider reference", "nodes.managers.provider"))
 }
 
 // Test loading an environment without orchestator.
@@ -142,7 +142,7 @@ func TestValidationNoOrchestrator(t *testing.T) {
 	assert.True(t, vErrs.HasErrors())
 	assert.False(t, vErrs.HasWarnings())
 	assert.Equal(t, 1, len(vErrs.Errors))
-	assert.True(t, vErrs.contains(Error, "empty component reference", "orchestrator"))
+	assert.True(t, vErrs.contains(Error, "empty component reference", "orchestrator.component"))
 }
 
 // Test loading an environment referencing an unknown orchestrator.
@@ -158,7 +158,7 @@ func TestValidationUnknownOrchestrator(t *testing.T) {
 	assert.True(t, vErrs.HasErrors())
 	assert.False(t, vErrs.HasWarnings())
 	assert.Equal(t, 1, len(vErrs.Errors))
-	assert.True(t, vErrs.contains(Error, "reference to unknown component: dummy", "orchestrator"))
+	assert.True(t, vErrs.contains(Error, "reference to unknown component: dummy", "orchestrator.component"))
 
 }
 
@@ -226,12 +226,12 @@ func TestValidationNoNodesInstance(t *testing.T) {
 //
 //- Error: empty volume path @nodes.managers.volumes.path
 //
-func TestValidationNoNoVolumeName(t *testing.T) {
+func TestValidationNoVolumeName(t *testing.T) {
 	vErrs, _ := testEmptyContent(t, "volume_name", false)
 	assert.True(t, vErrs.HasErrors())
 	assert.False(t, vErrs.HasWarnings())
 	assert.Equal(t, 1, len(vErrs.Errors))
-	assert.True(t, vErrs.contains(Error, "empty volume path", "nodes.managers.volumes.path"))
+	assert.True(t, vErrs.contains(Error, "empty volume path", "nodes.managers.volumes[0].path"))
 }
 
 func testEmptyContent(t *testing.T, name string, onlyWarning bool) (ValidationErrors, Environment) {
