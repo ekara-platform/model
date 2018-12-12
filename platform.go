@@ -27,7 +27,7 @@ func createPlatform(yamlEnv *yamlEnvironment) (Platform, error) {
 	if ekaraRepo == "" {
 		ekaraRepo = EkaraComponentRepo
 	}
-	ekaraComponent, e := CreateComponent(base, EkaraComponentId, ekaraRepo, yamlEnv.Ekara.Distribution.Version)
+	ekaraComponent, e := CreateComponent(base, EkaraComponentId, ekaraRepo, yamlEnv.Ekara.Distribution.Ref)
 	if e != nil {
 		return Platform{}, errors.New("invalid distribution: " + e.Error())
 	}
@@ -39,7 +39,7 @@ func createPlatform(yamlEnv *yamlEnvironment) (Platform, error) {
 			base,
 			componentName,
 			yamlComponent.Repository,
-			yamlComponent.Version,
+			yamlComponent.Ref,
 			yamlComponent.Imports...)
 		if e != nil {
 			return Platform{}, errors.New("invalid component " + componentName + ": " + e.Error())

@@ -46,8 +46,8 @@ type (
 	yamlComponent struct {
 		// The source repository where the component lives
 		Repository string
-		// The version of the component to use
-		Version string
+		// The ref (branch or tag) of the component to use
+		Ref string
 		// The authentication parameters
 		yamlAuth `yaml:",inline"`
 	}

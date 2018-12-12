@@ -7,23 +7,23 @@ ekara:
   base: someBase
   distribution:
     repository: ekara-platform/distribution
-    version: 1.2.3
+    ref: 1.2.3
   components:
     aws:
       repository: ekara-platform/aws-provider
-      version: 1.2.3
+      ref: 1.2.3
     azure:
       repository: ekara-platform/azure-provider
-      version: 1.2.3
+      ref: 1.2.3
     swarm:
       repository: ekara-platform/swarm-orchestrator
-      version: 1.2.3
+      ref: 1.2.3
     stack1:
       repository: some-org/stack1
-      version: 1.2.3
+      ref: 1.2.3
     stack2:
       repository: some-org/stack2
-      version: 1.2.3
+      ref: 1.2.3
 
 
 tasks:

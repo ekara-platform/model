@@ -5,13 +5,13 @@ ekara:
   components:
     aws:
       repository: tbouvet/aws-provider
-      version: custom-config
+      ref: custom-config
     swarm:
       repository: tbouvet/swarm-orchestrator
-      version: proxy
+      ref: proxy
     stack1:
       repository: ekara-platform/swarm-orchestrator
-      version: alpha1
+      ref: alpha1
 
 orchestrator:
   component: swarm

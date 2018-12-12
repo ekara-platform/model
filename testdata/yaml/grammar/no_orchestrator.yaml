@@ -6,10 +6,10 @@ ekara:
   components:
     aws:
       repository: ekara-platform/aws-provider
-      version: 1.2.3
+      ref: 1.2.3
     stack1:
       repository: some-org/stack1
-      version: 1.2.3
+      ref: 1.2.3
 
 providers:
   aws:
