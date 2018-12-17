@@ -98,7 +98,6 @@ func CreateEnvironment(url *url.URL, data map[string]interface{}) (Environment, 
 		env.Providers = createProviders(&env, env.location.appendPath("providers"), &yamlEnv)
 		env.NodeSets = createNodeSets(&env, env.location.appendPath("nodes"), &yamlEnv)
 		env.Stacks = createStacks(&env, env.location.appendPath("stacks"), &yamlEnv)
-		env.Hooks.Init = createHook(&env, env.location.appendPath("hooks.init"), yamlEnv.Hooks.Init)
 		env.Hooks.Provision = createHook(&env, env.location.appendPath("hooks.provision"), yamlEnv.Hooks.Provision)
 		env.Hooks.Deploy = createHook(&env, env.location.appendPath("hooks.deploy"), yamlEnv.Hooks.Deploy)
 		env.Hooks.Undeploy = createHook(&env, env.location.appendPath("hooks.undeploy"), yamlEnv.Hooks.Undeploy)

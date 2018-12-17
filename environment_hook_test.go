@@ -18,10 +18,8 @@ func TestValidateUnknownGlobalHooks(t *testing.T) {
 	vErrs := env.Validate()
 	assert.True(t, vErrs.HasErrors())
 	assert.False(t, vErrs.HasWarnings())
-	assert.Equal(t, 10, len(vErrs.Errors))
+	assert.Equal(t, 8, len(vErrs.Errors))
 
-	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.init.before"))
-	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.init.after"))
 	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.provision.before"))
 	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.provision.after"))
 	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.deploy.before"))
@@ -35,18 +33,6 @@ func TestValidateUnknownGlobalHooks(t *testing.T) {
 func TestHasNoTaskEnv(t *testing.T) {
 	h := EnvironmentHooks{}
 	assert.False(t, h.HasTasks())
-}
-
-func TestHasTaskBeforeEnvInit(t *testing.T) {
-	h := EnvironmentHooks{}
-	h.Init.Before = append(h.Init.Before, oneTask)
-	assert.True(t, h.HasTasks())
-}
-
-func TestHasTaskAfterEnvInit(t *testing.T) {
-	h := EnvironmentHooks{}
-	h.Init.After = append(h.Init.After, oneTask)
-	assert.True(t, h.HasTasks())
 }
 
 func TestHasTaskBeforeEnvProvision(t *testing.T) {
@@ -101,13 +87,11 @@ func TestMergeEnvironmentHookBefore(t *testing.T) {
 	task1 := taskRef{ref: "ref1"}
 	task2 := taskRef{ref: "ref2"}
 	h := EnvironmentHooks{}
-	h.Init.Before = append(h.Init.Before, task1)
 	h.Provision.Before = append(h.Provision.Before, task1)
 	h.Destroy.Before = append(h.Destroy.Before, task1)
 	h.Deploy.Before = append(h.Deploy.Before, task1)
 	h.Undeploy.Before = append(h.Undeploy.Before, task1)
 	o := EnvironmentHooks{}
-	o.Init.Before = append(o.Init.Before, task2)
 	o.Provision.Before = append(o.Provision.Before, task2)
 	o.Destroy.Before = append(o.Destroy.Before, task2)
 	o.Deploy.Before = append(o.Deploy.Before, task2)
@@ -116,11 +100,6 @@ func TestMergeEnvironmentHookBefore(t *testing.T) {
 	err := h.merge(o)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
-	if assert.Equal(t, 2, len(h.Init.Before)) {
-		assert.Equal(t, 0, len(h.Init.After))
-		assert.Equal(t, task1.ref, h.Init.Before[0].ref)
-		assert.Equal(t, task2.ref, h.Init.Before[1].ref)
-	}
 
 	if assert.Equal(t, 2, len(h.Provision.Before)) {
 		assert.Equal(t, 0, len(h.Provision.After))
@@ -151,13 +130,11 @@ func TestMergeEnvironmentHookAfter(t *testing.T) {
 	task1 := taskRef{ref: "ref1"}
 	task2 := taskRef{ref: "ref2"}
 	h := EnvironmentHooks{}
-	h.Init.After = append(h.Init.After, task1)
 	h.Provision.After = append(h.Provision.After, task1)
 	h.Destroy.After = append(h.Destroy.After, task1)
 	h.Deploy.After = append(h.Deploy.After, task1)
 	h.Undeploy.After = append(h.Undeploy.After, task1)
 	o := EnvironmentHooks{}
-	o.Init.After = append(o.Init.After, task2)
 	o.Provision.After = append(o.Provision.After, task2)
 	o.Destroy.After = append(o.Destroy.After, task2)
 	o.Deploy.After = append(o.Deploy.After, task2)
@@ -166,11 +143,6 @@ func TestMergeEnvironmentHookAfter(t *testing.T) {
 	err := h.merge(o)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
-	if assert.Equal(t, 2, len(h.Init.After)) {
-		assert.Equal(t, 0, len(h.Init.Before))
-		assert.Equal(t, task1.ref, h.Init.After[0].ref)
-		assert.Equal(t, task2.ref, h.Init.After[1].ref)
-	}
 
 	if assert.Equal(t, 2, len(h.Provision.After)) {
 		assert.Equal(t, 0, len(h.Provision.Before))
@@ -200,7 +172,6 @@ func TestMergeEnvironmentHookAfter(t *testing.T) {
 func TestMergeEnvironmentHookItself(t *testing.T) {
 	task1 := taskRef{ref: "ref1"}
 	h := EnvironmentHooks{}
-	h.Init.After = append(h.Init.After, task1)
 	h.Provision.After = append(h.Provision.After, task1)
 	h.Destroy.After = append(h.Destroy.After, task1)
 	h.Deploy.After = append(h.Deploy.After, task1)
@@ -209,17 +180,14 @@ func TestMergeEnvironmentHookItself(t *testing.T) {
 	err := h.merge(h)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
-	assert.Equal(t, 0, len(h.Init.Before))
 	assert.Equal(t, 0, len(h.Provision.Before))
 	assert.Equal(t, 0, len(h.Destroy.Before))
 	assert.Equal(t, 0, len(h.Deploy.Before))
 	assert.Equal(t, 0, len(h.Undeploy.Before))
-	assert.Equal(t, 1, len(h.Init.After))
 	assert.Equal(t, 1, len(h.Provision.After))
 	assert.Equal(t, 1, len(h.Destroy.After))
 	assert.Equal(t, 1, len(h.Deploy.After))
 	assert.Equal(t, 1, len(h.Undeploy.After))
-	assert.Equal(t, task1.ref, h.Init.After[0].ref)
 	assert.Equal(t, task1.ref, h.Provision.After[0].ref)
 	assert.Equal(t, task1.ref, h.Destroy.After[0].ref)
 	assert.Equal(t, task1.ref, h.Deploy.After[0].ref)
