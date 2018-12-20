@@ -5,18 +5,19 @@ import (
 )
 
 type (
-	taskRef struct {
-		ref        string
-		parameters Parameters
-		envVars    EnvVars
-		env        *Environment
-		location   DescriptorLocation
-		mandatory  bool
+	TaskRef struct {
+		ref          string
+		HookLocation hookLocation
+		parameters   Parameters
+		envVars      EnvVars
+		env          *Environment
+		location     DescriptorLocation
+		mandatory    bool
 	}
 )
 
 //reference return a validatable representation of the reference on a task
-func (r taskRef) reference() validatableReference {
+func (r TaskRef) reference() validatableReference {
 	result := make(map[string]interface{})
 	for k, v := range r.env.Tasks {
 		result[k] = v
@@ -30,7 +31,7 @@ func (r taskRef) reference() validatableReference {
 	}
 }
 
-func (r *taskRef) merge(other taskRef) {
+func (r *TaskRef) merge(other TaskRef) {
 	if r.ref == "" {
 		r.ref = other.ref
 	}
@@ -38,30 +39,37 @@ func (r *taskRef) merge(other taskRef) {
 	r.envVars = r.envVars.inherits(other.envVars)
 }
 
-func (r taskRef) Resolve() (Task, error) {
+func (r TaskRef) Resolve() (Task, error) {
 	validationErrors := ErrorOnInvalid(r)
 	if validationErrors.HasErrors() {
 		return Task{}, validationErrors
 	}
+
 	task := r.env.Tasks[r.ref]
 	return Task{
 		Name:       task.Name,
+		location:   task.location,
+		Component:  task.Component,
+		Playbook:   task.Playbook,
+		Cron:       task.Cron,
+		Hooks:      task.Hooks,
 		Parameters: r.parameters.inherits(task.Parameters),
 		EnvVars:    r.envVars.inherits(task.EnvVars)}, nil
 }
 
-func createTaskRef(env *Environment, location DescriptorLocation, tRef yamlTaskRef) taskRef {
-	return taskRef{
-		env:        env,
-		ref:        tRef.Task,
-		parameters: createParameters(tRef.Params),
-		envVars:    createEnvVars(tRef.Env),
-		location:   location,
-		mandatory:  true,
+func createTaskRef(env *Environment, location DescriptorLocation, tRef yamlTaskRef, hl hookLocation) TaskRef {
+	return TaskRef{
+		env:          env,
+		HookLocation: hl,
+		ref:          tRef.Task,
+		parameters:   createParameters(tRef.Params),
+		envVars:      createEnvVars(tRef.Env),
+		location:     location,
+		mandatory:    true,
 	}
 }
 
-func checkCircularRefs(taskRefs []taskRef, alreadyEncountered *circularRefTracking) error {
+func checkCircularRefs(taskRefs []TaskRef, alreadyEncountered *circularRefTracking) error {
 	for _, taskRef := range taskRefs {
 		if _, ok := (*alreadyEncountered)[taskRef.ref]; ok {
 			return errors.New("circular task reference: " + alreadyEncountered.String() + taskRef.ref)
