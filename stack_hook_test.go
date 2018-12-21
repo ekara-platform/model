@@ -57,8 +57,8 @@ func TestHasTaskAfterStackUndeploy(t *testing.T) {
 }
 
 func TestMergeStackHookBefore(t *testing.T) {
-	task1 := taskRef{ref: "ref1"}
-	task2 := taskRef{ref: "ref2"}
+	task1 := TaskRef{ref: "ref1"}
+	task2 := TaskRef{ref: "ref2"}
 	h := StackHook{}
 	h.Deploy.Before = append(h.Deploy.Before, task1)
 	h.Undeploy.Before = append(h.Undeploy.Before, task1)
@@ -83,8 +83,8 @@ func TestMergeStackHookBefore(t *testing.T) {
 }
 
 func TestMergeStackHookAfter(t *testing.T) {
-	task1 := taskRef{ref: "ref1"}
-	task2 := taskRef{ref: "ref2"}
+	task1 := TaskRef{ref: "ref1"}
+	task2 := TaskRef{ref: "ref2"}
 	h := StackHook{}
 	h.Deploy.After = append(h.Deploy.After, task1)
 	h.Undeploy.After = append(h.Undeploy.After, task1)
@@ -109,7 +109,7 @@ func TestMergeStackHookAfter(t *testing.T) {
 }
 
 func TestMergeStackHookItself(t *testing.T) {
-	task1 := taskRef{ref: "ref1"}
+	task1 := TaskRef{ref: "ref1"}
 	h := StackHook{}
 	h.Deploy.After = append(h.Deploy.After, task1)
 	h.Undeploy.After = append(h.Undeploy.After, task1)

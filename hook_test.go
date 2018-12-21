@@ -24,8 +24,8 @@ func TestHasTaskAfter(t *testing.T) {
 }
 
 func TestMergeHookBefore(t *testing.T) {
-	task1 := taskRef{ref: "ref1"}
-	task2 := taskRef{ref: "ref2"}
+	task1 := TaskRef{ref: "ref1"}
+	task2 := TaskRef{ref: "ref2"}
 	h := Hook{}
 	h.Before = append(h.Before, task1)
 	o := Hook{}
@@ -44,8 +44,8 @@ func TestMergeHookBefore(t *testing.T) {
 }
 
 func TestMergeHookAfter(t *testing.T) {
-	task1 := taskRef{ref: "ref1"}
-	task2 := taskRef{ref: "ref2"}
+	task1 := TaskRef{ref: "ref1"}
+	task2 := TaskRef{ref: "ref2"}
 	h := Hook{}
 	h.After = append(h.After, task1)
 	o := Hook{}
@@ -64,7 +64,7 @@ func TestMergeHookAfter(t *testing.T) {
 }
 
 func TestMergeHookItself(t *testing.T) {
-	task1 := taskRef{ref: "ref1"}
+	task1 := TaskRef{ref: "ref1"}
 	h := Hook{}
 	h.After = append(h.After, task1)
 

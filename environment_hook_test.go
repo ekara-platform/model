@@ -84,8 +84,8 @@ func TestHasTaskAfterEnvDestroy(t *testing.T) {
 }
 
 func TestMergeEnvironmentHookBefore(t *testing.T) {
-	task1 := taskRef{ref: "ref1"}
-	task2 := taskRef{ref: "ref2"}
+	task1 := TaskRef{ref: "ref1"}
+	task2 := TaskRef{ref: "ref2"}
 	h := EnvironmentHooks{}
 	h.Provision.Before = append(h.Provision.Before, task1)
 	h.Destroy.Before = append(h.Destroy.Before, task1)
@@ -127,8 +127,8 @@ func TestMergeEnvironmentHookBefore(t *testing.T) {
 }
 
 func TestMergeEnvironmentHookAfter(t *testing.T) {
-	task1 := taskRef{ref: "ref1"}
-	task2 := taskRef{ref: "ref2"}
+	task1 := TaskRef{ref: "ref1"}
+	task2 := TaskRef{ref: "ref2"}
 	h := EnvironmentHooks{}
 	h.Provision.After = append(h.Provision.After, task1)
 	h.Destroy.After = append(h.Destroy.After, task1)
@@ -170,7 +170,7 @@ func TestMergeEnvironmentHookAfter(t *testing.T) {
 }
 
 func TestMergeEnvironmentHookItself(t *testing.T) {
-	task1 := taskRef{ref: "ref1"}
+	task1 := TaskRef{ref: "ref1"}
 	h := EnvironmentHooks{}
 	h.Provision.After = append(h.Provision.After, task1)
 	h.Destroy.After = append(h.Destroy.After, task1)

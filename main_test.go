@@ -1,7 +1,7 @@
 package model
 
-var oneTask taskRef
+var oneTask TaskRef
 
 func init() {
-	oneTask = taskRef{}
+	oneTask = TaskRef{}
 }

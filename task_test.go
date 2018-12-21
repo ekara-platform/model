@@ -45,8 +45,8 @@ func TestMergeTaskItself(t *testing.T) {
 		mandatory: true,
 	}
 
-	task1 := taskRef{ref: "ref1"}
-	task2 := taskRef{ref: "ref2"}
+	task1 := TaskRef{ref: "ref1"}
+	task2 := TaskRef{ref: "ref2"}
 	h := TaskHook{}
 	h.Execute.Before = append(h.Execute.Before, task1)
 	h.Execute.After = append(h.Execute.After, task2)
@@ -85,8 +85,8 @@ func TestMergeTaskNoUpdate(t *testing.T) {
 		mandatory: true,
 	}
 
-	task1 := taskRef{ref: "ref1"}
-	task2 := taskRef{ref: "ref2"}
+	task1 := TaskRef{ref: "ref1"}
+	task2 := TaskRef{ref: "ref2"}
 	h := TaskHook{}
 	h.Execute.Before = append(h.Execute.Before, task1)
 	h.Execute.After = append(h.Execute.After, task2)
@@ -108,8 +108,8 @@ func TestMergeTaskNoUpdate(t *testing.T) {
 		mandatory: false,
 	}
 
-	tasko1 := taskRef{ref: "ref1_updated"}
-	tasko2 := taskRef{ref: "ref2_updated"}
+	tasko1 := TaskRef{ref: "ref1_updated"}
+	tasko2 := TaskRef{ref: "ref2_updated"}
 	ho := TaskHook{}
 	ho.Execute.Before = append(ho.Execute.Before, tasko1)
 	ho.Execute.After = append(ho.Execute.After, tasko2)
@@ -163,8 +163,8 @@ func TestMergeTaskAddition(t *testing.T) {
 		mandatory: false,
 	}
 
-	tasko1 := taskRef{ref: "ref1_added"}
-	tasko2 := taskRef{ref: "ref2_added"}
+	tasko1 := TaskRef{ref: "ref1_added"}
+	tasko2 := TaskRef{ref: "ref2_added"}
 	ho := TaskHook{}
 	ho.Execute.Before = append(ho.Execute.Before, tasko1)
 	ho.Execute.After = append(ho.Execute.After, tasko2)

@@ -68,8 +68,8 @@ func TestHasTaskAfterNodeDestroy(t *testing.T) {
 }
 
 func TestMergeNodeHookBefore(t *testing.T) {
-	task1 := taskRef{ref: "ref1"}
-	task2 := taskRef{ref: "ref2"}
+	task1 := TaskRef{ref: "ref1"}
+	task2 := TaskRef{ref: "ref2"}
 	h := NodeHook{}
 	h.Provision.Before = append(h.Provision.Before, task1)
 	h.Destroy.Before = append(h.Destroy.Before, task1)
@@ -94,8 +94,8 @@ func TestMergeNodeHookBefore(t *testing.T) {
 }
 
 func TestMergeNodeHookAfter(t *testing.T) {
-	task1 := taskRef{ref: "ref1"}
-	task2 := taskRef{ref: "ref2"}
+	task1 := TaskRef{ref: "ref1"}
+	task2 := TaskRef{ref: "ref2"}
 	h := NodeHook{}
 	h.Provision.After = append(h.Provision.After, task1)
 	h.Destroy.After = append(h.Destroy.After, task1)
@@ -120,7 +120,7 @@ func TestMergeNodeHookAfter(t *testing.T) {
 }
 
 func TestMergeNodeHookItself(t *testing.T) {
-	task1 := taskRef{ref: "ref1"}
+	task1 := TaskRef{ref: "ref1"}
 	h := NodeHook{}
 	h.Provision.After = append(h.Provision.After, task1)
 	h.Destroy.After = append(h.Destroy.After, task1)
