@@ -13,7 +13,9 @@ type (
 		// The component containing the stack
 		Component componentRef
 		// The hooks linked to the stack lifecycle events
-		Hooks StackHook
+		Hooks      StackHook
+		parameters Parameters
+		envVars    EnvVars
 	}
 
 	//Stacks represent all the stacks of an environment
@@ -59,6 +61,12 @@ func (r *Stack) merge(other Stack) error {
 	if err := r.Component.merge(other.Component); err != nil {
 		return err
 	}
+	r.parameters = r.parameters.inherits(other.parameters)
+	r.envVars = r.envVars.inherits(other.envVars)
+
+	if err := r.Hooks.merge(other.Hooks); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -71,7 +79,10 @@ func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEn
 			Component: createComponentRef(env, stackLocation.appendPath("component"), yamlStack.Component, false),
 			Hooks: StackHook{
 				Deploy:   createHook(env, stackLocation.appendPath("hooks.deploy"), yamlStack.Hooks.Deploy),
-				Undeploy: createHook(env, stackLocation.appendPath("hooks.undeploy"), yamlStack.Hooks.Undeploy)}}
+				Undeploy: createHook(env, stackLocation.appendPath("hooks.undeploy"), yamlStack.Hooks.Undeploy)},
+			parameters: createParameters(yamlStack.Params),
+			envVars:    createEnvVars(yamlStack.Env),
+		}
 	}
 	return res
 }

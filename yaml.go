@@ -196,6 +196,10 @@ type (
 				Deploy   yamlHook
 				Undeploy yamlHook
 			}
+			// The parameters
+			yamlParams `yaml:",inline"`
+			// The environment variables
+			yamlEnv `yaml:",inline"`
 		}
 
 		// Global hooks
