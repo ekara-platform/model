@@ -393,6 +393,16 @@ func assertEnv(t *testing.T, env Environment) {
 	}
 
 	//------------------------------------------------------------
+	// Stack2 Env/Param
+	//------------------------------------------------------------
+	assert.Equal(t, 2, len(stack2.envVars))
+	assert.Equal(t, 2, len(stack2.parameters))
+	assert.Equal(t, "stack2_param_key1_value", stack2.parameters["stack2_param_key1"])
+	assert.Equal(t, "stack2_param_key2_value", stack2.parameters["stack2_param_key2"])
+	assert.Equal(t, "stack2_env_key1_value", stack2.envVars["stack2_env_key1"])
+	assert.Equal(t, "stack2_env_key2_value", stack2.envVars["stack2_env_key2"])
+
+	//------------------------------------------------------------
 	// Environment Tasks
 	//------------------------------------------------------------
 	tasks := env.Tasks
