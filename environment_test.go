@@ -261,6 +261,24 @@ func assertEnv(t *testing.T, env Environment) {
 	assert.Equal(t, "task2", no.Hooks.Destroy.After[0].ref)
 
 	//------------------------------------------------------------
+	// Node1 Hook Env and Param
+	//------------------------------------------------------------
+
+	if assert.Equal(t, 3, len(no.Hooks.Provision.After[0].parameters)) {
+		assert.Equal(t, "tasks_task2_param_key1_value_overwritten", no.Hooks.Provision.After[0].parameters["tasks_task2_param_key1"])
+		assert.Equal(t, "tasks_task2_param_key2_value", no.Hooks.Provision.After[0].parameters["tasks_task2_param_key2"])
+		assert.Equal(t, "tasks_task2_param_key3_value", no.Hooks.Provision.After[0].parameters["tasks_task2_param_key3"])
+
+	}
+
+	if assert.Equal(t, 3, len(no.Hooks.Provision.After[0].envVars)) {
+		assert.Equal(t, "tasks_task2_env_key1_value_overwritten", no.Hooks.Provision.After[0].envVars["tasks_task2_env_key1"])
+		assert.Equal(t, "tasks_task2_env_key2_value", no.Hooks.Provision.After[0].envVars["tasks_task2_env_key2"])
+		assert.Equal(t, "tasks_task2_env_key3_value", no.Hooks.Provision.After[0].envVars["tasks_task2_env_key3"])
+
+	}
+
+	//------------------------------------------------------------
 	// Node2
 	//------------------------------------------------------------
 	assert.Equal(t, 20, nodeSets["node2"].Instances)
@@ -350,24 +368,6 @@ func assertEnv(t *testing.T, env Environment) {
 	}
 	if assert.Equal(t, 1, len(no.Hooks.Destroy.After)) {
 		assert.Equal(t, "task2", no.Hooks.Destroy.After[0].ref)
-	}
-
-	//------------------------------------------------------------
-	// Node2 Hook Env and Param
-	//------------------------------------------------------------
-
-	if assert.Equal(t, 31, len(no.Hooks.Provision.Before[0].parameters)) {
-		assert.Equal(t, "tasks_task2_param_key1_value_overwritten", no.Hooks.Provision.Before[0].parameters["tasks_task2_param_key1"])
-		assert.Equal(t, "tasks_task2_param_key2_value", no.Hooks.Provision.Before[0].parameters["tasks_task2_param_key2"])
-		assert.Equal(t, "tasks_task2_param_key3_value", no.Hooks.Provision.Before[0].parameters["tasks_task2_param_key3"])
-
-	}
-
-	if assert.Equal(t, 31, len(no.Hooks.Provision.Before[0].envVars)) {
-		assert.Equal(t, "tasks_task2_env_key1_value_overwritten", no.Hooks.Provision.Before[0].envVars["tasks_task2_env_key1"])
-		assert.Equal(t, "tasks_task2_env_key2_value", no.Hooks.Provision.Before[0].envVars["tasks_task2_env_key2"])
-		assert.Equal(t, "tasks_task2_env_key3_value", no.Hooks.Provision.Before[0].envVars["tasks_task2_env_key3"])
-
 	}
 
 	//------------------------------------------------------------
