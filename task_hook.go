@@ -1,9 +1,5 @@
 package model
 
-import (
-	"encoding/json"
-)
-
 type (
 	//TaskHook represents hooks associated to a task
 	TaskHook struct {
@@ -26,15 +22,4 @@ func (r *TaskHook) merge(other TaskHook) error {
 
 func (r TaskHook) validate() ValidationErrors {
 	return ErrorOnInvalid(r.Execute)
-}
-
-// MarshalJSON returns the serialized content of the hook as JSON
-func (r TaskHook) MarshalJSON() ([]byte, error) {
-	t := struct {
-		Execute *Hook `json:",omitempty"`
-	}{}
-	if r.Execute.HasTasks() {
-		t.Execute = &r.Execute
-	}
-	return json.Marshal(t)
 }

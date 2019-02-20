@@ -1,7 +1,6 @@
 package model
 
 import (
-	"encoding/json"
 	"errors"
 )
 
@@ -14,8 +13,8 @@ type (
 		Component componentRef
 		// The hooks linked to the stack lifecycle events
 		Hooks      StackHook
-		parameters Parameters
-		envVars    EnvVars
+		Parameters Parameters
+		EnvVars    EnvVars
 	}
 
 	//Stacks represent all the stacks of an environment
@@ -33,23 +32,6 @@ func (r Stack) DescName() string {
 	return r.Name
 }
 
-// MarshalJSON returns the serialized content of the stack as JSON
-func (r Stack) MarshalJSON() ([]byte, error) {
-	t := struct {
-		Name      string        `json:",omitempty"`
-		Component *componentRef `json:",omitempty"`
-		On        []string      `json:",omitempty"`
-		Hooks     *StackHook    `json:",omitempty"`
-	}{
-		Name:      r.Name,
-		Component: &r.Component,
-	}
-	if r.Hooks.HasTasks() {
-		t.Hooks = &r.Hooks
-	}
-	return json.Marshal(t)
-}
-
 func (r Stack) validate() ValidationErrors {
 	return ErrorOnInvalid(r.Component, r.Hooks)
 }
@@ -61,8 +43,8 @@ func (r *Stack) merge(other Stack) error {
 	if err := r.Component.merge(other.Component); err != nil {
 		return err
 	}
-	r.parameters = r.parameters.inherits(other.parameters)
-	r.envVars = r.envVars.inherits(other.envVars)
+	r.Parameters = r.Parameters.inherits(other.Parameters)
+	r.EnvVars = r.EnvVars.inherits(other.EnvVars)
 
 	if err := r.Hooks.merge(other.Hooks); err != nil {
 		return err
@@ -80,8 +62,8 @@ func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEn
 			Hooks: StackHook{
 				Deploy:   createHook(env, stackLocation.appendPath("hooks.deploy"), yamlStack.Hooks.Deploy),
 				Undeploy: createHook(env, stackLocation.appendPath("hooks.undeploy"), yamlStack.Hooks.Undeploy)},
-			parameters: createParameters(yamlStack.Params),
-			envVars:    createEnvVars(yamlStack.Env),
+			Parameters: createParameters(yamlStack.Params),
+			EnvVars:    createEnvVars(yamlStack.Env),
 		}
 	}
 	return res

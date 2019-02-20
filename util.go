@@ -86,7 +86,7 @@ func ReadUrl(u *url.URL) ([]byte, error) {
 		}
 		defer response.Body.Close()
 		if response.StatusCode != 200 {
-			err = fmt.Errorf("error reading URL "+u.String()+", HTTP status %d", response.StatusCode)
+			err = fmt.Errorf("error reading URL %s, HTTP status %d", u.String(), response.StatusCode)
 			return nil, err
 		}
 		content, err := ioutil.ReadAll(response.Body)

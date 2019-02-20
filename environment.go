@@ -1,7 +1,6 @@
 package model
 
 import (
-	"encoding/json"
 	"errors"
 	"net/url"
 )
@@ -9,6 +8,8 @@ import (
 type (
 	//Environment represents an environment build based on a descriptor
 	Environment struct {
+		// The environment source as yaml
+		OriginalEnv yamlEnvironment
 		// The location of the environment root
 		location DescriptorLocation
 		// Global imports
@@ -33,41 +34,10 @@ type (
 		Tasks Tasks
 		// The hooks linked to the environment lifecycle events
 		Hooks EnvironmentHooks
+		// The global volumes of the environment
+		Volumes GlobalVolumes
 	}
 )
-
-// MarshalJSON returns the serialized content of the whole environment as JSON
-func (r Environment) MarshalJSON() ([]byte, error) {
-	t := struct {
-		Name          string    `json:",omitempty"`
-		Qualifier     string    `json:",omitempty"`
-		QualifiedName string    `json:",omitempty"`
-		Description   string    `json:",omitempty"`
-		Ekara         *Platform `json:",omitempty"`
-		Providers     *Providers
-		Orchestrator  *Orchestrator `json:",omitempty"`
-		NodeSets      *NodeSets
-		Stacks        *Stacks
-		Tasks         *Tasks
-		Hooks         *EnvironmentHooks `json:",omitempty"`
-	}{
-		Name:          r.Name,
-		Qualifier:     r.Qualifier,
-		QualifiedName: r.QualifiedName().String(),
-		Description:   r.Description,
-
-		Ekara:        &r.Ekara,
-		Providers:    &r.Providers,
-		Orchestrator: &r.Orchestrator,
-		NodeSets:     &r.NodeSets,
-		Stacks:       &r.Stacks,
-		Tasks:        &r.Tasks,
-	}
-	if r.Hooks.HasTasks() {
-		t.Hooks = &r.Hooks
-	}
-	return json.Marshal(t)
-}
 
 //CreateEnvironment creates a new environment
 //	Parameters
@@ -84,6 +54,7 @@ func CreateEnvironment(url *url.URL, data map[string]interface{}) (Environment, 
 		if err != nil {
 			return env, err
 		}
+		env.OriginalEnv = yamlEnv
 		env.location = DescriptorLocation{Descriptor: url.String()}
 		env.Imports = yamlEnv.Imports
 		env.Name = yamlEnv.Name
@@ -102,6 +73,7 @@ func CreateEnvironment(url *url.URL, data map[string]interface{}) (Environment, 
 		env.Hooks.Deploy = createHook(&env, env.location.appendPath("hooks.deploy"), yamlEnv.Hooks.Deploy)
 		env.Hooks.Undeploy = createHook(&env, env.location.appendPath("hooks.undeploy"), yamlEnv.Hooks.Undeploy)
 		env.Hooks.Destroy = createHook(&env, env.location.appendPath("hooks.destroy"), yamlEnv.Hooks.Destroy)
+		env.Volumes = createGlobalVolumes(&env, env.location.appendPath("volumes"), &yamlEnv)
 		return env, nil
 	} else {
 		return env, errors.New("unsupported file format")

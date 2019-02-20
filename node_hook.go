@@ -1,9 +1,5 @@
 package model
 
-import (
-	"encoding/json"
-)
-
 type (
 	//NodeHook represents hooks associated to a node set
 	NodeHook struct {
@@ -32,19 +28,4 @@ func (r *NodeHook) merge(other NodeHook) error {
 
 func (r NodeHook) validate() ValidationErrors {
 	return ErrorOnInvalid(r.Provision, r.Destroy)
-}
-
-// MarshalJSON returns the serialized content of the hook as JSON
-func (r NodeHook) MarshalJSON() ([]byte, error) {
-	t := struct {
-		Provision *Hook `json:",omitempty"`
-		Destroy   *Hook `json:",omitempty"`
-	}{}
-	if r.Provision.HasTasks() {
-		t.Provision = &r.Provision
-	}
-	if r.Destroy.HasTasks() {
-		t.Destroy = &r.Destroy
-	}
-	return json.Marshal(t)
 }

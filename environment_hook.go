@@ -1,9 +1,5 @@
 package model
 
-import (
-	"encoding/json"
-)
-
 type (
 	//EnvironmentHooks represents hooks associated to the environment
 	EnvironmentHooks struct {
@@ -44,29 +40,4 @@ func (r *EnvironmentHooks) merge(other EnvironmentHooks) error {
 
 func (r EnvironmentHooks) validate() ValidationErrors {
 	return ErrorOnInvalid(r.Provision, r.Deploy, r.Undeploy, r.Destroy)
-}
-
-// MarshalJSON returns the serialized content of the hook as JSON
-func (r EnvironmentHooks) MarshalJSON() ([]byte, error) {
-	t := struct {
-		Provision *Hook `json:",omitempty"`
-		Deploy    *Hook `json:",omitempty"`
-		Undeploy  *Hook `json:",omitempty"`
-		Destroy   *Hook `json:",omitempty"`
-	}{}
-
-	if r.Provision.HasTasks() {
-		t.Provision = &r.Provision
-	}
-	if r.Deploy.HasTasks() {
-		t.Deploy = &r.Deploy
-	}
-	if r.Undeploy.HasTasks() {
-		t.Undeploy = &r.Undeploy
-	}
-	if r.Destroy.HasTasks() {
-		t.Destroy = &r.Destroy
-	}
-
-	return json.Marshal(t)
 }
