@@ -2,7 +2,6 @@ package model
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
@@ -33,29 +32,6 @@ type (
 
 	circularRefTracking map[string]interface{}
 )
-
-// MarshalJSON returns the serialized content of the task as JSON
-func (r Task) MarshalJSON() ([]byte, error) {
-	t := struct {
-		Name       string      `json:",omitempty"`
-		Playbook   string      `json:",omitempty"`
-		Cron       string      `json:",omitempty"`
-		On         []string    `json:",omitempty"`
-		Parameters *Parameters `json:",omitempty"`
-		EnvVars    *EnvVars    `json:",omitempty"`
-		Hooks      *TaskHook   `json:",omitempty"`
-	}{
-		Name:       r.Name,
-		Playbook:   r.Playbook,
-		Cron:       r.Cron,
-		Parameters: &r.Parameters,
-		EnvVars:    &r.EnvVars,
-	}
-	if r.Hooks.HasTasks() {
-		t.Hooks = &r.Hooks
-	}
-	return json.Marshal(t)
-}
 
 func (r Task) validate() ValidationErrors {
 	vErrs := ValidationErrors{}

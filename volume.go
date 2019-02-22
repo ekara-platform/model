@@ -1,7 +1,6 @@
 package model
 
 import (
-	"encoding/json"
 	"errors"
 	"reflect"
 )
@@ -18,18 +17,22 @@ type (
 
 	// Volume represents all the volumes to create for a Node set
 	Volumes map[string]*Volume
-)
 
-// MarshalJSON returns the serialized content of a volume as JSON
-func (r Volume) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		Path       string      `json:",omitempty"`
-		Parameters *Parameters `json:",omitempty"`
-	}{
-		Path:       r.Path,
-		Parameters: &r.Parameters,
-	})
-}
+	// GlobalVolume contains the specifications of a shared volume to create
+	GlobalVolume struct {
+		Content []VolumeContent
+	}
+
+	VolumeContent struct {
+		// The component holding the content to copy into the volume
+		Component componentRef
+		// The path, whithin the component, of the content to copy
+		Path string
+	}
+
+	// GlobalVolume represents all the volumes shared accross the whole environment
+	GlobalVolumes map[string]*GlobalVolume
+)
 
 func (r *Volume) merge(other Volume) error {
 	if !reflect.DeepEqual(r, &other) {
@@ -76,6 +79,22 @@ func (r Volumes) AsArray() []Volume {
 	res := make([]Volume, 0)
 	for _, v := range r {
 		res = append(res, *v)
+	}
+	return res
+}
+
+func createGlobalVolumes(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) GlobalVolumes {
+	res := make(map[string]*GlobalVolume)
+	for name, yamlVol := range yamlEnv.Volumes {
+		gv := GlobalVolume{}
+		gv.Content = make([]VolumeContent, len(yamlVol.Content))
+		for _, v := range yamlVol.Content {
+			gv.Content = append(gv.Content, VolumeContent{
+				Component: createComponentRef(env, location.appendPath("component"), v.Component, false),
+				Path:      v.Path,
+			})
+		}
+		res[name] = &gv
 	}
 	return res
 }

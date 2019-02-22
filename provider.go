@@ -1,7 +1,6 @@
 package model
 
 import (
-	"encoding/json"
 	"errors"
 )
 
@@ -34,27 +33,6 @@ func (r Provider) DescType() string {
 //DescName returns the Describable name of the provider
 func (r Provider) DescName() string {
 	return r.Name
-}
-
-// MarshalJSON returns the serialized content of provider as JSON
-func (r Provider) MarshalJSON() ([]byte, error) {
-	component, e := r.Component.Resolve()
-	if e != nil {
-		return nil, e
-	}
-	return json.Marshal(struct {
-		Name       string     `json:",omitempty"`
-		Component  string     `json:",omitempty"`
-		Parameters Parameters `json:",omitempty"`
-		EnvVars    EnvVars    `json:",omitempty"`
-		Proxy      Proxy      `json:",omitempty"`
-	}{
-		Name:       r.Name,
-		Component:  component.Id,
-		Parameters: r.Parameters,
-		EnvVars:    r.EnvVars,
-		Proxy:      r.Proxy,
-	})
 }
 
 func (r Provider) validate() ValidationErrors {

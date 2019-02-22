@@ -261,6 +261,26 @@ func assertEnv(t *testing.T, env Environment) {
 	assert.Equal(t, "task2", no.Hooks.Destroy.After[0].ref)
 
 	//------------------------------------------------------------
+	// Node1 Hook Env and Param
+	//------------------------------------------------------------
+	r, err := no.Hooks.Provision.After[0].Resolve()
+	assert.Nil(t, err)
+	p := r.Parameters
+
+	if assert.Equal(t, 3, len(p)) {
+		assert.Equal(t, "tasks_task2_param_key1_value_overwritten", p["tasks_task2_param_key1"])
+		assert.Equal(t, "tasks_task2_param_key2_value", p["tasks_task2_param_key2"])
+		assert.Equal(t, "tasks_task2_param_key3_value", p["tasks_task2_param_key3"])
+
+	}
+	envvars := r.EnvVars
+	if assert.Equal(t, 3, len(envvars)) {
+		assert.Equal(t, "tasks_task2_env_key1_value_overwritten", envvars["tasks_task2_env_key1"])
+		assert.Equal(t, "tasks_task2_env_key2_value", envvars["tasks_task2_env_key2"])
+		assert.Equal(t, "tasks_task2_env_key3_value", envvars["tasks_task2_env_key3"])
+	}
+
+	//------------------------------------------------------------
 	// Node2
 	//------------------------------------------------------------
 	assert.Equal(t, 20, nodeSets["node2"].Instances)
@@ -395,12 +415,12 @@ func assertEnv(t *testing.T, env Environment) {
 	//------------------------------------------------------------
 	// Stack2 Env/Param
 	//------------------------------------------------------------
-	assert.Equal(t, 2, len(stack2.envVars))
-	assert.Equal(t, 2, len(stack2.parameters))
-	assert.Equal(t, "stack2_param_key1_value", stack2.parameters["stack2_param_key1"])
-	assert.Equal(t, "stack2_param_key2_value", stack2.parameters["stack2_param_key2"])
-	assert.Equal(t, "stack2_env_key1_value", stack2.envVars["stack2_env_key1"])
-	assert.Equal(t, "stack2_env_key2_value", stack2.envVars["stack2_env_key2"])
+	assert.Equal(t, 2, len(stack2.EnvVars))
+	assert.Equal(t, 2, len(stack2.Parameters))
+	assert.Equal(t, "stack2_param_key1_value", stack2.Parameters["stack2_param_key1"])
+	assert.Equal(t, "stack2_param_key2_value", stack2.Parameters["stack2_param_key2"])
+	assert.Equal(t, "stack2_env_key1_value", stack2.EnvVars["stack2_env_key1"])
+	assert.Equal(t, "stack2_env_key2_value", stack2.EnvVars["stack2_env_key2"])
 
 	//------------------------------------------------------------
 	// Environment Tasks

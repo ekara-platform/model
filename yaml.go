@@ -19,27 +19,27 @@ type (
 
 	// yaml tag for parameters
 	yamlParams struct {
-		Params map[string]interface{}
+		Params map[string]interface{} `yaml:",omitempty"`
 	}
 
 	// yaml tag for Docker parameters
 	yamlDockerParams struct {
-		Docker map[string]interface{}
+		Docker map[string]interface{} `yaml:",omitempty"`
 	}
 
 	// yaml tag for authentication parameters
 	yamlAuth struct {
-		Auth map[string]interface{}
+		Auth map[string]interface{} `yaml:",omitempty"`
 	}
 
 	// yaml tag for environment variables
 	yamlEnv struct {
-		Env map[string]string
+		Env map[string]string `yaml:",omitempty"`
 	}
 
 	// yaml tag for labels on nodesets
 	yamlLabel struct {
-		Labels map[string]string
+		Labels map[string]string `yaml:",omitempty"`
 	}
 
 	// yaml tag for component
@@ -56,7 +56,7 @@ type (
 	yamlComponentWithImports struct {
 		yamlComponent `yaml:",inline"`
 		// Local imports for the component
-		Imports []string
+		Imports []string `yaml:",omitempty"`
 	}
 
 	// yaml tag for a volume and its parameters
@@ -65,6 +65,14 @@ type (
 		Path string
 		// The parameters required to create the volume (typically provider dependent)
 		yamlParams `yaml:",inline"`
+	}
+
+	// yaml tag for a shared volume content
+	yamlVolumeContent struct {
+		// The component holding the content to copy into the volume
+		Component string
+		// The path of the content to copy
+		Path string
 	}
 
 	// yaml reference to provider
@@ -101,9 +109,9 @@ type (
 	//yaml tag for hooks
 	yamlHook struct {
 		// Hooks to be executed before the corresponding process step
-		Before []yamlTaskRef
+		Before []yamlTaskRef `yaml:",omitempty"`
 		// Hooks to be executed after the corresponding process step
-		After []yamlTaskRef
+		After []yamlTaskRef `yaml:",omitempty"`
 	}
 
 	// Definition of the Ekara environment
@@ -111,20 +119,20 @@ type (
 		// The name of the environment
 		Name string
 		// The qualifier of the environment
-		Qualifier string
+		Qualifier string `yaml:",omitempty"`
 
 		// The description of the environment
-		Description string
+		Description string `yaml:",omitempty"`
 
 		// The Ekara platform used to interact with the environment
 		Ekara struct {
-			Base         string
+			Base         string `yaml:",omitempty"`
 			Distribution yamlComponent
 			Components   map[string]yamlComponentWithImports
 		}
 
 		// Global imports
-		Imports []string
+		Imports []string `yaml:",omitempty"`
 
 		// Tasks which can be run on the created environment
 		Tasks map[string]struct {
@@ -135,13 +143,13 @@ type (
 			// The task environment variables
 			yamlEnv `yaml:",inline"`
 			// The name of the playbook to launch the task
-			Playbook string
+			Playbook string `yaml:",omitempty"`
 			// The CRON to run cyclically the task
-			Cron string
+			Cron string `yaml:",omitempty"`
 			// The Hooks to be executed in addition the the main task playbook
 			Hooks struct {
-				Execute yamlHook
-			}
+				Execute yamlHook `yaml:",omitempty"`
+			} `yaml:",omitempty"`
 		}
 
 		// Global definition of the orchestrator to install on the environment
@@ -180,9 +188,10 @@ type (
 			Volumes []yamlVolume
 			// The Hooks to be executed while provisioning and destroying the node set
 			Hooks struct {
-				Provision yamlHook
-				Destroy   yamlHook
-			}
+				Provision yamlHook `yaml:",omitempty"`
+				Destroy   yamlHook `yaml:",omitempty"`
+			} `yaml:",omitempty"`
+
 			// The labels associated with the nodeset
 			yamlLabel `yaml:",inline"`
 		}
@@ -193,9 +202,10 @@ type (
 			Component string
 			// The Hooks to be executed while deploying and undeploying the stack
 			Hooks struct {
-				Deploy   yamlHook
-				Undeploy yamlHook
-			}
+				Deploy   yamlHook `yaml:",omitempty"`
+				Undeploy yamlHook `yaml:",omitempty"`
+			} `yaml:",omitempty"`
+
 			// The parameters
 			yamlParams `yaml:",inline"`
 			// The environment variables
@@ -204,12 +214,17 @@ type (
 
 		// Global hooks
 		Hooks struct {
-			Init      yamlHook
-			Provision yamlHook
-			Deploy    yamlHook
-			Undeploy  yamlHook
-			Destroy   yamlHook
-		}
+			Init      yamlHook `yaml:",omitempty"`
+			Provision yamlHook `yaml:",omitempty"`
+			Deploy    yamlHook `yaml:",omitempty"`
+			Undeploy  yamlHook `yaml:",omitempty"`
+			Destroy   yamlHook `yaml:",omitempty"`
+		} `yaml:",omitempty"`
+
+		// Global volumes
+		Volumes map[string]struct {
+			Content []yamlVolumeContent `yaml:",omitempty"`
+		} `yaml:",omitempty"`
 	}
 )
 

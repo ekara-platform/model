@@ -1,9 +1,5 @@
 package model
 
-import (
-	"encoding/json"
-)
-
 type (
 	//StackHook represents hooks associated to a task
 	StackHook struct {
@@ -33,20 +29,4 @@ func (r *StackHook) merge(other StackHook) error {
 
 func (r StackHook) validate() ValidationErrors {
 	return ErrorOnInvalid(r.Deploy, r.Undeploy)
-}
-
-// MarshalJSON returns the serialized content of the hook as JSON
-func (r StackHook) MarshalJSON() ([]byte, error) {
-	t := struct {
-		Deploy   *Hook `json:",omitempty"`
-		Undeploy *Hook `json:",omitempty"`
-	}{}
-
-	if r.Deploy.HasTasks() {
-		t.Deploy = &r.Deploy
-	}
-	if r.Undeploy.HasTasks() {
-		t.Undeploy = &r.Undeploy
-	}
-	return json.Marshal(t)
 }

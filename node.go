@@ -1,7 +1,6 @@
 package model
 
 import (
-	"encoding/json"
 	"errors"
 )
 
@@ -39,36 +38,6 @@ func (r NodeSet) DescType() string {
 //DescName returns the Describable name of the node set
 func (r NodeSet) DescName() string {
 	return r.Name
-}
-
-// MarshalJSON returns the serialized content of node set as JSON
-func (r NodeSet) MarshalJSON() ([]byte, error) {
-	provider, e := r.Provider.Resolve()
-	if e != nil {
-		return nil, e
-	}
-	orchestrator, e := r.Orchestrator.Resolve()
-	if e != nil {
-		return nil, e
-	}
-	t := struct {
-		Name         string       `json:",omitempty"`
-		Instances    int          `json:",omitempty"`
-		Provider     Provider     `json:",omitempty"`
-		Orchestrator Orchestrator `json:",omitempty"`
-		Volumes      Volumes
-		Hooks        *NodeHook `json:",omitempty"`
-	}{
-		Name:         r.Name,
-		Instances:    r.Instances,
-		Provider:     provider,
-		Orchestrator: orchestrator,
-		Volumes:      r.Volumes,
-	}
-	if r.Hooks.HasTasks() {
-		t.Hooks = &r.Hooks
-	}
-	return json.Marshal(t)
 }
 
 func (r NodeSet) validate() ValidationErrors {

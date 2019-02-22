@@ -1,9 +1,5 @@
 package model
 
-import (
-	"encoding/json"
-)
-
 type (
 	//Orchestrator specifies the orchestrator used to manage the environemt
 	Orchestrator struct {
@@ -39,23 +35,4 @@ func (r *Orchestrator) merge(other Orchestrator) error {
 	r.Docker = r.Docker.inherits(other.Docker)
 	r.EnvVars = r.EnvVars.inherits(other.EnvVars)
 	return nil
-}
-
-// MarshalJSON returns the serialized content of orchestator as JSON
-func (r Orchestrator) MarshalJSON() ([]byte, error) {
-	component, e := r.Component.Resolve()
-	if e != nil {
-		return nil, e
-	}
-	return json.Marshal(struct {
-		Component  string     `json:",omitempty"`
-		Parameters Parameters `json:",omitempty"`
-		Docker     Parameters `json:",omitempty"`
-		EnvVars    EnvVars    `json:",omitempty"`
-	}{
-		Component:  component.Id,
-		Parameters: r.Parameters,
-		Docker:     r.Docker,
-		EnvVars:    r.EnvVars,
-	})
 }
