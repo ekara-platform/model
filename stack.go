@@ -62,8 +62,8 @@ func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEn
 			Hooks: StackHook{
 				Deploy:   createHook(env, stackLocation.appendPath("hooks.deploy"), yamlStack.Hooks.Deploy),
 				Undeploy: createHook(env, stackLocation.appendPath("hooks.undeploy"), yamlStack.Hooks.Undeploy)},
-			Parameters: createParameters(yamlStack.Params),
-			EnvVars:    createEnvVars(yamlStack.Env),
+			  Parameters: createParameters(yamlStack.Params),
+			  EnvVars:    createEnvVars(yamlStack.Env),
 		}
 	}
 	return res
