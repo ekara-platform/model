@@ -253,7 +253,10 @@ func parseYamlDescriptor(u *url.URL, data map[string]interface{}) (env yamlEnvir
 		return
 	}
 
-	tpl.Execute(&out, data)
+	err = tpl.Execute(&out, data)
+	if err != nil {
+		return
+	}
 
 	// Unmarshal the resulting YAML
 	err = yaml.Unmarshal(out.Bytes(), &env)
