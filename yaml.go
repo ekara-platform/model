@@ -3,9 +3,6 @@ package model
 import (
 	"net/url"
 
-	"bytes"
-	"text/template"
-
 	"gopkg.in/yaml.v2"
 )
 
@@ -233,7 +230,7 @@ func (r *yamlEnvironment) RawContent() ([]byte, error) {
 	return yaml.Marshal(r)
 }
 
-func parseYamlDescriptor(u *url.URL, data map[string]interface{}) (env yamlEnvironment, err error) {
+func parseYamlDescriptor(u *url.URL, parameters map[string]interface{}) (env yamlEnvironment, err error) {
 	var normalizedUrl *url.URL
 	normalizedUrl, err = NormalizeUrl(u)
 	if err != nil {
@@ -246,17 +243,7 @@ func parseYamlDescriptor(u *url.URL, data map[string]interface{}) (env yamlEnvir
 		return
 	}
 
-	// Parse/execute it as a Go template
-	out := bytes.Buffer{}
-	tpl, err := template.New(normalizedUrl.String()).Parse(string(content))
-	if err != nil {
-		return
-	}
-
-	err = tpl.Execute(&out, data)
-	if err != nil {
-		return
-	}
+	err, out := ApplyTemplate(normalizedUrl, content, parameters)
 
 	// Unmarshal the resulting YAML
 	err = yaml.Unmarshal(out.Bytes(), &env)
