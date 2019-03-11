@@ -490,11 +490,9 @@ func assertEnv(t *testing.T, env Environment) {
 
 }
 
-func buildUrl(loc string) *url.URL {
+func buildUrl(t *testing.T, loc string) *url.URL {
 	u, e := url.Parse(loc)
-	if e != nil {
-		panic(e)
-	}
+	assert.Nil(t, e)
 	return u
 }
 
