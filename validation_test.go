@@ -49,7 +49,7 @@ func TestValidationNoEnvironmentName(t *testing.T) {
 //- Error: the environment name or the qualifier contains a non alphanumeric character @name|qualifier
 //
 func TestValidateNoValidName(t *testing.T) {
-	env, e := CreateEnvironment(buildUrl("./testdata/yaml/grammar/no_valid_name.yaml"), map[string]interface{}{})
+	env, e := CreateEnvironment(buildUrl(t, "./testdata/yaml/grammar/no_valid_name.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
 	vErrs := env.Validate()
 	assert.True(t, vErrs.HasErrors())
@@ -64,7 +64,7 @@ func TestValidateNoValidName(t *testing.T) {
 //- Error: the environment name or the qualifier contains a non alphanumeric character @name|qualifier
 //
 func TestValidateNoValidQualifier(t *testing.T) {
-	env, e := CreateEnvironment(buildUrl("./testdata/yaml/grammar/no_valid_qualifier.yaml"), map[string]interface{}{})
+	env, e := CreateEnvironment(buildUrl(t, "./testdata/yaml/grammar/no_valid_qualifier.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
 	vErrs := env.Validate()
 	assert.True(t, vErrs.HasErrors())
@@ -110,7 +110,7 @@ func TestValidationNoProviders(t *testing.T) {
 //- Error: reference to unknown provider: dummy @nodes.managers.provider
 //
 func TestValidationNodesUnknownProvider(t *testing.T) {
-	env, e := CreateEnvironment(buildUrl("./testdata/yaml/grammar/nodes_unknown_provider.yaml"), map[string]interface{}{})
+	env, e := CreateEnvironment(buildUrl(t, "./testdata/yaml/grammar/nodes_unknown_provider.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
 	vErrs := env.Validate()
 	assert.True(t, vErrs.HasErrors())
@@ -152,7 +152,7 @@ func TestValidationNoOrchestrator(t *testing.T) {
 //- Error: reference to unknown component: dummy @orchestrator
 //
 func TestValidationUnknownOrchestrator(t *testing.T) {
-	env, e := CreateEnvironment(buildUrl("./testdata/yaml/grammar/unknown_orchestrator.yaml"), map[string]interface{}{})
+	env, e := CreateEnvironment(buildUrl(t, "./testdata/yaml/grammar/unknown_orchestrator.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
 	vErrs := env.Validate()
 	assert.True(t, vErrs.HasErrors())
@@ -182,7 +182,7 @@ func TestValidationNoStacks(t *testing.T) {
 //- Error: reference to unknown component: dummy @stacks.monitoring.component
 //
 func TestValidationUnknownStack(t *testing.T) {
-	env, e := CreateEnvironment(buildUrl("./testdata/yaml/grammar/unknown_stack.yaml"), map[string]interface{}{})
+	env, e := CreateEnvironment(buildUrl(t, "./testdata/yaml/grammar/unknown_stack.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
 	vErrs := env.Validate()
 	assert.True(t, vErrs.HasErrors())
@@ -236,7 +236,7 @@ func TestValidationNoVolumeName(t *testing.T) {
 
 func testEmptyContent(t *testing.T, name string, onlyWarning bool) (ValidationErrors, Environment) {
 	file := fmt.Sprintf("./testdata/yaml/grammar/no_%s.yaml", name)
-	env, e := CreateEnvironment(buildUrl(file), map[string]interface{}{})
+	env, e := CreateEnvironment(buildUrl(t, file), map[string]interface{}{})
 	assert.Nil(t, e)
 	vErrs := validate(t, env, onlyWarning)
 	return vErrs, env
