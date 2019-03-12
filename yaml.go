@@ -244,6 +244,9 @@ func parseYamlDescriptor(u *url.URL, parameters map[string]interface{}) (env yam
 	}
 
 	err, out := ApplyTemplate(normalizedUrl, content, parameters)
+	if err != nil {
+		return
+	}
 
 	// Unmarshal the resulting YAML
 	err = yaml.Unmarshal(out.Bytes(), &env)
