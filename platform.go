@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+//Platform the platform used to build an environment
 type Platform struct {
 	Base         *url.URL
 	Distribution Component

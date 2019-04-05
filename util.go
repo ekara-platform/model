@@ -12,6 +12,7 @@ import (
 	"strings"
 )
 
+//PathToUrl converts a string into a URl
 func PathToUrl(path string) (*url.URL, error) {
 	absPath, e := filepath.Abs(path)
 	if e != nil {
@@ -33,6 +34,7 @@ func PathToUrl(path string) (*url.URL, error) {
 	return u, nil
 }
 
+//UrlToPath converts a Url into a string
 func UrlToPath(u *url.URL) (string, error) {
 	if strings.ToUpper(u.Scheme) != "FILE" {
 		return "", errors.New("not a valid local URL: " + u.String())
@@ -46,6 +48,7 @@ func UrlToPath(u *url.URL) (string, error) {
 	return p, nil
 }
 
+//EnsurePathSuffix makes sure that the returned url has the format u.Path + "/" + suffix
 func EnsurePathSuffix(u *url.URL, suffix string) *url.URL {
 	if strings.HasSuffix(u.Path, suffix) {
 		return u
@@ -55,10 +58,10 @@ func EnsurePathSuffix(u *url.URL, suffix string) *url.URL {
 	} else {
 		u.Path = u.Path + "/" + suffix
 	}
-
 	return u
 }
 
+//NormalizeUrl normalizes the provided url
 func NormalizeUrl(u *url.URL) (*url.URL, error) {
 	res := *u
 	if res.Scheme == "" {
@@ -76,6 +79,7 @@ func NormalizeUrl(u *url.URL) (*url.URL, error) {
 	return &res, nil
 }
 
+//ReadUrl reads the content corresponding to the given url
 func ReadUrl(u *url.URL) ([]byte, error) {
 	if hasPrefixIgnoringCase(u.Scheme, "http") {
 		// Fetch the content

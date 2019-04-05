@@ -7,7 +7,8 @@ import (
 	"text/template"
 )
 
-func ApplyTemplate(normalizedUrl *url.URL, descriptorContent []byte, parameters map[string]interface{}) (err error, out bytes.Buffer) {
+//ApplyTemplate apply the parameters on the template represented by the descriptor content
+func ApplyTemplate(normalizedUrl *url.URL, descriptorContent []byte, parameters map[string]interface{}) (out bytes.Buffer, err error) {
 
 	// Parse/execute it as a Go template
 	out = bytes.Buffer{}

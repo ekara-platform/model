@@ -75,9 +75,8 @@ func CreateEnvironment(url *url.URL, data map[string]interface{}) (Environment, 
 		env.Hooks.Destroy = createHook(&env, env.location.appendPath("hooks.destroy"), yamlEnv.Hooks.Destroy)
 		env.Volumes = createGlobalVolumes(&env, env.location.appendPath("volumes"), &yamlEnv)
 		return env, nil
-	} else {
-		return env, errors.New("unsupported file format")
 	}
+	return env, errors.New("unsupported file format")
 }
 
 //Merge merges the content of the other environment into the receiver

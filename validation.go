@@ -126,9 +126,9 @@ func (ve ValidationErrors) JSonContent() (b []byte, e error) {
 }
 
 const (
-	// Allows to mark validation error as Warning
+	//Warning allows to mark validation error as Warning
 	Warning ErrorType = 0
-	// Allows to mark validation error as Error
+	//Error allows to mark validation error as Error
 	Error ErrorType = 1
 )
 

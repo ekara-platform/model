@@ -1,5 +1,6 @@
 package model
 
+//Proxy represents the proxy definition
 type Proxy struct {
 	Http    string `yaml:"http_proxy" json:",omitempty"`
 	Https   string `yaml:"https_proxy" json:",omitempty"`

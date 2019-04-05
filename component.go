@@ -43,10 +43,15 @@ const (
 	//Unknown source control management system
 	Unknown ScmType = ""
 
-	SchemeFile  string = "FILE"
-	SchemeGit   string = "GIT"
-	SchemeSvn   string = "SVN"
-	SchemeHttp  string = "HTTP"
+	//SchemeFile  scheme for a file
+	SchemeFile string = "FILE"
+	//SchemeGit  scheme for Git
+	SchemeGit string = "GIT"
+	//SchemeSvn  scheme for svn
+	SchemeSvn string = "SVN"
+	//SchemeHttp  scheme for http
+	SchemeHttp string = "HTTP"
+	//SchemeHttps  scheme for https
 	SchemeHttps string = "HTTPS"
 )
 

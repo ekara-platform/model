@@ -243,7 +243,7 @@ func parseYamlDescriptor(u *url.URL, parameters map[string]interface{}) (env yam
 		return
 	}
 
-	err, out := ApplyTemplate(normalizedUrl, content, parameters)
+	out, err := ApplyTemplate(normalizedUrl, content, parameters)
 	if err != nil {
 		return
 	}

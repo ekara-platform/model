@@ -15,7 +15,7 @@ type (
 		Parameters Parameters `yaml:"params"`
 	}
 
-	// Volume represents all the volumes to create for a Node set
+	//Volumes represents all the volumes to create for a Node set
 	Volumes map[string]*Volume
 
 	// GlobalVolume contains the specifications of a shared volume to create
@@ -23,6 +23,7 @@ type (
 		Content []VolumeContent
 	}
 
+	//VolumeContent represents the detail content of a volume
 	VolumeContent struct {
 		// The component holding the content to copy into the volume
 		Component componentRef
@@ -30,7 +31,7 @@ type (
 		Path string
 	}
 
-	// GlobalVolume represents all the volumes shared across the whole environment
+	//GlobalVolumes represents all the volumes shared across the whole environment
 	GlobalVolumes map[string]*GlobalVolume
 )
 

@@ -5,6 +5,7 @@ import (
 )
 
 type (
+	//TaskRef represents a reference to a task
 	TaskRef struct {
 		ref          string
 		HookLocation hookLocation
@@ -39,6 +40,8 @@ func (r *TaskRef) merge(other TaskRef) {
 	r.envVars = r.envVars.inherits(other.envVars)
 }
 
+// Resolve returns a resolved reference to a task containing all the
+// inherited content from the referenced task
 func (r TaskRef) Resolve() (Task, error) {
 	validationErrors := ErrorOnInvalid(r)
 	if validationErrors.HasErrors() {
