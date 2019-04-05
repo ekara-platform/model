@@ -18,9 +18,9 @@ type (
 )
 
 const (
-	// Hook location before
+	// HOOK_BEFORE Hook located before a task
 	HOOK_BEFORE hookLocation = "Before"
-	// Hook location after
+	// HOOK_AFTER Hook located after a task
 	HOOK_AFTER hookLocation = "After"
 )
 
