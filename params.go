@@ -1,6 +1,6 @@
 package model
 
-//Parameters represents the paramters comming from a descriptor
+//Parameters represents the parameters coming from a descriptor
 type Parameters map[string]interface{}
 
 func createParameters(src map[string]interface{}) Parameters {

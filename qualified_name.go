@@ -19,7 +19,7 @@ func (qn QualifiedName) String() string {
 	return qn.name
 }
 
-// IsAValidQualifier is the regular expresison used to validate the qualified name
+// IsAValidQualifier is the regular expression used to validate the qualified name
 // of an environment
 //
 // The qualified name is the concatenation if the environment name and its qualifier

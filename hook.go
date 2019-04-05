@@ -12,7 +12,7 @@ type (
 	Hook struct {
 		//Before specifies the tasks to run before the ekara life cycle event occurs
 		Before []TaskRef
-		//After specifies the tasks to run once the ekara life cycle event has occured
+		//After specifies the tasks to run once the ekara life cycle event has occurred
 		After []TaskRef
 	}
 )

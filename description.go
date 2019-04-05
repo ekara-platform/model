@@ -15,7 +15,7 @@ type (
 	//
 	// The Describable interface can be used for example in logs or even in
 	// execution report files in order to provider a human readable vision of what
-	// occured instead providing technical concepts.
+	// occurred instead providing technical concepts.
 	//
 	Describable interface {
 		//DescType returns the type of the environment part being described,

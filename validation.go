@@ -38,7 +38,7 @@ type (
 	}
 )
 
-// WarningOnEmptyOrInvalid allows to validate interfaces maching the following content:
+// WarningOnEmptyOrInvalid allows to validate interfaces matching the following content:
 //
 // The created validation errors will be warnings.
 //
@@ -63,7 +63,7 @@ type (
 //
 var WarningOnEmptyOrInvalid = validNotEmpty(Warning)
 
-// ErrorOnEmptyOrInvalid allows to validate interfaces maching the following content:
+// ErrorOnEmptyOrInvalid allows to validate interfaces matching the following content:
 //
 // The created validation errors will be errors.
 //
@@ -86,7 +86,7 @@ var WarningOnEmptyOrInvalid = validNotEmpty(Warning)
 // If the slice content implements validatableContent or validatableReference then it will be validated.
 var ErrorOnEmptyOrInvalid = validNotEmpty(Error)
 
-// ErrorOnInvalid allows to validate interfaces maching the following content:
+// ErrorOnInvalid allows to validate interfaces matching the following content:
 //
 // The created validation errors will be errors.
 //

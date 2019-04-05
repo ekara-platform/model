@@ -30,7 +30,7 @@ type (
 		Path string
 	}
 
-	// GlobalVolume represents all the volumes shared accross the whole environment
+	// GlobalVolume represents all the volumes shared across the whole environment
 	GlobalVolumes map[string]*GlobalVolume
 )
 
