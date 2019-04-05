@@ -118,13 +118,13 @@ func (r Environment) Validate() ValidationErrors {
 	vErrs.merge(ErrorOnInvalid(r.Ekara))
 	vErrs.merge(ErrorOnInvalid(r.Orchestrator))
 
-	vEr, e, _ = ErrorOnEmptyOrInvalid(r.Providers, r.location.appendPath("providers"), "no provider specified")
+	vEr, _, _ = ErrorOnEmptyOrInvalid(r.Providers, r.location.appendPath("providers"), "no provider specified")
 	vErrs.merge(vEr)
 
-	vEr, e, _ = ErrorOnEmptyOrInvalid(r.NodeSets, r.location.appendPath("nodes"), "no node specified")
+	vEr, _, _ = ErrorOnEmptyOrInvalid(r.NodeSets, r.location.appendPath("nodes"), "no node specified")
 	vErrs.merge(vEr)
 
-	vEr, e, _ = WarningOnEmptyOrInvalid(r.Stacks, r.location.appendPath("stacks"), "no stack specified")
+	vEr, _, _ = WarningOnEmptyOrInvalid(r.Stacks, r.location.appendPath("stacks"), "no stack specified")
 	vErrs.merge(vEr)
 
 	vErrs.merge(ErrorOnInvalid(r.Tasks))

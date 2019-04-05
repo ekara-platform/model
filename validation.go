@@ -243,60 +243,73 @@ func valid(t ErrorType) func(ins ...interface{}) ValidationErrors {
 			vOf := reflect.ValueOf(in)
 			switch vOf.Kind() {
 			case reflect.Map:
-				for _, key := range vOf.MapKeys() {
-					val := vOf.MapIndex(key)
-					okImpl := reflect.TypeOf(val.Interface()).Implements(validatorType)
-					if okImpl {
-						concreteVal, ok := val.Interface().(validatableContent)
-						if ok {
-							vErrs.merge(checkValidContent(t, concreteVal))
-						}
-					}
-
-					okImpl = reflect.TypeOf(val.Interface()).Implements(validatorRefType)
-					if okImpl {
-						concreteVal, ok := val.Interface().(validatableReferencer)
-						if ok {
-							vErrs.merge(checkValidReference(t, concreteVal))
-						}
-					}
-				}
+				validMap(in, vOf, validatorType, validatorRefType, &vErrs, t)
 			case reflect.Slice:
-				for i := 0; i < vOf.Len(); i++ {
-					val := vOf.Index(i)
-					okImpl := reflect.TypeOf(val.Interface()).Implements(validatorType)
-					if okImpl {
-						concreteVal, ok := val.Interface().(validatableContent)
-						if ok {
-							vErrs.merge(checkValidContent(t, concreteVal))
-						}
-					}
-					okImpl = reflect.TypeOf(val.Interface()).Implements(validatorRefType)
-					if okImpl {
-						concreteVal, ok := val.Interface().(validatableReferencer)
-						if ok {
-							vErrs.merge(checkValidReference(t, concreteVal))
-						}
-					}
-				}
+				validSlice(in, vOf, validatorType, validatorRefType, &vErrs, t)
 			default:
-				okImpl := reflect.TypeOf(in).Implements(validatorType)
-				if okImpl {
-					concreteVal, ok := in.(validatableContent)
-					if ok {
-						vErrs.merge(checkValidContent(t, concreteVal))
-					}
-				}
-				okImpl = reflect.TypeOf(in).Implements(validatorRefType)
-				if okImpl {
-					concreteVal, ok := in.(validatableReferencer)
-					if ok {
-						vErrs.merge(checkValidReference(t, concreteVal))
-					}
-				}
+				validDefault(in, validatorType, validatorRefType, &vErrs, t)
 			}
 		}
 		return vErrs
+	}
+}
+
+func validMap(in interface{}, vOf reflect.Value, validatorType reflect.Type, validatorRefType reflect.Type, vErrs *ValidationErrors, t ErrorType) {
+	for _, key := range vOf.MapKeys() {
+		val := vOf.MapIndex(key)
+		okImpl := reflect.TypeOf(val.Interface()).Implements(validatorType)
+		if okImpl {
+			concreteVal, ok := val.Interface().(validatableContent)
+			if ok {
+				vErrs.merge(checkValidContent(t, concreteVal))
+			}
+		}
+
+		okImpl = reflect.TypeOf(val.Interface()).Implements(validatorRefType)
+		if okImpl {
+			concreteVal, ok := val.Interface().(validatableReferencer)
+			if ok {
+				vErrs.merge(checkValidReference(t, concreteVal))
+			}
+		}
+	}
+}
+
+func validSlice(in interface{}, vOf reflect.Value, validatorType reflect.Type, validatorRefType reflect.Type, vErrs *ValidationErrors, t ErrorType) {
+	for i := 0; i < vOf.Len(); i++ {
+		val := vOf.Index(i)
+		okImpl := reflect.TypeOf(val.Interface()).Implements(validatorType)
+		if okImpl {
+			concreteVal, ok := val.Interface().(validatableContent)
+			if ok {
+				vErrs.merge(checkValidContent(t, concreteVal))
+			}
+		}
+		okImpl = reflect.TypeOf(val.Interface()).Implements(validatorRefType)
+		if okImpl {
+			concreteVal, ok := val.Interface().(validatableReferencer)
+			if ok {
+				vErrs.merge(checkValidReference(t, concreteVal))
+			}
+		}
+	}
+
+}
+
+func validDefault(in interface{}, validatorType reflect.Type, validatorRefType reflect.Type, vErrs *ValidationErrors, t ErrorType) {
+	okImpl := reflect.TypeOf(in).Implements(validatorType)
+	if okImpl {
+		concreteVal, ok := in.(validatableContent)
+		if ok {
+			vErrs.merge(checkValidContent(t, concreteVal))
+		}
+	}
+	okImpl = reflect.TypeOf(in).Implements(validatorRefType)
+	if okImpl {
+		concreteVal, ok := in.(validatableReferencer)
+		if ok {
+			vErrs.merge(checkValidReference(t, concreteVal))
+		}
 	}
 }
 
