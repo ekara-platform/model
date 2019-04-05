@@ -43,10 +43,9 @@ func createPlatform(yamlEnv *yamlEnvironment) (Platform, error) {
 			yamlComponent.Imports...)
 		if e != nil {
 			return Platform{}, errors.New("invalid component " + componentName + ": " + e.Error())
-		} else {
-			setCredentials(&component, yamlComponent.yamlComponent)
-			components[componentName] = component
 		}
+		setCredentials(&component, yamlComponent.yamlComponent)
+		components[componentName] = component
 	}
 
 	return Platform{

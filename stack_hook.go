@@ -20,11 +20,7 @@ func (r *StackHook) merge(other StackHook) error {
 	if err := r.Deploy.merge(other.Deploy); err != nil {
 		return err
 	}
-	if err := r.Undeploy.merge(other.Undeploy); err != nil {
-		return err
-	}
-
-	return nil
+	return r.Undeploy.merge(other.Undeploy)
 }
 
 func (r StackHook) validate() ValidationErrors {

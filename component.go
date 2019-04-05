@@ -36,11 +36,11 @@ type (
 )
 
 const (
-	// GIT type of source control management system
+	//Git type of source control management system
 	Git ScmType = "GIT"
-	// SVN type of source control management system
+	//Svn type of source control management system
 	Svn ScmType = "SVN"
-	// Unknown source control management system
+	//Unknown source control management system
 	Unknown ScmType = ""
 
 	SchemeFile  string = "FILE"

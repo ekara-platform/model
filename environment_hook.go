@@ -32,10 +32,7 @@ func (r *EnvironmentHooks) merge(other EnvironmentHooks) error {
 	if err := r.Undeploy.merge(other.Undeploy); err != nil {
 		return err
 	}
-	if err := r.Destroy.merge(other.Destroy); err != nil {
-		return err
-	}
-	return nil
+	return r.Destroy.merge(other.Destroy)
 }
 
 func (r EnvironmentHooks) validate() ValidationErrors {

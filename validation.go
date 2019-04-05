@@ -139,9 +139,8 @@ func (r ErrorType) String() string {
 		"Error"}
 	if r < Warning || r > Error {
 		return "Unknown"
-	} else {
-		return names[r]
 	}
+	return names[r]
 }
 
 func (ve *ValidationErrors) merge(other ValidationErrors) {

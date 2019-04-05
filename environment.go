@@ -103,10 +103,7 @@ func (r *Environment) Merge(other Environment) error {
 	if err := r.Tasks.merge(r, other.Tasks); err != nil {
 		return err
 	}
-	if err := r.Hooks.merge(other.Hooks); err != nil {
-		return err
-	}
-	return nil
+	return r.Hooks.merge(other.Hooks)
 }
 
 //Validate validate an environment

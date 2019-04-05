@@ -49,13 +49,13 @@ func UrlToPath(u *url.URL) (string, error) {
 func EnsurePathSuffix(u *url.URL, suffix string) *url.URL {
 	if strings.HasSuffix(u.Path, suffix) {
 		return u
-	} else {
-		if strings.HasSuffix(u.Path, "/") {
-			u.Path = u.Path + suffix
-		} else {
-			u.Path = u.Path + "/" + suffix
-		}
 	}
+	if strings.HasSuffix(u.Path, "/") {
+		u.Path = u.Path + suffix
+	} else {
+		u.Path = u.Path + "/" + suffix
+	}
+
 	return u
 }
 
@@ -70,9 +70,9 @@ func NormalizeUrl(u *url.URL) (*url.URL, error) {
 			return nil, e
 		}
 		return PathToUrl(p)
-	} else {
-		res.Path = path.Clean(res.Path)
 	}
+	res.Path = path.Clean(res.Path)
+
 	return &res, nil
 }
 

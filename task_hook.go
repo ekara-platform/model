@@ -14,10 +14,7 @@ func (r TaskHook) HasTasks() bool {
 }
 
 func (r *TaskHook) merge(other TaskHook) error {
-	if err := r.Execute.merge(other.Execute); err != nil {
-		return err
-	}
-	return nil
+	return r.Execute.merge(other.Execute)
 }
 
 func (r TaskHook) validate() ValidationErrors {

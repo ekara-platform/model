@@ -46,10 +46,7 @@ func (r *Stack) merge(other Stack) error {
 	r.Parameters = r.Parameters.inherits(other.Parameters)
 	r.EnvVars = r.EnvVars.inherits(other.EnvVars)
 
-	if err := r.Hooks.merge(other.Hooks); err != nil {
-		return err
-	}
-	return nil
+	return r.Hooks.merge(other.Hooks)
 }
 
 func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) Stacks {

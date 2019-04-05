@@ -20,10 +20,10 @@ const (
 	// component then we will look for a default descriptor name "ekara.yaml"
 	DefaultDescriptorName = "ekara.yaml"
 
-	//The component identifier for the ekara distribution
+	//EkaraComponentId The component identifier for the ekara distribution
 	EkaraComponentId = "__ekara__"
 
-	//The default repository for the ekara distribution
+	//EkaraComponentRepo The default repository for the ekara distribution
 	EkaraComponentRepo = "ekara-platform/distribution"
 
 	//GitExtension represents the extension of the GIT repository extension
