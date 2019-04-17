@@ -3,7 +3,7 @@ package model
 const (
 	//SchemeFile  scheme for a file
 	SchemeFile string = "FILE"
-	//SchemeGit  scheme for Git
+	//SchemeGits  scheme for Git
 	SchemeGits string = "GIT"
 	//SchemeSvn  scheme for svn
 	SchemeSvn string = "SVN"

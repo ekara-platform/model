@@ -10,11 +10,11 @@ type (
 )
 
 const (
-	//Git type of source control management system
+	//GitScm type of GIT source control management system
 	GitScm SCMType = SCMType(SchemeGits)
-	//Svn type of source control management system
+	//SvnScm type of SVN source control management system
 	SvnScm SCMType = SCMType(SchemeSvn)
-	//Unknown source control management system
+	//UnknownScm represents an unknown source control management system
 	UnknownScm SCMType = ""
 )
 

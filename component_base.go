@@ -17,19 +17,21 @@ const (
 
 type (
 
-	//Repository represents a descriptor or component location
+	//Base represents the common location to all components defined into a single descriptor
 	Base struct {
 		// Url specifies the base location of a component
 		Url EkUrl
 	}
 )
 
-func CreateBase(base string) (Base, error) {
+//CreateBase a new Base for the provided url, if the url is not specified then
+// it will be defaulted to DefaultComponentBase
+func CreateBase(rawurl string) (Base, error) {
 	b := Base{}
-	if base == "" {
-		base = DefaultComponentBase
+	if rawurl == "" {
+		rawurl = DefaultComponentBase
 	}
-	u, err := CreateUrl(base)
+	u, err := CreateUrl(rawurl)
 	if err != nil {
 		return b, err
 	}
@@ -37,6 +39,9 @@ func CreateBase(base string) (Base, error) {
 	return b, nil
 }
 
+//CreateBase a new Base for the url specified int the Ekara section of the
+// provided environment/descriptor, if the url is not defined then
+// it will be defaulted to DefaultComponentBase
 func CreateComponentBase(yamlEnv *yamlEnvironment) (Base, error) {
 	if yamlEnv == nil && yamlEnv.Ekara.Base != "" {
 		return CreateBase(DefaultComponentBase)
@@ -46,7 +51,7 @@ func CreateComponentBase(yamlEnv *yamlEnvironment) (Base, error) {
 
 }
 
+//CreateBasedUrl creates a url under the base location
 func (b Base) CreateBasedUrl(repo string) (EkUrl, error) {
 	return b.Url.ResolveReference(repo)
-
 }

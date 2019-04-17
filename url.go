@@ -13,8 +13,10 @@ import (
 )
 
 type (
+	//EkUrl defines the url used into Ekara
 	EkUrl interface {
 		String() string
+		//ReadUrl returns the content referenced by the url
 		ReadUrl() ([]byte, error)
 		Scheme() string
 		SetScheme(s string)
@@ -33,11 +35,13 @@ type (
 		url *url.URL
 	}
 
+	//FileUrl defines a local url, typically a file url of something already downloaded into the platform
 	FileUrl struct {
 		*rootUrl
 		filePath string
 	}
 
+	//RemoteUrl defines a remote url,example over http; https, git...
 	RemoteUrl struct {
 		*rootUrl
 	}
