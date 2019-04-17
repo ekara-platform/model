@@ -39,16 +39,14 @@ func CreateBase(rawurl string) (Base, error) {
 	return b, nil
 }
 
-//CreateBase a new Base for the url specified int the Ekara section of the
+//CreateComponentBase a new Base for the url specified int the Ekara section of the
 // provided environment/descriptor, if the url is not defined then
 // it will be defaulted to DefaultComponentBase
 func CreateComponentBase(yamlEnv *yamlEnvironment) (Base, error) {
 	if yamlEnv == nil && yamlEnv.Ekara.Base != "" {
 		return CreateBase(DefaultComponentBase)
-	} else {
-		return CreateBase(yamlEnv.Ekara.Base)
 	}
-
+	return CreateBase(yamlEnv.Ekara.Base)
 }
 
 //CreateBasedUrl creates a url under the base location

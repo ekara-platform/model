@@ -94,18 +94,22 @@ func (ru *rootUrl) String() string {
 	return ru.url.String()
 }
 
-func (ru RemoteUrl) ResolveReference(repo string) (EkUrl, error) {
-	repo = strings.TrimLeft(repo, "/")
-	repoU, e := url.Parse(repo)
+//ResolveReference resolves the repository URI reference to an absolute URI from
+// the RemoteUrl as base URI
+func (ru RemoteUrl) ResolveReference(repository string) (EkUrl, error) {
+	repository = strings.TrimLeft(repository, "/")
+	repoU, e := url.Parse(repository)
 	if e != nil {
 		return RemoteUrl{}, e
 	}
 	return CreateUrl(ru.url.ResolveReference(repoU).String())
 }
 
-func (ru FileUrl) ResolveReference(repo string) (EkUrl, error) {
-	repo = strings.TrimLeft(repo, "/")
-	repoU := ru.filePath + filepath.ToSlash(repo)
+//ResolveReference resolves the repository URI reference to an absolute URI from
+// the FileUrl as base URI
+func (ru FileUrl) ResolveReference(repository string) (EkUrl, error) {
+	repository = strings.TrimLeft(repository, "/")
+	repoU := ru.filePath + filepath.ToSlash(repository)
 	return CreateUrl(repoU)
 }
 
@@ -144,6 +148,8 @@ func createRemoteUlr(path string) (EkUrl, error) {
 	return r, nil
 }
 
+//CreateUrl creates an Ekara url for the given path. The provided path can be a path on
+// a file system or a remote url over http, https, git...
 func CreateUrl(path string) (EkUrl, error) {
 	var r EkUrl
 	var e error
@@ -164,6 +170,7 @@ func CreateUrl(path string) (EkUrl, error) {
 	return r, nil
 }
 
+//ReadUrl reads the content referenced by the url
 func (ru FileUrl) ReadUrl() ([]byte, error) {
 	location := ru.filePath
 
@@ -179,10 +186,12 @@ func (ru FileUrl) ReadUrl() ([]byte, error) {
 	return content, nil
 }
 
+//AsFilePath return path corresponding to the file url
 func (ru FileUrl) AsFilePath() string {
 	return ru.filePath
 }
 
+//ReadUrl reads the content referenced by the url
 func (ru RemoteUrl) ReadUrl() ([]byte, error) {
 	var response *http.Response
 	response, err := http.Get(ru.url.String())
@@ -201,6 +210,7 @@ func (ru RemoteUrl) ReadUrl() ([]byte, error) {
 	return content, nil
 }
 
+//AsFilePath return "" because it's a remote url
 func (ru RemoteUrl) AsFilePath() string {
 	return ""
 }
