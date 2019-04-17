@@ -15,6 +15,7 @@ import (
 func TestValidateUnknownGlobalHooks(t *testing.T) {
 	env, e := CreateEnvironment(buildUrl(t, "./testdata/yaml/grammar/unknown_global_hook.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
+	assert.NotNil(t, env)
 	vErrs := env.Validate()
 	assert.True(t, vErrs.HasErrors())
 	assert.False(t, vErrs.HasWarnings())

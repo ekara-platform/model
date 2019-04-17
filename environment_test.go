@@ -2,7 +2,6 @@ package model
 
 import (
 	"fmt"
-	"net/url"
 	"strings"
 	"testing"
 
@@ -45,8 +44,9 @@ func assertEnv(t *testing.T, env Environment) {
 	assert.NotNil(t, env.Ekara)
 	assert.NotNil(t, env.Ekara.Components)
 	assert.Equal(t, 5, len(env.Ekara.Components))
-	assert.Equal(t, "file://someBase/", env.Ekara.Base.String())
-	assert.Equal(t, "file:///someBase/ekara-platform/distribution", env.Ekara.Distribution.Repository.String())
+	assert.Equal(t, SchemeFile, env.Ekara.Base.Url.UpperScheme())
+	assert.Equal(t, "file://someBase/", env.Ekara.Base.Url.String())
+	assert.Equal(t, "file:///someBase/ekara-platform/distribution/", env.Ekara.Distribution.Repository.Url.String())
 
 	//------------------------------------------------------------
 	// Orchestrator
@@ -95,9 +95,9 @@ func assertEnv(t *testing.T, env Environment) {
 	// AWS Provider
 	assert.NotNil(t, providers["aws"])
 	assert.Equal(t, "aws", providers["aws"].Name)
-	awsComponent, e := providers["aws"].Component.Resolve()
-	assert.Nil(t, e)
-	assert.True(t, strings.HasSuffix(awsComponent.Repository.String(), "/someBase/ekara-platform/aws-provider"))
+	awsComponent := providers["aws"].Component.Resolve()
+
+	assert.True(t, strings.HasSuffix(awsComponent.Repository.Url.String(), "/someBase/ekara-platform/aws-provider/"))
 	assert.Equal(t, "1.2.3", awsComponent.Ref)
 	assert.NotNil(t, providers["aws"].Parameters)
 	c = providers["aws"].Parameters
@@ -128,9 +128,8 @@ func assertEnv(t *testing.T, env Environment) {
 	// Azure Provider
 	assert.NotNil(t, providers["azure"])
 	assert.Equal(t, "azure", providers["azure"].Name)
-	azureComponent, e := providers["azure"].Component.Resolve()
-	assert.Nil(t, e)
-	assert.True(t, strings.HasSuffix(azureComponent.Repository.String(), "/someBase/ekara-platform/azure-provider"))
+	azureComponent := providers["azure"].Component.Resolve()
+	assert.True(t, strings.HasSuffix(azureComponent.Repository.Url.String(), "/someBase/ekara-platform/azure-provider/"))
 	assert.Equal(t, "1.2.3", azureComponent.Ref)
 	assert.NotNil(t, providers["azure"].Parameters)
 
@@ -386,14 +385,12 @@ func assertEnv(t *testing.T, env Environment) {
 	stack1 := stacks["stack1"]
 	stack2 := stacks["stack2"]
 
-	st1Component, e := stack1.Component.Resolve()
-	assert.Nil(t, e)
-	assert.True(t, strings.HasSuffix(st1Component.Repository.String(), "/someBase/some-org/stack1"))
+	st1Component := stack1.Component.Resolve()
+	assert.True(t, strings.HasSuffix(st1Component.Repository.Url.String(), "/someBase/some-org/stack1/"))
 	assert.Equal(t, "1.2.3", st1Component.Ref)
 
-	st2Component, e := stack2.Component.Resolve()
-	assert.Nil(t, e)
-	assert.True(t, strings.HasSuffix(st2Component.Repository.String(), "/someBase/some-org/stack2"))
+	st2Component := stack2.Component.Resolve()
+	assert.True(t, strings.HasSuffix(st2Component.Repository.Url.String(), "/someBase/some-org/stack2/"))
 	assert.Equal(t, "1.2.3", st2Component.Ref)
 
 	//------------------------------------------------------------
@@ -490,8 +487,8 @@ func assertEnv(t *testing.T, env Environment) {
 
 }
 
-func buildUrl(t *testing.T, loc string) *url.URL {
-	u, e := url.Parse(loc)
+func buildUrl(t *testing.T, loc string) EkUrl {
+	u, e := CreateUrl(loc)
 	assert.Nil(t, e)
 	return u
 }

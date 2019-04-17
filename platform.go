@@ -2,25 +2,22 @@ package model
 
 import (
 	"errors"
-	"net/url"
-	"os"
-	"strings"
 )
 
 //Platform the platform used to build an environment
 type Platform struct {
-	Base         *url.URL
+	Base         Base
 	Distribution Component
 	Components   map[string]Component
 }
 
 func createPlatform(yamlEnv *yamlEnvironment) (Platform, error) {
 	components := map[string]Component{}
-
+	p := Platform{}
 	// Compute the component base for the environment
-	base, e := createComponentBase(yamlEnv)
+	base, e := CreateComponentBase(yamlEnv)
 	if e != nil {
-		return Platform{}, errors.New("missing component base: " + e.Error())
+		return p, errors.New("Error creating the base component : " + e.Error())
 	}
 
 	// Create the distribution component (mandatory)
@@ -28,31 +25,29 @@ func createPlatform(yamlEnv *yamlEnvironment) (Platform, error) {
 	if ekaraRepo == "" {
 		ekaraRepo = EkaraComponentRepo
 	}
-	ekaraComponent, e := CreateComponent(base, EkaraComponentId, ekaraRepo, yamlEnv.Ekara.Distribution.Ref)
+	repoDist, e := CreateRepository(base, ekaraRepo, yamlEnv.Ekara.Distribution.Ref, "")
 	if e != nil {
-		return Platform{}, errors.New("invalid distribution: " + e.Error())
+		return p, errors.New("invalid distribution: " + e.Error())
 	}
+	ekaraComponent := CreateComponent(EkaraComponentId, repoDist)
+
 	setCredentials(&ekaraComponent, yamlEnv.Ekara.Distribution)
 
 	// Create other components of the environment
-	for componentName, yamlComponent := range yamlEnv.Ekara.Components {
-		component, e := CreateComponent(
-			base,
-			componentName,
-			yamlComponent.Repository,
-			yamlComponent.Ref,
-			yamlComponent.Imports...)
+	for name, yamlC := range yamlEnv.Ekara.Components {
+		repo, e := CreateRepository(base, yamlC.Repository, yamlC.Ref, "")
 		if e != nil {
-			return Platform{}, errors.New("invalid component " + componentName + ": " + e.Error())
+			return p, errors.New("Error creating the repository: " + e.Error())
 		}
-		setCredentials(&component, yamlComponent.yamlComponent)
-		components[componentName] = component
+		component := CreateComponent(name, repo)
+		setCredentials(&component, yamlC)
+		components[name] = component
 	}
 
-	return Platform{
-		Base:         base,
-		Distribution: ekaraComponent,
-		Components:   components}, nil
+	p.Base = base
+	p.Distribution = ekaraComponent
+	p.Components = components
+	return p, nil
 }
 
 func (r Platform) validate() ValidationErrors {
@@ -76,38 +71,4 @@ func setCredentials(component *Component, yamlComponent yamlComponent) {
 	if len(yamlComponent.Auth) > 0 {
 		component.Authentication = createParameters(yamlComponent.Auth)
 	}
-}
-
-func createComponentBase(yamlEnv *yamlEnvironment) (*url.URL, error) {
-	res := DefaultComponentBase
-
-	if yamlEnv != nil && yamlEnv.Ekara.Base != "" {
-		res = yamlEnv.Ekara.Base
-	}
-
-	// If file exists locally, resolve its absolute path and convert it to an URL
-	var u *url.URL
-	if _, e := os.Stat(res); e == nil {
-		u, e = PathToUrl(res)
-		if e != nil {
-			return nil, e
-		}
-	} else {
-		u, e = url.Parse(res)
-		if e != nil {
-			return nil, e
-		}
-	}
-
-	// If no protocol, assume file
-	if u.Scheme == "" {
-		u.Scheme = "file"
-	}
-
-	// Add terminal slash to path if missing
-	if !strings.HasSuffix(u.Path, "/") {
-		u.Path = u.Path + "/"
-	}
-
-	return u, nil
 }

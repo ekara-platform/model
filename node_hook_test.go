@@ -18,7 +18,6 @@ func TestValidationNodesUnknownHook(t *testing.T) {
 
 	assert.Nil(t, e)
 	vErrs := env.Validate()
-	//log.Printf("Errors %v: ", vErrs)
 	assert.True(t, vErrs.HasErrors())
 	assert.False(t, vErrs.HasWarnings())
 	assert.Equal(t, 2, len(vErrs.Errors))

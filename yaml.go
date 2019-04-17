@@ -1,8 +1,6 @@
 package model
 
 import (
-	"net/url"
-
 	"gopkg.in/yaml.v2"
 )
 
@@ -47,13 +45,6 @@ type (
 		Ref string
 		// The authentication parameters
 		yamlAuth `yaml:",inline"`
-	}
-
-	// yaml tag for component with imports
-	yamlComponentWithImports struct {
-		yamlComponent `yaml:",inline"`
-		// Local imports for the component
-		Imports []string `yaml:",omitempty"`
 	}
 
 	// yaml tag for a volume and its parameters
@@ -111,6 +102,12 @@ type (
 		After []yamlTaskRef `yaml:",omitempty"`
 	}
 
+	yamlEkara struct {
+		Base         string `yaml:",omitempty"`
+		Distribution yamlComponent
+		Components   map[string]yamlComponent
+	}
+
 	// Definition of the Ekara environment
 	yamlEnvironment struct {
 		// The name of the environment
@@ -122,14 +119,7 @@ type (
 		Description string `yaml:",omitempty"`
 
 		// The Ekara platform used to interact with the environment
-		Ekara struct {
-			Base         string `yaml:",omitempty"`
-			Distribution yamlComponent
-			Components   map[string]yamlComponentWithImports
-		}
-
-		// Global imports
-		Imports []string `yaml:",omitempty"`
+		Ekara yamlEkara
 
 		// Tasks which can be run on the created environment
 		Tasks map[string]struct {
@@ -230,20 +220,15 @@ func (r *yamlEnvironment) RawContent() ([]byte, error) {
 	return yaml.Marshal(r)
 }
 
-func parseYamlDescriptor(u *url.URL, parameters map[string]interface{}) (env yamlEnvironment, err error) {
-	var normalizedUrl *url.URL
-	normalizedUrl, err = NormalizeUrl(u)
-	if err != nil {
-		return
-	}
+func parseYamlDescriptor(u EkUrl, parameters map[string]interface{}) (env yamlEnvironment, err error) {
 
 	// Read descriptor content
-	content, err := ReadUrl(normalizedUrl)
+	content, err := u.ReadUrl()
 	if err != nil {
 		return
 	}
 
-	out, err := ApplyTemplate(normalizedUrl, content, parameters)
+	out, err := ApplyTemplate(u, content, parameters)
 	if err != nil {
 		return
 	}

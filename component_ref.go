@@ -36,12 +36,11 @@ func (r *componentRef) merge(other componentRef) error {
 	return nil
 }
 
-func (r componentRef) Resolve() (Component, error) {
-	validationErrors := ErrorOnInvalid(r)
-	if validationErrors.HasErrors() {
-		return Component{}, validationErrors
+func (r componentRef) Resolve() Component {
+	if val, ok := r.env.Ekara.Components[r.ref]; ok {
+		return val
 	}
-	return r.env.Ekara.Components[r.ref], nil
+	return Component{}
 }
 
 func createComponentRef(env *Environment, location DescriptorLocation, ref string, mandatory bool) componentRef {
