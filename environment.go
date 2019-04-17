@@ -1,10 +1,5 @@
 package model
 
-import (
-	"errors"
-	"net/url"
-)
-
 type (
 	//Environment represents an environment build based on a descriptor
 	Environment struct {
@@ -12,8 +7,6 @@ type (
 		OriginalEnv yamlEnvironment
 		// The location of the environment root
 		location DescriptorLocation
-		// Global imports
-		Imports []string
 		// The environment name
 		Name string
 		// The environment qualifier
@@ -46,37 +39,35 @@ type (
 //			The two only supported extension are ".yaml" and ".yml"!
 //		data: The data used to substitute variables into the environment descriptor
 //
-func CreateEnvironment(url *url.URL, data map[string]interface{}) (Environment, error) {
+func CreateEnvironment(url EkUrl, data map[string]interface{}) (Environment, error) {
 	env := Environment{}
-	if hasSuffixIgnoringCase(url.Path, ".yaml") || hasSuffixIgnoringCase(url.Path, ".yml") {
-		var yamlEnv yamlEnvironment
-		yamlEnv, err := parseYamlDescriptor(url, data)
-		if err != nil {
-			return env, err
-		}
-		env.OriginalEnv = yamlEnv
-		env.location = DescriptorLocation{Descriptor: url.String()}
-		env.Imports = yamlEnv.Imports
-		env.Name = yamlEnv.Name
-		env.Qualifier = yamlEnv.Qualifier
-		env.Description = yamlEnv.Description
-		env.Ekara, err = createPlatform(&yamlEnv)
-		if err != nil {
-			return env, err
-		}
-		env.Tasks = createTasks(&env, env.location.appendPath("tasks"), &yamlEnv)
-		env.Orchestrator = createOrchestrator(&env, env.location.appendPath("orchestrator"), &yamlEnv)
-		env.Providers = createProviders(&env, env.location.appendPath("providers"), &yamlEnv)
-		env.NodeSets = createNodeSets(&env, env.location.appendPath("nodes"), &yamlEnv)
-		env.Stacks = createStacks(&env, env.location.appendPath("stacks"), &yamlEnv)
-		env.Hooks.Provision = createHook(&env, env.location.appendPath("hooks.provision"), yamlEnv.Hooks.Provision)
-		env.Hooks.Deploy = createHook(&env, env.location.appendPath("hooks.deploy"), yamlEnv.Hooks.Deploy)
-		env.Hooks.Undeploy = createHook(&env, env.location.appendPath("hooks.undeploy"), yamlEnv.Hooks.Undeploy)
-		env.Hooks.Destroy = createHook(&env, env.location.appendPath("hooks.destroy"), yamlEnv.Hooks.Destroy)
-		env.Volumes = createGlobalVolumes(&env, env.location.appendPath("volumes"), &yamlEnv)
-		return env, nil
+
+	var yamlEnv yamlEnvironment
+	yamlEnv, err := parseYamlDescriptor(url, data)
+	if err != nil {
+		return env, err
 	}
-	return env, errors.New("unsupported file format")
+	env.OriginalEnv = yamlEnv
+	env.location = DescriptorLocation{Descriptor: url.String()}
+	env.Name = yamlEnv.Name
+	env.Qualifier = yamlEnv.Qualifier
+	env.Description = yamlEnv.Description
+	env.Ekara, err = createPlatform(&yamlEnv)
+	if err != nil {
+		return env, err
+	}
+	env.Tasks = createTasks(&env, env.location.appendPath("tasks"), &yamlEnv)
+	env.Orchestrator = createOrchestrator(&env, env.location.appendPath("orchestrator"), &yamlEnv)
+	env.Providers = createProviders(&env, env.location.appendPath("providers"), &yamlEnv)
+	env.NodeSets = createNodeSets(&env, env.location.appendPath("nodes"), &yamlEnv)
+	env.Stacks = createStacks(&env, env.location.appendPath("stacks"), &yamlEnv)
+	env.Hooks.Provision = createHook(&env, env.location.appendPath("hooks.provision"), yamlEnv.Hooks.Provision)
+	env.Hooks.Deploy = createHook(&env, env.location.appendPath("hooks.deploy"), yamlEnv.Hooks.Deploy)
+	env.Hooks.Undeploy = createHook(&env, env.location.appendPath("hooks.undeploy"), yamlEnv.Hooks.Undeploy)
+	env.Hooks.Destroy = createHook(&env, env.location.appendPath("hooks.destroy"), yamlEnv.Hooks.Destroy)
+	env.Volumes = createGlobalVolumes(&env, env.location.appendPath("volumes"), &yamlEnv)
+	return env, nil
+
 }
 
 //Merge merges the content of the other environment into the receiver

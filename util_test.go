@@ -1,33 +1,18 @@
 package model
 
 import (
-	"github.com/stretchr/testify/assert"
-	"path/filepath"
-	"runtime"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func TestRelativePathToUrl(t *testing.T) {
-	absPath, e := filepath.Abs("testdata/components")
-	assert.Nil(t, e)
-	url, e := PathToUrl("testdata/components")
-	assert.Nil(t, e)
+func TestHasPrefixIgnoringCase(t *testing.T) {
 
-	assert.Equal(t, "file", url.Scheme)
-	if runtime.GOOS == "windows" {
-		assert.Equal(t, "/"+filepath.ToSlash(absPath), url.Path)
-	} else {
-		assert.Equal(t, filepath.ToSlash(absPath), url.Path)
-	}
+	assert.True(t, hasPrefixIgnoringCase("Lorem ipsum dolor sit amet, consectetur adipiscing elit", "lorem"))
+	assert.False(t, hasPrefixIgnoringCase("Lorem ipsum dolor sit amet, consectetur adipiscing elit", "Loorem"))
 }
 
-func TestUrlToPath(t *testing.T) {
-	absPath, e := filepath.Abs("testdata/components")
-	assert.Nil(t, e)
-	url, e := PathToUrl("testdata/components")
-	assert.Nil(t, e)
-	path, e := UrlToPath(url)
-	assert.Nil(t, e)
-
-	assert.Equal(t, absPath, path)
+func TestHasSuffixIgnoringCase(t *testing.T) {
+	assert.True(t, hasSuffixIgnoringCase("Lorem ipsum dolor sit amet, consectetur adipiscing elit", "ELIT"))
+	assert.False(t, hasSuffixIgnoringCase("Lorem ipsum dolor sit amet, consectetur adipiscing elit", "Ellit"))
 }
