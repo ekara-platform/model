@@ -120,7 +120,11 @@ func TestCreateFileUlr(t *testing.T) {
 
 	ps := filepath.ToSlash(p)
 
-	assert.Equal(t, val.rootUrl.String(), "file:///"+ps+"/")
+	if hasPrefixIgnoringCase(wd, "/") {
+		assert.Equal(t, val.rootUrl.String(), "file://"+ps+"/")
+	} else {
+		assert.Equal(t, val.rootUrl.String(), "file:///"+ps+"/")
+	}
 
 }
 
@@ -202,7 +206,13 @@ func TestCreateBasedLocalUrl(t *testing.T) {
 	}
 
 	ps := filepath.ToSlash(p1 + p2 + "/")
-	assert.Equal(t, val.rootUrl.String(), "file:///"+ps)
+
+	if hasPrefixIgnoringCase(wd, "/") {
+		assert.Equal(t, val.rootUrl.String(), "file://"+ps)
+	} else {
+		assert.Equal(t, val.rootUrl.String(), "file:///"+ps)
+	}
+
 	defer func(wd string) {
 		var e error
 		if os.PathSeparator == '/' {
