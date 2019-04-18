@@ -62,7 +62,9 @@ func createProviders(env *Environment, location DescriptorLocation, yamlEnv *yam
 			Component:  createComponentRef(env, providerLocation.appendPath("component"), yamlProvider.Component, true),
 			Parameters: createParameters(yamlProvider.Params),
 			Proxy:      createProxy(yamlProvider.Proxy),
-			EnvVars:    createEnvVars(yamlProvider.Env)}
+			EnvVars:    createEnvVars(yamlProvider.Env),
+		}
+		env.Ekara.tagUsedComponent(res[name].Component)
 	}
 	return res
 }

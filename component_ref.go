@@ -1,5 +1,13 @@
 package model
 
+import (
+	"fmt"
+)
+
+const (
+	unknownComponentRefError = "Unable to resolve un unknown component: %s "
+)
+
 type (
 	//componentRef represents a reference to a component
 	componentRef struct {
@@ -36,11 +44,11 @@ func (r *componentRef) merge(other componentRef) error {
 	return nil
 }
 
-func (r componentRef) Resolve() Component {
+func (r componentRef) Resolve() (Component, error) {
 	if val, ok := r.env.Ekara.Components[r.ref]; ok {
-		return val
+		return val, nil
 	}
-	return Component{}
+	return Component{}, fmt.Errorf(unknownComponentRefError, r.ref)
 }
 
 func createComponentRef(env *Environment, location DescriptorLocation, ref string, mandatory bool) componentRef {

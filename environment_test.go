@@ -95,7 +95,8 @@ func assertEnv(t *testing.T, env Environment) {
 	// AWS Provider
 	assert.NotNil(t, providers["aws"])
 	assert.Equal(t, "aws", providers["aws"].Name)
-	awsComponent := providers["aws"].Component.Resolve()
+	awsComponent, err := providers["aws"].Component.Resolve()
+	assert.Nil(t, err)
 
 	assert.True(t, strings.HasSuffix(awsComponent.Repository.Url.String(), "/someBase/ekara-platform/aws-provider/"))
 	assert.Equal(t, "1.2.3", awsComponent.Ref)
@@ -128,7 +129,8 @@ func assertEnv(t *testing.T, env Environment) {
 	// Azure Provider
 	assert.NotNil(t, providers["azure"])
 	assert.Equal(t, "azure", providers["azure"].Name)
-	azureComponent := providers["azure"].Component.Resolve()
+	azureComponent, err := providers["azure"].Component.Resolve()
+	assert.Nil(t, err)
 	assert.True(t, strings.HasSuffix(azureComponent.Repository.Url.String(), "/someBase/ekara-platform/azure-provider/"))
 	assert.Equal(t, "1.2.3", azureComponent.Ref)
 	assert.NotNil(t, providers["azure"].Parameters)
@@ -385,11 +387,13 @@ func assertEnv(t *testing.T, env Environment) {
 	stack1 := stacks["stack1"]
 	stack2 := stacks["stack2"]
 
-	st1Component := stack1.Component.Resolve()
+	st1Component, err := stack1.Component.Resolve()
+	assert.Nil(t, err)
 	assert.True(t, strings.HasSuffix(st1Component.Repository.Url.String(), "/someBase/some-org/stack1/"))
 	assert.Equal(t, "1.2.3", st1Component.Ref)
 
-	st2Component := stack2.Component.Resolve()
+	st2Component, err := stack2.Component.Resolve()
+	assert.Nil(t, err)
 	assert.True(t, strings.HasSuffix(st2Component.Repository.Url.String(), "/someBase/some-org/stack2/"))
 	assert.Equal(t, "1.2.3", st2Component.Ref)
 

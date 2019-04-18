@@ -16,11 +16,14 @@ type (
 
 func createOrchestrator(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) Orchestrator {
 	yamlO := yamlEnv.Orchestrator
-	return Orchestrator{
+	o := Orchestrator{
 		Component:  createComponentRef(env, location.appendPath("component"), yamlO.Component, true),
 		Parameters: createParameters(yamlO.Params),
 		Docker:     createParameters(yamlO.Docker),
-		EnvVars:    createEnvVars(yamlO.Env)}
+		EnvVars:    createEnvVars(yamlO.Env),
+	}
+	env.Ekara.tagUsedComponent(o.Component)
+	return o
 }
 
 func (r Orchestrator) validate() ValidationErrors {

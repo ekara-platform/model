@@ -14,7 +14,7 @@ type (
 		// The environment description
 		Description string
 		// Ekara platform settings
-		Ekara Platform
+		Ekara *Platform
 		// The orchestrator used to manage the environment
 		Orchestrator Orchestrator
 		// The providers where to create the environment node sets
@@ -75,7 +75,7 @@ func CreateEnvironment(url EkUrl, data map[string]interface{}) (Environment, err
 // Note: basic informations (name, qualifier, description) are only accepted in root descriptor
 func (r *Environment) Merge(other Environment) error {
 	// basic informations (name, qualifier, description) are only accepted in root descriptor
-	if err := r.Ekara.merge(other.Ekara); err != nil {
+	if err := r.Ekara.merge(*other.Ekara); err != nil {
 		return err
 	}
 	if err := r.Orchestrator.merge(other.Orchestrator); err != nil {
