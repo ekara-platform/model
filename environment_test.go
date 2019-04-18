@@ -387,6 +387,7 @@ func assertEnv(t *testing.T, env Environment) {
 	stack1 := stacks["stack1"]
 	stack2 := stacks["stack2"]
 
+
 	st1Component, err := stack1.Component.Resolve()
 	assert.Nil(t, err)
 	assert.True(t, strings.HasSuffix(st1Component.Repository.Url.String(), "/someBase/some-org/stack1/"))
