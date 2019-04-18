@@ -89,6 +89,7 @@ func createTasks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnv
 				Execute: createHook(env, taskLocation.appendPath("hooks.execute"), yamlTask.Hooks.Execute),
 			},
 		}
+		env.Ekara.tagUsedComponent(res[name].Component)
 	}
 	return res
 }

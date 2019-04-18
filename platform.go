@@ -6,69 +6,83 @@ import (
 
 //Platform the platform used to build an environment
 type Platform struct {
-	Base         Base
-	Distribution Component
-	Components   map[string]Component
+	Base           Base
+	Distribution   Distribution
+	Components     map[string]Component
+	UsedComponents []componentRef
 }
 
-func createPlatform(yamlEnv *yamlEnvironment) (Platform, error) {
-	components := map[string]Component{}
-	p := Platform{}
+func createPlatform(yamlEnv *yamlEnvironment) (*Platform, error) {
+
+	p := &Platform{}
 	// Compute the component base for the environment
 	base, e := CreateComponentBase(yamlEnv)
 	if e != nil {
 		return p, errors.New("Error creating the base component : " + e.Error())
 	}
+	p.Base = base
 
 	// Create the distribution component (mandatory)
-	ekaraRepo := yamlEnv.Ekara.Distribution.Repository
-	if ekaraRepo == "" {
-		ekaraRepo = EkaraComponentRepo
-	}
-	repoDist, e := CreateRepository(base, ekaraRepo, yamlEnv.Ekara.Distribution.Ref, "")
+	dist, e := CreateDistribution(base, yamlEnv)
 	if e != nil {
-		return p, errors.New("invalid distribution: " + e.Error())
+		return p, errors.New("Error creating the distribution : " + e.Error())
 	}
-	ekaraComponent := CreateComponent(EkaraComponentId, repoDist)
-
-	setCredentials(&ekaraComponent, yamlEnv.Ekara.Distribution)
+	p.Distribution = dist
 
 	// Create other components of the environment
+	components := map[string]Component{}
 	for name, yamlC := range yamlEnv.Ekara.Components {
 		repo, e := CreateRepository(base, yamlC.Repository, yamlC.Ref, "")
 		if e != nil {
 			return p, errors.New("Error creating the repository: " + e.Error())
 		}
+		repo.setAuthentication(yamlC)
 		component := CreateComponent(name, repo)
-		setCredentials(&component, yamlC)
+
 		components[name] = component
 	}
 
-	p.Base = base
-	p.Distribution = ekaraComponent
 	p.Components = components
+	p.UsedComponents = make([]componentRef, 0, 0)
 	return p, nil
 }
 
-func (r Platform) validate() ValidationErrors {
+func (p *Platform) tagUsedComponent(cr componentRef) {
+	if cr.ref != "" {
+		for _, u := range p.UsedComponents {
+			if u.ref == cr.ref {
+				return
+			}
+		}
+		p.UsedComponents = append(p.UsedComponents, cr)
+	}
+}
+
+func (p Platform) validate() ValidationErrors {
 	vErrs := ValidationErrors{}
-	for _, c := range r.Components {
+	for _, c := range p.Components {
 		vErrs.merge(ErrorOnInvalid(c))
 	}
 	return vErrs
 }
 
-func (r *Platform) merge(other Platform) error {
+func (p *Platform) merge(other Platform) error {
 	for id, c := range other.Components {
-		if _, ok := r.Components[id]; !ok {
-			r.Components[id] = c
+		if id != "" {
+			if _, ok := p.Components[id]; !ok {
+				p.Components[id] = c
+			}
 		}
 	}
-	return nil
-}
 
-func setCredentials(component *Component, yamlComponent yamlComponent) {
-	if len(yamlComponent.Auth) > 0 {
-		component.Authentication = createParameters(yamlComponent.Auth)
+	for _, c := range other.UsedComponents {
+		if c.ref != "" {
+			p.tagUsedComponent(c)
+		}
 	}
+
+	if p.Distribution.Repository.Url == nil && other.Distribution.Repository.Url != nil {
+		p.Distribution = other.Distribution
+	}
+	return nil
 }

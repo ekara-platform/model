@@ -18,18 +18,22 @@ func TestCreateDefaultComponentBase(t *testing.T) {
 	assert.True(t, reflect.TypeOf(b.Url) == reflect.TypeOf(RemoteUrl{}))
 	// The url shoud end with a slash
 	assert.True(t, hasSuffixIgnoringCase(b.Url.String(), "/"))
+	// The base should be defaulted to DefaultComponentBase
+	assert.Equal(t, DefaultComponentBase+"/", b.Url.String())
 
 }
 
 func TestCreateHttpComponentBase(t *testing.T) {
+	bs := "http://www.google.com/my_path"
 	env := &yamlEnvironment{
-		Ekara: yamlEkara{Base: "http://www.google.com/my_path"},
+		Ekara: yamlEkara{Base: bs},
 	}
 	b, e := CreateComponentBase(env)
 	assert.Nil(t, e)
 	assert.Equal(t, SchemeHttp, b.Url.UpperScheme())
 	assert.True(t, reflect.TypeOf(b.Url) == reflect.TypeOf(RemoteUrl{}))
 	assert.True(t, hasSuffixIgnoringCase(b.Url.String(), "/"))
+	assert.Equal(t, bs+"/", b.Url.String())
 }
 
 func TestCreateFileComponentBase(t *testing.T) {
@@ -65,4 +69,31 @@ func TestCreateFileComponentBase(t *testing.T) {
 		}
 		assert.Nil(t, e)
 	}()
+}
+
+func TestCreateComponentBaseError(t *testing.T) {
+	env := &yamlEnvironment{
+		Ekara: yamlEkara{Base: "://missing/scheme/should/generate/an/error"},
+	}
+	_, e := CreateComponentBase(env)
+	assert.NotNil(t, e)
+}
+
+func TestDefaulted(t *testing.T) {
+	b, e := CreateBase("")
+	assert.Nil(t, e)
+	assert.True(t, b.Defaulted())
+
+	b, e = CreateBase(DefaultComponentBase)
+	assert.Nil(t, e)
+	assert.True(t, b.Defaulted())
+
+	b, e = CreateBase(DefaultComponentBase + "/")
+	assert.Nil(t, e)
+	assert.True(t, b.Defaulted())
+
+	b, e = CreateBase("http://project_base")
+	assert.Nil(t, e)
+	assert.False(t, b.Defaulted())
+
 }

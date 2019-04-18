@@ -62,6 +62,7 @@ func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEn
 			Parameters: createParameters(yamlStack.Params),
 			EnvVars:    createEnvVars(yamlStack.Env),
 		}
+		env.Ekara.tagUsedComponent(res[name].Component)
 	}
 	return res
 }

@@ -3,7 +3,7 @@ package model
 import (
 	"fmt"
 	"io/ioutil"
-
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -167,6 +167,12 @@ func CreateUrl(path string) (EkUrl, error) {
 		}
 	}
 	r.SetDefaultScheme()
+
+	_, e = url.Parse(r.String())
+	if e != nil {
+		return r, e
+	}
+
 	return r, nil
 }
 
@@ -213,4 +219,14 @@ func (ru RemoteUrl) ReadUrl() ([]byte, error) {
 //AsFilePath return "" because it's a remote url
 func (ru RemoteUrl) AsFilePath() string {
 	return ""
+}
+
+//GetCurrentDirectoryURL return the working directory as an url
+func GetCurrentDirectoryURL(l *log.Logger) (EkUrl, error) {
+	wd, err := os.Getwd()
+	if err != nil {
+		l.Printf("Error getting the working directory: %s\n", err.Error())
+		return FileUrl{}, err
+	}
+	return CreateUrl(wd)
 }

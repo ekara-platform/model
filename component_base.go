@@ -1,5 +1,9 @@
 package model
 
+import (
+	"strings"
+)
+
 const (
 	//DefaultComponentBase specifies the default base URL where to look for a component
 	//
@@ -43,7 +47,7 @@ func CreateBase(rawurl string) (Base, error) {
 // provided environment/descriptor, if the url is not defined then
 // it will be defaulted to DefaultComponentBase
 func CreateComponentBase(yamlEnv *yamlEnvironment) (Base, error) {
-	if yamlEnv == nil && yamlEnv.Ekara.Base != "" {
+	if yamlEnv != nil && yamlEnv.Ekara.Base == "" {
 		return CreateBase(DefaultComponentBase)
 	}
 	return CreateBase(yamlEnv.Ekara.Base)
@@ -52,4 +56,9 @@ func CreateComponentBase(yamlEnv *yamlEnvironment) (Base, error) {
 //CreateBasedUrl creates a url under the base location
 func (b Base) CreateBasedUrl(repo string) (EkUrl, error) {
 	return b.Url.ResolveReference(repo)
+}
+
+//Defaulted returns trus if the base is the defaultedone
+func (b Base) Defaulted() bool {
+	return strings.TrimRight(DefaultComponentBase, "/ ") == strings.TrimRight(b.Url.String(), "/ ")
 }
