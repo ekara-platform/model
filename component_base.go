@@ -58,7 +58,7 @@ func (b Base) CreateBasedUrl(repo string) (EkUrl, error) {
 	return b.Url.ResolveReference(repo)
 }
 
-//Defaulted returns trus if the base is the defaultedone
+//Defaulted returns true if the base is the defaulted one
 func (b Base) Defaulted() bool {
 	return strings.TrimRight(DefaultComponentBase, "/ ") == strings.TrimRight(b.Url.String(), "/ ")
 }

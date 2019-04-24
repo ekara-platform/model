@@ -10,6 +10,7 @@ const (
 	ekaraDistribution = "ekara-platform/distribution"
 )
 
+//Distribution Represents the distribution used to run Ekara
 type Distribution Component
 
 //CreateDistribution creates the distribution
