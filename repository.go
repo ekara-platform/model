@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"regexp"
+	"strings"
 )
 
 const (
@@ -61,6 +62,7 @@ func CreateRepository(base Base, repo string, ref string, descriptor string) (Re
 		return r, e
 	}
 	r.Url = repoUrl
+
 	scmType, e := resolveSCMType(repoUrl)
 	if e != nil {
 		return r, e
@@ -79,7 +81,8 @@ func resolveRepositoryInfo(base Base, repo string) (cUrl EkUrl, e error) {
 		return
 	}
 
-	isSimpleRepo, _ := regexp.MatchString("^[_a-zA-Z0-9-]+/[_a-zA-Z0-9-]+$", repo)
+	repoTest := strings.Replace(repo, "\\", "/", 0)
+	isSimpleRepo, _ := regexp.MatchString("^[_a-zA-Z0-9-]+/[_a-zA-Z0-9-]+$", repoTest)
 	if isSimpleRepo {
 		cUrl, e = base.CreateBasedUrl(repo)
 		if e != nil {
