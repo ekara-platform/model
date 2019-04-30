@@ -13,8 +13,8 @@ import (
 func TestBuildComponentInfo(t *testing.T) {
 	// org/repo are prefixed with base
 	s := "dummy_org/dummy_repo"
-	baseUrl, _ := url.Parse("https://somebase.org")
-	base := Base{Url: RemoteUrl{rootUrl: &rootUrl{url: baseUrl}}}
+	baseURL, _ := url.Parse("https://somebase.org")
+	base := Base{Url: RemoteUrl{rootUrl: &rootUrl{url: baseURL}}}
 	u, e := resolveRepositoryInfo(base, s)
 	assert.Nil(t, e)
 	assert.Equal(t, "https", u.Scheme())

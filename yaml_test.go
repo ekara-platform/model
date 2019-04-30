@@ -7,13 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Ignored
-func ignoreTestParseFromHttp(t *testing.T) {
-	_, e := parseYamlDescriptor(buildUrl(t, "https://raw.githubusercontent.com/ekara-platform/model/master/testdata/yaml/complete.yaml"), map[string]interface{}{})
-	// no error occurred
-	assert.Nil(t, e)
-}
-
 func TestCreateEngineFromBadHttp(t *testing.T) {
 	_, e := parseYamlDescriptor(buildUrl(t, "https://github.com/ekara-platform/engine/tree/master/testdata/DUMMY.yaml"), map[string]interface{}{})
 	// an error occurred

@@ -16,13 +16,14 @@ func createProxy(yamlRef yamlProxy) Proxy {
 }
 
 func (r Proxy) inherits(parent Proxy) Proxy {
-	res := Proxy{
-		Http:    parent.Http,
-		Https:   parent.Https,
-		NoProxy: parent.NoProxy,
+	if r.Http == "" {
+		r.Http = parent.Http
 	}
-	res.Http = r.Http
-	res.Https = r.Https
-	res.NoProxy = r.NoProxy
-	return res
+	if r.Https == "" {
+		r.Https = parent.Https
+	}
+	if r.NoProxy == "" {
+		r.NoProxy = parent.NoProxy
+	}
+	return r
 }

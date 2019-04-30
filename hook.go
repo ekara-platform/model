@@ -18,10 +18,10 @@ type (
 )
 
 const (
-	// HOOK_BEFORE Hook located before a task
-	HOOK_BEFORE hookLocation = "Before"
-	// HOOK_AFTER Hook located after a task
-	HOOK_AFTER hookLocation = "After"
+	//HookBefore Hook located before a task
+	HookBefore hookLocation = "Before"
+	//HookAfter Hook located after a task
+	HookAfter hookLocation = "After"
 )
 
 func createHook(env *Environment, location DescriptorLocation, yamlHook yamlHook) Hook {
@@ -30,11 +30,11 @@ func createHook(env *Environment, location DescriptorLocation, yamlHook yamlHook
 		After:  make([]TaskRef, len(yamlHook.After))}
 
 	for i, yamlRef := range yamlHook.Before {
-		hook.Before[i] = createTaskRef(env, location.appendPath("before"), yamlRef, HOOK_BEFORE)
+		hook.Before[i] = createTaskRef(env, location.appendPath("before"), yamlRef, HookBefore)
 	}
 
 	for i, yamlRef := range yamlHook.After {
-		hook.After[i] = createTaskRef(env, location.appendPath("after"), yamlRef, HOOK_AFTER)
+		hook.After[i] = createTaskRef(env, location.appendPath("after"), yamlRef, HookAfter)
 	}
 	return hook
 }

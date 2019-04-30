@@ -108,6 +108,25 @@ type (
 		Components   map[string]yamlComponent
 	}
 
+	yamlNode struct {
+		// The number of instances to create within the node set
+		Instances int
+		// The provider used to create the node set and its settings
+		Provider yamlProviderRef
+		// The orchestrator settings for this node set
+		Orchestrator yamlOrchestratorRef
+		// The orchestrator settings for this node set
+		Volumes []yamlVolume
+		// The Hooks to be executed while provisioning and destroying the node set
+		Hooks struct {
+			Provision yamlHook `yaml:",omitempty"`
+			Destroy   yamlHook `yaml:",omitempty"`
+		} `yaml:",omitempty"`
+
+		// The labels associated with the nodeset
+		yamlLabel `yaml:",inline"`
+	}
+
 	// Definition of the Ekara environment
 	yamlEnvironment struct {
 		// The name of the environment
@@ -164,24 +183,7 @@ type (
 		}
 
 		// The list of node sets to create
-		Nodes map[string]struct {
-			// The number of instances to create within the node set
-			Instances int
-			// The provider used to create the node set and its settings
-			Provider yamlProviderRef
-			// The orchestrator settings for this node set
-			Orchestrator yamlOrchestratorRef
-			// The orchestrator settings for this node set
-			Volumes []yamlVolume
-			// The Hooks to be executed while provisioning and destroying the node set
-			Hooks struct {
-				Provision yamlHook `yaml:",omitempty"`
-				Destroy   yamlHook `yaml:",omitempty"`
-			} `yaml:",omitempty"`
-
-			// The labels associated with the nodeset
-			yamlLabel `yaml:",inline"`
-		}
+		Nodes map[string]yamlNode
 
 		// Software stacks to be installed on the environment
 		Stacks map[string]struct {

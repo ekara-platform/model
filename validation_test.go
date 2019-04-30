@@ -238,8 +238,8 @@ func testEmptyContent(t *testing.T, name string, onlyWarning bool) (ValidationEr
 	file := fmt.Sprintf("./testdata/yaml/grammar/no_%s.yaml", name)
 	env, e := CreateEnvironment(buildUrl(t, file), map[string]interface{}{})
 	assert.Nil(t, e)
-	vErrs := validate(t, env, onlyWarning)
-	return vErrs, env
+	vErrs := validate(t, *env, onlyWarning)
+	return vErrs, *env
 }
 
 func validate(t *testing.T, env Environment, onlyWarning bool) ValidationErrors {

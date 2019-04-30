@@ -38,11 +38,19 @@ providers:
       env3: "initial_env3"
     proxy:
       http_proxy: "aws_http_proxy"
-      https_proxy: "aws_https_proxy"
       no_proxy: "aws_no_proxy"
 
 
 nodes:
+  _:
+    provider:
+      params:
+        generic_param1: "new_generic_param1"
+      env:
+        generic_env1: "new_generic_env1"
+      proxy:
+        https_proxy: "generic_https_proxy"
+
   managers:
     provider:
       name: aws

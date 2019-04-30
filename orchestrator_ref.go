@@ -20,6 +20,13 @@ func (r orchestratorRef) Resolve() (Orchestrator, error) {
 		EnvVars:    r.envVars.inherits(orchestrator.EnvVars)}, nil
 }
 
+func (r *orchestratorRef) merge(other orchestratorRef) error {
+	r.parameters = r.parameters.inherits(other.parameters)
+	r.envVars = r.envVars.inherits(other.envVars)
+	r.docker = r.docker.inherits(other.docker)
+	return nil
+}
+
 func createOrchestratorRef(env *Environment, location DescriptorLocation, yamlRef yamlOrchestratorRef) orchestratorRef {
 	return orchestratorRef{
 		env:        env,

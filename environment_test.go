@@ -35,7 +35,7 @@ func TestCreateEnginePartials(t *testing.T) {
 	assertEnv(t, env)
 }
 
-func assertEnv(t *testing.T, env Environment) {
+func assertEnv(t *testing.T, env *Environment) {
 	assert.Equal(t, "testEnvironment", env.Name)
 	assert.Equal(t, "testQualifier", env.Qualifier)
 	assert.Equal(t, "This is my awesome Ekara environment.", env.Description)
@@ -207,6 +207,14 @@ func assertEnv(t *testing.T, env Environment) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "orchestrator_node1_param_key2_value")
 
+	v, ok = c["swarm_param_key1"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "swarm_param_key1_value")
+
+	v, ok = c["swarm_param_key2"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "swarm_param_key2_value")
+
 	c = ns1Orchestrator.Docker
 	v, ok = c["docker_node1_param_key1"]
 	assert.True(t, ok)
@@ -216,6 +224,14 @@ func assertEnv(t *testing.T, env Environment) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "docker_node1_param_key2_value")
 
+	v, ok = c["docker_param_key1"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "docker_param_key1_value")
+
+	v, ok = c["docker_param_key2"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "docker_param_key2_value")
+
 	en = ns1Orchestrator.EnvVars
 	v, ok = en["orchestrator_node1_env_key1"]
 	assert.True(t, ok)
@@ -224,6 +240,14 @@ func assertEnv(t *testing.T, env Environment) {
 	v, ok = en["orchestrator_node1_env_key2"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "orchestrator_node1_env_key2_value")
+
+	v, ok = en["swarm_env_key1"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "swarm_env_key1_value")
+
+	v, ok = en["swarm_env_key2"]
+	assert.True(t, ok)
+	assert.Equal(t, v, "swarm_env_key2_value")
 
 	vs := nodeSets["node1"].Volumes
 	assert.NotNil(t, vs)
@@ -519,7 +543,7 @@ func TestUnqualifiedName(t *testing.T) {
 func ExampleEnvironment_Merge() {
 	root := Environment{Name: "RootName", Qualifier: "RootQualifier"}
 	other := Environment{Name: "OtherName", Qualifier: "OtherQualifier"}
-	root.Merge(other)
+	root.Merge(&other)
 	fmt.Println(root.QualifiedName())
 	// Outpur: RootName_RootQualifier
 }

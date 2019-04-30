@@ -6,7 +6,7 @@ type (
 		// The environment source as yaml
 		OriginalEnv yamlEnvironment
 		// The location of the environment root
-		location DescriptorLocation
+		location DescriptorLocation `yaml:",omitempty"`
 		// The environment name
 		Name string
 		// The environment qualifier
@@ -39,8 +39,8 @@ type (
 //			The two only supported extension are ".yaml" and ".yml"!
 //		data: The data used to substitute variables into the environment descriptor
 //
-func CreateEnvironment(url EkUrl, data map[string]interface{}) (Environment, error) {
-	env := Environment{}
+func CreateEnvironment(url EkUrl, data map[string]interface{}) (*Environment, error) {
+	env := &Environment{}
 
 	var yamlEnv yamlEnvironment
 	yamlEnv, err := parseYamlDescriptor(url, data)
@@ -56,16 +56,19 @@ func CreateEnvironment(url EkUrl, data map[string]interface{}) (Environment, err
 	if err != nil {
 		return env, err
 	}
-	env.Tasks = createTasks(&env, env.location.appendPath("tasks"), &yamlEnv)
-	env.Orchestrator = createOrchestrator(&env, env.location.appendPath("orchestrator"), &yamlEnv)
-	env.Providers = createProviders(&env, env.location.appendPath("providers"), &yamlEnv)
-	env.NodeSets = createNodeSets(&env, env.location.appendPath("nodes"), &yamlEnv)
-	env.Stacks = createStacks(&env, env.location.appendPath("stacks"), &yamlEnv)
-	env.Hooks.Provision = createHook(&env, env.location.appendPath("hooks.provision"), yamlEnv.Hooks.Provision)
-	env.Hooks.Deploy = createHook(&env, env.location.appendPath("hooks.deploy"), yamlEnv.Hooks.Deploy)
-	env.Hooks.Undeploy = createHook(&env, env.location.appendPath("hooks.undeploy"), yamlEnv.Hooks.Undeploy)
-	env.Hooks.Destroy = createHook(&env, env.location.appendPath("hooks.destroy"), yamlEnv.Hooks.Destroy)
-	env.Volumes = createGlobalVolumes(&env, env.location.appendPath("volumes"), &yamlEnv)
+	env.Tasks = createTasks(env, env.location.appendPath("tasks"), &yamlEnv)
+	env.Orchestrator = createOrchestrator(env, env.location.appendPath("orchestrator"), &yamlEnv)
+	env.Providers = createProviders(env, env.location.appendPath("providers"), &yamlEnv)
+	env.NodeSets, err = createNodeSets(env, env.location.appendPath("nodes"), &yamlEnv)
+	if err != nil {
+		return env, err
+	}
+	env.Stacks = createStacks(env, env.location.appendPath("stacks"), &yamlEnv)
+	env.Hooks.Provision = createHook(env, env.location.appendPath("hooks.provision"), yamlEnv.Hooks.Provision)
+	env.Hooks.Deploy = createHook(env, env.location.appendPath("hooks.deploy"), yamlEnv.Hooks.Deploy)
+	env.Hooks.Undeploy = createHook(env, env.location.appendPath("hooks.undeploy"), yamlEnv.Hooks.Undeploy)
+	env.Hooks.Destroy = createHook(env, env.location.appendPath("hooks.destroy"), yamlEnv.Hooks.Destroy)
+	env.Volumes = createGlobalVolumes(env, env.location.appendPath("volumes"), &yamlEnv)
 	return env, nil
 
 }
@@ -73,7 +76,7 @@ func CreateEnvironment(url EkUrl, data map[string]interface{}) (Environment, err
 //Merge merges the content of the other environment into the receiver
 //
 // Note: basic informations (name, qualifier, description) are only accepted in root descriptor
-func (r *Environment) Merge(other Environment) error {
+func (r *Environment) Merge(other *Environment) error {
 	// basic informations (name, qualifier, description) are only accepted in root descriptor
 	if err := r.Ekara.merge(*other.Ekara); err != nil {
 		return err

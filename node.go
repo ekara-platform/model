@@ -4,6 +4,15 @@ import (
 	"errors"
 )
 
+const (
+	//GenericNodeSetName is the name of the generic node set
+	//
+	//The generic node set is intended to be used for sharing common
+	// content, example: parameter, environment variables..., with all
+	// others node sets within the whole descriptor.
+	GenericNodeSetName = "_"
+)
+
 type (
 	// NodeSet contains the whole specification of a nodeset to create on a specific
 	// cloud provider
@@ -50,13 +59,15 @@ func (r NodeSet) validate() ValidationErrors {
 }
 
 func (r *NodeSet) merge(other NodeSet) error {
-	if r.Name != other.Name {
+	if r.Name != other.Name && other.Name != GenericNodeSetName {
 		return errors.New("cannot merge unrelated node sets (" + r.Name + " != " + other.Name + ")")
 	}
 	if err := r.Provider.merge(other.Provider); err != nil {
 		return err
 	}
-
+	if err := r.Orchestrator.merge(other.Orchestrator); err != nil {
+		return err
+	}
 	if err := r.Volumes.merge(other.Volumes); err != nil {
 		return err
 	}
@@ -70,25 +81,49 @@ func (r *NodeSet) merge(other NodeSet) error {
 	return nil
 }
 
-func createNodeSets(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) NodeSets {
+func createNodeSets(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) (NodeSets, error) {
+	// we will keep a reference on an eventual generic node set
+	var gNs *NodeSet
 	res := NodeSets{}
 	for name, yamlNodeSet := range yamlEnv.Nodes {
 		nodeSetLocation := location.appendPath(name)
-		res[name] = NodeSet{
-			location:     nodeSetLocation,
-			Name:         name,
-			Instances:    yamlNodeSet.Instances,
-			Provider:     createProviderRef(env, nodeSetLocation.appendPath("provider"), yamlNodeSet.Provider),
-			Orchestrator: createOrchestratorRef(env, nodeSetLocation.appendPath("orchestrator"), yamlNodeSet.Orchestrator),
-			Volumes:      createVolumes(nodeSetLocation.appendPath("volumes"), yamlNodeSet.Volumes),
-			Hooks: NodeHook{
-				Provision: createHook(env, nodeSetLocation.appendPath("hooks.provision"), yamlNodeSet.Hooks.Provision),
-				Destroy:   createHook(env, nodeSetLocation.appendPath("hooks.destroy"), yamlNodeSet.Hooks.Destroy),
-			},
-			Labels: yamlNodeSet.Labels,
+		if name == GenericNodeSetName {
+			//The generic node set has been located
+			gNs = buildNode(name, env, nodeSetLocation, yamlNodeSet)
+		} else {
+			res[name] = *buildNode(name, env, nodeSetLocation, yamlNodeSet)
 		}
 	}
-	return res
+
+	if gNs != nil {
+		// The generic node set will be merged into all others
+		// in order to propagate the common stuff.
+		for name, n := range res {
+			err := n.merge(*gNs)
+			if err != nil {
+				return res, err
+			}
+			res[name] = n
+		}
+	}
+
+	return res, nil
+}
+
+func buildNode(name string, env *Environment, location DescriptorLocation, yN yamlNode) *NodeSet {
+	return &NodeSet{
+		location:     location,
+		Name:         name,
+		Instances:    yN.Instances,
+		Provider:     createProviderRef(env, location.appendPath("provider"), yN.Provider),
+		Orchestrator: createOrchestratorRef(env, location.appendPath("orchestrator"), yN.Orchestrator),
+		Volumes:      createVolumes(location.appendPath("volumes"), yN.Volumes),
+		Hooks: NodeHook{
+			Provision: createHook(env, location.appendPath("hooks.provision"), yN.Hooks.Provision),
+			Destroy:   createHook(env, location.appendPath("hooks.destroy"), yN.Hooks.Destroy),
+		},
+		Labels: yN.Labels,
+	}
 }
 
 func (r NodeSets) merge(env *Environment, other NodeSets) error {
