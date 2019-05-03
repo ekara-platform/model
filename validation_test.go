@@ -192,6 +192,22 @@ func TestValidationUnknownStack(t *testing.T) {
 
 }
 
+// Test loading an environment referencing stack which depends on an unknown one.
+//
+// The validation must complain only about the dependency on unknown stack
+//
+//- Error: reference to unknown stack dependency: dummy @stacks.monitoring.depends_on.dummy
+//
+func TestValidationUnknownDependsOn(t *testing.T) {
+	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/grammar/stack_unknown_depends_on.yaml"), map[string]interface{}{})
+	assert.Nil(t, e)
+	vErrs := env.Validate()
+	assert.True(t, vErrs.HasErrors())
+	assert.False(t, vErrs.HasWarnings())
+	assert.Equal(t, 1, len(vErrs.Errors))
+	assert.True(t, vErrs.contains(Error, "reference to unknown stack dependency: dummy", "stacks.monitoring.depends_on.dummy"))
+}
+
 // Test loading an task without any playbook .
 //
 // The validation must complain only about the missing playbook

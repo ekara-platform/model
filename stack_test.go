@@ -34,18 +34,18 @@ func TestStacksDependencies(t *testing.T) {
 	//                      / |        | \
 	//                     4  5       10  11
 
-	sts["6"] = Stack{Name: "6", DependsOn: "2"}
+	sts["6"] = Stack{Name: "6", DependsOn: StackDependency{Stack: "2"}}
 	sts["1"] = Stack{Name: "1"}
-	sts["3"] = Stack{Name: "3", DependsOn: "2"}
-	sts["4"] = Stack{Name: "4", DependsOn: "3"}
-	sts["9"] = Stack{Name: "9", DependsOn: "8"}
-	sts["5"] = Stack{Name: "5", DependsOn: "3"}
-	sts["7"] = Stack{Name: "7", DependsOn: "1"}
-	sts["8"] = Stack{Name: "8", DependsOn: "1"}
-	sts["10"] = Stack{Name: "10", DependsOn: "9"}
-	sts["2"] = Stack{Name: "2", DependsOn: "1"}
-	sts["12"] = Stack{Name: "12", DependsOn: "8"}
-	sts["11"] = Stack{Name: "11", DependsOn: "9"}
+	sts["3"] = Stack{Name: "3", DependsOn: StackDependency{Stack: "2"}}
+	sts["4"] = Stack{Name: "4", DependsOn: StackDependency{Stack: "3"}}
+	sts["9"] = Stack{Name: "9", DependsOn: StackDependency{Stack: "8"}}
+	sts["5"] = Stack{Name: "5", DependsOn: StackDependency{Stack: "3"}}
+	sts["7"] = Stack{Name: "7", DependsOn: StackDependency{Stack: "1"}}
+	sts["8"] = Stack{Name: "8", DependsOn: StackDependency{Stack: "1"}}
+	sts["10"] = Stack{Name: "10", DependsOn: StackDependency{Stack: "9"}}
+	sts["2"] = Stack{Name: "2", DependsOn: StackDependency{Stack: "1"}}
+	sts["12"] = Stack{Name: "12", DependsOn: StackDependency{Stack: "8"}}
+	sts["11"] = Stack{Name: "11", DependsOn: StackDependency{Stack: "9"}}
 	sts["0"] = Stack{Name: "0"}
 
 	assert.Equal(t, 13, len(sts))

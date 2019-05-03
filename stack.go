@@ -10,14 +10,23 @@ type (
 	Stack struct {
 		// The name of the stack
 		Name string
-		// The name of the stack on which this one depends
-		DependsOn string
+		// The stack reference on which this one depends
+		DependsOn StackDependency
 		// The component containing the stack
 		Component componentRef
 		// The hooks linked to the stack lifecycle events
 		Hooks      StackHook
 		Parameters Parameters
 		EnvVars    EnvVars
+	}
+
+	//StackDependency defines a dependency on a stack which must be previously processed
+	StackDependency struct {
+		Stack string
+		//env specifies the environment holding the referenced component
+		env *Environment
+		//location indicates where the reference is located into the descriptor
+		location DescriptorLocation
 	}
 
 	//Stacks represent all the stacks of an environment
@@ -36,6 +45,9 @@ func (s Stack) DescName() string {
 }
 
 func (s Stack) validate() ValidationErrors {
+	if s.DependsOn.Stack != "" {
+		return ErrorOnInvalid(s.Component, s.DependsOn, s.Hooks)
+	}
 	return ErrorOnInvalid(s.Component, s.Hooks)
 }
 
@@ -53,8 +65,8 @@ func (s *Stack) merge(other Stack) error {
 }
 
 //Dependency returns the potential Stack which this one depends
-func (r Stack) Dependency() (bool, Stack) {
-	if val, ok := r.Component.env.Stacks[r.DependsOn]; ok {
+func (s Stack) Dependency() (bool, Stack) {
+	if val, ok := s.Component.env.Stacks[s.DependsOn.Stack]; ok {
 		return true, val
 	}
 	return false, Stack{}
@@ -64,9 +76,8 @@ func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEn
 	res := Stacks{}
 	for name, yamlStack := range yamlEnv.Stacks {
 		stackLocation := location.appendPath(name)
-		res[name] = Stack{
+		s := Stack{
 			Name:      name,
-			DependsOn: yamlStack.DependsOn,
 			Component: createComponentRef(env, stackLocation.appendPath("component"), yamlStack.Component, false),
 			Hooks: StackHook{
 				Deploy:   createHook(env, stackLocation.appendPath("hooks.deploy"), yamlStack.Hooks.Deploy),
@@ -74,7 +85,18 @@ func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEn
 			Parameters: createParameters(yamlStack.Params),
 			EnvVars:    createEnvVars(yamlStack.Env),
 		}
+		if yamlStack.DependsOn != "" && yamlStack.DependsOn != name {
+			depLocation := stackLocation.appendPath("depends_on")
+			depLocation = depLocation.appendPath(yamlStack.DependsOn)
+			s.DependsOn = StackDependency{
+				Stack:    yamlStack.DependsOn,
+				location: depLocation,
+				env:      env,
+			}
+		}
+		res[name] = s
 		env.Ekara.tagUsedComponent(res[name].Component)
+
 	}
 	return res
 }
@@ -117,7 +139,8 @@ func (r Stacks) ResolveDependencies() <-chan Stack {
 				s := todo[k]
 				//We can return the stack if it depends on nothing
 				//or if the dependency has already been processed
-				if _, ok := done[s.DependsOn]; ok || s.DependsOn == "" {
+				str := s.DependsOn.Stack
+				if _, ok := done[str]; ok || str == "" {
 					out <- s
 					done[k] = s
 					delete(todo, k)
@@ -129,4 +152,19 @@ func (r Stacks) ResolveDependencies() <-chan Stack {
 		close(out)
 	}()
 	return out
+}
+
+//reference return a validatable representation of the reference on the component
+func (s StackDependency) reference() validatableReference {
+	result := make(map[string]interface{})
+	for k, v := range s.env.Stacks {
+		result[k] = v
+	}
+	return validatableReference{
+		Id:        s.Stack,
+		Type:      "stack dependency",
+		Mandatory: true,
+		Location:  s.location,
+		Repo:      result,
+	}
 }
