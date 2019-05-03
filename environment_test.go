@@ -6,18 +6,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/yaml.v2"
 )
 
 func TestCreateEngineComplete(t *testing.T) {
 	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/complete.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
 	assertEnv(t, env)
-
-	_, e = yaml.Marshal(env)
-	assert.Nil(t, e)
-	_, e = yaml.Marshal(env.OriginalEnv)
-	assert.Nil(t, e)
 }
 
 func TestCreateEnginePartials(t *testing.T) {
@@ -416,6 +410,17 @@ func assertEnv(t *testing.T, env *Environment) {
 
 	stack1 := stacks["stack1"]
 	stack2 := stacks["stack2"]
+
+	//Stack denpendency
+	assert.Equal(t, "", stack1.DependsOn)
+	b, sd := stack1.Dependency()
+	assert.False(t, b)
+	assert.Equal(t, "", sd.Name)
+
+	assert.Equal(t, stack1.Name, stack2.DependsOn)
+	b, sd = stack2.Dependency()
+	assert.True(t, b)
+	assert.Equal(t, stack1.Name, sd.Name)
 
 	st1Component, err := stack1.Component.Resolve()
 	assert.Nil(t, err)
