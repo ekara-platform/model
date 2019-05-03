@@ -6,30 +6,36 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/yaml.v2"
 )
 
 func TestCreateEngineComplete(t *testing.T) {
-	env, e := CreateEnvironment(buildUrl(t, "./testdata/yaml/complete.yaml"), map[string]interface{}{})
+	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/complete.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
 	assertEnv(t, env)
+
+	_, e = yaml.Marshal(env)
+	assert.Nil(t, e)
+	_, e = yaml.Marshal(env.OriginalEnv)
+	assert.Nil(t, e)
 }
 
 func TestCreateEnginePartials(t *testing.T) {
-	env, e := CreateEnvironment(buildUrl(t, "./testdata/yaml/partials/env.yaml"), map[string]interface{}{})
+	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/env.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
-	env2, e := CreateEnvironment(buildUrl(t, "./testdata/yaml/partials/core.yaml"), map[string]interface{}{})
+	env2, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/core.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
 	env.Merge(env2)
-	env3, e := CreateEnvironment(buildUrl(t, "./testdata/yaml/partials/providers.yaml"), map[string]interface{}{})
+	env3, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/providers.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
 	env.Merge(env3)
-	env4, e := CreateEnvironment(buildUrl(t, "./testdata/yaml/partials/orchestrator.yaml"), map[string]interface{}{})
+	env4, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/orchestrator.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
 	env.Merge(env4)
-	env5, e := CreateEnvironment(buildUrl(t, "./testdata/yaml/partials/stacks.yaml"), map[string]interface{}{})
+	env5, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/stacks.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
 	env.Merge(env5)
-	env6, e := CreateEnvironment(buildUrl(t, "./testdata/yaml/partials/tasks.yaml"), map[string]interface{}{})
+	env6, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/tasks.yaml"), map[string]interface{}{})
 	assert.Nil(t, e)
 	env.Merge(env6)
 	assertEnv(t, env)
@@ -515,7 +521,7 @@ func assertEnv(t *testing.T, env *Environment) {
 
 }
 
-func buildUrl(t *testing.T, loc string) EkUrl {
+func buildURL(t *testing.T, loc string) EkUrl {
 	u, e := CreateUrl(loc)
 	assert.Nil(t, e)
 	return u
