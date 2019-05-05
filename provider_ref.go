@@ -65,3 +65,11 @@ func createProviderRef(env *Environment, location DescriptorLocation, yamlRef ya
 		mandatory:  true,
 	}
 }
+
+func (r providerRef) ResolveComponent() (Component, error) {
+	p, err := r.Resolve()
+	if err != nil {
+		return Component{}, err
+	}
+	return p.Component.ResolveComponent()
+}

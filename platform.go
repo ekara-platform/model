@@ -6,10 +6,10 @@ import (
 
 //Platform the platform used to build an environment
 type Platform struct {
-	Base           Base
-	Distribution   Distribution
-	Components     map[string]Component
-	UsedComponents []componentRef
+	Base               Base
+	Distribution       Distribution
+	Components         map[string]Component
+	componentResolvers []componentResolver
 }
 
 func createPlatform(yamlEnv *yamlEnvironment) (*Platform, error) {
@@ -43,19 +43,29 @@ func createPlatform(yamlEnv *yamlEnvironment) (*Platform, error) {
 	}
 
 	p.Components = components
-	p.UsedComponents = make([]componentRef, 0, 0)
+	p.componentResolvers = make([]componentResolver, 0, 0)
 	return p, nil
 }
 
-func (p *Platform) tagUsedComponent(cr componentRef) {
-	if cr.ref != "" {
-		for _, u := range p.UsedComponents {
-			if u.ref == cr.ref {
-				return
-			}
+func (p *Platform) tagUsedComponent(cr componentResolver) {
+	p.componentResolvers = append(p.componentResolvers, cr)
+}
+
+// UsedComponents returns an array of components effectively in used throughout the descriptor.
+func (p *Platform) UsedComponents() ([]Component, error) {
+	res := make([]Component, 0, 0)
+	temp := make(map[string]Component)
+	for _, cr := range p.componentResolvers {
+		c, err := cr.ResolveComponent()
+		if err != nil {
+			return res, err
 		}
-		p.UsedComponents = append(p.UsedComponents, cr)
+		temp[c.Id] = c
 	}
+	for _, c := range temp {
+		res = append(res, c)
+	}
+	return res, nil
 }
 
 func (p Platform) validate() ValidationErrors {
@@ -75,10 +85,8 @@ func (p *Platform) merge(other Platform) error {
 		}
 	}
 
-	for _, c := range other.UsedComponents {
-		if c.ref != "" {
-			p.tagUsedComponent(c)
-		}
+	for _, c := range other.componentResolvers {
+		p.tagUsedComponent(c)
 	}
 
 	if p.Distribution.Repository.Url == nil && other.Distribution.Repository.Url != nil {

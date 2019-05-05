@@ -20,6 +20,10 @@ type (
 		//location indicates where the reference is located into the descriptor
 		location DescriptorLocation
 	}
+
+	componentResolver interface {
+		ResolveComponent() (Component, error)
+	}
 )
 
 //reference return a validatable representation of the reference on the component
@@ -44,7 +48,7 @@ func (r *componentRef) merge(other componentRef) error {
 	return nil
 }
 
-func (r componentRef) Resolve() (Component, error) {
+func (r componentRef) ResolveComponent() (Component, error) {
 	if val, ok := r.env.Ekara.Components[r.ref]; ok {
 		return val, nil
 	}
