@@ -20,7 +20,7 @@ func TestResolveUnknownReference(t *testing.T) {
 		ref: "unknown_ref",
 	}
 
-	_, e := cr.Resolve()
+	_, e := cr.ResolveComponent()
 	assert.NotNil(t, e)
 	assert.Equal(t, e.Error(), fmt.Sprintf(unknownComponentRefError, cr.ref))
 
@@ -28,7 +28,7 @@ func TestResolveUnknownReference(t *testing.T) {
 	cr.env.Ekara.Components["known_ref"] = Component{Id: "known_ref"}
 	cr.ref = "known_ref"
 
-	c, e := cr.Resolve()
+	c, e := cr.ResolveComponent()
 	assert.Nil(t, e)
 	assert.Equal(t, cr.ref, c.Id)
 

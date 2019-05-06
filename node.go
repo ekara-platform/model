@@ -107,6 +107,10 @@ func createNodeSets(env *Environment, location DescriptorLocation, yamlEnv *yaml
 		}
 	}
 
+	for _, n := range res {
+		env.Ekara.tagUsedComponent(n.Provider)
+	}
+
 	return res, nil
 }
 
