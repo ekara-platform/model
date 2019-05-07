@@ -201,7 +201,8 @@ stacks:
 
   stack2:
     component: stack2
-    depends_on: stack1
+    depends_on: 
+      - stack1
     params:
       stack2_param_key1: stack2_param_key1_value
       stack2_param_key2: stack2_param_key2_value

@@ -190,7 +190,7 @@ type (
 			// Name of the stack component
 			Component string
 			// The name of the stack on which this one depends
-			DependsOn string `yaml:"depends_on"`
+			DependsOn []string `yaml:"depends_on"`
 			// The Hooks to be executed while deploying and undeploying the stack
 			Hooks struct {
 				Deploy   yamlHook `yaml:",omitempty"`

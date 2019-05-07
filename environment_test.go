@@ -412,15 +412,14 @@ func assertEnv(t *testing.T, env *Environment) {
 	stack2 := stacks["stack2"]
 
 	//Stack denpendency
-	assert.Equal(t, "", string(stack1.DependsOn.Stack))
 	b, sd := stack1.Dependency()
 	assert.False(t, b)
-	assert.Equal(t, "", sd.Name)
+	assert.Equal(t, len(sd), 0)
 
-	assert.Equal(t, stack1.Name, string(stack2.DependsOn.Stack))
 	b, sd = stack2.Dependency()
 	assert.True(t, b)
-	assert.Equal(t, stack1.Name, sd.Name)
+	assert.Equal(t, len(sd), 1)
+	assert.Equal(t, stack1.Name, sd[0].Name)
 
 	st1Component, err := stack1.Component.ResolveComponent()
 	assert.Nil(t, err)

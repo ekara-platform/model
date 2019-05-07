@@ -2,7 +2,7 @@ package model
 
 import (
 	"errors"
-	"sort"
+	"fmt"
 )
 
 type (
@@ -10,8 +10,8 @@ type (
 	Stack struct {
 		// The name of the stack
 		Name string
-		// The stack reference on which this one depends
-		DependsOn StackDependency
+		//DependsOn specifies the stack references on which this one depends
+		DependsOn []stackRef
 		// The component containing the stack
 		Component componentRef
 		// The hooks linked to the stack lifecycle events
@@ -20,9 +20,10 @@ type (
 		EnvVars    EnvVars
 	}
 
-	//StackDependency defines a dependency on a stack which must be previously processed
-	StackDependency struct {
-		Stack string
+	//stackRef defines a dependency a on stack which must be previously processed
+	stackRef struct {
+		//ref defines the id of the referenced stack
+		ref string
 		//env specifies the environment holding the referenced component
 		env *Environment
 		//location indicates where the reference is located into the descriptor
@@ -45,7 +46,7 @@ func (s Stack) DescName() string {
 }
 
 func (s Stack) validate() ValidationErrors {
-	if s.DependsOn.Stack != "" {
+	if len(s.DependsOn) > 0 {
 		return ErrorOnInvalid(s.Component, s.DependsOn, s.Hooks)
 	}
 	return ErrorOnInvalid(s.Component, s.Hooks)
@@ -64,12 +65,15 @@ func (s *Stack) merge(other Stack) error {
 	return s.Hooks.merge(other.Hooks)
 }
 
-//Dependency returns the potential Stack which this one depends
-func (s Stack) Dependency() (bool, Stack) {
-	if val, ok := s.Component.env.Stacks[s.DependsOn.Stack]; ok {
-		return true, val
+//Dependency returns the potential Stacks which this one depends
+func (s Stack) Dependency() (bool, []Stack) {
+	res := make([]Stack, 0)
+	for _, val := range s.DependsOn {
+		if val, ok := s.Component.env.Stacks[val.ref]; ok {
+			res = append(res, val)
+		}
 	}
-	return false, Stack{}
+	return len(res) > 0, res
 }
 
 func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) Stacks {
@@ -85,14 +89,21 @@ func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEn
 			Parameters: createParameters(yamlStack.Params),
 			EnvVars:    createEnvVars(yamlStack.Env),
 		}
-		if yamlStack.DependsOn != "" && yamlStack.DependsOn != name {
-			depLocation := stackLocation.appendPath("depends_on")
-			depLocation = depLocation.appendPath(yamlStack.DependsOn)
-			s.DependsOn = StackDependency{
-				Stack:    yamlStack.DependsOn,
-				location: depLocation,
-				env:      env,
+		deps := make([]stackRef, 0, 0)
+		for _, v := range yamlStack.DependsOn {
+			if v != "" && v != name {
+				depLocation := stackLocation.appendPath("depends_on")
+				depLocation = depLocation.appendPath(v)
+				dep := stackRef{
+					ref:      v,
+					location: depLocation,
+					env:      env,
+				}
+				deps = append(deps, dep)
 			}
+		}
+		if len(deps) > 0 {
+			s.DependsOn = deps
 		}
 		res[name] = s
 		env.Ekara.tagUsedComponent(res[name].Component)
@@ -117,51 +128,41 @@ func (r Stacks) merge(env *Environment, others Stacks) error {
 
 //ResolveDependencies returns a channel to get access
 //to the stacks based on the rorder of the dependencies
-func (r Stacks) ResolveDependencies() <-chan Stack {
-	out := make(chan Stack)
-	go func() {
-		// The stacks to process
-		todo := Stacks{}
-		// The stacks already processed
-		done := Stacks{}
-		//We will work on a copy in order to leave the original Stacks untouched
-		for k, val := range r {
-			todo[k] = val
+func (r Stacks) ResolveDependencies() ([]Stack, error) {
+	result := make([]Stack, 0, 0)
+	if len(r) == 0 {
+		return result, nil
+	}
+
+	g := newGraph(len(r))
+	for _, vs := range r {
+		g.addNode(vs.Name)
+	}
+	for _, vs := range r {
+		for _, vd := range vs.DependsOn {
+			g.addEdge(vd.ref, vs.Name)
 		}
-		//We still have stuff to process
-		for len(todo) > 0 {
-			var keys []string
-			for k := range todo {
-				keys = append(keys, k)
-			}
-			sort.Strings(keys)
-			for _, k := range keys {
-				s := todo[k]
-				//We can return the stack if it depends on nothing
-				//or if the dependency has already been processed
-				str := s.DependsOn.Stack
-				if _, ok := done[str]; ok || str == "" {
-					out <- s
-					done[k] = s
-					delete(todo, k)
-					continue
-				}
-			}
+	}
+	res, ok := g.sort()
+	if !ok {
+		return result, fmt.Errorf("A cyclic dependency has been detected")
+	}
+	for _, val := range res {
+		if stack, ok := r[val]; ok {
+			result = append(result, stack)
 		}
-		//All done, bye...
-		close(out)
-	}()
-	return out
+	}
+	return result, nil
 }
 
 //reference return a validatable representation of the reference on the component
-func (s StackDependency) reference() validatableReference {
+func (s stackRef) reference() validatableReference {
 	result := make(map[string]interface{})
 	for k, v := range s.env.Stacks {
 		result[k] = v
 	}
 	return validatableReference{
-		Id:        s.Stack,
+		Id:        s.ref,
 		Type:      "stack dependency",
 		Mandatory: true,
 		Location:  s.location,

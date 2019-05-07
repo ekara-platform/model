@@ -30,4 +30,5 @@ nodes:
 stacks:
   monitoring:
     component: stack1
-    depends_on: "dummy"
+    depends_on: 
+      - "dummy"
