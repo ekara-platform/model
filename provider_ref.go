@@ -1,7 +1,6 @@
 package model
 
 type (
-
 	// providerRef represents a reference to a provider
 	providerRef struct {
 		ref        string
@@ -14,18 +13,16 @@ type (
 	}
 )
 
-//reference return a validatable representation of the reference on a provider
-func (r providerRef) reference() validatableReference {
-	result := make(map[string]interface{})
-	for k, v := range r.env.Providers {
-		result[k] = v
-	}
-	return validatableReference{
-		Id:        r.ref,
-		Type:      "provider",
-		Mandatory: r.mandatory,
-		Location:  r.location,
-		Repo:      result,
+// createProviderRef creates a reference to the provider declared into the yaml reference
+func createProviderRef(env *Environment, location DescriptorLocation, yamlRef yamlProviderRef) providerRef {
+	return providerRef{
+		env:        env,
+		ref:        yamlRef.Name,
+		parameters: createParameters(yamlRef.Params),
+		proxy:      createProxy(yamlRef.Proxy),
+		envVars:    createEnvVars(yamlRef.Env),
+		location:   location,
+		mandatory:  true,
 	}
 }
 
@@ -47,29 +44,39 @@ func (r providerRef) Resolve() (Provider, error) {
 	provider := r.env.Providers[r.ref]
 	return Provider{
 		Name:       provider.Name,
-		Component:  provider.Component,
+		cRef:       provider.cRef,
 		Parameters: r.parameters.inherits(provider.Parameters),
 		EnvVars:    r.envVars.inherits(provider.EnvVars),
 		Proxy:      r.proxy.inherits(provider.Proxy)}, nil
 }
 
-// createProviderRef creates a reference to the provider declared into the yaml reference
-func createProviderRef(env *Environment, location DescriptorLocation, yamlRef yamlProviderRef) providerRef {
-	return providerRef{
-		env:        env,
-		ref:        yamlRef.Name,
-		parameters: createParameters(yamlRef.Params),
-		proxy:      createProxy(yamlRef.Proxy),
-		envVars:    createEnvVars(yamlRef.Env),
-		location:   location,
-		mandatory:  true,
+//reference return a validatable representation of the reference on a provider
+func (r providerRef) validationDetails() refValidationDetails {
+	result := make(map[string]interface{})
+	for k, v := range r.env.Providers {
+		result[k] = v
+	}
+	return refValidationDetails{
+		Id:        r.ref,
+		Type:      "provider",
+		Mandatory: r.mandatory,
+		Location:  r.location,
+		Repo:      result,
 	}
 }
 
-func (r providerRef) ResolveComponent() (Component, error) {
+func (r providerRef) Component() (Component, error) {
 	p, err := r.Resolve()
 	if err != nil {
 		return Component{}, err
 	}
-	return p.Component.ResolveComponent()
+	return p.cRef.resolve()
+}
+
+func (r providerRef) ComponentName() string {
+	p, err := r.Resolve()
+	if err != nil {
+		return ""
+	}
+	return p.cRef.ref
 }

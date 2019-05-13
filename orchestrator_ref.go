@@ -11,22 +11,6 @@ type (
 	}
 )
 
-func (r orchestratorRef) Resolve() (Orchestrator, error) {
-	orchestrator := r.env.Orchestrator
-	return Orchestrator{
-		Component:  orchestrator.Component,
-		Parameters: r.parameters.inherits(orchestrator.Parameters),
-		Docker:     r.docker.inherits(orchestrator.Docker),
-		EnvVars:    r.envVars.inherits(orchestrator.EnvVars)}, nil
-}
-
-func (r *orchestratorRef) merge(other orchestratorRef) error {
-	r.parameters = r.parameters.inherits(other.parameters)
-	r.envVars = r.envVars.inherits(other.envVars)
-	r.docker = r.docker.inherits(other.docker)
-	return nil
-}
-
 func createOrchestratorRef(env *Environment, location DescriptorLocation, yamlRef yamlOrchestratorRef) orchestratorRef {
 	return orchestratorRef{
 		env:        env,
@@ -37,15 +21,18 @@ func createOrchestratorRef(env *Environment, location DescriptorLocation, yamlRe
 	}
 }
 
-// OrchestratorParams returns the parameters required to install the orchestrator
-func (r orchestratorRef) OrchestratorParams() (map[string]interface{}, error) {
-	op := make(map[string]interface{})
-	o, err := r.Resolve()
-	if err != nil {
-		return op, err
-	}
+func (r *orchestratorRef) merge(other orchestratorRef) error {
+	r.parameters = r.parameters.inherits(other.parameters)
+	r.envVars = r.envVars.inherits(other.envVars)
+	r.docker = r.docker.inherits(other.docker)
+	return nil
+}
 
-	op["docker"] = o.Docker
-	op["params"] = o.Parameters
-	return op, nil
+func (r orchestratorRef) Resolve() (Orchestrator, error) {
+	orchestrator := r.env.Orchestrator
+	return Orchestrator{
+		cRef:       orchestrator.cRef,
+		Parameters: r.parameters.inherits(orchestrator.Parameters),
+		Docker:     r.docker.inherits(orchestrator.Docker),
+		EnvVars:    r.envVars.inherits(orchestrator.EnvVars)}, nil
 }

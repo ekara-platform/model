@@ -5,7 +5,6 @@ import (
 )
 
 const (
-
 	//EkaraDistribution The default repository for the ekara distribution
 	ekaraDistribution = "ekara-platform/distribution"
 )
@@ -42,4 +41,12 @@ func CreateDistribution(base Base, yamlEnv *yamlEnvironment) (Distribution, erro
 	}
 	c := CreateComponent(EkaraComponentId, repoDist)
 	return Distribution(c), nil
+}
+
+func (r Distribution) Component() (Component, error) {
+	return Component(r), nil
+}
+
+func (r Distribution) ComponentName() string {
+	return EkaraComponentId
 }

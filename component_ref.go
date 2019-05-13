@@ -1,11 +1,9 @@
 package model
 
-import (
-	"fmt"
-)
+import "fmt"
 
 const (
-	unknownComponentRefError = "Unable to resolve un unknown component: %s "
+	unknownComponentRefError = "component cannot be resolved: %s"
 )
 
 type (
@@ -21,23 +19,18 @@ type (
 		location DescriptorLocation
 	}
 
-	componentResolver interface {
-		ResolveComponent() (Component, error)
+	ComponentReferencer interface {
+		Component() (Component, error)
+		ComponentName() string
 	}
 )
 
-//reference return a validatable representation of the reference on the component
-func (r componentRef) reference() validatableReference {
-	result := make(map[string]interface{})
-	for k, v := range r.env.Ekara.Components {
-		result[k] = v
-	}
-	return validatableReference{
-		Id:        r.ref,
-		Type:      "component",
-		Mandatory: r.mandatory,
-		Location:  r.location,
-		Repo:      result,
+func createComponentRef(env *Environment, location DescriptorLocation, ref string, mandatory bool) componentRef {
+	return componentRef{
+		env:       env,
+		location:  location,
+		ref:       ref,
+		mandatory: mandatory,
 	}
 }
 
@@ -48,18 +41,23 @@ func (r *componentRef) merge(other componentRef) error {
 	return nil
 }
 
-func (r componentRef) ResolveComponent() (Component, error) {
+func (r componentRef) resolve() (Component, error) {
 	if val, ok := r.env.Ekara.Components[r.ref]; ok {
 		return val, nil
 	}
 	return Component{}, fmt.Errorf(unknownComponentRefError, r.ref)
 }
 
-func createComponentRef(env *Environment, location DescriptorLocation, ref string, mandatory bool) componentRef {
-	return componentRef{
-		env:       env,
-		location:  location,
-		ref:       ref,
-		mandatory: mandatory,
+func (r componentRef) validationDetails() refValidationDetails {
+	result := make(map[string]interface{})
+	for k, v := range r.env.Ekara.Components {
+		result[k] = v
+	}
+	return refValidationDetails{
+		Id:        r.ref,
+		Type:      "component",
+		Mandatory: r.mandatory,
+		Location:  r.location,
+		Repo:      result,
 	}
 }
