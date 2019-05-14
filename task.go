@@ -10,11 +10,11 @@ import (
 type (
 	//Task represent an task executable on the built environment
 	Task struct {
+		// The component containing the task
+		cRef     componentRef
 		location DescriptorLocation
 		// Name of the task
 		Name string
-		// The component containing the task
-		Component componentRef
 		// The playbook to execute
 		Playbook string
 		// The cron expression when the task must be scheduled
@@ -55,7 +55,7 @@ func (r *Task) merge(other Task) error {
 		if r.Name != other.Name {
 			return errors.New("cannot merge unrelated tasks (" + r.Name + " != " + other.Name + ")")
 		}
-		if err := r.Component.merge(other.Component); err != nil {
+		if err := r.cRef.merge(other.cRef); err != nil {
 			return err
 		}
 		if err := r.Hooks.merge(other.Hooks); err != nil {
@@ -81,7 +81,7 @@ func createTasks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnv
 			location:   taskLocation,
 			Name:       name,
 			Playbook:   yamlTask.Playbook,
-			Component:  createComponentRef(env, taskLocation.appendPath("component"), yamlTask.Component, false),
+			cRef:       createComponentRef(env, taskLocation.appendPath("component"), yamlTask.Component, false),
 			Cron:       yamlTask.Cron,
 			Parameters: createParameters(yamlTask.Params),
 			EnvVars:    createEnvVars(yamlTask.Env),
@@ -89,7 +89,7 @@ func createTasks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnv
 				Execute: createHook(env, taskLocation.appendPath("hooks.execute"), yamlTask.Hooks.Execute),
 			},
 		}
-		env.Ekara.tagUsedComponent(res[name].Component)
+		env.Ekara.tagUsedComponent(res[name])
 	}
 	return res
 }
@@ -101,7 +101,7 @@ func (r Tasks) merge(env *Environment, other Tasks) error {
 				return err
 			}
 		} else {
-			t.Component.env = env
+			t.cRef.env = env
 			r[id] = t
 		}
 	}
@@ -114,4 +114,12 @@ func (r *circularRefTracking) String() string {
 		fmt.Fprintf(b, "%s -> ", key)
 	}
 	return b.String()
+}
+
+func (r Task) Component() (Component, error) {
+	return r.cRef.resolve()
+}
+
+func (r Task) ComponentName() string {
+	return r.cRef.ref
 }

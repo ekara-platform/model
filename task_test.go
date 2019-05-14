@@ -40,7 +40,7 @@ func TestMergeTaskItself(t *testing.T) {
 	ta.Parameters["p1"] = "val1"
 	ta.EnvVars["e1"] = "env1"
 
-	ta.Component = componentRef{
+	ta.cRef = componentRef{
 		ref:       "cRef",
 		mandatory: true,
 	}
@@ -63,8 +63,8 @@ func TestMergeTaskItself(t *testing.T) {
 	assert.Contains(t, ta.EnvVars, "e1")
 	assert.Equal(t, ta.EnvVars["e1"], "env1")
 
-	assert.Equal(t, ta.Component.ref, "cRef")
-	assert.True(t, ta.Component.mandatory)
+	assert.Equal(t, ta.cRef.ref, "cRef")
+	assert.True(t, ta.cRef.mandatory)
 
 	assert.True(t, reflect.DeepEqual(h, ta.Hooks))
 }
@@ -80,7 +80,7 @@ func TestMergeTaskNoUpdate(t *testing.T) {
 	ta.Parameters["p1"] = "val1"
 	ta.EnvVars["e1"] = "env1"
 
-	ta.Component = componentRef{
+	ta.cRef = componentRef{
 		ref:       "cRef",
 		mandatory: true,
 	}
@@ -103,7 +103,7 @@ func TestMergeTaskNoUpdate(t *testing.T) {
 	o.Parameters["p1"] = "val1_updated"
 	o.EnvVars["e1"] = "env1_updated"
 
-	o.Component = componentRef{
+	o.cRef = componentRef{
 		ref:       "cRef_updated",
 		mandatory: false,
 	}
@@ -128,8 +128,8 @@ func TestMergeTaskNoUpdate(t *testing.T) {
 	assert.Equal(t, ta.Cron, "Cron")
 
 	// The component should not be updated
-	assert.Equal(t, ta.Component.ref, "cRef")
-	assert.True(t, ta.Component.mandatory)
+	assert.Equal(t, ta.cRef.ref, "cRef")
+	assert.True(t, ta.cRef.mandatory)
 
 	// The hook should be updated with the news tasks
 	if assert.False(t, reflect.DeepEqual(h, ta.Hooks)) {
@@ -158,7 +158,7 @@ func TestMergeTaskAddition(t *testing.T) {
 	o.Parameters["p2"] = "val2_added"
 	o.EnvVars["e2"] = "env2_added"
 
-	o.Component = componentRef{
+	o.cRef = componentRef{
 		ref:       "cRef_added",
 		mandatory: false,
 	}
@@ -187,8 +187,8 @@ func TestMergeTaskAddition(t *testing.T) {
 	assert.Equal(t, ta.Cron, "Cron")
 
 	// The component should be added
-	assert.Equal(t, ta.Component.ref, "cRef_added")
-	assert.False(t, ta.Component.mandatory)
+	assert.Equal(t, ta.cRef.ref, "cRef_added")
+	assert.False(t, ta.cRef.mandatory)
 
 	// The hook should be updated with the news tasks
 	assert.Equal(t, 1, len(ta.Hooks.Execute.Before))

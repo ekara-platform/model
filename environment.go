@@ -3,7 +3,6 @@ package model
 type (
 	//Environment represents an environment build based on a descriptor
 	Environment struct {
-		// The environment source as yaml
 		OriginalEnv yamlEnvironment
 		// The location of the environment root
 		location DescriptorLocation `yaml:",omitempty"`

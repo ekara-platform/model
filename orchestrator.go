@@ -1,10 +1,10 @@
 package model
 
 type (
-	//Orchestrator specifies the orchestrator used to manage the environemt
+	//Orchestrator specifies the orchestrator used to manage the environment
 	Orchestrator struct {
 		// The component containing the orchestrator
-		Component componentRef
+		cRef componentRef
 		// The orchestrator parameters
 		Parameters Parameters
 		// The Docker parameters
@@ -17,25 +17,33 @@ type (
 func createOrchestrator(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) Orchestrator {
 	yamlO := yamlEnv.Orchestrator
 	o := Orchestrator{
-		Component:  createComponentRef(env, location.appendPath("component"), yamlO.Component, true),
+		cRef:       createComponentRef(env, location.appendPath("component"), yamlO.Component, true),
 		Parameters: createParameters(yamlO.Params),
 		Docker:     createParameters(yamlO.Docker),
 		EnvVars:    createEnvVars(yamlO.Env),
 	}
-	env.Ekara.tagUsedComponent(o.Component)
+	env.Ekara.tagUsedComponent(o)
 	return o
 }
 
 func (r Orchestrator) validate() ValidationErrors {
-	return ErrorOnInvalid(r.Component)
+	return ErrorOnInvalid(r.cRef)
 }
 
 func (r *Orchestrator) merge(other Orchestrator) error {
-	if err := r.Component.merge(other.Component); err != nil {
+	if err := r.cRef.merge(other.cRef); err != nil {
 		return err
 	}
 	r.Parameters = r.Parameters.inherits(other.Parameters)
 	r.Docker = r.Docker.inherits(other.Docker)
 	r.EnvVars = r.EnvVars.inherits(other.EnvVars)
 	return nil
+}
+
+func (r Orchestrator) Component() (Component, error) {
+	return r.cRef.resolve()
+}
+
+func (r Orchestrator) ComponentName() string {
+	return r.cRef.ref
 }

@@ -6,14 +6,13 @@ import (
 
 //Platform the platform used to build an environment
 type Platform struct {
-	Base               Base
-	Distribution       Distribution
-	Components         map[string]Component
-	componentResolvers []componentResolver
+	Base         Base
+	Distribution Distribution
+	Components   map[string]Component
+	cRefs        []ComponentReferencer
 }
 
 func createPlatform(yamlEnv *yamlEnvironment) (*Platform, error) {
-
 	p := &Platform{}
 	// Compute the component base for the environment
 	base, e := CreateComponentBase(yamlEnv)
@@ -43,24 +42,27 @@ func createPlatform(yamlEnv *yamlEnvironment) (*Platform, error) {
 	}
 
 	p.Components = components
-	p.componentResolvers = make([]componentResolver, 0, 0)
+	p.cRefs = make([]ComponentReferencer, 0, 0)
 	return p, nil
 }
 
-func (p *Platform) tagUsedComponent(cr componentResolver) {
-	p.componentResolvers = append(p.componentResolvers, cr)
+func (p *Platform) tagUsedComponent(cr ComponentReferencer) {
+	p.cRefs = append(p.cRefs, cr)
 }
 
 // UsedComponents returns an array of components effectively in used throughout the descriptor.
 func (p *Platform) UsedComponents() ([]Component, error) {
 	res := make([]Component, 0, 0)
 	temp := make(map[string]Component)
-	for _, cr := range p.componentResolvers {
-		c, err := cr.ResolveComponent()
-		if err != nil {
-			return res, err
+	for _, cr := range p.cRefs {
+		name := cr.ComponentName()
+		if name != "" {
+			c, err := cr.Component()
+			if err != nil {
+				return res, err
+			}
+			temp[name] = c
 		}
-		temp[c.Id] = c
 	}
 	for _, c := range temp {
 		res = append(res, c)
@@ -85,7 +87,7 @@ func (p *Platform) merge(other Platform) error {
 		}
 	}
 
-	for _, c := range other.componentResolvers {
+	for _, c := range other.cRefs {
 		p.tagUsedComponent(c)
 	}
 

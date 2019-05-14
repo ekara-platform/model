@@ -8,12 +8,12 @@ import (
 type (
 	//Stack represent an Stack installable on the built environment
 	Stack struct {
+		// The component containing the stack
+		cRef componentRef
 		// The name of the stack
 		Name string
 		//DependsOn specifies the stack references on which this one depends
 		DependsOn []stackRef
-		// The component containing the stack
-		Component componentRef
 		// The hooks linked to the stack lifecycle events
 		Hooks      StackHook
 		Parameters Parameters
@@ -47,16 +47,16 @@ func (s Stack) DescName() string {
 
 func (s Stack) validate() ValidationErrors {
 	if len(s.DependsOn) > 0 {
-		return ErrorOnInvalid(s.Component, s.DependsOn, s.Hooks)
+		return ErrorOnInvalid(s.cRef, s.DependsOn, s.Hooks)
 	}
-	return ErrorOnInvalid(s.Component, s.Hooks)
+	return ErrorOnInvalid(s.cRef, s.Hooks)
 }
 
 func (s *Stack) merge(other Stack) error {
 	if s.Name != other.Name {
 		return errors.New("cannot merge unrelated stacks (" + s.Name + " != " + other.Name + ")")
 	}
-	if err := s.Component.merge(other.Component); err != nil {
+	if err := s.cRef.merge(other.cRef); err != nil {
 		return err
 	}
 	s.Parameters = s.Parameters.inherits(other.Parameters)
@@ -69,7 +69,7 @@ func (s *Stack) merge(other Stack) error {
 func (s Stack) Dependency() (bool, []Stack) {
 	res := make([]Stack, 0)
 	for _, val := range s.DependsOn {
-		if val, ok := s.Component.env.Stacks[val.ref]; ok {
+		if val, ok := s.cRef.env.Stacks[val.ref]; ok {
 			res = append(res, val)
 		}
 	}
@@ -81,8 +81,8 @@ func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEn
 	for name, yamlStack := range yamlEnv.Stacks {
 		stackLocation := location.appendPath(name)
 		s := Stack{
-			Name:      name,
-			Component: createComponentRef(env, stackLocation.appendPath("component"), yamlStack.Component, false),
+			Name: name,
+			cRef: createComponentRef(env, stackLocation.appendPath("component"), yamlStack.Component, false),
 			Hooks: StackHook{
 				Deploy:   createHook(env, stackLocation.appendPath("hooks.deploy"), yamlStack.Hooks.Deploy),
 				Undeploy: createHook(env, stackLocation.appendPath("hooks.undeploy"), yamlStack.Hooks.Undeploy)},
@@ -106,8 +106,7 @@ func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEn
 			s.DependsOn = deps
 		}
 		res[name] = s
-		env.Ekara.tagUsedComponent(res[name].Component)
-
+		env.Ekara.tagUsedComponent(res[name])
 	}
 	return res
 }
@@ -119,7 +118,7 @@ func (r Stacks) merge(env *Environment, others Stacks) error {
 				return err
 			}
 		} else {
-			s.Component.env = env
+			s.cRef.env = env
 			r[id] = s
 		}
 	}
@@ -155,17 +154,25 @@ func (r Stacks) ResolveDependencies() ([]Stack, error) {
 	return result, nil
 }
 
-//reference return a validatable representation of the reference on the component
-func (s stackRef) reference() validatableReference {
+//validationDetails return a validatable representation of the reference on the stack
+func (s stackRef) validationDetails() refValidationDetails {
 	result := make(map[string]interface{})
 	for k, v := range s.env.Stacks {
 		result[k] = v
 	}
-	return validatableReference{
+	return refValidationDetails{
 		Id:        s.ref,
 		Type:      "stack dependency",
 		Mandatory: true,
 		Location:  s.location,
 		Repo:      result,
 	}
+}
+
+func (r Stack) Component() (Component, error) {
+	return r.cRef.resolve()
+}
+
+func (r Stack) ComponentName() string {
+	return r.cRef.ref
 }

@@ -18,12 +18,12 @@ type (
 )
 
 //reference return a validatable representation of the reference on a task
-func (r TaskRef) reference() validatableReference {
+func (r TaskRef) validationDetails() refValidationDetails {
 	result := make(map[string]interface{})
 	for k, v := range r.env.Tasks {
 		result[k] = v
 	}
-	return validatableReference{
+	return refValidationDetails{
 		Id:        r.ref,
 		Type:      "task",
 		Mandatory: r.mandatory,
@@ -52,7 +52,7 @@ func (r TaskRef) Resolve() (Task, error) {
 	return Task{
 		Name:       task.Name,
 		location:   task.location,
-		Component:  task.Component,
+		cRef:       task.cRef,
 		Playbook:   task.Playbook,
 		Cron:       task.Cron,
 		Hooks:      task.Hooks,
