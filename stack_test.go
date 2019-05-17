@@ -60,7 +60,7 @@ func TestStacksDependencies(t *testing.T) {
 			continue
 		}
 		//Check than all the dependencies has been already processd
-		for _, d := range val.DependsOn {
+		for _, d := range val.DependsOn.Content {
 			if _, ok := processed[d.ref]; !ok {
 				assert.Fail(t, "Dependency %s has not been yet processed", d.ref)
 			}
@@ -112,7 +112,7 @@ func TestStacksMultiplesDependencies(t *testing.T) {
 			continue
 		}
 		//Check than all the dependencies has been already processd
-		for _, d := range val.DependsOn {
+		for _, d := range val.DependsOn.Content {
 			if _, ok := processed[d.ref]; !ok {
 				assert.Fail(t, "Dependency %s has not been yet processed", d.ref)
 			}
@@ -141,7 +141,7 @@ func TestStacksCyclicDependencies(t *testing.T) {
 
 }
 
-func getDependsOn(deps ...string) []stackRef {
+func getDependsOn(deps ...string) Dependencies {
 	res := make([]stackRef, 0)
 	for _, s := range deps {
 		r := stackRef{
@@ -149,5 +149,5 @@ func getDependsOn(deps ...string) []stackRef {
 		}
 		res = append(res, r)
 	}
-	return res
+	return Dependencies{Content: res}
 }

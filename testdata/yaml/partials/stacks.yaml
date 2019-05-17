@@ -12,3 +12,25 @@ stacks:
           - task: task1  
         after:
           - task: task2  
+  stack2:
+    component: stack2
+    depends_on: 
+      - stack1
+    params:
+      stack2_param_key1: stack2_param_key1_value
+      stack2_param_key2: stack2_param_key2_value
+    env:
+      stack2_env_key1: stack2_env_key1_value
+      stack2_env_key2: stack2_env_key2_value
+    templates_patterns:
+      - "*.yaml"
+      - "*.yml"
+    volume_copies:  
+    - path: "some/target1/volume/path"
+      copy_patterns:
+        - "*target1_to_be_copied.yaml"
+        - "*target1_to_be_copied.yml"
+    - path: "some/target2/volume/path"
+      copy_patterns:
+        - "*target2_to_be_copied.yaml"
+        - "*target2_to_be_copied.yml"       

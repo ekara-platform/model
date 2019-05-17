@@ -13,11 +13,17 @@ type (
 		// The name of the stack
 		Name string
 		//DependsOn specifies the stack references on which this one depends
-		DependsOn []stackRef
+		DependsOn Dependencies
 		// The hooks linked to the stack lifecycle events
-		Hooks      StackHook
+		Hooks StackHook
+		// The stack parameters
 		Parameters Parameters
-		EnvVars    EnvVars
+		// The stack environment variables
+		EnvVars EnvVars
+		// The list of path patterns where to apply the template mechanism
+		Templates Patterns
+		// The stack content to be copied on volumes
+		Copies Copies
 	}
 
 	//stackRef defines a dependency a on stack which must be previously processed
@@ -46,8 +52,9 @@ func (s Stack) DescName() string {
 }
 
 func (s Stack) validate() ValidationErrors {
-	if len(s.DependsOn) > 0 {
-		return ErrorOnInvalid(s.cRef, s.DependsOn, s.Hooks)
+	// TODO add a validation on copies destinations
+	if len(s.DependsOn.Content) > 0 {
+		return ErrorOnInvalid(s.cRef, s.DependsOn.Content, s.Hooks)
 	}
 	return ErrorOnInvalid(s.cRef, s.Hooks)
 }
@@ -61,54 +68,10 @@ func (s *Stack) merge(other Stack) error {
 	}
 	s.Parameters = s.Parameters.inherits(other.Parameters)
 	s.EnvVars = s.EnvVars.inherits(other.EnvVars)
-
+	s.DependsOn = s.DependsOn.inherits(other.DependsOn)
+	s.Templates = s.Templates.inherits(other.Templates)
+	s.Copies = s.Copies.inherits(other.Copies)
 	return s.Hooks.merge(other.Hooks)
-}
-
-//Dependency returns the potential Stacks which this one depends
-func (s Stack) Dependency() (bool, []Stack) {
-	res := make([]Stack, 0)
-	for _, val := range s.DependsOn {
-		if val, ok := s.cRef.env.Stacks[val.ref]; ok {
-			res = append(res, val)
-		}
-	}
-	return len(res) > 0, res
-}
-
-func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) Stacks {
-	res := Stacks{}
-	for name, yamlStack := range yamlEnv.Stacks {
-		stackLocation := location.appendPath(name)
-		s := Stack{
-			Name: name,
-			cRef: createComponentRef(env, stackLocation.appendPath("component"), yamlStack.Component, false),
-			Hooks: StackHook{
-				Deploy:   createHook(env, stackLocation.appendPath("hooks.deploy"), yamlStack.Hooks.Deploy),
-				Undeploy: createHook(env, stackLocation.appendPath("hooks.undeploy"), yamlStack.Hooks.Undeploy)},
-			Parameters: createParameters(yamlStack.Params),
-			EnvVars:    createEnvVars(yamlStack.Env),
-		}
-		deps := make([]stackRef, 0, 0)
-		for _, v := range yamlStack.DependsOn {
-			if v != "" && v != name {
-				depLocation := stackLocation.appendPath("depends_on")
-				depLocation = depLocation.appendPath(v)
-				dep := stackRef{
-					ref:      v,
-					location: depLocation,
-					env:      env,
-				}
-				deps = append(deps, dep)
-			}
-		}
-		if len(deps) > 0 {
-			s.DependsOn = deps
-		}
-		res[name] = s
-		env.Ekara.tagUsedComponent(res[name])
-	}
-	return res
 }
 
 func (r Stacks) merge(env *Environment, others Stacks) error {
@@ -125,6 +88,40 @@ func (r Stacks) merge(env *Environment, others Stacks) error {
 	return nil
 }
 
+func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) Stacks {
+	res := Stacks{}
+	for name, yamlStack := range yamlEnv.Stacks {
+		// Root stack
+		stackLocation := location.appendPath(name)
+		s := Stack{
+			Name: name,
+			cRef: createComponentRef(env, stackLocation.appendPath("component"), yamlStack.Component, false),
+			Hooks: StackHook{
+				Deploy:   createHook(env, stackLocation.appendPath("hooks.deploy"), yamlStack.Hooks.Deploy),
+				Undeploy: createHook(env, stackLocation.appendPath("hooks.undeploy"), yamlStack.Hooks.Undeploy)},
+			Parameters: createParameters(yamlStack.Params),
+			EnvVars:    createEnvVars(yamlStack.Env),
+			DependsOn:  createDependencies(env, stackLocation.appendPath("depends_on"), name, yamlStack.DependsOn),
+			Templates:  createPatterns(env, stackLocation.appendPath("templates_patterns"), yamlStack.Templates),
+			Copies:     createCopies(env, stackLocation.appendPath("volume_copies"), yamlStack.Copies),
+		}
+		res[name] = s
+		env.Ekara.tagUsedComponent(res[name])
+	}
+	return res
+}
+
+//Dependency returns the potential Stacks which this one depends
+func (s Stack) Dependency() (bool, []Stack) {
+	res := make([]Stack, 0)
+	for _, val := range s.DependsOn.Content {
+		if val, ok := s.cRef.env.Stacks[val.ref]; ok {
+			res = append(res, val)
+		}
+	}
+	return len(res) > 0, res
+}
+
 //ResolveDependencies returns a channel to get access
 //to the stacks based on the rorder of the dependencies
 func (r Stacks) ResolveDependencies() ([]Stack, error) {
@@ -138,7 +135,7 @@ func (r Stacks) ResolveDependencies() ([]Stack, error) {
 		g.addNode(vs.Name)
 	}
 	for _, vs := range r {
-		for _, vd := range vs.DependsOn {
+		for _, vd := range vs.DependsOn.Content {
 			g.addEdge(vd.ref, vs.Name)
 		}
 	}
@@ -169,10 +166,12 @@ func (s stackRef) validationDetails() refValidationDetails {
 	}
 }
 
-func (r Stack) Component() (Component, error) {
-	return r.cRef.resolve()
+//Component returns the referenced component
+func (s Stack) Component() (Component, error) {
+	return s.cRef.resolve()
 }
 
-func (r Stack) ComponentName() string {
-	return r.cRef.ref
+//ComponentName returns the referenced component name
+func (s Stack) ComponentName() string {
+	return s.cRef.ref
 }

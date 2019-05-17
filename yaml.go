@@ -12,6 +12,14 @@ type (
 		NoProxy string `yaml:"no_proxy"`
 	}
 
+	// yaml tag for stuff to be copied on volumes
+	yamlCopy struct {
+		// The volume path where to copy the content
+		Path string
+		// The list of path patterns identifying content to be copied
+		Patterns []string `yaml:"copy_patterns"`
+	}
+
 	// yaml tag for parameters
 	yamlParams struct {
 		Params map[string]interface{} `yaml:",omitempty"`
@@ -201,6 +209,12 @@ type (
 			yamlParams `yaml:",inline"`
 			// The environment variables
 			yamlEnv `yaml:",inline"`
+
+			// The list of path patterns where to apply the template mechanism
+			Templates []string `yaml:"templates_patterns"`
+
+			// The stack content to be copied on volumes
+			Copies []yamlCopy `yaml:"volume_copies"`
 		}
 
 		// Global hooks
