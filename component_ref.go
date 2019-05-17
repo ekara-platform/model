@@ -19,8 +19,11 @@ type (
 		location DescriptorLocation
 	}
 
+	//ComponentReferencer allows to access to a component through its reference
 	ComponentReferencer interface {
+		//Component returns the referenced component
 		Component() (Component, error)
+		//ComponentName returns the referenced component name
 		ComponentName() string
 	}
 )

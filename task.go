@@ -116,10 +116,12 @@ func (r *circularRefTracking) String() string {
 	return b.String()
 }
 
+//Component returns the referenced component
 func (r Task) Component() (Component, error) {
 	return r.cRef.resolve()
 }
 
+//ComponentName returns the referenced component name
 func (r Task) ComponentName() string {
 	return r.cRef.ref
 }

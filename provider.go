@@ -52,10 +52,12 @@ func (r *Provider) merge(other Provider) error {
 	return nil
 }
 
+//Component returns the referenced component
 func (r Provider) Component() (Component, error) {
 	return r.cRef.resolve()
 }
 
+//ComponentName returns the referenced component name
 func (r Provider) ComponentName() string {
 	return r.cRef.ref
 }

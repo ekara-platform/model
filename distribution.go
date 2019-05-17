@@ -38,10 +38,12 @@ func CreateDistribution(base Base, yamlEnv *yamlEnvironment) (Distribution, erro
 	return Distribution(c), nil
 }
 
+//Component returns the referenced component
 func (r Distribution) Component() (Component, error) {
 	return Component(r), nil
 }
 
+//ComponentName returns the referenced component name
 func (r Distribution) ComponentName() string {
 	return EkaraComponentId
 }

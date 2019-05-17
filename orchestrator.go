@@ -40,10 +40,12 @@ func (r *Orchestrator) merge(other Orchestrator) error {
 	return nil
 }
 
+//Component returns the referenced component
 func (r Orchestrator) Component() (Component, error) {
 	return r.cRef.resolve()
 }
 
+//ComponentName returns the referenced component name
 func (r Orchestrator) ComponentName() string {
 	return r.cRef.ref
 }
