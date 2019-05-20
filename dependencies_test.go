@@ -33,7 +33,7 @@ func TestDependenciesInherits(t *testing.T) {
 	depsOther := []string{"deps1", "deps3", "deps4"}
 	o := createDependencies(&Environment{}, DescriptorLocation{Path: "location"}, "stack_name", depsOther)
 
-	res := d.inherits(o)
+	res := d.inherit(o)
 
 	assert.NotNil(t, res)
 

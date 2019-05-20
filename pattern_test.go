@@ -25,7 +25,7 @@ func TestPatternsInherits(t *testing.T) {
 	pathsOther := []string{"path1", "path3", "path4"}
 	o := createPatterns(&Environment{}, DescriptorLocation{Path: "location"}, pathsOther)
 
-	res := p.inherits(o)
+	res := p.inherit(o)
 
 	assert.NotNil(t, res)
 

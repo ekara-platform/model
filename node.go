@@ -77,7 +77,7 @@ func (r *NodeSet) merge(other NodeSet) error {
 	if r.Instances < other.Instances {
 		r.Instances = other.Instances
 	}
-	r.Labels = r.Labels.inherits(other.Labels)
+	r.Labels = r.Labels.inherit(other.Labels)
 	return nil
 }
 

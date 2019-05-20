@@ -8,7 +8,7 @@ type (
 	}
 )
 
-func (r Dependencies) inherits(parent Dependencies) Dependencies {
+func (r Dependencies) inherit(parent Dependencies) Dependencies {
 	dst := Dependencies{}
 	dst.Content = make([]stackRef, 0, 0)
 	// Set used to avoid duplicated entries

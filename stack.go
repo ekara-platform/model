@@ -75,11 +75,9 @@ func (s *Stack) merge(other Stack) error {
 	if err != nil {
 		return err
 	}
-	s.Parameters = s.Parameters.inherits(other.Parameters)
-	s.EnvVars = s.EnvVars.inherits(other.EnvVars)
-	s.DependsOn = s.DependsOn.inherits(other.DependsOn)
-	s.Templates = s.Templates.inherits(other.Templates)
-	s.Copies = s.Copies.inherits(other.Copies)
+	s.DependsOn = s.DependsOn.inherit(other.DependsOn)
+	s.Templates = s.Templates.inherit(other.Templates)
+	s.Copies = s.Copies.inherit(other.Copies)
 	return s.Hooks.merge(other.Hooks)
 }
 
@@ -122,10 +120,10 @@ func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEn
 			Name: name,
 			cRef: createComponentRef(env, stackLocation.appendPath("component"), yamlStack.Component, false),
 			Hooks: StackHook{
-				Deploy:   createHook(env, stackLocation.appendPath("hooks.deploy"), yamlStack.Hooks.Deploy),
-				Undeploy: createHook(env, stackLocation.appendPath("hooks.undeploy"), yamlStack.Hooks.Undeploy)},
-			Parameters: createParameters(yamlStack.Params),
-			EnvVars:    createEnvVars(yamlStack.Env),
+				Deploy:   dHook,
+				Undeploy: uHook},
+			Parameters: params,
+			EnvVars:    envVars,
 			DependsOn:  createDependencies(env, stackLocation.appendPath("depends_on"), name, yamlStack.DependsOn),
 			Templates:  createPatterns(env, stackLocation.appendPath("templates_patterns"), yamlStack.Templates),
 			Copies:     createCopies(env, stackLocation.appendPath("volume_copies"), yamlStack.Copies),
