@@ -105,8 +105,13 @@ func resolveRepositoryInfo(base Base, repo string) (cUrl EkUrl, e error) {
 	return
 }
 
-func (r *Repository) setAuthentication(yamlComponent yamlComponent) {
-	if len(yamlComponent.Auth) > 0 {
-		r.Authentication = createParameters(yamlComponent.Auth)
+func (r *Repository) setAuthentication(yamlComponent yamlComponent) error {
+	params, err := createParameters(yamlComponent.Auth)
+	if err != nil {
+		return err
 	}
+	if len(yamlComponent.Auth) > 0 {
+		r.Authentication = params
+	}
+	return nil
 }

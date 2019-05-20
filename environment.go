@@ -40,9 +40,10 @@ type (
 //
 func CreateEnvironment(url EkUrl, data map[string]interface{}) (*Environment, error) {
 	env := &Environment{}
-
+	var err error
 	var yamlEnv yamlEnvironment
-	yamlEnv, err := parseYamlDescriptor(url, data)
+
+	yamlEnv, err = parseYamlDescriptor(url, data)
 	if err != nil {
 		return env, err
 	}
@@ -55,18 +56,39 @@ func CreateEnvironment(url EkUrl, data map[string]interface{}) (*Environment, er
 	if err != nil {
 		return env, err
 	}
-	env.Tasks = createTasks(env, env.location.appendPath("tasks"), &yamlEnv)
-	env.Orchestrator = createOrchestrator(env, env.location.appendPath("orchestrator"), &yamlEnv)
-	env.Providers = createProviders(env, env.location.appendPath("providers"), &yamlEnv)
+	env.Tasks, err = createTasks(env, env.location.appendPath("tasks"), &yamlEnv)
+	if err != nil {
+		return env, err
+	}
+	env.Orchestrator, err = createOrchestrator(env, env.location.appendPath("orchestrator"), &yamlEnv)
+	if err != nil {
+		return env, err
+	}
+	env.Providers, err = createProviders(env, env.location.appendPath("providers"), &yamlEnv)
+	if err != nil {
+		return env, err
+	}
 	env.NodeSets, err = createNodeSets(env, env.location.appendPath("nodes"), &yamlEnv)
 	if err != nil {
 		return env, err
 	}
-	env.Stacks = createStacks(env, env.location.appendPath("stacks"), &yamlEnv)
-	env.Hooks.Provision = createHook(env, env.location.appendPath("hooks.provision"), yamlEnv.Hooks.Provision)
-	env.Hooks.Deploy = createHook(env, env.location.appendPath("hooks.deploy"), yamlEnv.Hooks.Deploy)
-	env.Hooks.Undeploy = createHook(env, env.location.appendPath("hooks.undeploy"), yamlEnv.Hooks.Undeploy)
-	env.Hooks.Destroy = createHook(env, env.location.appendPath("hooks.destroy"), yamlEnv.Hooks.Destroy)
+	env.Stacks, err = createStacks(env, env.location.appendPath("stacks"), &yamlEnv)
+	if err != nil {
+		return env, err
+	}
+	env.Hooks.Provision, err = createHook(env, env.location.appendPath("hooks.provision"), yamlEnv.Hooks.Provision)
+	if err != nil {
+		return env, err
+	}
+	env.Hooks.Deploy, err = createHook(env, env.location.appendPath("hooks.deploy"), yamlEnv.Hooks.Deploy)
+	if err != nil {
+		return env, err
+	}
+	env.Hooks.Undeploy, err = createHook(env, env.location.appendPath("hooks.undeploy"), yamlEnv.Hooks.Undeploy)
+	if err != nil {
+		return env, err
+	}
+	env.Hooks.Destroy, err = createHook(env, env.location.appendPath("hooks.destroy"), yamlEnv.Hooks.Destroy)
 	env.Volumes = createGlobalVolumes(env, env.location.appendPath("volumes"), &yamlEnv)
 	return env, nil
 

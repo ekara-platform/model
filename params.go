@@ -1,39 +1,47 @@
 package model
 
 import (
+	"errors"
 	"reflect"
 )
 
 //Parameters represents the parameters coming from a descriptor
 type Parameters map[string]interface{}
 
-func createParameters(src map[string]interface{}) Parameters {
-	mustHaveStringKeys(src)
+func createParameters(src map[string]interface{}) (Parameters, error) {
+	err := mustHaveStringKeys(src)
+	if err != nil {
+		return Parameters{}, err
+	}
 	dst := make(map[string]interface{})
 	for k, v := range src {
 		dst[k] = v
 	}
-	return dst
+	return dst, nil
 }
 
-func (r Parameters) inherits(parent Parameters) Parameters {
-	dst := createParameters(map[string]interface{}{})
+func (r Parameters) inherit(parent Parameters) (Parameters, error) {
+	dst, err := createParameters(map[string]interface{}{})
+	if err != nil {
+		return Parameters{}, err
+	}
 	merge(dst, parent)
 	merge(dst, r)
-	return dst
+	return dst, nil
 }
 
-func mustHaveStringKeys(m map[string]interface{}) {
+func mustHaveStringKeys(m map[string]interface{}) error {
 	for _, v := range m {
 		vv := reflect.ValueOf(v)
 		if vv.Kind() == reflect.Map {
 			if vv.Type().Key().Kind() != reflect.String {
-				panic("parameters should only have string keys")
+				return errors.New("parameters should only have string keys")
 			}
 			// check deeper...
-			mustHaveStringKeys(v.(map[string]interface{}))
+			return mustHaveStringKeys(v.(map[string]interface{}))
 		}
 	}
+	return nil
 }
 
 func merge(dst map[string]interface{}, src map[string]interface{}) {

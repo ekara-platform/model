@@ -60,10 +60,19 @@ func (s Stack) validate() ValidationErrors {
 }
 
 func (s *Stack) merge(other Stack) error {
+	var err error
 	if s.Name != other.Name {
 		return errors.New("cannot merge unrelated stacks (" + s.Name + " != " + other.Name + ")")
 	}
-	if err := s.cRef.merge(other.cRef); err != nil {
+	if err = s.cRef.merge(other.cRef); err != nil {
+		return err
+	}
+	s.Parameters, err = s.Parameters.inherit(other.Parameters)
+	if err != nil {
+		return err
+	}
+	s.EnvVars, err = s.EnvVars.inherit(other.EnvVars)
+	if err != nil {
 		return err
 	}
 	s.Parameters = s.Parameters.inherits(other.Parameters)
@@ -88,11 +97,27 @@ func (r Stacks) merge(env *Environment, others Stacks) error {
 	return nil
 }
 
-func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) Stacks {
+func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) (Stacks, error) {
 	res := Stacks{}
 	for name, yamlStack := range yamlEnv.Stacks {
 		// Root stack
 		stackLocation := location.appendPath(name)
+		params, err := createParameters(yamlStack.Params)
+		if err != nil {
+			return res, err
+		}
+		envVars, err := createEnvVars(yamlStack.Env)
+		if err != nil {
+			return res, err
+		}
+		dHook, err := createHook(env, stackLocation.appendPath("hooks.deploy"), yamlStack.Hooks.Deploy)
+		if err != nil {
+			return res, err
+		}
+		uHook, err := createHook(env, stackLocation.appendPath("hooks.undeploy"), yamlStack.Hooks.Undeploy)
+		if err != nil {
+			return res, err
+		}
 		s := Stack{
 			Name: name,
 			cRef: createComponentRef(env, stackLocation.appendPath("component"), yamlStack.Component, false),
@@ -108,7 +133,7 @@ func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEn
 		res[name] = s
 		env.Ekara.tagUsedComponent(res[name])
 	}
-	return res
+	return res, nil
 }
 
 //Dependency returns the potential Stacks which this one depends

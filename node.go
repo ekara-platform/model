@@ -84,14 +84,22 @@ func (r *NodeSet) merge(other NodeSet) error {
 func createNodeSets(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) (NodeSets, error) {
 	// we will keep a reference on an eventual generic node set
 	var gNs *NodeSet
+	var err error
 	res := NodeSets{}
 	for name, yamlNodeSet := range yamlEnv.Nodes {
 		nodeSetLocation := location.appendPath(name)
 		if name == GenericNodeSetName {
 			//The generic node set has been located
-			gNs = buildNode(name, env, nodeSetLocation, yamlNodeSet)
+			gNs, err = buildNode(name, env, nodeSetLocation, yamlNodeSet)
+			if err != nil {
+				return NodeSets{}, err
+			}
 		} else {
-			res[name] = *buildNode(name, env, nodeSetLocation, yamlNodeSet)
+			nodeSet, err := buildNode(name, env, nodeSetLocation, yamlNodeSet)
+			if err != nil {
+				return NodeSets{}, err
+			}
+			res[name] = *nodeSet
 		}
 	}
 
@@ -114,20 +122,39 @@ func createNodeSets(env *Environment, location DescriptorLocation, yamlEnv *yaml
 	return res, nil
 }
 
-func buildNode(name string, env *Environment, location DescriptorLocation, yN yamlNode) *NodeSet {
+func buildNode(name string, env *Environment, location DescriptorLocation, yN yamlNode) (*NodeSet, error) {
+	pRef, err := createProviderRef(env, location.appendPath("provider"), yN.Provider)
+	if err != nil {
+		return nil, err
+	}
+	oRef, err := createOrchestratorRef(env, location.appendPath("orchestrator"), yN.Orchestrator)
+	if err != nil {
+		return nil, err
+	}
+	pHook, err := createHook(env, location.appendPath("hooks.provision"), yN.Hooks.Provision)
+	if err != nil {
+		return nil, err
+	}
+	dHook, err := createHook(env, location.appendPath("hooks.destroy"), yN.Hooks.Destroy)
+	if err != nil {
+		return nil, err
+	}
+	volumes, err := createVolumes(location.appendPath("volumes"), yN.Volumes)
+	if err != nil {
+		return nil, err
+	}
 	return &NodeSet{
 		location:     location,
 		Name:         name,
 		Instances:    yN.Instances,
-		Provider:     createProviderRef(env, location.appendPath("provider"), yN.Provider),
-		Orchestrator: createOrchestratorRef(env, location.appendPath("orchestrator"), yN.Orchestrator),
-		Volumes:      createVolumes(location.appendPath("volumes"), yN.Volumes),
+		Provider:     pRef,
+		Orchestrator: oRef,
+		Volumes:      volumes,
 		Hooks: NodeHook{
-			Provision: createHook(env, location.appendPath("hooks.provision"), yN.Hooks.Provision),
-			Destroy:   createHook(env, location.appendPath("hooks.destroy"), yN.Hooks.Destroy),
+			Provision: pHook,
+			Destroy:   dHook,
 		},
-		Labels: yN.Labels,
-	}
+		Labels: yN.Labels}, nil
 }
 
 func (r NodeSets) merge(env *Environment, other NodeSets) error {
