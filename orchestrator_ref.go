@@ -11,28 +11,61 @@ type (
 	}
 )
 
-func createOrchestratorRef(env *Environment, location DescriptorLocation, yamlRef yamlOrchestratorRef) orchestratorRef {
+func createOrchestratorRef(env *Environment, location DescriptorLocation, yamlRef yamlOrchestratorRef) (orchestratorRef, error) {
+	oParams, err := createParameters(yamlRef.Params)
+	if err != nil {
+		return orchestratorRef{}, err
+	}
+	dParams, err := createParameters(yamlRef.Docker)
+	if err != nil {
+		return orchestratorRef{}, err
+	}
+	envVars, err := createEnvVars(yamlRef.Env)
+	if err != nil {
+		return orchestratorRef{}, err
+	}
 	return orchestratorRef{
 		env:        env,
-		parameters: createParameters(yamlRef.Params),
-		docker:     createParameters(yamlRef.Docker),
-		envVars:    createEnvVars(yamlRef.Env),
-		location:   location,
-	}
+		parameters: oParams,
+		docker:     dParams,
+		envVars:    envVars,
+		location:   location}, nil
 }
 
 func (r *orchestratorRef) merge(other orchestratorRef) error {
-	r.parameters = r.parameters.inherits(other.parameters)
-	r.envVars = r.envVars.inherits(other.envVars)
-	r.docker = r.docker.inherits(other.docker)
+	var err error
+	r.parameters, err = r.parameters.inherit(other.parameters)
+	if err != nil {
+		return err
+	}
+	r.envVars, err = r.envVars.inherit(other.envVars)
+	if err != nil {
+		return err
+	}
+	r.docker, err = r.docker.inherit(other.docker)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (r orchestratorRef) Resolve() (Orchestrator, error) {
 	orchestrator := r.env.Orchestrator
+	params, err := r.parameters.inherit(orchestrator.Parameters)
+	if err != nil {
+		return Orchestrator{}, err
+	}
+	docker, err := r.docker.inherit(orchestrator.Docker)
+	if err != nil {
+		return Orchestrator{}, err
+	}
+	envVars, err := r.envVars.inherit(orchestrator.EnvVars)
+	if err != nil {
+		return Orchestrator{}, err
+	}
 	return Orchestrator{
 		cRef:       orchestrator.cRef,
-		Parameters: r.parameters.inherits(orchestrator.Parameters),
-		Docker:     r.docker.inherits(orchestrator.Docker),
-		EnvVars:    r.envVars.inherits(orchestrator.EnvVars)}, nil
+		Parameters: params,
+		Docker:     docker,
+		EnvVars:    envVars}, nil
 }

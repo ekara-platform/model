@@ -51,14 +51,15 @@ func (r Task) validate() ValidationErrors {
 }
 
 func (r *Task) merge(other Task) error {
+	var err error
 	if !reflect.DeepEqual(r, &other) {
 		if r.Name != other.Name {
 			return errors.New("cannot merge unrelated tasks (" + r.Name + " != " + other.Name + ")")
 		}
-		if err := r.cRef.merge(other.cRef); err != nil {
+		if err = r.cRef.merge(other.cRef); err != nil {
 			return err
 		}
-		if err := r.Hooks.merge(other.Hooks); err != nil {
+		if err = r.Hooks.merge(other.Hooks); err != nil {
 			return err
 		}
 		if r.Playbook == "" {
@@ -67,31 +68,49 @@ func (r *Task) merge(other Task) error {
 		if r.Cron == "" {
 			r.Cron = other.Cron
 		}
-		r.Parameters = r.Parameters.inherits(other.Parameters)
-		r.EnvVars = r.EnvVars.inherits(other.EnvVars)
+		r.Parameters, err = r.Parameters.inherit(other.Parameters)
+		if err != nil {
+			return err
+		}
+		r.EnvVars, err = r.EnvVars.inherit(other.EnvVars)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
-func createTasks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) Tasks {
+func createTasks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) (Tasks, error) {
 	res := Tasks{}
 	for name, yamlTask := range yamlEnv.Tasks {
 		taskLocation := location.appendPath(name)
+		params, err := createParameters(yamlTask.Params)
+		if err != nil {
+			return res, err
+		}
+		envVars, err := createEnvVars(yamlTask.Env)
+		if err != nil {
+			return res, err
+		}
+		eHook, err := createHook(env, taskLocation.appendPath("hooks.execute"), yamlTask.Hooks.Execute)
+		if err != nil {
+			return res, err
+		}
 		res[name] = &Task{
 			location:   taskLocation,
 			Name:       name,
 			Playbook:   yamlTask.Playbook,
 			cRef:       createComponentRef(env, taskLocation.appendPath("component"), yamlTask.Component, false),
 			Cron:       yamlTask.Cron,
-			Parameters: createParameters(yamlTask.Params),
-			EnvVars:    createEnvVars(yamlTask.Env),
+			Parameters: params,
+			EnvVars:    envVars,
 			Hooks: TaskHook{
-				Execute: createHook(env, taskLocation.appendPath("hooks.execute"), yamlTask.Hooks.Execute),
+				Execute: eHook,
 			},
 		}
 		env.Ekara.tagUsedComponent(res[name])
 	}
-	return res
+	return res, nil
 }
 
 func (r Tasks) merge(env *Environment, other Tasks) error {

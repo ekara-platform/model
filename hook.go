@@ -24,19 +24,25 @@ const (
 	HookAfter hookLocation = "After"
 )
 
-func createHook(env *Environment, location DescriptorLocation, yamlHook yamlHook) Hook {
+func createHook(env *Environment, location DescriptorLocation, yamlHook yamlHook) (Hook, error) {
+	var err error
 	hook := Hook{
 		Before: make([]TaskRef, len(yamlHook.Before)),
 		After:  make([]TaskRef, len(yamlHook.After))}
-
 	for i, yamlRef := range yamlHook.Before {
-		hook.Before[i] = createTaskRef(env, location.appendPath("before"), yamlRef, HookBefore)
+		hook.Before[i], err = createTaskRef(env, location.appendPath("before"), yamlRef, HookBefore)
+		if err != nil {
+			return hook, err
+		}
 	}
 
 	for i, yamlRef := range yamlHook.After {
-		hook.After[i] = createTaskRef(env, location.appendPath("after"), yamlRef, HookAfter)
+		hook.After[i], err = createTaskRef(env, location.appendPath("after"), yamlRef, HookAfter)
+		if err != nil {
+			return hook, err
+		}
 	}
-	return hook
+	return hook, nil
 }
 
 func (r Hook) validate() ValidationErrors {

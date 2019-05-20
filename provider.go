@@ -40,15 +40,25 @@ func (r Provider) validate() ValidationErrors {
 }
 
 func (r *Provider) merge(other Provider) error {
+	var err error
 	if r.Name != other.Name {
 		return errors.New("cannot merge unrelated providers (" + r.Name + " != " + other.Name + ")")
 	}
-	if err := r.cRef.merge(other.cRef); err != nil {
+	if err = r.cRef.merge(other.cRef); err != nil {
 		return err
 	}
-	r.Parameters = r.Parameters.inherits(other.Parameters)
-	r.EnvVars = r.EnvVars.inherits(other.EnvVars)
-	r.Proxy = r.Proxy.inherits(other.Proxy)
+	r.Parameters, err = r.Parameters.inherit(other.Parameters)
+	if err != nil {
+		return err
+	}
+	r.EnvVars, err = r.EnvVars.inherit(other.EnvVars)
+	if err != nil {
+		return err
+	}
+	r.Proxy, err = r.Proxy.inherit(other.Proxy)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -63,19 +73,31 @@ func (r Provider) ComponentName() string {
 }
 
 // createProviders creates all the providers declared into the provided environment
-func createProviders(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) Providers {
+func createProviders(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) (Providers, error) {
 	res := Providers{}
 	for name, yamlProvider := range yamlEnv.Providers {
 		providerLocation := location.appendPath(name)
+		params, err := createParameters(yamlProvider.Params)
+		if err != nil {
+			return res, err
+		}
+		envVars, err := createEnvVars(yamlProvider.Env)
+		if err != nil {
+			return res, err
+		}
+		proxy, err := createProxy(yamlProvider.Proxy)
+		if err != nil {
+			return res, err
+		}
 		res[name] = Provider{
 			Name:       name,
 			cRef:       createComponentRef(env, providerLocation.appendPath("component"), yamlProvider.Component, true),
-			Parameters: createParameters(yamlProvider.Params),
-			Proxy:      createProxy(yamlProvider.Proxy),
-			EnvVars:    createEnvVars(yamlProvider.Env),
+			Parameters: params,
+			EnvVars:    envVars,
+			Proxy:      proxy,
 		}
 	}
-	return res
+	return res, nil
 }
 
 func (r Providers) merge(env *Environment, other Providers) error {

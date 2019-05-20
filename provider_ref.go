@@ -14,40 +14,75 @@ type (
 )
 
 // createProviderRef creates a reference to the provider declared into the yaml reference
-func createProviderRef(env *Environment, location DescriptorLocation, yamlRef yamlProviderRef) providerRef {
+func createProviderRef(env *Environment, location DescriptorLocation, yamlRef yamlProviderRef) (providerRef, error) {
+	params, err := createParameters(yamlRef.Params)
+	if err != nil {
+		return providerRef{}, err
+	}
+	envVars, err := createEnvVars(yamlRef.Env)
+	if err != nil {
+		return providerRef{}, err
+	}
+	proxy, err := createProxy(yamlRef.Proxy)
+	if err != nil {
+		return providerRef{}, err
+	}
 	return providerRef{
 		env:        env,
 		ref:        yamlRef.Name,
-		parameters: createParameters(yamlRef.Params),
-		proxy:      createProxy(yamlRef.Proxy),
-		envVars:    createEnvVars(yamlRef.Env),
+		parameters: params,
+		proxy:      proxy,
+		envVars:    envVars,
 		location:   location,
 		mandatory:  true,
-	}
+	}, nil
 }
 
 func (r *providerRef) merge(other providerRef) error {
+	var err error
 	if r.ref == "" {
 		r.ref = other.ref
 	}
-	r.parameters = r.parameters.inherits(other.parameters)
-	r.envVars = r.envVars.inherits(other.envVars)
-	r.proxy = r.proxy.inherits(other.proxy)
+	r.parameters, err = r.parameters.inherit(other.parameters)
+	if err != nil {
+		return err
+	}
+	r.envVars, err = r.envVars.inherit(other.envVars)
+	if err != nil {
+		return err
+	}
+	r.proxy, err = r.proxy.inherit(other.proxy)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (r providerRef) Resolve() (Provider, error) {
-	validationErrors := ErrorOnInvalid(r)
-	if validationErrors.HasErrors() {
-		return Provider{}, validationErrors
+	var err error
+	err = ErrorOnInvalid(r)
+	if err.(ValidationErrors).HasErrors() {
+		return Provider{}, err
 	}
 	provider := r.env.Providers[r.ref]
+	params, err := r.parameters.inherit(provider.Parameters)
+	if err != nil {
+		return Provider{}, err
+	}
+	envVars, err := r.envVars.inherit(provider.EnvVars)
+	if err != nil {
+		return Provider{}, err
+	}
+	proxy, err := r.proxy.inherit(provider.Proxy)
+	if err != nil {
+		return Provider{}, err
+	}
 	return Provider{
 		Name:       provider.Name,
 		cRef:       provider.cRef,
-		Parameters: r.parameters.inherits(provider.Parameters),
-		EnvVars:    r.envVars.inherits(provider.EnvVars),
-		Proxy:      r.proxy.inherits(provider.Proxy)}, nil
+		Parameters: params,
+		EnvVars:    envVars,
+		Proxy:      proxy}, nil
 }
 
 //reference return a validatable representation of the reference on a provider

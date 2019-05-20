@@ -8,7 +8,7 @@ type (
 	}
 )
 
-func (r Patterns) inherits(parent Patterns) Patterns {
+func (r Patterns) inherit(parent Patterns) Patterns {
 	dst := Patterns{}
 	dst.Content = make([]string, 0, 0)
 	// Set used to avoid duplicated entries

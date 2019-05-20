@@ -17,7 +17,7 @@ type (
 	}
 )
 
-func (r Copies) inherits(parent Copies) Copies {
+func (r Copies) inherit(parent Copies) Copies {
 	dst := Copies{}
 	dst.Content = make(map[string]Copy)
 	for k, v := range r.Content {
@@ -31,8 +31,8 @@ func (r Copies) inherits(parent Copies) Copies {
 		} else {
 			// if it's not new we will merge the patterns/labels from the original content and the parent
 			work := dst.Content[k]
-			work.Sources = work.Sources.inherits(v.Sources)
-			work.Labels = work.Labels.inherits(v.Labels)
+			work.Sources = work.Sources.inherit(v.Sources)
+			work.Labels = work.Labels.inherit(v.Labels)
 			dst.Content[k] = work
 		}
 	}

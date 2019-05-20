@@ -4,7 +4,7 @@ package model
 //machines and also on the nodes for Docker
 type Labels map[string]string
 
-func (r Labels) inherits(parent Labels) Labels {
+func (r Labels) inherit(parent Labels) Labels {
 	dst := make(map[string]string)
 	for k, v := range parent {
 		dst[k] = v

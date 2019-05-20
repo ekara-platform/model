@@ -32,23 +32,38 @@ func (r TaskRef) validationDetails() refValidationDetails {
 	}
 }
 
-func (r *TaskRef) merge(other TaskRef) {
+func (r *TaskRef) merge(other TaskRef) error {
+	var err error
 	if r.ref == "" {
 		r.ref = other.ref
 	}
-	r.parameters = r.parameters.inherits(other.parameters)
-	r.envVars = r.envVars.inherits(other.envVars)
+	r.parameters, err = r.parameters.inherit(other.parameters)
+	if err != nil {
+		return err
+	}
+	r.envVars, err = r.envVars.inherit(other.envVars)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Resolve returns a resolved reference to a task containing all the
 // inherited content from the referenced task
 func (r TaskRef) Resolve() (Task, error) {
-	validationErrors := ErrorOnInvalid(r)
-	if validationErrors.HasErrors() {
-		return Task{}, validationErrors
+	var err error
+	if err = ErrorOnInvalid(r); err.(ValidationErrors).HasErrors() {
+		return Task{}, err
 	}
-
 	task := r.env.Tasks[r.ref]
+	params, err := r.parameters.inherit(task.Parameters)
+	if err != nil {
+		return Task{}, err
+	}
+	envVars, err := r.envVars.inherit(task.EnvVars)
+	if err != nil {
+		return Task{}, err
+	}
 	return Task{
 		Name:       task.Name,
 		location:   task.location,
@@ -56,20 +71,28 @@ func (r TaskRef) Resolve() (Task, error) {
 		Playbook:   task.Playbook,
 		Cron:       task.Cron,
 		Hooks:      task.Hooks,
-		Parameters: r.parameters.inherits(task.Parameters),
-		EnvVars:    r.envVars.inherits(task.EnvVars)}, nil
+		Parameters: params,
+		EnvVars:    envVars}, nil
 }
 
-func createTaskRef(env *Environment, location DescriptorLocation, tRef yamlTaskRef, hl hookLocation) TaskRef {
+func createTaskRef(env *Environment, location DescriptorLocation, tRef yamlTaskRef, hl hookLocation) (TaskRef, error) {
+	params, err := createParameters(tRef.Params)
+	if err != nil {
+		return TaskRef{}, err
+	}
+	envVars, err := createEnvVars(tRef.Env)
+	if err != nil {
+		return TaskRef{}, err
+	}
 	return TaskRef{
 		env:          env,
 		HookLocation: hl,
 		ref:          tRef.Task,
-		parameters:   createParameters(tRef.Params),
-		envVars:      createEnvVars(tRef.Env),
+		parameters:   params,
+		envVars:      envVars,
 		location:     location,
 		mandatory:    true,
-	}
+	}, nil
 }
 
 func checkCircularRefs(taskRefs []TaskRef, alreadyEncountered *circularRefTracking) error {

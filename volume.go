@@ -36,11 +36,15 @@ type (
 )
 
 func (r *Volume) merge(other Volume) error {
+	var err error
 	if !reflect.DeepEqual(r, &other) {
 		if r.Path != other.Path {
 			return errors.New("cannot merge unrelated volumes (" + r.Path + " != " + other.Path + ")")
 		}
-		r.Parameters = r.Parameters.inherits(other.Parameters)
+		r.Parameters, err = r.Parameters.inherit(other.Parameters)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -53,13 +57,21 @@ func (r Volume) validate() ValidationErrors {
 	return vErrs
 }
 
-func createVolumes(location DescriptorLocation, yamlRef []yamlVolume) Volumes {
+func createVolumes(location DescriptorLocation, yamlRef []yamlVolume) (Volumes, error) {
 	volumes := Volumes{}
 	for i, v := range yamlRef {
 		volumeLocation := location.appendIndex(i)
-		volumes[v.Path] = &Volume{location: volumeLocation, Parameters: createParameters(v.Params), Path: v.Path}
+		params, err := createParameters(v.Params)
+		if err != nil {
+			return volumes, err
+		}
+		volumes[v.Path] = &Volume{
+			location:   volumeLocation,
+			Parameters: params,
+			Path:       v.Path,
+		}
 	}
-	return volumes
+	return volumes, nil
 }
 
 func (r Volumes) merge(other Volumes) error {
