@@ -1,7 +1,7 @@
 package model
 
 import (
-	"errors"
+	"fmt"
 	"reflect"
 )
 
@@ -35,7 +35,7 @@ func mustHaveStringKeys(m map[string]interface{}) error {
 		vv := reflect.ValueOf(v)
 		if vv.Kind() == reflect.Map {
 			if vv.Type().Key().Kind() != reflect.String {
-				return errors.New("parameters should only have string keys")
+				return fmt.Errorf("parameters should only have string keys, found \"%v\"", v)
 			}
 			// check deeper...
 			return mustHaveStringKeys(v.(map[string]interface{}))
