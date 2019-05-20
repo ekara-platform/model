@@ -439,7 +439,7 @@ func assertEnv(t *testing.T, env *Environment) {
 	templates := stack2.Templates
 	tC := templates.Content
 	if assert.Equal(t, len(tC), 2) {
-		assert.Contains(t, tC, "*.yaml")
+		assert.Contains(t, tC, "*/*.yaml")
 		assert.Contains(t, tC, "*.yml")
 	}
 
@@ -451,16 +451,39 @@ func assertEnv(t *testing.T, env *Environment) {
 		if assert.Contains(t, copies.Content, "some/target1/volume/path") {
 			v, ok := copies.Content["some/target1/volume/path"]
 			assert.True(t, ok)
-			assert.Contains(t, v.Content, "*target1_to_be_copied.yaml")
-			assert.Contains(t, v.Content, "*target1_to_be_copied.yml")
+			assert.Contains(t, v.Sources.Content, "*target1_to_be_copied.yaml")
+			assert.Contains(t, v.Sources.Content, "*target1_to_be_copied.yml")
+			lab, ok := v.Labels["label1"]
+			assert.True(t, ok)
+			assert.Equal(t, lab, "t1_val1")
+			lab, ok = v.Labels["label2"]
+			assert.True(t, ok)
+			assert.Equal(t, lab, "t1_val2")
 		}
 		if assert.Contains(t, copies.Content, "some/target2/volume/path") {
 			v, ok := copies.Content["some/target2/volume/path"]
 			assert.True(t, ok)
-			assert.Contains(t, v.Content, "*target2_to_be_copied.yaml")
-			assert.Contains(t, v.Content, "*target2_to_be_copied.yml")
+			assert.Contains(t, v.Sources.Content, "*target2_to_be_copied.yaml")
+			assert.Contains(t, v.Sources.Content, "*target2_to_be_copied.yml")
+			lab, ok := v.Labels["label1"]
+			assert.True(t, ok)
+			assert.Equal(t, lab, "t2_val1")
+			lab, ok = v.Labels["label2"]
+			assert.True(t, ok)
+			assert.Equal(t, lab, "t2_val2")
 		}
 	}
+
+	/*
+	   - target:
+	       labels:
+	         label1: t2_val1
+	         label2: t2_val2
+	       path: "some/target2/volume/path"
+	     sources:
+	       - "*target2_to_be_copied.yaml"
+	       - "*target2_to_be_copied.yml"
+	*/
 
 	//------------------------------------------------------------
 	// Stack1 Hook

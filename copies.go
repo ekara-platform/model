@@ -6,13 +6,20 @@ type (
 	// The map content is an array of path patterns to locate the content to be copied
 	Copies struct {
 		//Content lists all the content to be copies
-		Content map[string]Patterns
+		Content map[string]Copy
+	}
+
+	Copy struct {
+		// Labels identifies the node sets where to copy
+		Labels Labels
+		//Sources identifies the content to copy
+		Sources Patterns
 	}
 )
 
 func (r Copies) inherits(parent Copies) Copies {
 	dst := Copies{}
-	dst.Content = make(map[string]Patterns)
+	dst.Content = make(map[string]Copy)
 	for k, v := range r.Content {
 		// We copy all the original content
 		dst.Content[k] = v
@@ -22,8 +29,11 @@ func (r Copies) inherits(parent Copies) Copies {
 		if _, ok := dst.Content[k]; !ok {
 			dst.Content[k] = v
 		} else {
-			// if it's not new will merge the patterns from the original content and the parent
-			dst.Content[k] = dst.Content[k].inherits(v)
+			// if it's not new we will merge the patterns/labels from the original content and the parent
+			work := dst.Content[k]
+			work.Sources = work.Sources.inherits(v.Sources)
+			work.Labels = work.Labels.inherits(v.Labels)
+			dst.Content[k] = work
 		}
 	}
 	return dst
@@ -32,13 +42,16 @@ func (r Copies) inherits(parent Copies) Copies {
 func createCopies(env *Environment, location DescriptorLocation, copies []yamlCopy) Copies {
 	//TODO do somthing with the location if one day we decide to validate the copies content
 	res := Copies{}
-	res.Content = make(map[string]Patterns)
-	for _, vPath := range copies {
+	res.Content = make(map[string]Copy)
+	for _, yCop := range copies {
+		copy := Copy{}
+		copy.Labels = yCop.Target.Labels
 		patterns := Patterns{}
-		for _, vPattern := range vPath.Patterns {
+		for _, vPattern := range yCop.Patterns {
 			patterns.Content = append(patterns.Content, vPattern)
 		}
-		res.Content[vPath.Path] = patterns
+		copy.Sources = patterns
+		res.Content[yCop.Target.Path] = copy
 	}
 	return res
 }

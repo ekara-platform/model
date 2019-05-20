@@ -14,10 +14,15 @@ type (
 
 	// yaml tag for stuff to be copied on volumes
 	yamlCopy struct {
+		Target yamlTarget
+		// The list of path patterns identifying content to be copied
+		Patterns []string `yaml:"sources"`
+	}
+
+	yamlTarget struct {
+		yamlLabel `yaml:",inline"`
 		// The volume path where to copy the content
 		Path string
-		// The list of path patterns identifying content to be copied
-		Patterns []string `yaml:"copy_patterns"`
 	}
 
 	// yaml tag for parameters
@@ -211,10 +216,10 @@ type (
 			yamlEnv `yaml:",inline"`
 
 			// The list of path patterns where to apply the template mechanism
-			Templates []string `yaml:"templates_patterns"`
+			Templates []string `yaml:"templates"`
 
 			// The stack content to be copied on volumes
-			Copies []yamlCopy `yaml:"volume_copies"`
+			Copies []yamlCopy `yaml:"copies"`
 		}
 
 		// Global hooks
