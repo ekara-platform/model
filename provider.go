@@ -100,16 +100,22 @@ func createProviders(env *Environment, location DescriptorLocation, yamlEnv *yam
 	return res, nil
 }
 
-func (r Providers) merge(env *Environment, other Providers) error {
+func (r Providers) merge(env *Environment, other Providers) (Providers, error) {
+	res := make(map[string]Provider)
+	for k, v := range r {
+		res[k] = v
+	}
 	for id, p := range other {
-		if provider, ok := r[id]; ok {
-			if err := provider.merge(p); err != nil {
-				return err
+		if provider, ok := res[id]; ok {
+			pm := &provider
+			if err := pm.merge(p); err != nil {
+				return res, err
 			}
+			res[id] = *pm
 		} else {
 			p.cRef.env = env
-			r[id] = p
+			res[id] = p
 		}
 	}
-	return nil
+	return res, nil
 }

@@ -157,17 +157,24 @@ func buildNode(name string, env *Environment, location DescriptorLocation, yN ya
 		Labels: yN.Labels}, nil
 }
 
-func (r NodeSets) merge(env *Environment, other NodeSets) error {
+func (r NodeSets) merge(env *Environment, other NodeSets) (NodeSets, error) {
+	res := make(map[string]NodeSet)
+	for kr, vr := range r {
+		res[kr] = vr
+	}
+
 	for id, n := range other {
-		if nodeSet, ok := r[id]; ok {
-			if err := nodeSet.merge(n); err != nil {
-				return err
+		if nodeSet, ok := res[id]; ok {
+			nm := &nodeSet
+			if err := nm.merge(n); err != nil {
+				return res, err
 			}
+			res[id] = *nm
 		} else {
 			n.Provider.env = env
 			n.Orchestrator.env = env
-			r[id] = n
+			res[id] = n
 		}
 	}
-	return nil
+	return res, nil
 }

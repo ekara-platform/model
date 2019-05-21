@@ -113,18 +113,24 @@ func createTasks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnv
 	return res, nil
 }
 
-func (r Tasks) merge(env *Environment, other Tasks) error {
+func (r Tasks) merge(env *Environment, other Tasks) (Tasks, error) {
+
+	work := make(map[string]*Task)
+	for k, v := range r {
+		work[k] = v
+	}
+
 	for id, t := range other {
-		if task, ok := r[id]; ok {
+		if task, ok := work[id]; ok {
 			if err := task.merge(*t); err != nil {
-				return err
+				return work, err
 			}
 		} else {
 			t.cRef.env = env
-			r[id] = t
+			work[id] = t
 		}
 	}
-	return nil
+	return work, nil
 }
 
 func (r *circularRefTracking) String() string {

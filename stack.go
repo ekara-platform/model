@@ -81,18 +81,25 @@ func (s *Stack) merge(other Stack) error {
 	return s.Hooks.merge(other.Hooks)
 }
 
-func (r Stacks) merge(env *Environment, others Stacks) error {
+func (r Stacks) merge(env *Environment, others Stacks) (Stacks, error) {
+	res := make(map[string]Stack)
+	for k, v := range r {
+		res[k] = v
+	}
+
 	for id, s := range others {
-		if stack, ok := r[id]; ok {
-			if err := stack.merge(s); err != nil {
-				return err
+		if stack, ok := res[id]; ok {
+			sm := &stack
+			if err := sm.merge(s); err != nil {
+				return res, err
 			}
+			res[id] = *sm
 		} else {
 			s.cRef.env = env
-			r[id] = s
+			res[id] = s
 		}
 	}
-	return nil
+	return res, nil
 }
 
 func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) (Stacks, error) {

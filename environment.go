@@ -102,20 +102,31 @@ func (r *Environment) Merge(other *Environment) error {
 	if err := r.Ekara.merge(*other.Ekara); err != nil {
 		return err
 	}
+
 	if err := r.Orchestrator.merge(other.Orchestrator); err != nil {
 		return err
 	}
-	if err := r.Providers.merge(r, other.Providers); err != nil {
+
+	if prs, err := r.Providers.merge(r, other.Providers); err != nil {
 		return err
+	} else {
+		r.Providers = prs
 	}
-	if err := r.NodeSets.merge(r, other.NodeSets); err != nil {
+
+	if nds, err := r.NodeSets.merge(r, other.NodeSets); err != nil {
 		return err
+	} else {
+		r.NodeSets = nds
 	}
-	if err := r.Stacks.merge(r, other.Stacks); err != nil {
+	if sts, err := r.Stacks.merge(r, other.Stacks); err != nil {
 		return err
+	} else {
+		r.Stacks = sts
 	}
-	if err := r.Tasks.merge(r, other.Tasks); err != nil {
+	if tas, err := r.Tasks.merge(r, other.Tasks); err != nil {
 		return err
+	} else {
+		r.Tasks = tas
 	}
 	return r.Hooks.merge(other.Hooks)
 }
