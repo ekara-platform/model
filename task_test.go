@@ -273,31 +273,33 @@ func TestMergeTasks(t *testing.T) {
 	os[o3.Name] = o3
 
 	env := &Environment{}
-	ts.merge(env, os)
+	ts, err := ts.merge(env, os)
+	assert.Nil(t, err)
 
-	assert.Equal(t, 3, len(ts))
+	if assert.Equal(t, 3, len(ts)) {
 
-	if assert.Equal(t, 2, len(ts[ta1.Name].Parameters)) {
-		assert.Equal(t, "val11", ts[ta1.Name].Parameters["p11"])
-		assert.Equal(t, "new", ts[ta1.Name].Parameters["p12"])
-	}
-	if assert.Equal(t, 2, len(ts[ta1.Name].EnvVars)) {
-		assert.Equal(t, "env11", ts[ta1.Name].EnvVars["e11"])
-		assert.Equal(t, "new", ts[ta1.Name].EnvVars["e12"])
-	}
+		if assert.Equal(t, 2, len(ts[ta1.Name].Parameters)) {
+			assert.Equal(t, "val11", ts[ta1.Name].Parameters["p11"])
+			assert.Equal(t, "new", ts[ta1.Name].Parameters["p12"])
+		}
+		if assert.Equal(t, 2, len(ts[ta1.Name].EnvVars)) {
+			assert.Equal(t, "env11", ts[ta1.Name].EnvVars["e11"])
+			assert.Equal(t, "new", ts[ta1.Name].EnvVars["e12"])
+		}
 
-	if assert.Equal(t, 1, len(ts[ta2.Name].Parameters)) {
-		assert.Equal(t, "val12", ts[ta2.Name].Parameters["p12"])
-	}
-	if assert.Equal(t, 1, len(ts[ta2.Name].EnvVars)) {
-		assert.Equal(t, "env12", ts[ta2.Name].EnvVars["e12"])
-	}
+		if assert.Equal(t, 1, len(ts[ta2.Name].Parameters)) {
+			assert.Equal(t, "val12", ts[ta2.Name].Parameters["p12"])
+		}
+		if assert.Equal(t, 1, len(ts[ta2.Name].EnvVars)) {
+			assert.Equal(t, "env12", ts[ta2.Name].EnvVars["e12"])
+		}
 
-	if assert.Equal(t, 1, len(ts[o3.Name].Parameters)) {
-		assert.Equal(t, "val13", ts[o3.Name].Parameters["p13"])
+		if assert.Equal(t, 1, len(ts[o3.Name].Parameters)) {
+			assert.Equal(t, "val13", ts[o3.Name].Parameters["p13"])
 
-	}
-	if assert.Equal(t, 1, len(ts[o3.Name].EnvVars)) {
-		assert.Equal(t, "env13", ts[o3.Name].EnvVars["e13"])
+		}
+		if assert.Equal(t, 1, len(ts[o3.Name].EnvVars)) {
+			assert.Equal(t, "env13", ts[o3.Name].EnvVars["e13"])
+		}
 	}
 }
