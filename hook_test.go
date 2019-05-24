@@ -11,6 +11,12 @@ func TestHasNoTask(t *testing.T) {
 	assert.False(t, h.HasTasks())
 }
 
+func TestHasTask(t *testing.T) {
+	h := Hook{}
+	h.Before = append(h.Before, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
 func TestHasTaskBefore(t *testing.T) {
 	h := Hook{}
 	h.Before = append(h.Before, oneTask)
