@@ -48,6 +48,17 @@ func assertEnv(t *testing.T, env *Environment) {
 	assert.Equal(t, "file://someBase/", env.Ekara.Base.Url.String())
 	assert.Equal(t, "file:///someBase/ekara-platform/distribution/", env.Ekara.Distribution.Repository.Url.String())
 
+	// Variables
+	assert.NotNil(t, env.Vars)
+	assert.Equal(t, 2, len(env.Vars))
+	va, ok := env.Vars["global_var_key1"]
+	assert.True(t, ok)
+	assert.Equal(t, va, "global_var_val1")
+
+	va, ok = env.Vars["global_var_key2"]
+	assert.True(t, ok)
+	assert.Equal(t, va, "global_var_val2")
+
 	//------------------------------------------------------------
 	// Orchestrator
 	//------------------------------------------------------------

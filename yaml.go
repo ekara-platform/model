@@ -30,6 +30,11 @@ type (
 		Params map[string]interface{} `yaml:",omitempty"`
 	}
 
+	// yaml tag for variables
+	yamlVars struct {
+		Vars map[string]interface{} `yaml:",omitempty"`
+	}
+
 	// yaml tag for Docker parameters
 	yamlDockerParams struct {
 		Docker map[string]interface{} `yaml:",omitempty"`
@@ -152,6 +157,9 @@ type (
 
 		// The Ekara platform used to interact with the environment
 		Ekara yamlEkara
+
+		// The descriptor variables
+		yamlVars `yaml:",inline"`
 
 		// Tasks which can be run on the created environment
 		Tasks map[string]struct {

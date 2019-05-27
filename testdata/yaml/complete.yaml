@@ -25,6 +25,9 @@ ekara:
       repository: some-org/stack2
       ref: 1.2.3
 
+vars:
+  global_var_key1 : global_var_val1 
+  global_var_key2 : global_var_val2 
 
 tasks:
   task1:

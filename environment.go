@@ -14,6 +14,8 @@ type (
 		Description string
 		// Ekara platform settings
 		Ekara *Platform
+		// The descriptor variables
+		Vars Parameters
 		// The orchestrator used to manage the environment
 		Orchestrator Orchestrator
 		// The providers where to create the environment node sets
@@ -56,6 +58,13 @@ func CreateEnvironment(url EkUrl, data map[string]interface{}) (*Environment, er
 	if err != nil {
 		return env, err
 	}
+
+	vars, err := createParameters(yamlEnv.yamlVars.Vars)
+	if err != nil {
+		return env, err
+	}
+	env.Vars = vars
+
 	env.Tasks, err = createTasks(env, env.location.appendPath("tasks"), &yamlEnv)
 	if err != nil {
 		return env, err
