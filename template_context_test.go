@@ -39,7 +39,7 @@ func TestMergeTemplateContext(t *testing.T) {
 	})
 
 	pc := CreateContext(p)
-	err := pc.mergeVars(others)
+	err := pc.MergeVars(others)
 	assert.Nil(t, err)
 	assert.NotNil(t, pc)
 	assert.Equal(t, 3, len(pc.Vars))
