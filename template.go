@@ -10,7 +10,10 @@ func ApplyTemplate(u EkUrl, descriptorContent []byte, parameters *TemplateContex
 
 	// Parse/execute it as a Go template
 	out = bytes.Buffer{}
-	tpl := template.Must(template.New(u.String()).Option("missingkey=error").Parse(string(descriptorContent)))
+	tpl, err := template.New(u.String()).Option("missingkey=error").Parse(string(descriptorContent))
+	if err != nil {
+		return
+	}
 
 	err = tpl.Execute(&out, *parameters)
 	if err != nil {
