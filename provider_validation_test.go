@@ -30,7 +30,7 @@ func TestValidationNoProviders(t *testing.T) {
 //- Error: reference to unknown provider: dummy @nodes.managers.provider
 //
 func TestValidationNodesUnknownProvider(t *testing.T) {
-	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/grammar/nodes_unknown_provider.yaml"), map[string]interface{}{})
+	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/grammar/nodes_unknown_provider.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
 	vErrs := env.Validate()
 	assert.True(t, vErrs.HasErrors())

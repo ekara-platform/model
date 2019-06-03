@@ -12,11 +12,11 @@ type (
 )
 
 func createOrchestratorRef(env *Environment, location DescriptorLocation, yamlRef yamlOrchestratorRef) (orchestratorRef, error) {
-	oParams, err := createParameters(yamlRef.Params)
+	oParams, err := CreateParameters(yamlRef.Params)
 	if err != nil {
 		return orchestratorRef{}, err
 	}
-	dParams, err := createParameters(yamlRef.Docker)
+	dParams, err := CreateParameters(yamlRef.Docker)
 	if err != nil {
 		return orchestratorRef{}, err
 	}

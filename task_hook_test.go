@@ -13,7 +13,7 @@ import (
 //- Error: empty volume path @nodes.managers.volumes.path
 //
 func TestValidateUnknownTaskHooks(t *testing.T) {
-	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/grammar/task_unknown_hook.yaml"), map[string]interface{}{})
+	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/grammar/task_unknown_hook.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
 	vErrs := env.Validate()
 	assert.True(t, vErrs.HasErrors())

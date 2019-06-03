@@ -59,7 +59,7 @@ func (p *Platform) UsedComponents() ([]Component, error) {
 		if name != "" {
 			c, err := cr.Component()
 			if err != nil {
-				return res, err
+				continue
 			}
 			temp[name] = c
 		}

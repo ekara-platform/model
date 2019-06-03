@@ -84,7 +84,7 @@ func createTasks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnv
 	res := Tasks{}
 	for name, yamlTask := range yamlEnv.Tasks {
 		taskLocation := location.appendPath(name)
-		params, err := createParameters(yamlTask.Params)
+		params, err := CreateParameters(yamlTask.Params)
 		if err != nil {
 			return res, err
 		}

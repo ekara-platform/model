@@ -15,7 +15,7 @@ type (
 
 // createProviderRef creates a reference to the provider declared into the yaml reference
 func createProviderRef(env *Environment, location DescriptorLocation, yamlRef yamlProviderRef) (providerRef, error) {
-	params, err := createParameters(yamlRef.Params)
+	params, err := CreateParameters(yamlRef.Params)
 	if err != nil {
 		return providerRef{}, err
 	}

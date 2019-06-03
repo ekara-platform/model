@@ -7,11 +7,11 @@ import (
 )
 
 func TestSliceConcatenation(t *testing.T) {
-	parent, err := createParameters(map[string]interface{}{
+	parent, err := CreateParameters(map[string]interface{}{
 		"slice": []int{1, 2, 3},
 	})
 	assert.Nil(t, err)
-	child, err := createParameters(map[string]interface{}{
+	child, err := CreateParameters(map[string]interface{}{
 		"slice": []int{4, 5, 6},
 	})
 	assert.Nil(t, err)
@@ -21,11 +21,11 @@ func TestSliceConcatenation(t *testing.T) {
 }
 
 func TestSliceMismatch(t *testing.T) {
-	parent, err := createParameters(map[string]interface{}{
+	parent, err := CreateParameters(map[string]interface{}{
 		"slice": []string{"a", "b", "c"},
 	})
 	assert.Nil(t, err)
-	child, err := createParameters(map[string]interface{}{
+	child, err := CreateParameters(map[string]interface{}{
 		"slice": []int{4, 5, 6},
 	})
 	assert.Nil(t, err)
@@ -35,14 +35,14 @@ func TestSliceMismatch(t *testing.T) {
 }
 
 func TestMapMerging(t *testing.T) {
-	parent, err := createParameters(map[string]interface{}{
+	parent, err := CreateParameters(map[string]interface{}{
 		"key1": map[interface{}]interface{}{
 			"key11": "someValue",
 			"key12": "otherValue",
 		},
 	})
 	assert.Nil(t, err)
-	child, err := createParameters(map[string]interface{}{
+	child, err := CreateParameters(map[string]interface{}{
 		"key1": map[interface{}]interface{}{
 			"key13": "thirdValue",
 		},

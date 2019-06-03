@@ -16,11 +16,11 @@ type (
 
 func createOrchestrator(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) (Orchestrator, error) {
 	yamlO := yamlEnv.Orchestrator
-	params, err := createParameters(yamlO.Params)
+	params, err := CreateParameters(yamlO.Params)
 	if err != nil {
 		return Orchestrator{}, err
 	}
-	docker, err := createParameters(yamlO.Docker)
+	docker, err := CreateParameters(yamlO.Docker)
 	if err != nil {
 		return Orchestrator{}, err
 	}

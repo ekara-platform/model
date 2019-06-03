@@ -76,7 +76,7 @@ func (r TaskRef) Resolve() (Task, error) {
 }
 
 func createTaskRef(env *Environment, location DescriptorLocation, tRef yamlTaskRef, hl hookLocation) (TaskRef, error) {
-	params, err := createParameters(tRef.Params)
+	params, err := CreateParameters(tRef.Params)
 	if err != nil {
 		return TaskRef{}, err
 	}

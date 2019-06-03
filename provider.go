@@ -77,7 +77,7 @@ func createProviders(env *Environment, location DescriptorLocation, yamlEnv *yam
 	res := Providers{}
 	for name, yamlProvider := range yamlEnv.Providers {
 		providerLocation := location.appendPath(name)
-		params, err := createParameters(yamlProvider.Params)
+		params, err := CreateParameters(yamlProvider.Params)
 		if err != nil {
 			return res, err
 		}

@@ -107,7 +107,7 @@ func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEn
 	for name, yamlStack := range yamlEnv.Stacks {
 		// Root stack
 		stackLocation := location.appendPath(name)
-		params, err := createParameters(yamlStack.Params)
+		params, err := CreateParameters(yamlStack.Params)
 		if err != nil {
 			return res, err
 		}

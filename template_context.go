@@ -18,6 +18,7 @@ func CreateContext(params Parameters) *TemplateContext {
 	}
 }
 
+//Merge others parameters into the template context
 func (cc *TemplateContext) MergeVars(others Parameters) error {
 	var err error
 	cc.Vars, err = cc.Vars.inherit(others)

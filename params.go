@@ -8,7 +8,7 @@ import (
 //Parameters represents the parameters coming from a descriptor
 type Parameters map[string]interface{}
 
-func createParameters(src map[string]interface{}) (Parameters, error) {
+func CreateParameters(src map[string]interface{}) (Parameters, error) {
 	dst := make(map[string]interface{})
 	for k, v := range src {
 		dst[k] = v

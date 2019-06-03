@@ -7,7 +7,7 @@ import (
 )
 
 func TestCreateTemplateContext(t *testing.T) {
-	p, err := createParameters(map[string]interface{}{
+	p, err := CreateParameters(map[string]interface{}{
 		"key1": "value1",
 		"key2": "value2",
 	})
@@ -28,12 +28,12 @@ func TestCreateTemplateContext(t *testing.T) {
 }
 
 func TestMergeTemplateContext(t *testing.T) {
-	p, _ := createParameters(map[string]interface{}{
+	p, _ := CreateParameters(map[string]interface{}{
 		"key1": "value1",
 		"key2": "value2_owverwritten",
 	})
 
-	others, _ := createParameters(map[string]interface{}{
+	others, _ := CreateParameters(map[string]interface{}{
 		"key2": "value2",
 		"key3": "value3",
 	})

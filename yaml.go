@@ -244,6 +244,12 @@ type (
 			Content []yamlVolumeContent `yaml:",omitempty"`
 		} `yaml:",omitempty"`
 	}
+
+	// Definition of the Ekara environment
+	yamlEnvironmentVars struct {
+		// The descriptor variables
+		yamlVars `yaml:",inline"`
+	}
 )
 
 // RawContent returns the serialized content of the environement as YAML
@@ -251,7 +257,7 @@ func (r *yamlEnvironment) RawContent() ([]byte, error) {
 	return yaml.Marshal(r)
 }
 
-func parseYamlDescriptor(u EkUrl, parameters map[string]interface{}) (env yamlEnvironment, err error) {
+func parseYamlDescriptor(u EkUrl, parameters *TemplateContext) (env yamlEnvironment, err error) {
 
 	// Read descriptor content
 	content, err := u.ReadUrl()
@@ -259,7 +265,41 @@ func parseYamlDescriptor(u EkUrl, parameters map[string]interface{}) (env yamlEn
 		return
 	}
 
-	out, err := ApplyTemplate(u, content, parameters)
+	//Parse just the "vars:" section of the descriptor
+	tempsVars := &yamlEnvironmentVars{}
+	// Unmarshal the resulting YAML
+	err = yaml.Unmarshal(content, tempsVars)
+	if err != nil {
+		return
+	}
+
+	tempsVarsYaml, err := yaml.Marshal(tempsVars)
+	if err != nil {
+		return
+	}
+
+	//We apply the template a first time just on the var content
+	out, err := ApplyTemplate(u, tempsVarsYaml, parameters)
+	if err != nil {
+		return
+	}
+
+	//Parse just the "vars:" section of the descriptor
+	tempsVars = &yamlEnvironmentVars{}
+	// Unmarshal the resulting YAML
+	err = yaml.Unmarshal(out.Bytes(), tempsVars)
+	if err != nil {
+		return
+	}
+
+	if len(tempsVars.Vars) > 0 {
+		err = parameters.MergeVars(tempsVars.Vars)
+		if err != nil {
+			return
+		}
+	}
+
+	out, err = ApplyTemplate(u, content, parameters)
 	if err != nil {
 		return
 	}

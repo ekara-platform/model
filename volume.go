@@ -61,7 +61,7 @@ func createVolumes(location DescriptorLocation, yamlRef []yamlVolume) (Volumes, 
 	volumes := Volumes{}
 	for i, v := range yamlRef {
 		volumeLocation := location.appendIndex(i)
-		params, err := createParameters(v.Params)
+		params, err := CreateParameters(v.Params)
 		if err != nil {
 			return volumes, err
 		}

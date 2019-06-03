@@ -38,9 +38,9 @@ type (
 //
 //		url: 	The complete url pointing on the descritor used to build the environment.
 //			The two only supported extension are ".yaml" and ".yml"!
-//		data: The data used to substitute variables into the environment descriptor
+//		data: The context used to substitute variables into the environment descriptor
 //
-func CreateEnvironment(url EkUrl, data map[string]interface{}) (*Environment, error) {
+func CreateEnvironment(url EkUrl, data *TemplateContext) (*Environment, error) {
 	env := &Environment{}
 	var err error
 	var yamlEnv yamlEnvironment
@@ -59,7 +59,7 @@ func CreateEnvironment(url EkUrl, data map[string]interface{}) (*Environment, er
 		return env, err
 	}
 
-	vars, err := createParameters(yamlEnv.yamlVars.Vars)
+	vars, err := CreateParameters(yamlEnv.yamlVars.Vars)
 	if err != nil {
 		return env, err
 	}

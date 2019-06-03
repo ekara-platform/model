@@ -9,27 +9,27 @@ import (
 )
 
 func TestCreateEngineComplete(t *testing.T) {
-	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/complete.yaml"), map[string]interface{}{})
+	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/complete.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
 	assertEnv(t, env)
 }
 
 func TestCreateEnginePartials(t *testing.T) {
-	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/env.yaml"), map[string]interface{}{})
+	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/env.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
-	env2, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/core.yaml"), map[string]interface{}{})
+	env2, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/core.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
 	env.Merge(env2)
-	env3, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/providers.yaml"), map[string]interface{}{})
+	env3, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/providers.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
 	env.Merge(env3)
-	env4, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/orchestrator.yaml"), map[string]interface{}{})
+	env4, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/orchestrator.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
 	env.Merge(env4)
-	env5, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/stacks.yaml"), map[string]interface{}{})
+	env5, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/stacks.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
 	env.Merge(env5)
-	env6, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/tasks.yaml"), map[string]interface{}{})
+	env6, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/tasks.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
 	env.Merge(env6)
 	assertEnv(t, env)
@@ -50,15 +50,21 @@ func assertEnv(t *testing.T, env *Environment) {
 
 	// Variables
 	assert.NotNil(t, env.Vars)
-	assert.Equal(t, 2, len(env.Vars))
-	va, ok := env.Vars["global_var_key1"]
-	assert.True(t, ok)
-	assert.Equal(t, va, "global_var_val1")
+	if assert.Equal(t, 2, len(env.Vars)) {
+		va, ok := env.Vars["global_var_key1"]
+		assert.True(t, ok)
+		assert.Equal(t, va, "global_var_val1")
 
-	va, ok = env.Vars["global_var_key2"]
-	assert.True(t, ok)
-	assert.Equal(t, va, "global_var_val2")
-
+		va, ok = env.Vars["global_var_key2"]
+		assert.True(t, ok)
+		assert.Equal(t, va, "global_var_val2")
+		/*
+			va, ok = env.Vars["global_var_key3"]
+			assert.True(t, ok)
+			assert.NotEqual(t, va, ".Vars.comming.from.previous.step")
+			assert.Equal(t, va, ".Vars.this.value.comes.from.previous.step")
+		*/
+	}
 	//------------------------------------------------------------
 	// Orchestrator
 	//------------------------------------------------------------

@@ -8,14 +8,14 @@ import (
 )
 
 func TestCreateEngineFromBadHttp(t *testing.T) {
-	_, e := parseYamlDescriptor(buildURL(t, "https://github.com/ekara-platform/engine/tree/master/testdata/DUMMY.yaml"), map[string]interface{}{})
+	_, e := parseYamlDescriptor(buildURL(t, "https://github.com/ekara-platform/engine/tree/master/testdata/DUMMY.yaml"), &TemplateContext{})
 	// an error occurred
 	assert.NotNil(t, e)
 	assert.True(t, strings.HasSuffix(e.Error(), "HTTP status 404"))
 }
 
 func TestCreateEngineFromLocal(t *testing.T) {
-	yamlEnv, e := parseYamlDescriptor(buildURL(t, "testdata/yaml/complete.yaml"), map[string]interface{}{})
+	yamlEnv, e := parseYamlDescriptor(buildURL(t, "testdata/yaml/complete.yaml"), &TemplateContext{})
 	assert.Nil(t, e) // no error occurred
 
 	assert.Equal(t, "testEnvironment", yamlEnv.Name)                              // importing file have has precedence
@@ -23,15 +23,20 @@ func TestCreateEngineFromLocal(t *testing.T) {
 }
 
 func TestCreateEngineFromLocalComplexParams(t *testing.T) {
-	yamlEnv, e := parseYamlDescriptor(buildURL(t, "testdata/yaml/complex.yaml"), map[string]interface{}{})
+	yamlEnv, e := parseYamlDescriptor(buildURL(t, "testdata/yaml/complex.yaml"), &TemplateContext{})
 	assert.Nil(t, e) // no error occurred
 	assert.NotNil(t, yamlEnv)
 }
 func TestCreateEngineFromLocalWithData(t *testing.T) {
-	yamlEnv, e := parseYamlDescriptor(buildURL(t, "testdata/yaml/data.yaml"), map[string]interface{}{
+
+	vars, _ := CreateParameters(map[string]interface{}{
 		"info": map[string]string{
 			"name": "Name from data",
-			"desc": "Description from data"}})
+			"desc": "Description from data",
+		},	
+	})
+
+	yamlEnv, e := parseYamlDescriptor(buildURL(t, "testdata/yaml/data.yaml"), &TemplateContext{Vars: vars})
 	assert.Nil(t, e) // no error occurred
 	assert.NotNil(t, yamlEnv)
 	assert.Equal(t, "Name from data", yamlEnv.Name)
