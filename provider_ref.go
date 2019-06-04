@@ -10,6 +10,7 @@ type (
 		env        *Environment
 		location   DescriptorLocation
 		mandatory  bool
+		templates  Patterns
 	}
 )
 
@@ -35,6 +36,7 @@ func createProviderRef(env *Environment, location DescriptorLocation, yamlRef ya
 		envVars:    envVars,
 		location:   location,
 		mandatory:  true,
+		templates:  createPatterns(env, location.appendPath("templates_patterns"), yamlRef.Templates),
 	}, nil
 }
 
@@ -55,6 +57,7 @@ func (r *providerRef) merge(other providerRef) error {
 	if err != nil {
 		return err
 	}
+	r.templates = r.templates.inherit(other.templates)
 	return nil
 }
 
@@ -77,12 +80,14 @@ func (r providerRef) Resolve() (Provider, error) {
 	if err != nil {
 		return Provider{}, err
 	}
+
 	return Provider{
 		Name:       provider.Name,
 		cRef:       provider.cRef,
 		Parameters: params,
 		EnvVars:    envVars,
-		Proxy:      proxy}, nil
+		Proxy:      proxy,
+		Templates:  r.templates.inherit(provider.Templates)}, nil
 }
 
 //reference return a validatable representation of the reference on a provider

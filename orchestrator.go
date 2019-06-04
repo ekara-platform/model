@@ -11,6 +11,8 @@ type (
 		Docker Parameters
 		// The orchestrator environment variables
 		EnvVars EnvVars
+		// The list of path patterns where to apply the template mechanism
+		Templates Patterns
 	}
 )
 
@@ -28,12 +30,15 @@ func createOrchestrator(env *Environment, location DescriptorLocation, yamlEnv *
 	if err != nil {
 		return Orchestrator{}, err
 	}
+
 	o := Orchestrator{
 		cRef:       createComponentRef(env, location.appendPath("component"), yamlO.Component, true),
 		Parameters: params,
 		Docker:     docker,
 		EnvVars:    envVars,
+		Templates:  createPatterns(env, location.appendPath("templates_patterns"), yamlO.Templates),
 	}
+
 	env.Ekara.tagUsedComponent(o)
 	return o, nil
 }
@@ -60,6 +65,7 @@ func (r *Orchestrator) merge(other Orchestrator) error {
 	if err != nil {
 		return err
 	}
+	r.Templates = r.Templates.inherit(other.Templates)
 	return nil
 }
 

@@ -18,6 +18,8 @@ type (
 		EnvVars EnvVars
 		// The provider proxy
 		Proxy Proxy
+		// The provider templates
+		Templates Patterns
 	}
 
 	//Providers lists all the providers required to build the environemt
@@ -95,6 +97,7 @@ func createProviders(env *Environment, location DescriptorLocation, yamlEnv *yam
 			Parameters: params,
 			EnvVars:    envVars,
 			Proxy:      proxy,
+			Templates:  createPatterns(env, providerLocation.appendPath("templates_patterns"), yamlProvider.Templates),
 		}
 	}
 	return res, nil

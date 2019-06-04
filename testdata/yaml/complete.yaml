@@ -70,6 +70,9 @@ orchestrator:
   env:
     swarm_env_key1: swarm_env_key1_value
     swarm_env_key2: swarm_env_key2_value
+  templates:
+    - "orchestrator/*/*.yaml"
+    - "orchestrator/*.yml"
 
 providers:
   aws:
@@ -84,6 +87,10 @@ providers:
       http_proxy: aws_http_proxy
       https_proxy: aws_https_proxy
       no_proxy: aws_no_proxy
+    templates:
+      - "aws/*/*.yaml"
+      - "aws/*.yml"
+   
   azure:
     component: azure
     params:
@@ -96,6 +103,9 @@ providers:
       http_proxy: azure_http_proxy
       https_proxy: azure_https_proxy
       no_proxy: azure_no_proxy
+    templates:
+      - "azure/*/*.yaml"
+      - "azure/*.yml"
 
 nodes:
   node1:
@@ -108,6 +118,9 @@ nodes:
       env:
         provider_node1_env_key1: provider_node1_env_key1_value
         provider_node1_env_key2: provider_node1_env_key2_value
+      templates:
+        - "aws/node1/*/*.yaml"
+
     orchestrator:
       params:
         orchestrator_node1_param_key1: orchestrator_node1_param_key1_value
@@ -118,6 +131,9 @@ nodes:
       env:
         orchestrator_node1_env_key1: orchestrator_node1_env_key1_value
         orchestrator_node1_env_key2: orchestrator_node1_env_key2_value
+      templates:
+        - "orchestrator/node1/*/*.yaml"
+
     volumes:
     - path: "some/volume/path"
       params:
@@ -155,6 +171,8 @@ nodes:
       env:
         provider_node2_env_key1: provider_node2_env_key1_value
         provider_node2_env_key2: provider_node2_env_key2_value
+      templates:
+        - "azure/node2/*/*.yaml"
     orchestrator:
       params:
         orchestrator_node2_param_key1: orchestrator_node2_param_key1_value
@@ -165,6 +183,8 @@ nodes:
       env:
         orchestrator_node2_env_key1: orchestrator_node2_env_key1_value
         orchestrator_node2_env_key2: orchestrator_node2_env_key2_value
+      templates:
+        - "orchestrator/node2/*/*.yaml"
     volumes:
     - path: "some/volume/path"
       params:
@@ -212,10 +232,9 @@ stacks:
     env:
       stack2_env_key1: stack2_env_key1_value
       stack2_env_key2: stack2_env_key2_value
-
     templates:
-      - "*/*.yaml"
-      - "*.yml"
+      - "stack2/*/*.yaml"
+      - "stack2/*.yml"
      
     copies:  
     - target: 

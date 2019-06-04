@@ -24,8 +24,8 @@ stacks:
       stack2_env_key2: stack2_env_key2_value
 
     templates:
-      - "*/*.yaml"
-      - "*.yml"
+      - "stack2/*/*.yaml"
+      - "stack2/*.yml"
 
     copies:  
     - target: 

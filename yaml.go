@@ -90,6 +90,8 @@ type (
 		yamlEnv `yaml:",inline"`
 		// The overriding provider proxy
 		Proxy yamlProxy
+		// The list of path patterns where to apply the template mechanism
+		Templates []string `yaml:"templates"`
 	}
 
 	// yaml reference to orchestrator
@@ -100,6 +102,8 @@ type (
 		yamlDockerParams `yaml:",inline"`
 		// The overriding orchestrator environment variables
 		yamlEnv `yaml:",inline"`
+		// The list of path patterns where to apply the template mechanism
+		Templates []string `yaml:"templates"`
 	}
 
 	// yaml reference to task
@@ -189,6 +193,8 @@ type (
 			yamlEnv `yaml:",inline"`
 			// The Docker parameters
 			yamlDockerParams `yaml:",inline"`
+			// The list of path patterns where to apply the template mechanism
+			Templates []string `yaml:"templates"`
 		}
 
 		// The list of all cloud providers required to create the environment
@@ -201,6 +207,8 @@ type (
 			yamlEnv `yaml:",inline"`
 			// The provider proxy
 			Proxy yamlProxy
+			// The list of path patterns where to apply the template mechanism
+			Templates []string `yaml:"templates"`
 		}
 
 		// The list of node sets to create

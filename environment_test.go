@@ -213,6 +213,17 @@ func assertEnv(t *testing.T, env *Environment) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "provider_node1_param_key2_value")
 
+	//------------------------------------------------------------
+	//Node2 provider templates
+	//------------------------------------------------------------
+	templates := ns1Provider.Templates
+	tC := templates.Content
+	if assert.Equal(t, len(tC), 3) {
+		assert.Contains(t, tC, "aws/node1/*/*.yaml")
+		assert.Contains(t, tC, "aws/*/*.yaml")
+		assert.Contains(t, tC, "aws/*.yml")
+	}
+
 	ns1Orchestrator, e := nodeSets["node1"].Orchestrator.Resolve()
 	assert.Nil(t, e)
 	c = ns1Orchestrator.Parameters
@@ -265,6 +276,17 @@ func assertEnv(t *testing.T, env *Environment) {
 	v, ok = en["swarm_env_key2"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "swarm_env_key2_value")
+
+	//------------------------------------------------------------
+	//Node1 orchestrator templates
+	//------------------------------------------------------------
+	templates = ns1Orchestrator.Templates
+	tC = templates.Content
+	if assert.Equal(t, len(tC), 3) {
+		assert.Contains(t, tC, "orchestrator/node1/*/*.yaml")
+		assert.Contains(t, tC, "orchestrator/*/*.yaml")
+		assert.Contains(t, tC, "orchestrator/*.yml")
+	}
 
 	vs := nodeSets["node1"].Volumes
 	assert.NotNil(t, vs)
@@ -347,6 +369,17 @@ func assertEnv(t *testing.T, env *Environment) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "provider_node2_param_key2_value")
 
+	//------------------------------------------------------------
+	//Node2 provider templates
+	//------------------------------------------------------------
+	templates = ns2Provider.Templates
+	tC = templates.Content
+	if assert.Equal(t, len(tC), 3) {
+		assert.Contains(t, tC, "azure/node2/*/*.yaml")
+		assert.Contains(t, tC, "azure/*/*.yaml")
+		assert.Contains(t, tC, "azure/*.yml")
+	}
+
 	ns2Orchestrator, e := nodeSets["node2"].Orchestrator.Resolve()
 	assert.Nil(t, e)
 	c = ns2Orchestrator.Parameters
@@ -375,6 +408,17 @@ func assertEnv(t *testing.T, env *Environment) {
 	v, ok = en["orchestrator_node2_env_key2"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "orchestrator_node2_env_key2_value")
+
+	//------------------------------------------------------------
+	//Node2 orchestrator templates
+	//------------------------------------------------------------
+	templates = ns2Orchestrator.Templates
+	tC = templates.Content
+	if assert.Equal(t, len(tC), 3) {
+		assert.Contains(t, tC, "orchestrator/node2/*/*.yaml")
+		assert.Contains(t, tC, "orchestrator/*/*.yaml")
+		assert.Contains(t, tC, "orchestrator/*.yml")
+	}
 
 	vs = nodeSets["node2"].Volumes
 	assert.NotNil(t, vs)
@@ -453,11 +497,11 @@ func assertEnv(t *testing.T, env *Environment) {
 	//------------------------------------------------------------
 	//Stack templates
 	//------------------------------------------------------------
-	templates := stack2.Templates
-	tC := templates.Content
+	templates = stack2.Templates
+	tC = templates.Content
 	if assert.Equal(t, len(tC), 2) {
-		assert.Contains(t, tC, "*/*.yaml")
-		assert.Contains(t, tC, "*.yml")
+		assert.Contains(t, tC, "stack2/*/*.yaml")
+		assert.Contains(t, tC, "stack2/*.yml")
 	}
 
 	//------------------------------------------------------------
@@ -490,17 +534,6 @@ func assertEnv(t *testing.T, env *Environment) {
 			assert.Equal(t, lab, "t2_val2")
 		}
 	}
-
-	/*
-	   - target:
-	       labels:
-	         label1: t2_val1
-	         label2: t2_val2
-	       path: "some/target2/volume/path"
-	     sources:
-	       - "*target2_to_be_copied.yaml"
-	       - "*target2_to_be_copied.yml"
-	*/
 
 	//------------------------------------------------------------
 	// Stack1 Hook
