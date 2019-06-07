@@ -90,8 +90,6 @@ type (
 		yamlEnv `yaml:",inline"`
 		// The overriding provider proxy
 		Proxy yamlProxy
-		// The list of path patterns where to apply the template mechanism
-		Templates []string `yaml:"templates"`
 	}
 
 	// yaml reference to orchestrator
@@ -102,8 +100,6 @@ type (
 		yamlDockerParams `yaml:",inline"`
 		// The overriding orchestrator environment variables
 		yamlEnv `yaml:",inline"`
-		// The list of path patterns where to apply the template mechanism
-		Templates []string `yaml:"templates"`
 	}
 
 	// yaml reference to task
@@ -165,6 +161,9 @@ type (
 		// The descriptor variables
 		yamlVars `yaml:",inline"`
 
+		// The list of path patterns where to apply the template mechanism
+		Templates []string `yaml:"templates"`
+
 		// Tasks which can be run on the created environment
 		Tasks map[string]struct {
 			// Name of the task component
@@ -193,8 +192,6 @@ type (
 			yamlEnv `yaml:",inline"`
 			// The Docker parameters
 			yamlDockerParams `yaml:",inline"`
-			// The list of path patterns where to apply the template mechanism
-			Templates []string `yaml:"templates"`
 		}
 
 		// The list of all cloud providers required to create the environment
@@ -207,8 +204,6 @@ type (
 			yamlEnv `yaml:",inline"`
 			// The provider proxy
 			Proxy yamlProxy
-			// The list of path patterns where to apply the template mechanism
-			Templates []string `yaml:"templates"`
 		}
 
 		// The list of node sets to create
@@ -230,9 +225,6 @@ type (
 			yamlParams `yaml:",inline"`
 			// The environment variables
 			yamlEnv `yaml:",inline"`
-
-			// The list of path patterns where to apply the template mechanism
-			Templates []string `yaml:"templates"`
 
 			// The stack content to be copied on volumes
 			Copies []yamlCopy `yaml:"copies"`

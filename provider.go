@@ -18,8 +18,6 @@ type (
 		EnvVars EnvVars
 		// The provider proxy
 		Proxy Proxy
-		// The provider templates
-		Templates Patterns
 	}
 
 	//Providers lists all the providers required to build the environemt
@@ -74,11 +72,6 @@ func (r Provider) ComponentName() string {
 	return r.cRef.ref
 }
 
-//Templatable indicates if the component has templates
-func (r Provider) Templatable() (bool, Patterns) {
-	return len(r.Templates.Content) > 0, r.Templates
-}
-
 // createProviders creates all the providers declared into the provided environment
 func createProviders(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) (Providers, error) {
 	res := Providers{}
@@ -102,7 +95,6 @@ func createProviders(env *Environment, location DescriptorLocation, yamlEnv *yam
 			Parameters: params,
 			EnvVars:    envVars,
 			Proxy:      proxy,
-			Templates:  createPatterns(env, providerLocation.appendPath("templates_patterns"), yamlProvider.Templates),
 		}
 	}
 	return res, nil

@@ -30,6 +30,8 @@ type (
 		Hooks EnvironmentHooks
 		// The global volumes of the environment
 		Volumes GlobalVolumes
+		// Templates contains the templates defined into a descriptor
+		Templates Patterns
 	}
 )
 
@@ -50,10 +52,12 @@ func CreateEnvironment(url EkUrl, data *TemplateContext) (*Environment, error) {
 		return env, err
 	}
 	env.OriginalEnv = yamlEnv
+
 	env.location = DescriptorLocation{Descriptor: url.String()}
 	env.Name = yamlEnv.Name
 	env.Qualifier = yamlEnv.Qualifier
 	env.Description = yamlEnv.Description
+	env.Templates = createPatterns(env, env.location.appendPath("templates_patterns"), yamlEnv.Templates)
 	env.Ekara, err = createPlatform(&yamlEnv)
 	if err != nil {
 		return env, err

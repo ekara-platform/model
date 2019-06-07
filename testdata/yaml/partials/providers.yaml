@@ -11,9 +11,6 @@ providers:
       http_proxy: aws_http_proxy
       https_proxy: aws_https_proxy
       no_proxy: aws_no_proxy
-    templates:
-      - "aws/*/*.yaml"
-      - "aws/*.yml"      
   azure:
     component: azure
     params:
@@ -26,6 +23,3 @@ providers:
       http_proxy: azure_http_proxy
       https_proxy: azure_https_proxy
       no_proxy: azure_no_proxy
-    templates:
-      - "azure/*/*.yaml"
-      - "azure/*.yml"

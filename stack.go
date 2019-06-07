@@ -20,8 +20,6 @@ type (
 		Parameters Parameters
 		// The stack environment variables
 		EnvVars EnvVars
-		// The list of path patterns where to apply the template mechanism
-		Templates Patterns
 		// The stack content to be copied on volumes
 		Copies Copies
 	}
@@ -76,7 +74,6 @@ func (s *Stack) merge(other Stack) error {
 		return err
 	}
 	s.DependsOn = s.DependsOn.inherit(other.DependsOn)
-	s.Templates = s.Templates.inherit(other.Templates)
 	s.Copies = s.Copies.inherit(other.Copies)
 	return s.Hooks.merge(other.Hooks)
 }
@@ -132,7 +129,6 @@ func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEn
 			Parameters: params,
 			EnvVars:    envVars,
 			DependsOn:  createDependencies(env, stackLocation.appendPath("depends_on"), name, yamlStack.DependsOn),
-			Templates:  createPatterns(env, stackLocation.appendPath("templates_patterns"), yamlStack.Templates),
 			Copies:     createCopies(env, stackLocation.appendPath("volume_copies"), yamlStack.Copies),
 		}
 		res[name] = s
@@ -203,9 +199,4 @@ func (s Stack) Component() (Component, error) {
 //ComponentName returns the referenced component name
 func (s Stack) ComponentName() string {
 	return s.cRef.ref
-}
-
-//Templatable indicates if the component has templates
-func (s Stack) Templatable() (bool, Patterns) {
-	return len(s.Templates.Content) > 0, s.Templates
 }

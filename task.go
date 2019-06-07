@@ -150,8 +150,3 @@ func (r Task) Component() (Component, error) {
 func (r Task) ComponentName() string {
 	return r.cRef.ref
 }
-
-//Templatable returns false for the tasks
-func (r Task) Templatable() (bool, Patterns) {
-	return false, Patterns{}
-}

@@ -6,9 +6,8 @@ type (
 		docker     Parameters
 		envVars    EnvVars
 
-		env       *Environment
-		location  DescriptorLocation
-		templates Patterns
+		env      *Environment
+		location DescriptorLocation
 	}
 )
 
@@ -31,7 +30,6 @@ func createOrchestratorRef(env *Environment, location DescriptorLocation, yamlRe
 		docker:     dParams,
 		envVars:    envVars,
 		location:   location,
-		templates:  createPatterns(env, location.appendPath("templates_patterns"), yamlRef.Templates),
 	}, nil
 }
 
@@ -49,7 +47,6 @@ func (r *orchestratorRef) merge(other orchestratorRef) error {
 	if err != nil {
 		return err
 	}
-	r.templates = r.templates.inherit(other.templates)
 	return nil
 }
 
@@ -72,6 +69,5 @@ func (r orchestratorRef) Resolve() (Orchestrator, error) {
 		Parameters: params,
 		Docker:     docker,
 		EnvVars:    envVars,
-		Templates:  r.templates.inherit(orchestrator.Templates),
 	}, nil
 }

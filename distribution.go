@@ -47,8 +47,3 @@ func (r Distribution) Component() (Component, error) {
 func (r Distribution) ComponentName() string {
 	return EkaraComponentId
 }
-
-//Templatable returns false for the distribution
-func (r Distribution) Templatable() (bool, Patterns) {
-	return false, Patterns{}
-}

@@ -9,6 +9,3 @@ orchestrator:
   env:
     swarm_env_key1: swarm_env_key1_value
     swarm_env_key2: swarm_env_key2_value
-  templates:
-    - "orchestrator/*/*.yaml"
-    - "orchestrator/*.yml"    
