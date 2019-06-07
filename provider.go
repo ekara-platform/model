@@ -74,6 +74,11 @@ func (r Provider) ComponentName() string {
 	return r.cRef.ref
 }
 
+//Templatable indicates if the component has templates
+func (r Provider) Templatable() (bool, Patterns) {
+	return len(r.Templates.Content) > 0, r.Templates
+}
+
 // createProviders creates all the providers declared into the provided environment
 func createProviders(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) (Providers, error) {
 	res := Providers{}

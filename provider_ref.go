@@ -105,6 +105,7 @@ func (r providerRef) validationDetails() refValidationDetails {
 	}
 }
 
+//ComponentName returns the referenced component
 func (r providerRef) Component() (Component, error) {
 	p, err := r.Resolve()
 	if err != nil {
@@ -113,10 +114,16 @@ func (r providerRef) Component() (Component, error) {
 	return p.cRef.resolve()
 }
 
+//ComponentName returns the referenced component name
 func (r providerRef) ComponentName() string {
 	p, err := r.Resolve()
 	if err != nil {
 		return ""
 	}
 	return p.cRef.ref
+}
+
+//Templatable indicates if the component has templates
+func (r providerRef) Templatable() (bool, Patterns) {
+	return len(r.templates.Content) > 0, r.templates
 }

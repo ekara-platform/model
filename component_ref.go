@@ -25,6 +25,8 @@ type (
 		Component() (Component, error)
 		//ComponentName returns the referenced component name
 		ComponentName() string
+		//Templatable indicates if the component has templates
+		Templatable() (bool, Patterns)
 	}
 )
 

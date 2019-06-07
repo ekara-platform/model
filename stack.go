@@ -141,7 +141,7 @@ func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEn
 	return res, nil
 }
 
-//Dependency returns the potential Stacks which this one depends
+//Dependency returns the potential Stacks on which this one depends
 func (s Stack) Dependency() (bool, []Stack) {
 	res := make([]Stack, 0)
 	for _, val := range s.DependsOn.Content {
@@ -152,8 +152,7 @@ func (s Stack) Dependency() (bool, []Stack) {
 	return len(res) > 0, res
 }
 
-//ResolveDependencies returns a channel to get access
-//to the stacks based on the rorder of the dependencies
+//ResolveDependencies returns the stacks based on the order of the dependencies
 func (r Stacks) ResolveDependencies() ([]Stack, error) {
 	result := make([]Stack, 0, 0)
 	if len(r) == 0 {
@@ -204,4 +203,9 @@ func (s Stack) Component() (Component, error) {
 //ComponentName returns the referenced component name
 func (s Stack) ComponentName() string {
 	return s.cRef.ref
+}
+
+//Templatable indicates if the component has templates
+func (s Stack) Templatable() (bool, Patterns) {
+	return len(s.Templates.Content) > 0, s.Templates
 }

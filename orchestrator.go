@@ -78,3 +78,8 @@ func (r Orchestrator) Component() (Component, error) {
 func (r Orchestrator) ComponentName() string {
 	return r.cRef.ref
 }
+
+//Templatable indicates if the component has templates
+func (r Orchestrator) Templatable() (bool, Patterns) {
+	return len(r.Templates.Content) > 0, r.Templates
+}
