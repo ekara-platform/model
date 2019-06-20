@@ -2,6 +2,9 @@ package model
 
 const (
 
+	//MainComponentId The component identifier for the main descriptor
+	MainComponentId = "__main__"
+
 	//EkaraComponentId The component identifier for the ekara distribution
 	EkaraComponentId = "__ekara__"
 
