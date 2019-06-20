@@ -21,8 +21,8 @@ func CreateDistribution(base Base, yamlEnv *yamlEnvironment) (Distribution, erro
 	defaulted := false
 	repo := yamlEnv.Ekara.Distribution.Repository
 	if repo == "" {
-		//If the distribution is not specified we must look for the default one
-		// into the default base even if the project has defined its own base
+		//If the distribution is not specified we must look for the default Ekara one
+		// even if the project has defined its own base.
 		base, _ = CreateBase("")
 		repo = ekaraDistribution
 		defaulted = true
