@@ -141,6 +141,11 @@ func (r *Environment) Merge(other *Environment) error {
 	} else {
 		r.Tasks = tas
 	}
+	if vars, err := r.Vars.inherit(other.Vars); err != nil {
+		return err
+	} else {
+		r.Vars = vars
+	}
 	return r.Hooks.merge(other.Hooks)
 }
 
@@ -169,4 +174,14 @@ func (r Environment) Validate() ValidationErrors {
 	vErrs.merge(ErrorOnInvalid(r.Tasks))
 	vErrs.merge(ErrorOnInvalid(r.Hooks))
 	return vErrs
+}
+
+func InitEnvironment() *Environment {
+	env := &Environment{
+		Ekara: &Platform{
+			Components: make(map[string]Component),
+		},
+	}
+	env.Orchestrator.cRef.env = env
+	return env
 }

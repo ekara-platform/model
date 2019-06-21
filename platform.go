@@ -6,10 +6,17 @@ import (
 
 //Platform the platform used to build an environment
 type Platform struct {
-	Base         Base
-	Distribution Distribution
-	Components   map[string]Component
-	cRefs        []ComponentReferencer
+	Base                       Base
+	Distribution               Distribution
+	Components                 map[string]Component
+	sortedDiscoveredComponents []ComponentLeaf
+	SortedFetchedComponents    []string
+	cRefs                      []ComponentReferencer
+}
+
+type ComponentLeaf struct {
+	ParentId  string
+	Component Component
 }
 
 func createPlatform(yamlEnv *yamlEnvironment) (*Platform, error) {
@@ -29,6 +36,8 @@ func createPlatform(yamlEnv *yamlEnvironment) (*Platform, error) {
 	p.Distribution = dist
 
 	// Create other components of the environment
+	p.sortedDiscoveredComponents = make([]ComponentLeaf, 0, 0)
+	p.SortedFetchedComponents = make([]string, 0, 0)
 	components := map[string]Component{}
 	for name, yamlC := range yamlEnv.Ekara.Components {
 		repo, e := CreateRepository(base, yamlC.Repository, yamlC.Ref, "")
@@ -46,11 +55,70 @@ func createPlatform(yamlEnv *yamlEnvironment) (*Platform, error) {
 	return p, nil
 }
 
+func (p *Platform) RegisterComponent(parent string, c Component) {
+	p.sortedDiscoveredComponents = append(p.sortedDiscoveredComponents, ComponentLeaf{
+		ParentId:  parent,
+		Component: c,
+	})
+
+	if _, ok := p.Components[c.Id]; !ok {
+		p.Components[c.Id] = c
+	}
+}
+
+func (p *Platform) ToFetch() (<-chan Component, int) {
+	sD := p.sortedDiscoveredComponents
+	ret := make(chan Component, len(sD))
+
+	go func() {
+		work := make([]ComponentLeaf, len(sD))
+		copy(work, sD)
+		lastDone := make([]string, 0, 0)
+
+		// First we check the distribution
+		for i, n := range work {
+			if n.Component.Id == EkaraComponentId {
+				lastDone = append(lastDone, n.Component.Id)
+				work = append(work[:i], work[i+1:]...)
+				ret <- n.Component
+				continue
+			}
+		}
+		for len(work) > 0 {
+			lastDoneCHildren := false
+			for i, n := range work {
+				if len(lastDone) > 0 {
+					if n.ParentId == lastDone[len(lastDone)-1] {
+						ret <- n.Component
+						work = append(work[:i], work[i+1:]...)
+						lastDone = append(lastDone, n.Component.Id)
+						lastDoneCHildren = true
+						break
+					}
+				} else {
+					ret <- n.Component
+					work = append(work[:i], work[i+1:]...)
+					lastDone = append(lastDone, n.Component.Id)
+					break
+				}
+			}
+			if !lastDoneCHildren {
+				if len(lastDone) > 0 {
+					lastDone = lastDone[:len(lastDone)-1]
+				}
+			}
+		}
+		close(ret)
+	}()
+	return ret, len(sD)
+}
+
 func (p *Platform) tagUsedComponent(cr ComponentReferencer) {
 	p.cRefs = append(p.cRefs, cr)
 }
 
 // UsedComponents returns an array of components effectively in used throughout the descriptor.
+// TODO SUPPOSE TO BE DELETED
 func (p *Platform) UsedComponents() ([]Component, error) {
 	res := make([]Component, 0, 0)
 	temp := make(map[string]Component)
@@ -68,6 +136,16 @@ func (p *Platform) UsedComponents() ([]Component, error) {
 		res = append(res, c)
 	}
 	return res, nil
+}
+
+// Used returns true if the component with the given Id is used into the environment.
+func (p *Platform) Used(id string) bool {
+	for _, cr := range p.cRefs {
+		if cr.ComponentName() == id {
+			return true
+		}
+	}
+	return false
 }
 
 func (p Platform) validate() ValidationErrors {

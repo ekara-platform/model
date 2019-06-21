@@ -14,27 +14,6 @@ func TestCreateEngineComplete(t *testing.T) {
 	assertEnv(t, env)
 }
 
-func TestCreateEnginePartials(t *testing.T) {
-	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/env.yaml"), &TemplateContext{})
-	assert.Nil(t, e)
-	env2, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/core.yaml"), &TemplateContext{})
-	assert.Nil(t, e)
-	env.Merge(env2)
-	env3, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/providers.yaml"), &TemplateContext{})
-	assert.Nil(t, e)
-	env.Merge(env3)
-	env4, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/orchestrator.yaml"), &TemplateContext{})
-	assert.Nil(t, e)
-	env.Merge(env4)
-	env5, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/stacks.yaml"), &TemplateContext{})
-	assert.Nil(t, e)
-	env.Merge(env5)
-	env6, e := CreateEnvironment(buildURL(t, "./testdata/yaml/partials/tasks.yaml"), &TemplateContext{})
-	assert.Nil(t, e)
-	env.Merge(env6)
-	assertEnv(t, env)
-}
-
 func assertEnv(t *testing.T, env *Environment) {
 	assert.Equal(t, "testEnvironment", env.Name)
 	assert.Equal(t, "testQualifier", env.Qualifier)
