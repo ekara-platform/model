@@ -51,7 +51,7 @@ func TestCreateDefaultDistributionOverDefinedBase(t *testing.T) {
 	d, e := CreateDistribution(b, ye)
 	assert.Nil(t, e)
 	// Even if the project defines its on base we need to get the defaulted ditribution
-	// ekara-platform/distribution commint from the defaulted base on github
+	// ekara-platform/distribution comming from the defaulted base on github
 	assert.Equal(t, d.Repository.Url.String(), DefaultComponentBase+"/"+ekaraDistribution+GitExtension)
 	assert.Equal(t, d.Repository.Url.UpperScheme(), SchemeHttps)
 	// The defaulted distribution doesn't use authentication
