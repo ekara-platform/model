@@ -5,7 +5,7 @@ type (
 	TemplateContext struct {
 		//Vars represents all variable passed into the context,
 		// Thoses variables are the ones commit from the CLI
-		// parameters file merged with the ones comming from
+		// parameters file merged with the ones coming from
 		// each environment descriptor.
 		Vars Parameters
 	}

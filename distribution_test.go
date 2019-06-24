@@ -1,6 +1,7 @@
 package model
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -51,7 +52,7 @@ func TestCreateDefaultDistributionOverDefinedBase(t *testing.T) {
 	d, e := CreateDistribution(b, ye)
 	assert.Nil(t, e)
 	// Even if the project defines its on base we need to get the defaulted ditribution
-	// ekara-platform/distribution comming from the defaulted base on github
+	// ekara-platform/distribution coming from the defaulted base on github
 	assert.Equal(t, d.Repository.Url.String(), DefaultComponentBase+"/"+ekaraDistribution+GitExtension)
 	assert.Equal(t, d.Repository.Url.UpperScheme(), SchemeHttps)
 	// The defaulted distribution doesn't use authentication
@@ -83,4 +84,31 @@ func TestCreateDefinedDistributionOverDefinedBase(t *testing.T) {
 	assert.Equal(t, d.Repository.Url.UpperScheme(), SchemeHttp)
 	// The projectdistribution usse authentication
 	assert.True(t, len(d.Repository.Authentication) == 2)
+}
+
+func TestCreateDistribution(t *testing.T) {
+	type args struct {
+		base    Base
+		yamlEnv *yamlEnvironment
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    Distribution
+		wantErr bool
+	}{
+	// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := CreateDistribution(tt.args.base, tt.args.yamlEnv)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("CreateDistribution() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("CreateDistribution() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
