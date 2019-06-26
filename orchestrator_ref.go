@@ -1,7 +1,7 @@
 package model
 
 type (
-	orchestratorRef struct {
+	OrchestratorRef struct {
 		parameters Parameters
 		docker     Parameters
 		envVars    EnvVars
@@ -11,20 +11,20 @@ type (
 	}
 )
 
-func createOrchestratorRef(env *Environment, location DescriptorLocation, yamlRef yamlOrchestratorRef) (orchestratorRef, error) {
+func createOrchestratorRef(env *Environment, location DescriptorLocation, yamlRef yamlOrchestratorRef) (OrchestratorRef, error) {
 	oParams, err := CreateParameters(yamlRef.Params)
 	if err != nil {
-		return orchestratorRef{}, err
+		return OrchestratorRef{}, err
 	}
 	dParams, err := CreateParameters(yamlRef.Docker)
 	if err != nil {
-		return orchestratorRef{}, err
+		return OrchestratorRef{}, err
 	}
 	envVars, err := createEnvVars(yamlRef.Env)
 	if err != nil {
-		return orchestratorRef{}, err
+		return OrchestratorRef{}, err
 	}
-	return orchestratorRef{
+	return OrchestratorRef{
 		env:        env,
 		parameters: oParams,
 		docker:     dParams,
@@ -33,7 +33,7 @@ func createOrchestratorRef(env *Environment, location DescriptorLocation, yamlRe
 	}, nil
 }
 
-func (r *orchestratorRef) merge(other orchestratorRef) error {
+func (r *OrchestratorRef) merge(other OrchestratorRef) error {
 	var err error
 	r.parameters, err = r.parameters.inherit(other.parameters)
 	if err != nil {
@@ -50,7 +50,7 @@ func (r *orchestratorRef) merge(other orchestratorRef) error {
 	return nil
 }
 
-func (r orchestratorRef) Resolve() (Orchestrator, error) {
+func (r OrchestratorRef) Resolve() (Orchestrator, error) {
 	orchestrator := r.env.Orchestrator
 	params, err := r.parameters.inherit(orchestrator.Parameters)
 	if err != nil {

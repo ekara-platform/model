@@ -142,9 +142,9 @@ func TestStacksCyclicDependencies(t *testing.T) {
 }
 
 func getDependsOn(deps ...string) Dependencies {
-	res := make([]stackRef, 0)
+	res := make([]StackRef, 0)
 	for _, s := range deps {
-		r := stackRef{
+		r := StackRef{
 			ref: s,
 		}
 		res = append(res, r)

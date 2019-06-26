@@ -24,8 +24,8 @@ type (
 		Copies Copies
 	}
 
-	//stackRef defines a dependency a on stack which must be previously processed
-	stackRef struct {
+	//StackRef defines a dependency a on stack which must be previously processed
+	StackRef struct {
 		//ref defines the id of the referenced stack
 		ref string
 		//env specifies the environment holding the referenced component
@@ -177,7 +177,7 @@ func (r Stacks) ResolveDependencies() ([]Stack, error) {
 }
 
 //validationDetails return a validatable representation of the reference on the stack
-func (s stackRef) validationDetails() refValidationDetails {
+func (s StackRef) validationDetails() refValidationDetails {
 	result := make(map[string]interface{})
 	for k, v := range s.env.Stacks {
 		result[k] = v
@@ -199,4 +199,14 @@ func (s Stack) Component() (Component, error) {
 //ComponentName returns the referenced component name
 func (s Stack) ComponentName() string {
 	return s.cRef.ref
+}
+
+// Resolve returns a resolved reference to a stack
+func (r StackRef) Resolve() (Stack, error) {
+	var err error
+	if err = ErrorOnInvalid(r); err.(ValidationErrors).HasErrors() {
+		return Stack{}, err
+	}
+	task := r.env.Stacks[r.ref]
+	return task, nil
 }

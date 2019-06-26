@@ -23,9 +23,9 @@ type (
 		// The number of machines to create
 		Instances int
 		// The ref to the provider where to create the machines
-		Provider providerRef
+		Provider ProviderRef
 		// The parameters related to the orchestrator used to manage the machines
-		Orchestrator orchestratorRef
+		Orchestrator OrchestratorRef
 		// Volumes attached to each node
 		Volumes Volumes
 		// The hooks linked to the node set lifecycle events

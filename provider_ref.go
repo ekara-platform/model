@@ -1,8 +1,8 @@
 package model
 
 type (
-	// providerRef represents a reference to a provider
-	providerRef struct {
+	// ProviderRef represents a reference to a provider
+	ProviderRef struct {
 		ref        string
 		parameters Parameters
 		envVars    EnvVars
@@ -14,20 +14,20 @@ type (
 )
 
 // createProviderRef creates a reference to the provider declared into the yaml reference
-func createProviderRef(env *Environment, location DescriptorLocation, yamlRef yamlProviderRef) (providerRef, error) {
+func createProviderRef(env *Environment, location DescriptorLocation, yamlRef yamlProviderRef) (ProviderRef, error) {
 	params, err := CreateParameters(yamlRef.Params)
 	if err != nil {
-		return providerRef{}, err
+		return ProviderRef{}, err
 	}
 	envVars, err := createEnvVars(yamlRef.Env)
 	if err != nil {
-		return providerRef{}, err
+		return ProviderRef{}, err
 	}
 	proxy, err := createProxy(yamlRef.Proxy)
 	if err != nil {
-		return providerRef{}, err
+		return ProviderRef{}, err
 	}
-	return providerRef{
+	return ProviderRef{
 		env:        env,
 		ref:        yamlRef.Name,
 		parameters: params,
@@ -38,7 +38,7 @@ func createProviderRef(env *Environment, location DescriptorLocation, yamlRef ya
 	}, nil
 }
 
-func (r *providerRef) merge(other providerRef) error {
+func (r *ProviderRef) merge(other ProviderRef) error {
 	var err error
 	if r.ref == "" {
 		r.ref = other.ref
@@ -58,7 +58,7 @@ func (r *providerRef) merge(other providerRef) error {
 	return nil
 }
 
-func (r providerRef) Resolve() (Provider, error) {
+func (r ProviderRef) Resolve() (Provider, error) {
 	var err error
 	err = ErrorOnInvalid(r)
 	if err.(ValidationErrors).HasErrors() {
@@ -88,7 +88,7 @@ func (r providerRef) Resolve() (Provider, error) {
 }
 
 //reference return a validatable representation of the reference on a provider
-func (r providerRef) validationDetails() refValidationDetails {
+func (r ProviderRef) validationDetails() refValidationDetails {
 	result := make(map[string]interface{})
 	for k, v := range r.env.Providers {
 		result[k] = v
@@ -103,7 +103,7 @@ func (r providerRef) validationDetails() refValidationDetails {
 }
 
 //ComponentName returns the referenced component
-func (r providerRef) Component() (Component, error) {
+func (r ProviderRef) Component() (Component, error) {
 	p, err := r.Resolve()
 	if err != nil {
 		return Component{}, err
@@ -112,7 +112,7 @@ func (r providerRef) Component() (Component, error) {
 }
 
 //ComponentName returns the referenced component name
-func (r providerRef) ComponentName() string {
+func (r ProviderRef) ComponentName() string {
 	p, err := r.Resolve()
 	if err != nil {
 		return ""
