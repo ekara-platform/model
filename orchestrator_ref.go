@@ -1,6 +1,7 @@
 package model
 
 type (
+	//OrchestratorRef represents a reference on an Orchestrator
 	OrchestratorRef struct {
 		parameters Parameters
 		docker     Parameters
@@ -50,6 +51,7 @@ func (r *OrchestratorRef) merge(other OrchestratorRef) error {
 	return nil
 }
 
+//Resolve returns the referenced Orchestrator
 func (r OrchestratorRef) Resolve() (Orchestrator, error) {
 	orchestrator := r.env.Orchestrator
 	params, err := r.parameters.inherit(orchestrator.Parameters)

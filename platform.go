@@ -14,8 +14,10 @@ type Platform struct {
 	cRefs                      []ComponentReferencer
 }
 
+//ComponentLeaf keeps a reference between a component and the one
+// declaring it
 type ComponentLeaf struct {
-	ParentId  string
+	parentID  string
 	Component Component
 }
 
@@ -55,9 +57,11 @@ func createPlatform(yamlEnv *yamlEnvironment) (*Platform, error) {
 	return p, nil
 }
 
+//RegisterComponent register a new component under its parent ID
+//If a component has no parent, like a main descriptor, then the ID should be ""
 func (p *Platform) RegisterComponent(parent string, c Component) {
 	p.sortedDiscoveredComponents = append(p.sortedDiscoveredComponents, ComponentLeaf{
-		ParentId:  parent,
+		parentID:  parent,
 		Component: c,
 	})
 
@@ -66,6 +70,7 @@ func (p *Platform) RegisterComponent(parent string, c Component) {
 	}
 }
 
+//ToFetch provides a channel allowing to get the sorted components to fetch
 func (p *Platform) ToFetch() (<-chan Component, int) {
 	sD := p.sortedDiscoveredComponents
 	ret := make(chan Component, len(sD))
@@ -88,7 +93,7 @@ func (p *Platform) ToFetch() (<-chan Component, int) {
 			lastDoneCHildren := false
 			for i, n := range work {
 				if len(lastDone) > 0 {
-					if n.ParentId == lastDone[len(lastDone)-1] {
+					if n.parentID == lastDone[len(lastDone)-1] {
 						ret <- n.Component
 						work = append(work[:i], work[i+1:]...)
 						lastDone = append(lastDone, n.Component.Id)

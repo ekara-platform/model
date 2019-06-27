@@ -8,6 +8,8 @@ type (
 		// parameters file merged with the ones coming from
 		// each environment descriptor.
 		Vars Parameters
+		//Vars represents the Environment definition, in Read Only
+		Model TEnvironment
 	}
 )
 
@@ -18,7 +20,7 @@ func CreateContext(params Parameters) *TemplateContext {
 	}
 }
 
-//Merge others parameters into the template context
+//MergeVars merges others parameters into the template context
 func (cc *TemplateContext) MergeVars(others Parameters) error {
 	var err error
 	cc.Vars, err = cc.Vars.inherit(others)

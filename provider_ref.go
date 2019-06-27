@@ -58,6 +58,7 @@ func (r *ProviderRef) merge(other ProviderRef) error {
 	return nil
 }
 
+//Resolve returns the referenced Provider
 func (r ProviderRef) Resolve() (Provider, error) {
 	var err error
 	err = ErrorOnInvalid(r)
@@ -102,7 +103,7 @@ func (r ProviderRef) validationDetails() refValidationDetails {
 	}
 }
 
-//ComponentName returns the referenced component
+//Component returns the referenced component
 func (r ProviderRef) Component() (Component, error) {
 	p, err := r.Resolve()
 	if err != nil {

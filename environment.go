@@ -1,5 +1,7 @@
 package model
 
+//go:generate go run ./generate/generate.go
+
 type (
 	//Environment represents an environment build based on a descriptor
 	Environment struct {
@@ -176,6 +178,7 @@ func (r Environment) Validate() ValidationErrors {
 	return vErrs
 }
 
+//InitEnvironment creates an new Environment
 func InitEnvironment() *Environment {
 	env := &Environment{
 		Ekara: &Platform{

@@ -202,11 +202,11 @@ func (s Stack) ComponentName() string {
 }
 
 // Resolve returns a resolved reference to a stack
-func (r StackRef) Resolve() (Stack, error) {
+func (s StackRef) Resolve() (Stack, error) {
 	var err error
-	if err = ErrorOnInvalid(r); err.(ValidationErrors).HasErrors() {
+	if err = ErrorOnInvalid(s); err.(ValidationErrors).HasErrors() {
 		return Stack{}, err
 	}
-	task := r.env.Stacks[r.ref]
+	task := s.env.Stacks[s.ref]
 	return task, nil
 }
