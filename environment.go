@@ -113,7 +113,18 @@ func CreateEnvironment(url EkUrl, data *TemplateContext) (*Environment, error) {
 //
 // Note: basic informations (name, qualifier, description) are only accepted in root descriptor
 func (r *Environment) Merge(other *Environment) error {
+
 	// basic informations (name, qualifier, description) are only accepted in root descriptor
+	if r.Name == "" {
+		r.Name = other.Name
+	}
+	if r.Qualifier == "" {
+		r.Qualifier = other.Qualifier
+	}
+	if r.Description == "" {
+		r.Description = other.Description
+	}
+
 	if err := r.Ekara.merge(*other.Ekara); err != nil {
 		return err
 	}

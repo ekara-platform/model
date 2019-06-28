@@ -583,6 +583,23 @@ func TestUnqualifiedName(t *testing.T) {
 	assert.Equal(t, "MyName", qn.String())
 }
 
+func TestEnvironmentNameQualifierMerge(t *testing.T) {
+	initial := Environment{Name: "", Qualifier: "", Ekara: &Platform{}}
+	first := Environment{Name: "FirstName", Qualifier: "FirstQualifier", Ekara: &Platform{}}
+	second := Environment{Name: "SecondName", Qualifier: "secondQualifier", Ekara: &Platform{}}
+	initial.Merge(&first)
+	// The first environment should merge its name and qualifier because those
+	// into the initial one are empty.
+	assert.Equal(t, "FirstName", initial.Name)
+	assert.Equal(t, "FirstQualifier", initial.Qualifier)
+	initial.Merge(&second)
+	// The second environment should NOT merge its name and qualifier because those
+	// into the initial one are not empty anymore.
+	assert.Equal(t, "FirstName", initial.Name)
+	assert.Equal(t, "FirstQualifier", initial.Qualifier)
+
+}
+
 func ExampleEnvironment_Merge() {
 	root := Environment{Name: "RootName", Qualifier: "RootQualifier"}
 	other := Environment{Name: "OtherName", Qualifier: "OtherQualifier"}
