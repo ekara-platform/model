@@ -24,8 +24,7 @@ func TestMergeVolumeUnrelated(t *testing.T) {
 		assert.Equal(t, err.Error(), "cannot merge unrelated volumes (Path != Dummy)")
 	}
 	assert.Equal(t, 1, len(v.Parameters))
-	assert.Contains(t, v.Parameters, "p1")
-	assert.Equal(t, v.Parameters["p1"], "val1")
+	checkMapInterface(t, v.Parameters, "p1", "val1")
 }
 
 func TestMergeVolumeItself(t *testing.T) {
@@ -38,8 +37,7 @@ func TestMergeVolumeItself(t *testing.T) {
 	err := v.merge(v)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(v.Parameters))
-	assert.Contains(t, v.Parameters, "p1")
-	assert.Equal(t, v.Parameters["p1"], "val1")
+	checkMapInterface(t, v.Parameters, "p1", "val1")
 }
 
 func TestMergeVolumeNoUpdate(t *testing.T) {
@@ -58,8 +56,7 @@ func TestMergeVolumeNoUpdate(t *testing.T) {
 	err := v.merge(o)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(v.Parameters))
-	assert.Contains(t, v.Parameters, "p1")
-	assert.Equal(t, v.Parameters["p1"], "val1")
+	checkMapInterface(t, v.Parameters, "p1", "val1")
 }
 
 func TestMergeVolumeAddition(t *testing.T) {
@@ -79,10 +76,8 @@ func TestMergeVolumeAddition(t *testing.T) {
 	err := v.merge(o)
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(v.Parameters))
-	assert.Contains(t, v.Parameters, "p1")
-	assert.Contains(t, v.Parameters, "p2")
-	assert.Equal(t, v.Parameters["p1"], "val1")
-	assert.Equal(t, v.Parameters["p2"], "val2")
+	checkMapInterface(t, v.Parameters, "p1", "val1")
+	checkMapInterface(t, v.Parameters, "p2", "val2")
 }
 
 func TestMergeNoVolume(t *testing.T) {
@@ -141,17 +136,16 @@ func TestMergeVolumes(t *testing.T) {
 
 	assert.Equal(t, 3, len(vs))
 	if assert.Equal(t, 2, len(vs[v1.Path].Parameters)) {
-		assert.Equal(t, "val1_1", vs[v1.Path].Parameters["p1"])
-		assert.Equal(t, "new", vs[v1.Path].Parameters["p2"])
+		checkMapInterface(t, vs[v1.Path].Parameters, "p1", "val1_1")
+		checkMapInterface(t, vs[v1.Path].Parameters, "p2", "new")
 	}
 
 	if assert.Equal(t, 1, len(vs[v2.Path].Parameters)) {
-		assert.Equal(t, "val2_1", vs[v2.Path].Parameters["p1"])
+		checkMapInterface(t, vs[v2.Path].Parameters, "p1", "val2_1")
 	}
-
 	if assert.Equal(t, 2, len(vs[o3.Path].Parameters)) {
-		assert.Equal(t, "val3_1", vs[o3.Path].Parameters["p1"])
-		assert.Equal(t, "val3_2", vs[o3.Path].Parameters["p2"])
+		checkMapInterface(t, vs[o3.Path].Parameters, "p1", "val3_1")
+		checkMapInterface(t, vs[o3.Path].Parameters, "p2", "val3_2")
 	}
 }
 

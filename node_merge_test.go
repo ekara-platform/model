@@ -7,18 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-/*
-NodeSet struct {
-		Provider providerRef
-		// The parameters related to the orchestrator used to manage the machines
-		Orchestrator orchestratorRef
-		// Volumes attached to each node
-		Volumes Volumes
-		// The hooks linked to the node set lifecycle events
-		Hooks NodeHook
-	}
-*/
-
 func TestNodeMergeUnrelated(t *testing.T) {
 	n1 := NodeSet{Name: "n1"}
 	other := NodeSet{Name: "n2"}
@@ -186,10 +174,4 @@ func TestNodeMergeLabels(t *testing.T) {
 		checkMap(t, n.Labels, "no3_lab1_k", "no3_lab1_v")
 		checkMap(t, n.Labels, "no3_lab2_k", "no3_lab2_v")
 	}
-}
-
-func checkMap(t *testing.T, m map[string]string, key, val string) {
-	l, ok := m[key]
-	assert.True(t, ok)
-	assert.Equal(t, l, val)
 }

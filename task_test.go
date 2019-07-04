@@ -25,8 +25,8 @@ func TestMergeTaskUnrelated(t *testing.T) {
 		assert.Equal(t, err.Error(), "cannot merge unrelated tasks (Name != Dummy)")
 	}
 	assert.Equal(t, 1, len(ta.Parameters))
-	assert.Contains(t, ta.Parameters, "p1")
-	assert.Equal(t, ta.Parameters["p1"], "val1")
+	checkMapInterface(t, ta.Parameters, "p1", "val1")
+
 }
 
 func TestMergeTaskItself(t *testing.T) {
@@ -56,12 +56,10 @@ func TestMergeTaskItself(t *testing.T) {
 	err := ta.merge(ta)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(ta.Parameters))
-	assert.Contains(t, ta.Parameters, "p1")
-	assert.Equal(t, ta.Parameters["p1"], "val1")
+	checkMapInterface(t, ta.Parameters, "p1", "val1")
 
 	assert.Equal(t, 1, len(ta.EnvVars))
-	assert.Contains(t, ta.EnvVars, "e1")
-	assert.Equal(t, ta.EnvVars["e1"], "env1")
+	checkMap(t, ta.EnvVars, "e1", "env1")
 
 	assert.Equal(t, ta.cRef.ref, "cRef")
 	assert.True(t, ta.cRef.mandatory)
@@ -119,11 +117,10 @@ func TestMergeTaskNoUpdate(t *testing.T) {
 	err := ta.merge(o)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(ta.Parameters))
-	assert.Contains(t, ta.Parameters, "p1")
-	assert.Equal(t, ta.Parameters["p1"], "val1")
+	checkMapInterface(t, ta.Parameters, "p1", "val1")
+
 	assert.Equal(t, 1, len(ta.EnvVars))
-	assert.Contains(t, ta.EnvVars, "e1")
-	assert.Equal(t, ta.EnvVars["e1"], "env1")
+	checkMap(t, ta.EnvVars, "e1", "env1")
 	assert.Equal(t, ta.Playbook, "Playbook")
 	assert.Equal(t, ta.Cron, "Cron")
 
@@ -174,15 +171,13 @@ func TestMergeTaskAddition(t *testing.T) {
 	err := ta.merge(o)
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(ta.Parameters))
-	assert.Contains(t, ta.Parameters, "p1")
-	assert.Equal(t, ta.Parameters["p1"], "val1")
-	assert.Contains(t, ta.Parameters, "p2")
-	assert.Equal(t, ta.Parameters["p2"], "val2_added")
+	checkMapInterface(t, ta.Parameters, "p1", "val1")
+	checkMapInterface(t, ta.Parameters, "p2", "val2_added")
+
 	assert.Equal(t, 2, len(ta.EnvVars))
-	assert.Contains(t, ta.EnvVars, "e1")
-	assert.Equal(t, ta.EnvVars["e1"], "env1")
-	assert.Contains(t, ta.EnvVars, "e2")
-	assert.Equal(t, ta.EnvVars["e2"], "env2_added")
+	checkMap(t, ta.EnvVars, "e1", "env1")
+	checkMap(t, ta.EnvVars, "e2", "env2_added")
+
 	assert.Equal(t, ta.Playbook, "Playbook")
 	assert.Equal(t, ta.Cron, "Cron")
 
@@ -279,27 +274,26 @@ func TestMergeTasks(t *testing.T) {
 	if assert.Equal(t, 3, len(ts)) {
 
 		if assert.Equal(t, 2, len(ts[ta1.Name].Parameters)) {
-			assert.Equal(t, "val11", ts[ta1.Name].Parameters["p11"])
-			assert.Equal(t, "new", ts[ta1.Name].Parameters["p12"])
+			checkMapInterface(t, ts[ta1.Name].Parameters, "p11", "val11")
+			checkMapInterface(t, ts[ta1.Name].Parameters, "p12", "new")
 		}
 		if assert.Equal(t, 2, len(ts[ta1.Name].EnvVars)) {
-			assert.Equal(t, "env11", ts[ta1.Name].EnvVars["e11"])
-			assert.Equal(t, "new", ts[ta1.Name].EnvVars["e12"])
+			checkMap(t, ts[ta1.Name].EnvVars, "e11", "env11")
+			checkMap(t, ts[ta1.Name].EnvVars, "e12", "new")
 		}
 
 		if assert.Equal(t, 1, len(ts[ta2.Name].Parameters)) {
-			assert.Equal(t, "val12", ts[ta2.Name].Parameters["p12"])
+			checkMapInterface(t, ts[ta2.Name].Parameters, "p12", "val12")
 		}
 		if assert.Equal(t, 1, len(ts[ta2.Name].EnvVars)) {
-			assert.Equal(t, "env12", ts[ta2.Name].EnvVars["e12"])
+			checkMap(t, ts[ta2.Name].EnvVars, "e12", "env12")
 		}
 
 		if assert.Equal(t, 1, len(ts[o3.Name].Parameters)) {
-			assert.Equal(t, "val13", ts[o3.Name].Parameters["p13"])
-
+			checkMapInterface(t, ts[o3.Name].Parameters, "p13", "val13")
 		}
 		if assert.Equal(t, 1, len(ts[o3.Name].EnvVars)) {
-			assert.Equal(t, "env13", ts[o3.Name].EnvVars["e13"])
+			checkMap(t, ts[o3.Name].EnvVars, "e13", "env13")
 		}
 	}
 }
