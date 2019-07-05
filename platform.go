@@ -59,15 +59,25 @@ func createPlatform(yamlEnv *yamlEnvironment) (*Platform, error) {
 
 //RegisterComponent register a new component under its parent ID
 //If a component has no parent, like a main descriptor, then the ID should be ""
-func (p *Platform) RegisterComponent(parent string, c Component) {
-	p.sortedDiscoveredComponents = append(p.sortedDiscoveredComponents, ComponentLeaf{
-		parentID:  parent,
-		Component: c,
-	})
+func (p *Platform) RegisterComponent(parent string, c Component) bool {
 
-	if _, ok := p.Components[c.Id]; !ok {
-		p.Components[c.Id] = c
+	res := false
+	if _, ok := p.Components[c.Id]; ok {
+
+		for i, v := range p.sortedDiscoveredComponents {
+			if v.Component.Id == c.Id {
+				p.sortedDiscoveredComponents = append(p.sortedDiscoveredComponents[:i], p.sortedDiscoveredComponents[i+1:]...)
+				break
+			}
+		}
+		p.sortedDiscoveredComponents = append(p.sortedDiscoveredComponents, ComponentLeaf{
+			parentID:  parent,
+			Component: c,
+		})
+		res = true
 	}
+	p.Components[c.Id] = c
+	return res
 }
 
 //ToFetch provides a channel allowing to get the sorted components to fetch
