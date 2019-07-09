@@ -10,7 +10,7 @@ const (
 	//The generic node set is intended to be used for sharing common
 	// content, example: parameter, environment variables..., with all
 	// others node sets within the whole descriptor.
-	GenericNodeSetName = "_"
+	GenericNodeSetName = "*"
 )
 
 type (

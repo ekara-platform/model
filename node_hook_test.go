@@ -14,7 +14,7 @@ import (
 //
 
 func TestValidationNodesUnknownHook(t *testing.T) {
-	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/grammar/nodes_unknown_hook.yaml"), &TemplateContext{})
+	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/grammar/nodes_unknown_hook.yaml"), "", &TemplateContext{})
 
 	assert.Nil(t, e)
 	vErrs := env.Validate()
@@ -28,7 +28,7 @@ func TestValidationNodesUnknownHook(t *testing.T) {
 
 // Test loading an nodeset with valid hooks
 func TestValidationNodesKnownHook(t *testing.T) {
-	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/grammar/nodes_known_hook.yaml"), &TemplateContext{})
+	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/grammar/nodes_known_hook.yaml"), "", &TemplateContext{})
 	assert.Nil(t, e)
 	vErrs := env.Validate()
 	assert.NotNil(t, vErrs)

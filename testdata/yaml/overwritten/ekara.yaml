@@ -42,7 +42,7 @@ providers:
 
 
 nodes:
-  _:
+  "*":
     provider:
       params:
         generic_param1: "new_generic_param1"

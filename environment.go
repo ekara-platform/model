@@ -42,9 +42,10 @@ type (
 //
 //		url: 	The complete url pointing on the descritor used to build the environment.
 //			The two only supported extension are ".yaml" and ".yml"!
+//      holder: The Id of the component holding the descriptor on which the environment is based
 //		data: The context used to substitute variables into the environment descriptor
 //
-func CreateEnvironment(url EkUrl, data *TemplateContext) (*Environment, error) {
+func CreateEnvironment(url EkUrl, holder string, data *TemplateContext) (*Environment, error) {
 	env := &Environment{}
 	var err error
 	var yamlEnv yamlEnvironment
@@ -87,7 +88,7 @@ func CreateEnvironment(url EkUrl, data *TemplateContext) (*Environment, error) {
 	if err != nil {
 		return env, err
 	}
-	env.Stacks, err = createStacks(env, env.location.appendPath("stacks"), &yamlEnv)
+	env.Stacks, err = createStacks(env, holder, env.location.appendPath("stacks"), &yamlEnv)
 	if err != nil {
 		return env, err
 	}
@@ -189,6 +190,28 @@ func (r Environment) Validate() ValidationErrors {
 	return vErrs
 }
 
+/*
+//Component returns the referenced component
+func (r Environment) Component() (Component, error) {
+	return r.Ekara.Components[MainComponentId], nil
+}
+
+//ComponentName returns the referenced component name
+func (r Environment) ComponentName() string {
+	return MainComponentId
+}
+
+//DescType returns the Describable type of the environment
+//  Hardcoded to : "Environment"
+func (r Environment) DescType() string {
+	return "Environment"
+}
+
+//DescName returns the Describable name of the environment
+func (r Environment) DescName() string {
+	return MainComponentId
+}
+*/
 //InitEnvironment creates an new Environment
 func InitEnvironment() *Environment {
 	env := &Environment{

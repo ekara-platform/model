@@ -99,7 +99,7 @@ func (r Stacks) merge(env *Environment, others Stacks) (Stacks, error) {
 	return res, nil
 }
 
-func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) (Stacks, error) {
+func createStacks(env *Environment, holder string, location DescriptorLocation, yamlEnv *yamlEnvironment) (Stacks, error) {
 	res := Stacks{}
 	for name, yamlStack := range yamlEnv.Stacks {
 		// Root stack
@@ -120,9 +120,15 @@ func createStacks(env *Environment, location DescriptorLocation, yamlEnv *yamlEn
 		if err != nil {
 			return res, err
 		}
+
+		yC := yamlStack.Component
+		if yC == "" || yC == "_" {
+			yC = holder
+		}
+
 		s := Stack{
 			Name: name,
-			cRef: createComponentRef(env, stackLocation.appendPath("component"), yamlStack.Component, false),
+			cRef: createComponentRef(env, stackLocation.appendPath("component"), yC, false),
 			Hooks: StackHook{
 				Deploy:   dHook,
 				Undeploy: uHook},

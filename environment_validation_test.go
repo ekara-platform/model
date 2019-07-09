@@ -25,7 +25,7 @@ func TestValidationNoEnvironmentName(t *testing.T) {
 //- Error: the environment name or the qualifier contains a non alphanumeric character @name|qualifier
 //
 func TestValidateNoValidName(t *testing.T) {
-	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/grammar/no_valid_name.yaml"), &TemplateContext{})
+	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/grammar/no_valid_name.yaml"), "", &TemplateContext{})
 	assert.Nil(t, e)
 	vErrs := env.Validate()
 	assert.True(t, vErrs.HasErrors())
@@ -40,7 +40,7 @@ func TestValidateNoValidName(t *testing.T) {
 //- Error: the environment name or the qualifier contains a non alphanumeric character @name|qualifier
 //
 func TestValidateNoValidQualifier(t *testing.T) {
-	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/grammar/no_valid_qualifier.yaml"), &TemplateContext{})
+	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/grammar/no_valid_qualifier.yaml"), "", &TemplateContext{})
 	assert.Nil(t, e)
 	vErrs := env.Validate()
 	assert.True(t, vErrs.HasErrors())

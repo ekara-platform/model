@@ -60,7 +60,6 @@ func createPlatform(yamlEnv *yamlEnvironment) (*Platform, error) {
 //RegisterComponent register a new component under its parent ID
 //If a component has no parent, like a main descriptor, then the ID should be ""
 func (p *Platform) RegisterComponent(parent string, c Component) bool {
-
 	res := false
 	if _, ok := p.Components[c.Id]; ok {
 
@@ -70,12 +69,13 @@ func (p *Platform) RegisterComponent(parent string, c Component) bool {
 				break
 			}
 		}
-		p.sortedDiscoveredComponents = append(p.sortedDiscoveredComponents, ComponentLeaf{
-			parentID:  parent,
-			Component: c,
-		})
+
 		res = true
 	}
+	p.sortedDiscoveredComponents = append(p.sortedDiscoveredComponents, ComponentLeaf{
+		parentID:  parent,
+		Component: c,
+	})
 	p.Components[c.Id] = c
 	return res
 }
@@ -129,28 +129,12 @@ func (p *Platform) ToFetch() (<-chan Component, int) {
 }
 
 func (p *Platform) tagUsedComponent(cr ComponentReferencer) {
-	p.cRefs = append(p.cRefs, cr)
-}
-
-// UsedComponents returns an array of components effectively in used throughout the descriptor.
-// TODO SUPPOSE TO BE DELETED
-func (p *Platform) UsedComponents() ([]Component, error) {
-	res := make([]Component, 0, 0)
-	temp := make(map[string]Component)
-	for _, cr := range p.cRefs {
-		name := cr.ComponentName()
-		if name != "" {
-			c, err := cr.Component()
-			if err != nil {
-				continue
-			}
-			temp[name] = c
+	for _, v := range p.cRefs {
+		if cr.ComponentName() == v.ComponentName() {
+			return
 		}
 	}
-	for _, c := range temp {
-		res = append(res, c)
-	}
-	return res, nil
+	p.cRefs = append(p.cRefs, cr)
 }
 
 // Used returns true if the component with the given Id is used into the environment.
@@ -172,14 +156,8 @@ func (p Platform) validate() ValidationErrors {
 }
 
 func (p *Platform) merge(other Platform) error {
-	for id, c := range other.Components {
-		if id != "" {
-			if _, ok := p.Components[id]; !ok {
-				p.Components[id] = c
-			}
-		}
-	}
-
+	// We don't need to merge other.Components because they will be processed as
+	// components to be registered by the fetching process into the engine
 	for _, c := range other.cRefs {
 		p.tagUsedComponent(c)
 	}
