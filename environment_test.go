@@ -9,7 +9,7 @@ import (
 )
 
 func TestCreateEngineComplete(t *testing.T) {
-	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/complete.yaml"), "", &TemplateContext{})
+	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/complete.yaml"), MainComponentId, &TemplateContext{})
 	assert.Nil(t, e)
 	assertEnv(t, env)
 }

@@ -88,9 +88,12 @@ func CreateEnvironment(url EkUrl, holder string, data *TemplateContext) (*Enviro
 	if err != nil {
 		return env, err
 	}
-	env.Stacks, err = createStacks(env, holder, env.location.appendPath("stacks"), &yamlEnv)
-	if err != nil {
-		return env, err
+	// Only the main descriptor or a distribution is allowed to define stacks
+	if holder == MainComponentId || holder == EkaraComponentId {
+		env.Stacks, err = createStacks(env, holder, env.location.appendPath("stacks"), &yamlEnv)
+		if err != nil {
+			return env, err
+		}
 	}
 	env.Hooks.Provision, err = createHook(env, env.location.appendPath("hooks.provision"), yamlEnv.Hooks.Provision)
 	if err != nil {

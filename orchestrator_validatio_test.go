@@ -26,7 +26,7 @@ func TestValidationNoOrchestrator(t *testing.T) {
 //- Error: reference to unknown component: dummy @orchestrator
 //
 func TestValidationUnknownOrchestrator(t *testing.T) {
-	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/grammar/unknown_orchestrator.yaml"), "", &TemplateContext{})
+	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/grammar/unknown_orchestrator.yaml"), MainComponentId, &TemplateContext{})
 	assert.Nil(t, e)
 	vErrs := env.Validate()
 	assert.True(t, vErrs.HasErrors())

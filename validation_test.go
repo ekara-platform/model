@@ -32,7 +32,7 @@ func TestValidationNoContent(t *testing.T) {
 
 func testEmptyContent(t *testing.T, name string, onlyWarning bool) (ValidationErrors, Environment) {
 	file := fmt.Sprintf("./testdata/yaml/grammar/no_%s.yaml", name)
-	env, e := CreateEnvironment(buildURL(t, file), "", &TemplateContext{})
+	env, e := CreateEnvironment(buildURL(t, file), MainComponentId, &TemplateContext{})
 	assert.Nil(t, e)
 	vErrs := validate(t, *env, onlyWarning)
 	return vErrs, *env
