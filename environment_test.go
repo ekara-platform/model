@@ -558,7 +558,7 @@ func assertEnv(t *testing.T, env *Environment) {
 
 }
 
-func buildURL(t *testing.T, loc string) EkUrl {
+func buildURL(t *testing.T, loc string) EkURL {
 	u, e := CreateUrl(loc)
 	assert.Nil(t, e)
 	return u

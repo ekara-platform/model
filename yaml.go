@@ -257,7 +257,7 @@ func (r *yamlEnvironment) RawContent() ([]byte, error) {
 	return yaml.Marshal(r)
 }
 
-func parseYamlDescriptor(u EkUrl, parameters *TemplateContext) (env yamlEnvironment, err error) {
+func parseYamlDescriptor(u EkURL, parameters *TemplateContext) (env yamlEnvironment, err error) {
 
 	// Read descriptor content
 	content, err := u.ReadUrl()

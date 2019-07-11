@@ -36,7 +36,7 @@ func checkScm(t *testing.T, rawurl string, wanted SCMType) {
 	u, e := url.Parse(rawurl)
 	assert.Nil(t, e)
 
-	s, e := resolveSCMType(FileUrl{rootUrl: &rootUrl{url: u}})
+	s, e := resolveSCMType(FileURL{rootURL: &rootURL{url: u}})
 	if assert.Nil(t, e) {
 		assert.Equal(t, s, wanted)
 	}
@@ -47,7 +47,7 @@ func TestScmUnknown(t *testing.T) {
 	u, e := url.Parse(us)
 	assert.Nil(t, e)
 
-	s, e := resolveSCMType(FileUrl{rootUrl: &rootUrl{url: u}})
+	s, e := resolveSCMType(FileURL{rootURL: &rootURL{url: u}})
 	if assert.NotNil(t, e) {
 		assert.Equal(t, s, UnknownScm)
 	}

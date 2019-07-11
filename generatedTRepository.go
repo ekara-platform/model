@@ -35,7 +35,7 @@ func (r TRepositoryOnRepositoryHolder) Scm() string {
 
 //URL returns the url where the repository is located
 func (r TRepositoryOnRepositoryHolder) URL() TURL {
-	return CreateTURLForEkUrl(r.h.Url)
+	return CreateTURLForEkURL(r.h.Url)
 }
 
 //Ref returns the reference (tag,branch, ...) to use within the repository

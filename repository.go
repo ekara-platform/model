@@ -25,7 +25,7 @@ type (
 		// component
 		Scm SCMType
 		// Url specifies the repository Url where to fetch the component
-		Url EkUrl
+		Url EkURL
 		// The reference to the branch or tag to fetch. If not specified the default branch will be fetched
 		Ref string
 		//DescriptorName specifies the name of the descriptor
@@ -75,7 +75,7 @@ func CreateRepository(base Base, repo string, ref string, descriptor string) (Re
 // resolveRepository resolves a full URL from repository short-forms.
 //
 // URLs without protocol and matching org/repo are assumed as being prefixed with base
-func resolveRepositoryInfo(base Base, repo string) (cUrl EkUrl, e error) {
+func resolveRepositoryInfo(base Base, repo string) (cUrl EkURL, e error) {
 	if repo == "" {
 		e = errors.New("no repository specified")
 		return

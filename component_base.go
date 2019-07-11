@@ -24,7 +24,7 @@ type (
 	//Base represents the common location to all components defined into a single descriptor
 	Base struct {
 		// Url specifies the base location of a component
-		Url EkUrl
+		Url EkURL
 	}
 )
 
@@ -54,7 +54,7 @@ func CreateComponentBase(yamlEnv *yamlEnvironment) (Base, error) {
 }
 
 //CreateBasedUrl creates a url under the base location
-func (b Base) CreateBasedUrl(repo string) (EkUrl, error) {
+func (b Base) CreateBasedUrl(repo string) (EkURL, error) {
 	return b.Url.ResolveReference(repo)
 }
 

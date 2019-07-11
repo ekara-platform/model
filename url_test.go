@@ -13,14 +13,14 @@ import (
 func TestPath(t *testing.T) {
 	u, e := url.Parse("http://www.google.com/my_path")
 	assert.Nil(t, e)
-	ru := rootUrl{url: u}
+	ru := rootURL{url: u}
 	assert.Equal(t, u.Path, ru.Path())
 }
 
 func TestScheme(t *testing.T) {
 	u, e := url.Parse("http://www.google.com/my_path")
 	assert.Nil(t, e)
-	ru := rootUrl{url: u}
+	ru := rootURL{url: u}
 	assert.Equal(t, u.Scheme, ru.Scheme())
 	assert.Equal(t, strings.ToUpper(SchemeHttp), ru.UpperScheme())
 	assert.Equal(t, SchemeHttp, ru.UpperScheme())
@@ -29,7 +29,7 @@ func TestScheme(t *testing.T) {
 func TestSetScheme(t *testing.T) {
 	u, e := url.Parse("http://www.google.com/my_path")
 	assert.Nil(t, e)
-	ru := rootUrl{url: u}
+	ru := rootURL{url: u}
 	assert.Equal(t, SchemeHttp, ru.UpperScheme())
 	ru.SetScheme(SchemeHttps)
 	assert.Equal(t, SchemeHttps, ru.UpperScheme())
@@ -38,7 +38,7 @@ func TestSetScheme(t *testing.T) {
 func TestDefaultScheme(t *testing.T) {
 	u, e := url.Parse("//www.google.com/my_path")
 	assert.Nil(t, e)
-	ru := rootUrl{url: u}
+	ru := rootURL{url: u}
 	assert.Equal(t, SchemeUnknown, ru.Scheme())
 	ru.SetDefaultScheme()
 	assert.Equal(t, SchemeFile, ru.UpperScheme())
@@ -47,7 +47,7 @@ func TestDefaultScheme(t *testing.T) {
 func TestCheckSlashSuffixHttpOk(t *testing.T) {
 	u, e := url.Parse("http://www.google.com/my_path")
 	assert.Nil(t, e)
-	ru := rootUrl{url: u}
+	ru := rootURL{url: u}
 	ru.CheckSlashSuffix()
 	assert.True(t, hasSuffixIgnoringCase(ru.Path(), "/my_path/"))
 }
@@ -55,7 +55,7 @@ func TestCheckSlashSuffixHttpOk(t *testing.T) {
 func TestCheckSlashSuffixHttpKo(t *testing.T) {
 	u, e := url.Parse("http://www.google.com/my_path/")
 	assert.Nil(t, e)
-	ru := rootUrl{url: u}
+	ru := rootURL{url: u}
 	ru.CheckSlashSuffix()
 	assert.True(t, hasSuffixIgnoringCase(ru.Path(), "/my_path/"))
 }
@@ -63,7 +63,7 @@ func TestCheckSlashSuffixHttpKo(t *testing.T) {
 func TestAddSuffix(t *testing.T) {
 	u, e := url.Parse("http://www.google.com/my_path/")
 	assert.Nil(t, e)
-	ru := rootUrl{url: u}
+	ru := rootURL{url: u}
 	ru.AddPathSuffix("dummySuffix")
 	assert.True(t, hasSuffixIgnoringCase(ru.Path(), "/my_path/dummySuffix"))
 }
@@ -71,7 +71,7 @@ func TestAddSuffix(t *testing.T) {
 func TestRemoveSuffix(t *testing.T) {
 	u, e := url.Parse("http://www.google.com/my_path/")
 	assert.Nil(t, e)
-	ru := rootUrl{url: u}
+	ru := rootURL{url: u}
 	ru.RemovePathSuffix("/")
 	assert.True(t, hasSuffixIgnoringCase(ru.Path(), "/my_path"))
 }
@@ -84,10 +84,10 @@ func TestCreateRemoteUlr(t *testing.T) {
 	assert.True(t, hasSuffixIgnoringCase(u.String(), "/"))
 	assert.Equal(t, "/my_path/", u.Path())
 
-	val, ok := u.(RemoteUrl)
+	val, ok := u.(RemoteURL)
 	assert.True(t, ok)
 	// The slash suffix is almays added
-	assert.Equal(t, val.rootUrl.String(), p+"/")
+	assert.Equal(t, val.rootURL.String(), p+"/")
 }
 
 func TestCreateFileUlr(t *testing.T) {
@@ -102,7 +102,7 @@ func TestCreateFileUlr(t *testing.T) {
 		p = wd + "\\some\\base"
 	}
 
-	u, e := createFileUrl(p)
+	u, e := createFileURL(p)
 	assert.Nil(t, e)
 
 	os.Remove(p)
@@ -110,7 +110,7 @@ func TestCreateFileUlr(t *testing.T) {
 
 	assert.Equal(t, SchemeFile, u.UpperScheme())
 	assert.True(t, hasSuffixIgnoringCase(u.String(), "/"))
-	val, ok := u.(FileUrl)
+	val, ok := u.(FileURL)
 	assert.True(t, ok)
 	if os.PathSeparator == '/' {
 		assert.Equal(t, p, val.filePath)
@@ -121,14 +121,14 @@ func TestCreateFileUlr(t *testing.T) {
 	ps := filepath.ToSlash(p)
 
 	if hasPrefixIgnoringCase(wd, "/") {
-		assert.Equal(t, val.rootUrl.String(), "file://"+ps+"/")
+		assert.Equal(t, val.rootURL.String(), "file://"+ps+"/")
 	} else {
-		assert.Equal(t, val.rootUrl.String(), "file:///"+ps+"/")
+		assert.Equal(t, val.rootURL.String(), "file:///"+ps+"/")
 	}
 
 }
 
-func TestCreateBasedRemoteUrl(t *testing.T) {
+func TestCreateBasedRemoteURL(t *testing.T) {
 
 	p1 := "http://github.com"
 	p2 := "organisation/repository"
@@ -142,12 +142,12 @@ func TestCreateBasedRemoteUrl(t *testing.T) {
 	assert.Nil(t, e)
 	assert.Equal(t, SchemeHttp, u.UpperScheme())
 
-	val, ok := u.(RemoteUrl)
+	val, ok := u.(RemoteURL)
 	assert.True(t, ok)
-	assert.Equal(t, val.rootUrl.String(), p1+"/"+p2+"/")
+	assert.Equal(t, val.rootURL.String(), p1+"/"+p2+"/")
 }
 
-func TestCreateBasedRemoteUrl2(t *testing.T) {
+func TestCreateBasedRemoteURL2(t *testing.T) {
 
 	p1 := "http://github.com/"
 	p2 := "/organisation/repository/"
@@ -161,9 +161,9 @@ func TestCreateBasedRemoteUrl2(t *testing.T) {
 	assert.Nil(t, e)
 	assert.Equal(t, SchemeHttp, u.UpperScheme())
 
-	val, ok := u.(RemoteUrl)
+	val, ok := u.(RemoteURL)
 	assert.True(t, ok)
-	assert.Equal(t, val.rootUrl.String(), p1+p2[1:])
+	assert.Equal(t, val.rootURL.String(), p1+p2[1:])
 }
 
 func TestCreateBasedLocalUrl(t *testing.T) {
@@ -196,7 +196,7 @@ func TestCreateBasedLocalUrl(t *testing.T) {
 	assert.Nil(t, e)
 	assert.Equal(t, SchemeFile, u.UpperScheme())
 
-	val, ok := u.(FileUrl)
+	val, ok := u.(FileURL)
 	assert.True(t, ok)
 
 	if os.PathSeparator == '/' {
@@ -208,9 +208,9 @@ func TestCreateBasedLocalUrl(t *testing.T) {
 	ps := filepath.ToSlash(p1 + p2 + "/")
 
 	if hasPrefixIgnoringCase(wd, "/") {
-		assert.Equal(t, val.rootUrl.String(), "file://"+ps)
+		assert.Equal(t, val.rootURL.String(), "file://"+ps)
 	} else {
-		assert.Equal(t, val.rootUrl.String(), "file:///"+ps)
+		assert.Equal(t, val.rootURL.String(), "file:///"+ps)
 	}
 
 	defer func(wd string) {

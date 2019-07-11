@@ -44,7 +44,7 @@ type (
 //      holder: The Id of the component holding the descriptor on which the environment is based
 //		data: The context used to substitute variables into the environment descriptor
 //
-func CreateEnvironment(url EkUrl, holder string, data *TemplateContext) (*Environment, error) {
+func CreateEnvironment(url EkURL, holder string, data *TemplateContext) (*Environment, error) {
 	env := &Environment{}
 	var err error
 	var yamlEnv yamlEnvironment

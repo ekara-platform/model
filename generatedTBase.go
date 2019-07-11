@@ -30,5 +30,5 @@ func CreateTBaseForBase(o Base) TBaseOnBaseHolder {
 
 //URL returns the url where the base refers
 func (r TBaseOnBaseHolder) URL() TURL {
-	return CreateTURLForEkUrl(r.h.Url)
+	return CreateTURLForEkURL(r.h.Url)
 }

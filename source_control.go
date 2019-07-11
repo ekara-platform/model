@@ -18,7 +18,7 @@ const (
 	UnknownScm SCMType = ""
 )
 
-func resolveSCMType(url EkUrl) (SCMType, error) {
+func resolveSCMType(url EkURL) (SCMType, error) {
 	switch url.UpperScheme() {
 	case SchemeFile:
 		// TODO: for now assume git on local directories, later try to detect

@@ -16,39 +16,39 @@ package model
 // Implementation(s) of TURL
 // ----------------------------------------------------
 
-//TURLOnEkUrlHolder is the struct containing the EkUrl in order to implement TURL
-type TURLOnEkUrlHolder struct {
-	h EkUrl
+//TURLOnEkURLHolder is the struct containing the EkURL in order to implement TURL
+type TURLOnEkURLHolder struct {
+	h EkURL
 }
 
-//CreateTURLForEkUrl returns an holder of EkUrl implementing TURL
-func CreateTURLForEkUrl(o EkUrl) TURLOnEkUrlHolder {
-	return TURLOnEkUrlHolder{
+//CreateTURLForEkURL returns an holder of EkURL implementing TURL
+func CreateTURLForEkURL(o EkURL) TURLOnEkURLHolder {
+	return TURLOnEkURLHolder{
 		h: o,
 	}
 }
 
 //String returns the string representation of the whole url
-func (r TURLOnEkUrlHolder) String() string {
+func (r TURLOnEkURLHolder) String() string {
 	return r.h.String()
 }
 
 //Scheme returns the url scheme
-func (r TURLOnEkUrlHolder) Scheme() string {
+func (r TURLOnEkURLHolder) Scheme() string {
 	return r.h.Scheme()
 }
 
 //Path returns the url path
-func (r TURLOnEkUrlHolder) Path() string {
+func (r TURLOnEkURLHolder) Path() string {
 	return r.h.Path()
 }
 
 //AsFilePath returns the path converted as a file path
-func (r TURLOnEkUrlHolder) AsFilePath() string {
+func (r TURLOnEkURLHolder) AsFilePath() string {
 	return r.h.AsFilePath()
 }
 
 //Host returns the url host
-func (r TURLOnEkUrlHolder) Host() string {
+func (r TURLOnEkURLHolder) Host() string {
 	return r.h.Host()
 }

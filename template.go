@@ -6,7 +6,7 @@ import (
 )
 
 //ApplyTemplate apply the parameters on the template represented by the descriptor content
-func ApplyTemplate(u EkUrl, descriptorContent []byte, parameters *TemplateContext) (out bytes.Buffer, err error) {
+func ApplyTemplate(u EkURL, descriptorContent []byte, parameters *TemplateContext) (out bytes.Buffer, err error) {
 
 	// Parse/execute it as a Go template
 	out = bytes.Buffer{}

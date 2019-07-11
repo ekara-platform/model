@@ -15,8 +15,8 @@ import (
 )
 
 type (
-	//EkUrl defines the url used into Ekara
-	EkUrl interface {
+	//EkURL defines the url used into Ekara
+	EkURL interface {
 		String() string
 		//ReadUrl returns the content referenced by the url
 		ReadUrl() ([]byte, error)
@@ -28,111 +28,111 @@ type (
 		UpperScheme() string
 		SetDefaultScheme()
 		CheckSlashSuffix()
-		ResolveReference(repo string) (EkUrl, error)
+		ResolveReference(repo string) (EkURL, error)
 		AddPathSuffix(s string)
 		RemovePathSuffix(s string)
 	}
 
-	rootUrl struct {
+	rootURL struct {
 		url *url.URL
 	}
 
-	//FileUrl defines a local url, typically a file url of something already downloaded into the platform
-	FileUrl struct {
-		*rootUrl
+	//FileURL defines a local url, typically a file url of something already downloaded into the platform
+	FileURL struct {
+		*rootURL
 		filePath string
 	}
 
-	//RemoteUrl defines a remote url,example over http; https, git...
-	RemoteUrl struct {
-		*rootUrl
+	//RemoteURL defines a remote url,example over http; https, git...
+	RemoteURL struct {
+		*rootURL
 	}
 )
 
-func (fu FileUrl) MarshalYAML() (interface{}, error) {
+func (fu FileURL) MarshalYAML() (interface{}, error) {
 	res, err := yaml.Marshal(&struct {
-		Url *url.URL
+		URL *url.URL
 	}{
-		Url: fu.url,
+		URL: fu.url,
 	})
 	return string(res), err
 }
 
-func (ru RemoteUrl) MarshalYAML() (interface{}, error) {
+func (ru RemoteURL) MarshalYAML() (interface{}, error) {
 	res, err := yaml.Marshal(&struct {
-		Url *url.URL
+		URL *url.URL
 	}{
-		Url: ru.url,
+		URL: ru.url,
 	})
 	return string(res), err
 }
 
-func (ru *rootUrl) Path() string {
+func (ru *rootURL) Path() string {
 	return ru.url.Path
 }
 
-func (ru *rootUrl) Host() string {
+func (ru *rootURL) Host() string {
 	return ru.url.Host
 }
 
-func (ru *rootUrl) Scheme() string {
+func (ru *rootURL) Scheme() string {
 	return ru.url.Scheme
 }
 
-func (ru *rootUrl) SetScheme(s string) {
+func (ru *rootURL) SetScheme(s string) {
 	ru.url.Scheme = s
 }
 
-func (ru *rootUrl) UpperScheme() string {
+func (ru *rootURL) UpperScheme() string {
 	return strings.ToUpper(ru.url.Scheme)
 }
 
-func (ru *rootUrl) SetDefaultScheme() {
+func (ru *rootURL) SetDefaultScheme() {
 	// If no protocol, assume file
 	if ru.Scheme() == SchemeUnknown {
 		ru.SetScheme(strings.ToLower(SchemeFile))
 	}
 }
 
-func (ru *rootUrl) CheckSlashSuffix() {
+func (ru *rootURL) CheckSlashSuffix() {
 	if !strings.HasSuffix(ru.Path(), "/") {
 		ru.AddPathSuffix("/")
 	}
 }
 
-func (ru *rootUrl) AddPathSuffix(s string) {
+func (ru *rootURL) AddPathSuffix(s string) {
 	ru.url.Path = ru.url.Path + s
 }
 
-func (ru *rootUrl) RemovePathSuffix(s string) {
+func (ru *rootURL) RemovePathSuffix(s string) {
 	ru.url.Path = strings.TrimRight(ru.url.Path, s)
 }
 
-func (ru *rootUrl) String() string {
+func (ru *rootURL) String() string {
 	return ru.url.String()
 }
 
 //ResolveReference resolves the repository URI reference to an absolute URI from
-// the RemoteUrl as base URI
-func (ru RemoteUrl) ResolveReference(repository string) (EkUrl, error) {
+// the RemoteURL as base URI
+func (ru RemoteURL) ResolveReference(repository string) (EkURL, error) {
 	repository = strings.TrimLeft(repository, "/")
 	repoU, e := url.Parse(repository)
 	if e != nil {
-		return RemoteUrl{}, e
+		return RemoteURL{}, e
 	}
 	return CreateUrl(ru.url.ResolveReference(repoU).String())
 }
 
 //ResolveReference resolves the repository URI reference to an absolute URI from
-// the FileUrl as base URI
-func (fu FileUrl) ResolveReference(repository string) (EkUrl, error) {
+// the FileURL as base URI
+func (fu FileURL) ResolveReference(repository string) (EkURL, error) {
 	repository = strings.TrimLeft(repository, "/")
 	repoU := fu.filePath + filepath.ToSlash(repository)
 	return CreateUrl(repoU)
 }
 
 /////////////////////////////////////////////
-func createFileUrl(path string) (EkUrl, error) {
+func createFileURL(path string) (EkURL, error) {
 	absPath, e := filepath.Abs(path)
 	if e != nil {
 		return nil, e
@@ -140,7 +140,7 @@ func createFileUrl(path string) (EkUrl, error) {
 	if DirExist(absPath) {
 		absPath = absPath + string(filepath.Separator)
 	}
-	r := FileUrl{filePath: absPath}
+	r := FileURL{filePath: absPath}
 
 	absPath = filepath.ToSlash(absPath)
 	absPath = strings.TrimLeft(absPath, "/")
@@ -150,31 +150,31 @@ func createFileUrl(path string) (EkUrl, error) {
 		return r, e
 	}
 	u.Path = pathIm.Clean(u.Path)
-	r.rootUrl = &rootUrl{url: u}
+	r.rootURL = &rootURL{url: u}
 	r.CheckSlashSuffix()
 	return r, nil
 }
 
-func createRemoteUlr(path string) (EkUrl, error) {
-	r := RemoteUrl{}
+func createRemoteUlr(path string) (EkURL, error) {
+	r := RemoteURL{}
 	u, e := url.Parse(path)
 	if e != nil {
 		return r, e
 	}
-	r.rootUrl = &rootUrl{url: u}
+	r.rootURL = &rootURL{url: u}
 	r.CheckSlashSuffix()
 	return r, nil
 }
 
 //CreateUrl creates an Ekara url for the given path. The provided path can be a path on
 // a file system or a remote url over http, https, git...
-func CreateUrl(path string) (EkUrl, error) {
-	var r EkUrl
+func CreateUrl(path string) (EkURL, error) {
+	var r EkURL
 	var e error
 	// If file exists locally, resolve its absolute path and convert it to an URL
 
 	if b, _ := FileExist(path); b {
-		r, e = createFileUrl(path)
+		r, e = createFileURL(path)
 		if e != nil {
 			return r, e
 		}
@@ -195,7 +195,7 @@ func CreateUrl(path string) (EkUrl, error) {
 }
 
 //ReadUrl reads the content referenced by the url
-func (ru FileUrl) ReadUrl() ([]byte, error) {
+func (ru FileURL) ReadUrl() ([]byte, error) {
 	location := ru.filePath
 
 	file, err := os.Open(location)
@@ -211,12 +211,12 @@ func (ru FileUrl) ReadUrl() ([]byte, error) {
 }
 
 //AsFilePath return path corresponding to the file url
-func (ru FileUrl) AsFilePath() string {
+func (ru FileURL) AsFilePath() string {
 	return ru.filePath
 }
 
 //ReadUrl reads the content referenced by the url
-func (ru RemoteUrl) ReadUrl() ([]byte, error) {
+func (ru RemoteURL) ReadUrl() ([]byte, error) {
 	var response *http.Response
 	response, err := http.Get(ru.url.String())
 	if err != nil {
@@ -235,16 +235,16 @@ func (ru RemoteUrl) ReadUrl() ([]byte, error) {
 }
 
 //AsFilePath return "" because it's a remote url
-func (ru RemoteUrl) AsFilePath() string {
+func (ru RemoteURL) AsFilePath() string {
 	return ""
 }
 
 //GetCurrentDirectoryURL return the working directory as an url
-func GetCurrentDirectoryURL(l *log.Logger) (EkUrl, error) {
+func GetCurrentDirectoryURL(l *log.Logger) (EkURL, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		l.Printf("Error getting the working directory: %s\n", err.Error())
-		return FileUrl{}, err
+		return FileURL{}, err
 	}
 	return CreateUrl(wd)
 }

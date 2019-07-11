@@ -15,7 +15,7 @@ func TestCreateDefaultComponentBase(t *testing.T) {
 	b, e := CreateComponentBase(env)
 	assert.Nil(t, e)
 	assert.Equal(t, SchemeHttps, b.Url.UpperScheme())
-	assert.True(t, reflect.TypeOf(b.Url) == reflect.TypeOf(RemoteUrl{}))
+	assert.True(t, reflect.TypeOf(b.Url) == reflect.TypeOf(RemoteURL{}))
 	// The url shoud end with a slash
 	assert.True(t, hasSuffixIgnoringCase(b.Url.String(), "/"))
 	// The base should be defaulted to DefaultComponentBase
@@ -31,7 +31,7 @@ func TestCreateHttpComponentBase(t *testing.T) {
 	b, e := CreateComponentBase(env)
 	assert.Nil(t, e)
 	assert.Equal(t, SchemeHttp, b.Url.UpperScheme())
-	assert.True(t, reflect.TypeOf(b.Url) == reflect.TypeOf(RemoteUrl{}))
+	assert.True(t, reflect.TypeOf(b.Url) == reflect.TypeOf(RemoteURL{}))
 	assert.True(t, hasSuffixIgnoringCase(b.Url.String(), "/"))
 	assert.Equal(t, bs+"/", b.Url.String())
 }
@@ -58,7 +58,7 @@ func TestCreateFileComponentBase(t *testing.T) {
 	assert.Nil(t, e)
 
 	assert.Equal(t, SchemeFile, b.Url.UpperScheme())
-	assert.True(t, reflect.TypeOf(b.Url) == reflect.TypeOf(FileUrl{}))
+	assert.True(t, reflect.TypeOf(b.Url) == reflect.TypeOf(FileURL{}))
 	assert.True(t, hasSuffixIgnoringCase(b.Url.String(), "/"))
 	defer func() {
 		var e error
