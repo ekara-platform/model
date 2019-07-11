@@ -204,8 +204,8 @@ type TTaskRef interface {
 type TPlatform interface {
 	//Base returns the base location of the platform
 	Base() TBase
-	//Distribution returns the distribution used by the platform
-	Distribution() TComponent
+	//Parent returns the parent used by the platform
+	Parent() TComponent
 	//HasComponents returns true if the platform has components
 	HasComponents() bool
 }

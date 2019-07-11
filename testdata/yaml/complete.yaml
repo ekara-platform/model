@@ -5,7 +5,7 @@ description: This is my awesome Ekara environment.
 
 ekara:
   base: someBase
-  distribution:
+  parent:
     repository: ekara-platform/distribution
     ref: 1.2.3
   components:

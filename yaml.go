@@ -122,7 +122,7 @@ type (
 
 	yamlEkara struct {
 		Base         string `yaml:",omitempty"`
-		Distribution yamlComponent
+		Parent yamlComponent
 		Components   map[string]yamlComponent
 	}
 

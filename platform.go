@@ -7,7 +7,7 @@ import (
 //Platform the platform used to build an environment
 type Platform struct {
 	Base                       Base
-	Distribution               Distribution
+	Parent                     Parent
 	Components                 map[string]Component
 	sortedDiscoveredComponents []ComponentLeaf
 	SortedFetchedComponents    []string
@@ -30,12 +30,12 @@ func createPlatform(yamlEnv *yamlEnvironment) (*Platform, error) {
 	}
 	p.Base = base
 
-	// Create the distribution component (mandatory)
-	dist, e := CreateDistribution(base, yamlEnv)
+	// Create the parent component
+	parent, e := CreateParent(base, yamlEnv)
 	if e != nil {
-		return p, errors.New("Error creating the distribution : " + e.Error())
+		return p, errors.New("Error creating the parent : " + e.Error())
 	}
-	p.Distribution = dist
+	p.Parent = parent
 
 	// Create other components of the environment
 	p.sortedDiscoveredComponents = make([]ComponentLeaf, 0, 0)
@@ -90,7 +90,7 @@ func (p *Platform) ToFetch() (<-chan Component, int) {
 		copy(work, sD)
 		lastDone := make([]string, 0, 0)
 
-		// First we check the distribution
+		// First we check the parent
 		for i, n := range work {
 			if n.Component.Id == EkaraComponentId {
 				lastDone = append(lastDone, n.Component.Id)
@@ -162,8 +162,8 @@ func (p *Platform) merge(other Platform) error {
 		p.tagUsedComponent(c)
 	}
 
-	if p.Distribution.Repository.Url == nil && other.Distribution.Repository.Url != nil {
-		p.Distribution = other.Distribution
+	if p.Parent.Repository.Url == nil && other.Parent.Repository.Url != nil {
+		p.Parent = other.Parent
 	}
 	return nil
 }

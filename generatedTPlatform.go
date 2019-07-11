@@ -33,9 +33,9 @@ func (r TPlatformOnPlatformHolder) Base() TBase {
 	return CreateTBaseForBase(r.h.Base)
 }
 
-//Distribution returns the distribution used by the platform
-func (r TPlatformOnPlatformHolder) Distribution() TComponent {
-	return CreateTComponentForDistribution(r.h.Distribution)
+//Parent returns the parent used by the platform
+func (r TPlatformOnPlatformHolder) Parent() TComponent {
+	return CreateTComponentForParent(r.h.Parent)
 }
 
 //HasComponents returns true if the platform has components

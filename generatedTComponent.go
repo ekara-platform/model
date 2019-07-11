@@ -16,35 +16,35 @@ package model
 // Implementation(s) of TComponent
 // ----------------------------------------------------
 
-//TComponentOnDistributionHolder is the struct containing the Distribution in order to implement TComponent
-type TComponentOnDistributionHolder struct {
-	h Distribution
+//TComponentOnParentHolder is the struct containing the Parent in order to implement TComponent
+type TComponentOnParentHolder struct {
+	h Parent
 }
 
-//CreateTComponentForDistribution returns an holder of Distribution implementing TComponent
-func CreateTComponentForDistribution(o Distribution) TComponentOnDistributionHolder {
-	return TComponentOnDistributionHolder{
+//CreateTComponentForParent returns an holder of Parent implementing TComponent
+func CreateTComponentForParent(o Parent) TComponentOnParentHolder {
+	return TComponentOnParentHolder{
 		h: o,
 	}
 }
 
 //ID returns the name of the component
-func (r TComponentOnDistributionHolder) ID() string {
+func (r TComponentOnParentHolder) ID() string {
 	return r.h.Id
 }
 
 //Repository returns the repository where the component is located
-func (r TComponentOnDistributionHolder) Repository() TRepository {
+func (r TComponentOnParentHolder) Repository() TRepository {
 	return CreateTRepositoryForRepository(r.h.Repository)
 }
 
 //HasTemplates returns true if the component has defined templates
-func (r TComponentOnDistributionHolder) HasTemplates() bool {
+func (r TComponentOnParentHolder) HasTemplates() bool {
 	return len(r.h.Templates.Content) > 0
 }
 
 //Templates returns true if the component templates
-func (r TComponentOnDistributionHolder) Templates() []string {
+func (r TComponentOnParentHolder) Templates() []string {
 	return r.h.Templates.Content
 }
 

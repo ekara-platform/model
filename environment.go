@@ -86,7 +86,7 @@ func CreateEnvironment(url EkURL, holder string, data *TemplateContext) (*Enviro
 	if err != nil {
 		return env, err
 	}
-	// Only the main descriptor or a distribution is allowed to define stacks
+	// Only the main descriptor or a parent is allowed to define stacks
 	if holder == MainComponentId || holder == EkaraComponentId {
 		env.Stacks, err = createStacks(env, holder, env.location.appendPath("stacks"), &yamlEnv)
 		if err != nil {

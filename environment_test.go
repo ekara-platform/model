@@ -25,7 +25,7 @@ func assertEnv(t *testing.T, env *Environment) {
 	assert.Equal(t, 5, len(env.Ekara.Components))
 	assert.Equal(t, SchemeFile, env.Ekara.Base.Url.UpperScheme())
 	assert.Equal(t, "file://someBase/", env.Ekara.Base.Url.String())
-	assert.Equal(t, "file:///someBase/ekara-platform/distribution/", env.Ekara.Distribution.Repository.Url.String())
+	assert.Equal(t, "file:///someBase/ekara-platform/distribution/", env.Ekara.Parent.Repository.Url.String())
 
 	// Variables
 	assert.NotNil(t, env.Vars)
