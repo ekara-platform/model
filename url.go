@@ -10,6 +10,8 @@ import (
 	pathIm "path"
 	"path/filepath"
 	"strings"
+
+	"gopkg.in/yaml.v2"
 )
 
 type (
@@ -47,7 +49,23 @@ type (
 	}
 )
 
-/////////////////////////////////////////////
+func (fu FileUrl) MarshalYAML() (interface{}, error) {
+	res, err := yaml.Marshal(&struct {
+		Url *url.URL
+	}{
+		Url: fu.url,
+	})
+	return string(res), err
+}
+
+func (ru RemoteUrl) MarshalYAML() (interface{}, error) {
+	res, err := yaml.Marshal(&struct {
+		Url *url.URL
+	}{
+		Url: ru.url,
+	})
+	return string(res), err
+}
 
 func (ru *rootUrl) Path() string {
 	return ru.url.Path
@@ -107,9 +125,9 @@ func (ru RemoteUrl) ResolveReference(repository string) (EkUrl, error) {
 
 //ResolveReference resolves the repository URI reference to an absolute URI from
 // the FileUrl as base URI
-func (ru FileUrl) ResolveReference(repository string) (EkUrl, error) {
+func (fu FileUrl) ResolveReference(repository string) (EkUrl, error) {
 	repository = strings.TrimLeft(repository, "/")
-	repoU := ru.filePath + filepath.ToSlash(repository)
+	repoU := fu.filePath + filepath.ToSlash(repository)
 	return CreateUrl(repoU)
 }
 

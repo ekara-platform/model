@@ -12,7 +12,7 @@ type (
 		// Id specifies id of the component
 		Id string
 		// Repository specifies the location where to look for the component
-		Repository
+		Repository Repository
 		//Templates Defines the content to template for the component
 		Templates Patterns
 	}
@@ -33,6 +33,6 @@ func CreateComponent(id string, repo Repository) Component {
 }
 
 //Templatable indicates if the component contains templates
-func (r Component) Templatable() (bool, Patterns) {
-	return len(r.Templates.Content) > 0, r.Templates
+func (c Component) Templatable() (bool, Patterns) {
+	return len(c.Templates.Content) > 0, c.Templates
 }

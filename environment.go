@@ -5,7 +5,6 @@ package model
 type (
 	//Environment represents an environment build based on a descriptor
 	Environment struct {
-		OriginalEnv yamlEnvironment
 		// The location of the environment root
 		location DescriptorLocation `yaml:",omitempty"`
 		// The environment name
@@ -54,7 +53,6 @@ func CreateEnvironment(url EkUrl, holder string, data *TemplateContext) (*Enviro
 	if err != nil {
 		return env, err
 	}
-	env.OriginalEnv = yamlEnv
 
 	env.location = DescriptorLocation{Descriptor: url.String()}
 	env.Name = yamlEnv.Name
@@ -193,28 +191,6 @@ func (r Environment) Validate() ValidationErrors {
 	return vErrs
 }
 
-/*
-//Component returns the referenced component
-func (r Environment) Component() (Component, error) {
-	return r.Ekara.Components[MainComponentId], nil
-}
-
-//ComponentName returns the referenced component name
-func (r Environment) ComponentName() string {
-	return MainComponentId
-}
-
-//DescType returns the Describable type of the environment
-//  Hardcoded to : "Environment"
-func (r Environment) DescType() string {
-	return "Environment"
-}
-
-//DescName returns the Describable name of the environment
-func (r Environment) DescName() string {
-	return MainComponentId
-}
-*/
 //InitEnvironment creates an new Environment
 func InitEnvironment() *Environment {
 	env := &Environment{

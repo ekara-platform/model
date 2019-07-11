@@ -99,7 +99,7 @@ func assertEnv(t *testing.T, env *Environment) {
 	assert.Nil(t, err)
 
 	assert.True(t, strings.HasSuffix(awsComponent.Repository.Url.String(), "/someBase/ekara-platform/aws-provider/"))
-	assert.Equal(t, "1.2.3", awsComponent.Ref)
+	assert.Equal(t, "1.2.3", awsComponent.Repository.Ref)
 	assert.NotNil(t, providers["aws"].Parameters)
 	c = providers["aws"].Parameters
 	v, ok = c["aws_param_key1"]
@@ -132,7 +132,7 @@ func assertEnv(t *testing.T, env *Environment) {
 	azureComponent, err := providers["azure"].cRef.resolve()
 	assert.Nil(t, err)
 	assert.True(t, strings.HasSuffix(azureComponent.Repository.Url.String(), "/someBase/ekara-platform/azure-provider/"))
-	assert.Equal(t, "1.2.3", azureComponent.Ref)
+	assert.Equal(t, "1.2.3", azureComponent.Repository.Ref)
 	assert.NotNil(t, providers["azure"].Parameters)
 
 	c = providers["azure"].Parameters
@@ -426,12 +426,12 @@ func assertEnv(t *testing.T, env *Environment) {
 	st1Component, err := stack1.cRef.resolve()
 	assert.Nil(t, err)
 	assert.True(t, strings.HasSuffix(st1Component.Repository.Url.String(), "/someBase/some-org/stack1/"))
-	assert.Equal(t, "1.2.3", st1Component.Ref)
+	assert.Equal(t, "1.2.3", st1Component.Repository.Ref)
 
 	st2Component, err := stack2.cRef.resolve()
 	assert.Nil(t, err)
 	assert.True(t, strings.HasSuffix(st2Component.Repository.Url.String(), "/someBase/some-org/stack2/"))
-	assert.Equal(t, "1.2.3", st2Component.Ref)
+	assert.Equal(t, "1.2.3", st2Component.Repository.Ref)
 
 	//------------------------------------------------------------
 	//Stack copies
