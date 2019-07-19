@@ -43,7 +43,7 @@ func CreateBase(rawurl string) (Base, error) {
 	return b, nil
 }
 
-//CreateComponentBase returns a new Base for the url specified int the Ekara section of the
+//CreateComponentBase returns a new Base for the url specified in the Ekara section of the
 // provided environment/descriptor, if the url is not defined then
 // it will be defaulted to DefaultComponentBase
 func CreateComponentBase(yamlEkara yamlEkara) (Base, error) {
