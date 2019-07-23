@@ -2,7 +2,6 @@ package model
 
 import (
 	"errors"
-	"log"
 )
 
 type (
@@ -65,7 +64,6 @@ func (r *Provider) merge(other Provider) error {
 
 //Component returns the referenced component
 func (r Provider) Component() (Component, error) {
-	log.Printf("--> GBE Ref to resolve %v", r.cRef)
 	return r.cRef.resolve()
 }
 
