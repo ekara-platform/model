@@ -8,7 +8,7 @@
             {"name":"Qualifier","attribute":"Qualifier", "doc":"returns the qualifier of the environment"},
             {"name":"Description","attribute":"Description", "doc":"returns the description of the environment"},
             {"name":"QualifiedName", "custom":{"returns":"string", "impl":"r.h.Name + \"_\" + r.h.Qualifier"}, "doc":"returns the qualified of the environment"},
-            {"name":"Platform", "interface":{"name":"TPlatform", "attribute":"Ekara", "type":"Platform"}, "no_pointer":1, "doc":"returns the platform used to deploy environment"},
+            {"name":"Platform", "interface":{"name":"TPlatform", "attribute":"ekara", "type":"Platform"}, "no_pointer":1, "doc":"returns the platform used to deploy environment"},
             {"name":"HasVars", "custom": {"returns":"bool", "impl":"len(r.h.Vars) > 0"}, "doc":"returns true if the environment has defined vars"},
             {"name":"Vars", "custom": {"returns":"map[string]interface{}", "impl":"r.h.Vars"}, "doc":"returns the environement vars"},
             {"name":"Orchestrator", "interface":{"name":"TOrchestrator", "attribute":"Orchestrator" }, "doc":"returns the orchestrator managing the environment nodes"},

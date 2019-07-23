@@ -1,6 +1,8 @@
 package model
 
-import "fmt"
+import (
+	"fmt"
+)
 
 const (
 	unknownComponentRefError = "component cannot be resolved: %s"
@@ -45,7 +47,7 @@ func (r *componentRef) merge(other componentRef) error {
 }
 
 func (r componentRef) resolve() (Component, error) {
-	if val, ok := r.env.Ekara.Components[r.ref]; ok {
+	if val, ok := r.env.ekara.Components[r.ref]; ok {
 		return val, nil
 	}
 	return Component{}, fmt.Errorf(unknownComponentRefError, r.ref)
@@ -53,7 +55,7 @@ func (r componentRef) resolve() (Component, error) {
 
 func (r componentRef) validationDetails() refValidationDetails {
 	result := make(map[string]interface{})
-	for k, v := range r.env.Ekara.Components {
+	for k, v := range r.env.ekara.Components {
 		result[k] = v
 	}
 	return refValidationDetails{

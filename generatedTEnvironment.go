@@ -50,7 +50,7 @@ func (r TEnvironmentOnEnvironmentHolder) QualifiedName() string {
 
 //Platform returns the platform used to deploy environment
 func (r TEnvironmentOnEnvironmentHolder) Platform() TPlatform {
-	return CreateTPlatformForPlatform(*r.h.Ekara)
+	return CreateTPlatformForPlatform(*r.h.ekara)
 }
 
 //HasVars returns true if the environment has defined vars

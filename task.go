@@ -108,7 +108,7 @@ func createTasks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnv
 				Execute: eHook,
 			},
 		}
-		env.Ekara.tagUsedComponent(res[name])
+		//env.Ekara.tagUsedComponent(res[name])
 	}
 	return res, nil
 }

@@ -2,8 +2,10 @@ package model
 
 import (
 	"testing"
+	_ "testing"
 
 	"github.com/stretchr/testify/assert"
+	_ "github.com/stretchr/testify/assert"
 )
 
 // Test loading an environment without nodes.

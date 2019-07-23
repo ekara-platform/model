@@ -6,59 +6,74 @@ import (
 
 //Platform the platform used to build an environment
 type Platform struct {
-	Base                       Base
-	Parent                     Parent
-	Components                 map[string]Component
-	sortedDiscoveredComponents []ComponentLeaf
-	SortedFetchedComponents    []string
-	cRefs                      []ComponentReferencer
+	Base       Base
+	Parent     Parent
+	Components map[string]Component
 }
 
-//ComponentLeaf keeps a reference between a component and the one
-// declaring it
-type ComponentLeaf struct {
-	parentID  string
-	Component Component
-}
-
-func createPlatform(yamlEnv *yamlEnvironment) (*Platform, error) {
-	p := &Platform{}
+func CreatePlatform(yamlEkara yamlEkara) (Platform, error) {
+	p := Platform{}
 	// Compute the component base for the environment
-	base, e := CreateComponentBase(yamlEnv)
+	base, e := CreateComponentBase(yamlEkara)
 	if e != nil {
 		return p, errors.New("Error creating the base component : " + e.Error())
 	}
 	p.Base = base
 
 	// Create the parent component
-	parent, e := CreateParent(base, yamlEnv)
+	parent, e := CreateParent(base, yamlEkara)
 	if e != nil {
 		return p, errors.New("Error creating the parent : " + e.Error())
 	}
 	p.Parent = parent
 
 	// Create other components of the environment
-	p.sortedDiscoveredComponents = make([]ComponentLeaf, 0, 0)
-	p.SortedFetchedComponents = make([]string, 0, 0)
 	components := map[string]Component{}
-	for name, yamlC := range yamlEnv.Ekara.Components {
+	for name, yamlC := range yamlEkara.Components {
 		repo, e := CreateRepository(base, yamlC.Repository, yamlC.Ref, "")
 		if e != nil {
 			return p, errors.New("Error creating the repository: " + e.Error())
 		}
 		repo.setAuthentication(yamlC)
-		component := CreateComponent(name, repo)
-
-		components[name] = component
+		components[name] = CreateComponent(name, repo)
 	}
 
 	p.Components = components
-	p.cRefs = make([]ComponentReferencer, 0, 0)
 	return p, nil
 }
 
+func (p Platform) validate() ValidationErrors {
+	vErrs := ValidationErrors{}
+	for _, c := range p.Components {
+		vErrs.merge(ErrorOnInvalid(c))
+	}
+	return vErrs
+}
+
+func (p Platform) KeepTemplates(c Component, templates Patterns) {
+	if len(templates.Content) > 0 {
+		comp := p.Components[c.Id]
+		comp.Templates = templates
+		p.Components[c.Id] = comp
+	}
+}
+
+func (p *Platform) AddComponent(c Component) {
+	p.Components[c.Id] = c
+}
+
+//ComponentLeaf keeps a reference between a component and the one
+// declaring it
+/*
+type ComponentLeaf struct {
+	parentID  string
+	Component Component
+}
+*/
+
 //RegisterComponent register a new component under its parent ID
 //If a component has no parent, like a main descriptor, then the ID should be ""
+/*
 func (p *Platform) RegisterComponent(parent string, c Component) bool {
 	res := false
 	if _, ok := p.Components[c.Id]; ok {
@@ -79,8 +94,10 @@ func (p *Platform) RegisterComponent(parent string, c Component) bool {
 	p.Components[c.Id] = c
 	return res
 }
+*/
 
 //ToFetch provides a channel allowing to get the sorted components to fetch
+/*
 func (p *Platform) ToFetch() (<-chan Component, int) {
 	sD := p.sortedDiscoveredComponents
 	ret := make(chan Component, len(sD))
@@ -127,7 +144,9 @@ func (p *Platform) ToFetch() (<-chan Component, int) {
 	}()
 	return ret, len(sD)
 }
+*/
 
+/*
 func (p *Platform) tagUsedComponent(cr ComponentReferencer) {
 	for _, v := range p.cRefs {
 		if cr.ComponentName() == v.ComponentName() {
@@ -136,8 +155,10 @@ func (p *Platform) tagUsedComponent(cr ComponentReferencer) {
 	}
 	p.cRefs = append(p.cRefs, cr)
 }
+*/
 
 // Used returns true if the component with the given Id is used into the environment.
+/*
 func (p *Platform) Used(id string) bool {
 	for _, cr := range p.cRefs {
 		if cr.ComponentName() == id {
@@ -146,24 +167,19 @@ func (p *Platform) Used(id string) bool {
 	}
 	return false
 }
+*/
 
-func (p Platform) validate() ValidationErrors {
-	vErrs := ValidationErrors{}
-	for _, c := range p.Components {
-		vErrs.merge(ErrorOnInvalid(c))
-	}
-	return vErrs
-}
-
+/*
 func (p *Platform) merge(other Platform) error {
 	// We don't need to merge other.Components because they will be processed as
 	// components to be registered by the fetching process into the engine
-	for _, c := range other.cRefs {
-		p.tagUsedComponent(c)
-	}
+	//for _, c := range other.cRefs {
+	//	p.tagUsedComponent(c)
+	//}
 
 	if p.Parent.Repository.Url == nil && other.Parent.Repository.Url != nil {
 		p.Parent = other.Parent
 	}
 	return nil
 }
+*/

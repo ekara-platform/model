@@ -36,7 +36,7 @@ func createOrchestrator(env *Environment, location DescriptorLocation, yamlEnv *
 		EnvVars:    envVars,
 	}
 
-	env.Ekara.tagUsedComponent(o)
+	//env.Ekara.tagUsedComponent(o)
 	return o, nil
 }
 

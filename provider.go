@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"log"
 )
 
 type (
@@ -64,6 +65,7 @@ func (r *Provider) merge(other Provider) error {
 
 //Component returns the referenced component
 func (r Provider) Component() (Component, error) {
+	log.Printf("--> GBE Ref to resolve %v", r.cRef)
 	return r.cRef.resolve()
 }
 
@@ -96,7 +98,7 @@ func createProviders(env *Environment, location DescriptorLocation, yamlEnv *yam
 			EnvVars:    envVars,
 			Proxy:      proxy,
 		}
-		env.Ekara.tagUsedComponent(res[name])
+		//env.Ekara.tagUsedComponent(res[name])
 	}
 	return res, nil
 }

@@ -7,18 +7,16 @@ import (
 )
 
 func TestCreateDefaultParent(t *testing.T) {
-	ye := &yamlEnvironment{
-		Ekara: yamlEkara{
-			Parent: yamlComponent{
-				yamlAuth: yamlAuth{
-					Auth: make(map[string]interface{}),
-				},
+	ye := yamlEkara{
+		Parent: yamlComponent{
+			yamlAuth: yamlAuth{
+				Auth: make(map[string]interface{}),
 			},
 		},
 	}
-	ye.Ekara.Parent.Auth["p1"] = "v1"
-	ye.Ekara.Parent.Auth["p2"] = "v2"
-	assert.True(t, len(ye.Ekara.Parent.Auth) == 2)
+	ye.Parent.Auth["p1"] = "v1"
+	ye.Parent.Auth["p2"] = "v2"
+	assert.True(t, len(ye.Parent.Auth) == 2)
 
 	b, e := CreateComponentBase(ye)
 	assert.Nil(t, e)
@@ -33,18 +31,16 @@ func TestCreateDefaultParent(t *testing.T) {
 }
 
 func TestCreateDefaultParentOverDefinedBase(t *testing.T) {
-	ye := &yamlEnvironment{
-		Ekara: yamlEkara{
-			Base: "project_base",
-			Parent: yamlComponent{
-				yamlAuth: yamlAuth{
-					Auth: make(map[string]interface{}),
-				},
+	ye := yamlEkara{
+		Base: "project_base",
+		Parent: yamlComponent{
+			yamlAuth: yamlAuth{
+				Auth: make(map[string]interface{}),
 			},
 		},
 	}
-	ye.Ekara.Parent.Auth["p1"] = "v1"
-	ye.Ekara.Parent.Auth["p2"] = "v2"
+	ye.Parent.Auth["p1"] = "v1"
+	ye.Parent.Auth["p2"] = "v2"
 
 	b, e := CreateComponentBase(ye)
 	assert.Nil(t, e)
@@ -61,19 +57,17 @@ func TestCreateDefaultParentOverDefinedBase(t *testing.T) {
 func TestCreateDefinedParentOverDefinedBase(t *testing.T) {
 	pbs := "http://project_base"
 	ds := "projectOrganization/customParent"
-	ye := &yamlEnvironment{
-		Ekara: yamlEkara{
-			Base: pbs,
-			Parent: yamlComponent{
-				Repository: ds,
-				yamlAuth: yamlAuth{
-					Auth: make(map[string]interface{}),
-				},
+	ye := yamlEkara{
+		Base: pbs,
+		Parent: yamlComponent{
+			Repository: ds,
+			yamlAuth: yamlAuth{
+				Auth: make(map[string]interface{}),
 			},
 		},
 	}
-	ye.Ekara.Parent.Auth["p1"] = "v1"
-	ye.Ekara.Parent.Auth["p2"] = "v2"
+	ye.Parent.Auth["p1"] = "v1"
+	ye.Parent.Auth["p2"] = "v2"
 
 	b, e := CreateComponentBase(ye)
 	assert.Nil(t, e)

@@ -26,8 +26,13 @@ func TestValidationNoStacks(t *testing.T) {
 //- Error: reference to unknown component: dummy @stacks.monitoring.component
 //
 func TestValidationUnknownStack(t *testing.T) {
-	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/grammar/unknown_stack.yaml"), MainComponentId, &TemplateContext{})
+	yamlEnv, e := ParseYamlDescriptor(buildURL(t, "./testdata/yaml/grammar/unknown_stack.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
+	p, e := CreatePlatform(yamlEnv.Ekara)
+	assert.Nil(t, e)
+	env, e := CreateEnvironment("", yamlEnv, MainComponentId)
+	assert.Nil(t, e)
+	env.ekara = &p
 	vErrs := env.Validate()
 	assert.True(t, vErrs.HasErrors())
 	assert.False(t, vErrs.HasWarnings())
@@ -43,8 +48,13 @@ func TestValidationUnknownStack(t *testing.T) {
 //- Error: reference to unknown stack dependency: dummy @stacks.monitoring.depends_on.dummy
 //
 func TestValidationUnknownDependsOn(t *testing.T) {
-	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/grammar/stack_unknown_depends_on.yaml"), MainComponentId, &TemplateContext{})
+	yamlEnv, e := ParseYamlDescriptor(buildURL(t, "./testdata/yaml/grammar/stack_unknown_depends_on.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
+	p, e := CreatePlatform(yamlEnv.Ekara)
+	assert.Nil(t, e)
+	env, e := CreateEnvironment("", yamlEnv, MainComponentId)
+	assert.Nil(t, e)
+	env.ekara = &p
 	vErrs := env.Validate()
 	assert.True(t, vErrs.HasErrors())
 	assert.False(t, vErrs.HasWarnings())
