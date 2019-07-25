@@ -22,7 +22,10 @@ func TestOrphans(t *testing.T) {
 	others.add("ref5", "p")
 	// Duplicated ref already defined into refs should not be added
 	others.add("ref2", "p")
-	refs.AddAll(*others)
+
+	for id := range others.Refs {
+		refs.AddReference(id)
+	}
 
 	assert.Len(t, refs.Refs, 6)
 	assert.Contains(t, refs.Refs, "ref1-p", "ref2-p", "ref3-p", "ref4-p", "ref5-p", "ref2-s")
@@ -32,4 +35,15 @@ func TestOrphans(t *testing.T) {
 	assert.Len(t, refs.Refs, 5)
 	assert.Contains(t, refs.Refs, "ref2-p", "ref3-p", "ref4-p", "ref5-p", "ref2-s")
 
+}
+
+func TestOrphansKeyType(t *testing.T) {
+	refs := CreateOrphans()
+	k, kind := refs.KeyType("key-type")
+	assert.Equal(t, "key", k)
+	assert.Equal(t, "type", kind)
+
+	k, kind = refs.KeyType("key-subKey-type")
+	assert.Equal(t, "key-subKey", k)
+	assert.Equal(t, "type", kind)
 }

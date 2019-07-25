@@ -1,9 +1,5 @@
 package model
 
-import (
-	"strings"
-)
-
 type (
 
 	// EnvironmentReferences represents a light Ekara environment, used to unmarshal component references only
@@ -42,11 +38,11 @@ func (er EnvironmentReferences) Uses(previousO *Orphans) (*UsedReferences, *Orph
 
 	res.add(er.OrchestratorRefs.Component)
 
-	for k, _ := range previousO.Refs {
-		oS := strings.Split(k, "-")
-		if oS[1] == "provider" {
-			for key, pval := range er.ProvidersRefs {
-				if oS[0] == key {
+	for k := range previousO.Refs {
+		key, kind := previousO.KeyType(k)
+		if kind == "provider" {
+			for pKey, pval := range er.ProvidersRefs {
+				if key == pKey {
 					res.add(pval.Component)
 					previousO.NoMoreAnOrhpan(k)
 					break

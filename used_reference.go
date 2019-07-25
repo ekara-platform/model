@@ -25,13 +25,11 @@ func (ur *UsedReferences) add(id string) {
 	}
 }
 
-// AddAll adds a new references on used components, if a reference with the same
+// AddReference adds a new reference on a used component, if a reference with the same
 // id has already been registered then it will be ignored
-func (ur *UsedReferences) AddAll(ids UsedReferences) {
-	for key := range ids.Refs {
-		if key != "" {
-			ur.Refs[key] = struct{}{}
-		}
+func (ur *UsedReferences) AddReference(id string) {
+	if id != "" {
+		ur.Refs[id] = struct{}{}
 	}
 }
 

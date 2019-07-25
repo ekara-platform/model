@@ -21,7 +21,10 @@ func TestUsedReference(t *testing.T) {
 	others.add("ref5")
 	// Duplicated ref already defined into refs should not be added
 	others.add("ref2")
-	refs.AddAll(*others)
+	for id := range others.Refs {
+		refs.AddReference(id)
+	}
+
 	assert.Len(t, refs.Refs, 5)
 
 	assert.True(t, refs.IdUsed("ref1"))
