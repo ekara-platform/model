@@ -8,20 +8,20 @@ import (
 
 func TestOrphans(t *testing.T) {
 	refs := CreateOrphans()
-	refs.add("ref1", "p")
-	refs.add("ref2", "p")
-	refs.add("ref2", "p")
-	refs.add("ref2", "s")
+	refs.new("ref1", "p")
+	refs.new("ref2", "p")
+	refs.new("ref2", "p")
+	refs.new("ref2", "s")
 	// Duplicated ref should not be added
 	assert.Len(t, refs.Refs, 3)
 	assert.Contains(t, refs.Refs, "ref1-p", "ref2-p", "ref2-s")
 
 	others := CreateOrphans()
-	others.add("ref3", "p")
-	others.add("ref4", "p")
-	others.add("ref5", "p")
+	others.new("ref3", "p")
+	others.new("ref4", "p")
+	others.new("ref5", "p")
 	// Duplicated ref already defined into refs should not be added
-	others.add("ref2", "p")
+	others.new("ref2", "p")
 
 	for id := range others.Refs {
 		refs.AddReference(id)

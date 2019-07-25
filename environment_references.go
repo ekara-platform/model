@@ -61,7 +61,7 @@ func (er EnvironmentReferences) Uses(previousO *Orphans) (*UsedReferences, *Orph
 			}
 		}
 		if !located {
-			orphans.add(val.Provider.Component, "provider")
+			orphans.new(val.Provider.Component, "provider")
 		}
 	}
 	for _, val := range er.StacksRefs {
