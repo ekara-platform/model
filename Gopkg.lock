@@ -8,12 +8,6 @@
   version = "v1.1.0"
 
 [[projects]]
-  name = "github.com/imdario/mergo"
-  packages = ["."]
-  revision = "33882c6bfe701aca0ff1472aa8b4ebd6135a560d"
-  version = "v0.3.3"
-
-[[projects]]
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
@@ -34,6 +28,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7f4e4de1052dbbc3ba01cfbfd17085231869323135d73b66d458d11168c593e3"
+  inputs-digest = "7b8d0ed8dce4afefe9b357424f0d0cfcf4ac6caba845cb57e6de52a246bd7df8"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -138,7 +138,7 @@ func createStacks(env *Environment, holder string, location DescriptorLocation, 
 			Copies:     createCopies(env, stackLocation.appendPath("volume_copies"), yamlStack.Copies),
 		}
 		res[name] = s
-		env.Ekara.tagUsedComponent(res[name])
+		//env.Ekara.tagUsedComponent(res[name])
 	}
 	return res, nil
 }

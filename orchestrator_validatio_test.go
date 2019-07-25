@@ -26,12 +26,16 @@ func TestValidationNoOrchestrator(t *testing.T) {
 //- Error: reference to unknown component: dummy @orchestrator
 //
 func TestValidationUnknownOrchestrator(t *testing.T) {
-	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/grammar/unknown_orchestrator.yaml"), MainComponentId, &TemplateContext{})
+	yamlEnv, e := ParseYamlDescriptor(buildURL(t, "./testdata/yaml/grammar/unknown_orchestrator.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
+	p, e := CreatePlatform(yamlEnv.Ekara)
+	assert.Nil(t, e)
+	env, e := CreateEnvironment("", yamlEnv, MainComponentId)
+	assert.Nil(t, e)
+	env.ekara = &p
 	vErrs := env.Validate()
 	assert.True(t, vErrs.HasErrors())
 	assert.False(t, vErrs.HasWarnings())
 	assert.Equal(t, 1, len(vErrs.Errors))
 	assert.True(t, vErrs.contains(Error, "reference to unknown component: dummy", "orchestrator.component"))
-
 }

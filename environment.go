@@ -1,5 +1,9 @@
 package model
 
+import (
+	"strings"
+)
+
 //go:generate go run ./generate/generate.go
 
 type (
@@ -14,7 +18,10 @@ type (
 		// The environment description
 		Description string
 		// Ekara platform settings
-		Ekara *Platform
+		// The platform is "private" in order to be ignored
+		// by the yaml unmarshalling process because an envirronment
+		// cannot define component
+		ekara *Platform
 		// The descriptor variables
 		Vars Parameters
 		// The orchestrator used to manage the environment
@@ -36,33 +43,15 @@ type (
 	}
 )
 
-//CreateEnvironment creates a new environment
-//	Parameters
-//
-//		url: 	The complete url pointing on the descritor used to build the environment.
-//			The two only supported extension are ".yaml" and ".yml"!
-//      holder: The Id of the component holding the descriptor on which the environment is based
-//		data: The context used to substitute variables into the environment descriptor
-//
-func CreateEnvironment(url EkURL, holder string, data *TemplateContext) (*Environment, error) {
+func CreateEnvironment(location string, yamlEnv yamlEnvironment, holder string) (*Environment, error) {
 	env := &Environment{}
 	var err error
-	var yamlEnv yamlEnvironment
 
-	yamlEnv, err = parseYamlDescriptor(url, data)
-	if err != nil {
-		return env, err
-	}
-
-	env.location = DescriptorLocation{Descriptor: url.String()}
+	env.location = DescriptorLocation{Descriptor: location}
 	env.Name = yamlEnv.Name
 	env.Qualifier = yamlEnv.Qualifier
 	env.Description = yamlEnv.Description
 	env.Templates = createPatterns(env, env.location.appendPath("templates_patterns"), yamlEnv.Templates)
-	env.Ekara, err = createPlatform(&yamlEnv)
-	if err != nil {
-		return env, err
-	}
 
 	vars, err := CreateParameters(yamlEnv.yamlVars.Vars)
 	if err != nil {
@@ -86,8 +75,8 @@ func CreateEnvironment(url EkURL, holder string, data *TemplateContext) (*Enviro
 	if err != nil {
 		return env, err
 	}
-	// Only the main descriptor or a distribution is allowed to define stacks
-	if holder == MainComponentId || holder == EkaraComponentId {
+	// Only the main descriptor or a parent is allowed to define stacks
+	if holder == MainComponentId || strings.HasPrefix(holder, EkaraComponentId) {
 		env.Stacks, err = createStacks(env, holder, env.location.appendPath("stacks"), &yamlEnv)
 		if err != nil {
 			return env, err
@@ -125,10 +114,6 @@ func (r *Environment) Merge(other *Environment) error {
 	}
 	if r.Description == "" {
 		r.Description = other.Description
-	}
-
-	if err := r.Ekara.merge(*other.Ekara); err != nil {
-		return err
 	}
 
 	if err := r.Orchestrator.merge(other.Orchestrator); err != nil {
@@ -174,7 +159,6 @@ func (r Environment) Validate() ValidationErrors {
 		vErrs.merge(ErrorOnInvalid(r.QualifiedName()))
 	}
 
-	vErrs.merge(ErrorOnInvalid(r.Ekara))
 	vErrs.merge(ErrorOnInvalid(r.Orchestrator))
 
 	vEr, _, _ = ErrorOnEmptyOrInvalid(r.Providers, r.location.appendPath("providers"), "no provider specified")
@@ -194,10 +178,14 @@ func (r Environment) Validate() ValidationErrors {
 //InitEnvironment creates an new Environment
 func InitEnvironment() *Environment {
 	env := &Environment{
-		Ekara: &Platform{
+		ekara: &Platform{
 			Components: make(map[string]Component),
 		},
 	}
 	env.Orchestrator.cRef.env = env
 	return env
+}
+
+func (env *Environment) Platform() *Platform {
+	return env.ekara
 }

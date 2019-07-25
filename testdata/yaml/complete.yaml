@@ -5,7 +5,7 @@ description: This is my awesome Ekara environment.
 
 ekara:
   base: someBase
-  distribution:
+  parent:
     repository: ekara-platform/distribution
     ref: 1.2.3
   components:
@@ -24,6 +24,16 @@ ekara:
     stack2:
       repository: some-org/stack2
       ref: 1.2.3
+    task1:
+      repository: some-org/task1
+      ref: 1.2.3
+    task2:
+      repository: some-org/task2
+      ref: 1.2.3
+    task3:
+      repository: some-org/task21
+      ref: 1.2.3
+
 
 vars:
   global_var_key1: global_var_val1 
@@ -35,6 +45,7 @@ templates:
 
 tasks:
   task1:
+    component: task1 
     cron: task1_cron
     playbook: task1_playbook
     params:
@@ -45,6 +56,7 @@ tasks:
       tasks_task1_env_key2: tasks_task1_env_key2_value
 
   task2:
+    component: task2
     cron: task2_cron
     playbook: task2_playbook
     params:
@@ -55,6 +67,7 @@ tasks:
       tasks_task2_env_key2: tasks_task2_env_key2_value
 
   task3:
+    component: task3
     playbook: task3_playbook
     hooks:
       execute:

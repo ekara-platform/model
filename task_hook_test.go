@@ -13,8 +13,13 @@ import (
 //- Error: empty volume path @nodes.managers.volumes.path
 //
 func TestValidateUnknownTaskHooks(t *testing.T) {
-	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/grammar/task_unknown_hook.yaml"), MainComponentId, &TemplateContext{})
+	yamlEnv, e := ParseYamlDescriptor(buildURL(t, "./testdata/yaml/grammar/task_unknown_hook.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
+	p, e := CreatePlatform(yamlEnv.Ekara)
+	assert.Nil(t, e)
+	env, e := CreateEnvironment("", yamlEnv, MainComponentId)
+	assert.Nil(t, e)
+	env.ekara = &p
 	vErrs := env.Validate()
 	assert.True(t, vErrs.HasErrors())
 	assert.False(t, vErrs.HasWarnings())

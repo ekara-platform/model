@@ -17,7 +17,6 @@ import (
 //- Warning: no stack specified @stacks
 //
 // There is no message about a missing ekera platform because it has been defaulted
-//
 func TestValidationNoContent(t *testing.T) {
 	vErrs, _ := testEmptyContent(t, "content", false)
 	assert.True(t, vErrs.HasErrors())
@@ -32,8 +31,13 @@ func TestValidationNoContent(t *testing.T) {
 
 func testEmptyContent(t *testing.T, name string, onlyWarning bool) (ValidationErrors, Environment) {
 	file := fmt.Sprintf("./testdata/yaml/grammar/no_%s.yaml", name)
-	env, e := CreateEnvironment(buildURL(t, file), MainComponentId, &TemplateContext{})
+	yamlEnv, e := ParseYamlDescriptor(buildURL(t, file), &TemplateContext{})
 	assert.Nil(t, e)
+	p, e := CreatePlatform(yamlEnv.Ekara)
+	assert.Nil(t, e)
+	env, e := CreateEnvironment("", yamlEnv, MainComponentId)
+	assert.Nil(t, e)
+	env.ekara = &p
 	vErrs := validate(t, *env, onlyWarning)
 	return vErrs, *env
 }

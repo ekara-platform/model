@@ -9,8 +9,14 @@ import (
 )
 
 func TestCreateEngineComplete(t *testing.T) {
-	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/complete.yaml"), MainComponentId, &TemplateContext{})
+
+	yamlEnv, e := ParseYamlDescriptor(buildURL(t, "./testdata/yaml/complete.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
+	p, e := CreatePlatform(yamlEnv.Ekara)
+	assert.Nil(t, e)
+	env, e := CreateEnvironment("", yamlEnv, MainComponentId)
+	assert.Nil(t, e)
+	env.ekara = &p
 	assertEnv(t, env)
 }
 
@@ -20,12 +26,12 @@ func assertEnv(t *testing.T, env *Environment) {
 	assert.Equal(t, "This is my awesome Ekara environment.", env.Description)
 
 	// Platform
-	assert.NotNil(t, env.Ekara)
-	assert.NotNil(t, env.Ekara.Components)
-	assert.Equal(t, 5, len(env.Ekara.Components))
-	assert.Equal(t, SchemeFile, env.Ekara.Base.Url.UpperScheme())
-	assert.Equal(t, "file://someBase/", env.Ekara.Base.Url.String())
-	assert.Equal(t, "file:///someBase/ekara-platform/distribution/", env.Ekara.Distribution.Repository.Url.String())
+	assert.NotNil(t, env.ekara)
+	assert.NotNil(t, env.ekara.Components)
+	assert.Equal(t, 8, len(env.ekara.Components))
+	assert.Equal(t, SchemeFile, env.ekara.Base.Url.UpperScheme())
+	assert.Equal(t, "file://someBase/", env.ekara.Base.Url.String())
+	assert.Equal(t, "file:///someBase/ekara-platform/distribution/", env.ekara.Parent.Repository.Url.String())
 
 	// Variables
 	assert.NotNil(t, env.Vars)
@@ -564,6 +570,14 @@ func buildURL(t *testing.T, loc string) EkURL {
 	return u
 }
 
+func buildRepository(t *testing.T, loc string) Repository {
+	base, e := CreateBase("")
+	assert.Nil(t, e)
+	rep, e := CreateRepository(base, loc, "", "")
+	assert.Nil(t, e)
+	return rep
+}
+
 func TestQualifiedName(t *testing.T) {
 	env := Environment{
 		Name:      "MyName",
@@ -584,9 +598,9 @@ func TestUnqualifiedName(t *testing.T) {
 }
 
 func TestEnvironmentNameQualifierMerge(t *testing.T) {
-	initial := Environment{Name: "", Qualifier: "", Ekara: &Platform{}}
-	first := Environment{Name: "FirstName", Qualifier: "FirstQualifier", Ekara: &Platform{}}
-	second := Environment{Name: "SecondName", Qualifier: "secondQualifier", Ekara: &Platform{}}
+	initial := Environment{Name: "", Qualifier: "", ekara: &Platform{}}
+	first := Environment{Name: "FirstName", Qualifier: "FirstQualifier", ekara: &Platform{}}
+	second := Environment{Name: "SecondName", Qualifier: "secondQualifier", ekara: &Platform{}}
 	initial.Merge(&first)
 	// The first environment should merge its name and qualifier because those
 	// into the initial one are empty.

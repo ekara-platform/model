@@ -133,10 +133,10 @@ func TestCreateBasedRemoteURL(t *testing.T) {
 	p1 := "http://github.com"
 	p2 := "organisation/repository"
 
-	env := &yamlEnvironment{
-		Ekara: yamlEkara{Base: p1},
+	ek := yamlEkara{
+		Base: p1,
 	}
-	b, e := CreateComponentBase(env)
+	b, e := CreateComponentBase(ek)
 	assert.Nil(t, e)
 	u, e := b.CreateBasedUrl(p2)
 	assert.Nil(t, e)
@@ -152,10 +152,10 @@ func TestCreateBasedRemoteURL2(t *testing.T) {
 	p1 := "http://github.com/"
 	p2 := "/organisation/repository/"
 
-	env := &yamlEnvironment{
-		Ekara: yamlEkara{Base: p1},
+	ek := yamlEkara{
+		Base: p1,
 	}
-	b, e := CreateComponentBase(env)
+	b, e := CreateComponentBase(ek)
 	assert.Nil(t, e)
 	u, e := b.CreateBasedUrl(p2)
 	assert.Nil(t, e)
@@ -185,11 +185,11 @@ func TestCreateBasedLocalUrl(t *testing.T) {
 	assert.Nil(t, e)
 	assert.True(t, DirExist(p1+p2))
 
-	env := &yamlEnvironment{
-		Ekara: yamlEkara{Base: p1},
+	ek := yamlEkara{
+		Base: p1,
 	}
 
-	b, e := CreateComponentBase(env)
+	b, e := CreateComponentBase(ek)
 	assert.Nil(t, e)
 	assert.Equal(t, SchemeFile, b.Url.UpperScheme())
 	u, e := b.CreateBasedUrl(p2)

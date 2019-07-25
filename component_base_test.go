@@ -9,10 +9,10 @@ import (
 )
 
 func TestCreateDefaultComponentBase(t *testing.T) {
-	env := &yamlEnvironment{
-		Ekara: yamlEkara{Base: ""},
+	ekara := yamlEkara{
+		Base: "",
 	}
-	b, e := CreateComponentBase(env)
+	b, e := CreateComponentBase(ekara)
 	assert.Nil(t, e)
 	assert.Equal(t, SchemeHttps, b.Url.UpperScheme())
 	assert.True(t, reflect.TypeOf(b.Url) == reflect.TypeOf(RemoteURL{}))
@@ -25,10 +25,10 @@ func TestCreateDefaultComponentBase(t *testing.T) {
 
 func TestCreateHttpComponentBase(t *testing.T) {
 	bs := "http://www.google.com/my_path"
-	env := &yamlEnvironment{
-		Ekara: yamlEkara{Base: bs},
+	ekara := yamlEkara{
+		Base: bs,
 	}
-	b, e := CreateComponentBase(env)
+	b, e := CreateComponentBase(ekara)
 	assert.Nil(t, e)
 	assert.Equal(t, SchemeHttp, b.Url.UpperScheme())
 	assert.True(t, reflect.TypeOf(b.Url) == reflect.TypeOf(RemoteURL{}))
@@ -51,10 +51,10 @@ func TestCreateFileComponentBase(t *testing.T) {
 	assert.Nil(t, e)
 	assert.True(t, DirExist(p))
 
-	env := &yamlEnvironment{
-		Ekara: yamlEkara{Base: p},
+	ekara := yamlEkara{
+		Base: p,
 	}
-	b, e := CreateComponentBase(env)
+	b, e := CreateComponentBase(ekara)
 	assert.Nil(t, e)
 
 	assert.Equal(t, SchemeFile, b.Url.UpperScheme())
@@ -72,10 +72,10 @@ func TestCreateFileComponentBase(t *testing.T) {
 }
 
 func TestCreateComponentBaseError(t *testing.T) {
-	env := &yamlEnvironment{
-		Ekara: yamlEkara{Base: "://missing/scheme/should/generate/an/error"},
+	ekara := yamlEkara{
+		Base: "://missing/scheme/should/generate/an/error",
 	}
-	_, e := CreateComponentBase(env)
+	_, e := CreateComponentBase(ekara)
 	assert.NotNil(t, e)
 }
 

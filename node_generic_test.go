@@ -7,7 +7,14 @@ import (
 )
 
 func TestGenericNode(t *testing.T) {
-	env, e := CreateEnvironment(buildURL(t, "./testdata/yaml/overwritten/ekara.yaml"), "", &TemplateContext{})
+	yamlEnv, e := ParseYamlDescriptor(buildURL(t, "./testdata/yaml/overwritten/ekara.yaml"), &TemplateContext{})
+	assert.Nil(t, e)
+	p, e := CreatePlatform(yamlEnv.Ekara)
+	assert.Nil(t, e)
+	env, e := CreateEnvironment("", yamlEnv, MainComponentId)
+	assert.Nil(t, e)
+	env.ekara = &p
+
 	assert.Nil(t, e)
 	if assert.Equal(t, len(env.NodeSets), 1) {
 		n := env.NodeSets["managers"]

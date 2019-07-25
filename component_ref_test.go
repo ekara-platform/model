@@ -13,7 +13,7 @@ func TestResolveUnknownReference(t *testing.T) {
 	//First we try to resolve un unknown reference
 	cr := componentRef{
 		env: &Environment{
-			Ekara: &Platform{
+			ekara: &Platform{
 				Components: make(map[string]Component),
 			},
 		},
@@ -25,7 +25,7 @@ func TestResolveUnknownReference(t *testing.T) {
 	assert.Equal(t, e.Error(), fmt.Sprintf(unknownComponentRefError, cr.ref))
 
 	//Now we add a known component and we will resolve it
-	cr.env.Ekara.Components["known_ref"] = Component{Id: "known_ref"}
+	cr.env.ekara.Components["known_ref"] = Component{Id: "known_ref"}
 	cr.ref = "known_ref"
 
 	c, e := cr.resolve()

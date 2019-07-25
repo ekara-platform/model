@@ -1,9 +1,5 @@
 package model
 
-import (
-	"gopkg.in/yaml.v2"
-)
-
 type (
 	// yaml tag for the proxy details
 	yamlProxy struct {
@@ -121,9 +117,9 @@ type (
 	}
 
 	yamlEkara struct {
-		Base         string `yaml:",omitempty"`
-		Distribution yamlComponent
-		Components   map[string]yamlComponent
+		Base       string `yaml:",omitempty"`
+		Parent     yamlComponent
+		Components map[string]yamlComponent
 	}
 
 	yamlNode struct {
@@ -244,71 +240,4 @@ type (
 			Content []yamlVolumeContent `yaml:",omitempty"`
 		} `yaml:",omitempty"`
 	}
-
-	// Definition of the Ekara environment
-	yamlEnvironmentVars struct {
-		// The descriptor variables
-		yamlVars `yaml:",inline"`
-	}
 )
-
-// RawContent returns the serialized content of the environement as YAML
-func (r *yamlEnvironment) RawContent() ([]byte, error) {
-	return yaml.Marshal(r)
-}
-
-func parseYamlDescriptor(u EkURL, parameters *TemplateContext) (env yamlEnvironment, err error) {
-
-	// Read descriptor content
-	content, err := u.ReadUrl()
-	if err != nil {
-		return
-	}
-
-	//Parse just the "vars:" section of the descriptor
-	tempsVars := &yamlEnvironmentVars{}
-	// Unmarshal the resulting YAML
-	err = yaml.Unmarshal(content, tempsVars)
-	if err != nil {
-		return
-	}
-
-	tempsVarsYaml, err := yaml.Marshal(tempsVars)
-	if err != nil {
-		return
-	}
-
-	//We apply the template a first time just on the var content
-	out, err := ApplyTemplate(u, tempsVarsYaml, parameters)
-	if err != nil {
-		return
-	}
-
-	//Parse just the "vars:" section of the descriptor
-	tempsVars = &yamlEnvironmentVars{}
-	// Unmarshal the resulting YAML
-	err = yaml.Unmarshal(out.Bytes(), tempsVars)
-	if err != nil {
-		return
-	}
-
-	if len(tempsVars.Vars) > 0 {
-		err = parameters.MergeVars(tempsVars.Vars)
-		if err != nil {
-			return
-		}
-	}
-
-	out, err = ApplyTemplate(u, content, parameters)
-	if err != nil {
-		return
-	}
-
-	// Unmarshal the resulting YAML
-	err = yaml.Unmarshal(out.Bytes(), &env)
-	if err != nil {
-		return
-	}
-
-	return
-}
