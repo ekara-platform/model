@@ -26,8 +26,6 @@ type (
 		Provider ProviderRef
 		// The parameters related to the orchestrator used to manage the machines
 		Orchestrator OrchestratorRef
-		// Volumes attached to each node
-		Volumes Volumes
 		// The hooks linked to the node set lifecycle events
 		Hooks NodeHook
 		// The labels associated with the nodeset
@@ -54,7 +52,7 @@ func (r NodeSet) validate() ValidationErrors {
 	if r.Instances <= 0 {
 		vErrs.addError(errors.New("instances must be a positive number"), r.location.appendPath("instances"))
 	}
-	vErrs.merge(ErrorOnInvalid(r.Provider, r.Orchestrator, r.Hooks, r.Volumes))
+	vErrs.merge(ErrorOnInvalid(r.Provider, r.Orchestrator, r.Hooks))
 	return vErrs
 }
 
@@ -66,9 +64,6 @@ func (r *NodeSet) merge(other NodeSet) error {
 		return err
 	}
 	if err := r.Orchestrator.merge(other.Orchestrator); err != nil {
-		return err
-	}
-	if err := r.Volumes.merge(other.Volumes); err != nil {
 		return err
 	}
 	if err := r.Hooks.merge(other.Hooks); err != nil {
@@ -139,17 +134,12 @@ func buildNode(name string, env *Environment, location DescriptorLocation, yN ya
 	if err != nil {
 		return nil, err
 	}
-	volumes, err := createVolumes(location.appendPath("volumes"), yN.Volumes)
-	if err != nil {
-		return nil, err
-	}
 	return &NodeSet{
 		location:     location,
 		Name:         name,
 		Instances:    yN.Instances,
 		Provider:     pRef,
 		Orchestrator: oRef,
-		Volumes:      volumes,
 		Hooks: NodeHook{
 			Provision: pHook,
 			Destroy:   dHook,

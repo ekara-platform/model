@@ -255,10 +255,6 @@ func assertEnv(t *testing.T, env *Environment) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "swarm_env_key2_value")
 
-	vs := nodeSets["node1"].Volumes
-	assert.NotNil(t, vs)
-	assert.Equal(t, 2, len(vs))
-
 	la := nodeSets["node1"].Labels
 	v, ok = la["node1_label1"]
 	assert.True(t, ok)
@@ -267,14 +263,6 @@ func assertEnv(t *testing.T, env *Environment) {
 	v, ok = la["node1_label2"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "node1_label2_value")
-
-	vol := vs["some/volume/path"]
-	assert.Equal(t, vol.Path, "some/volume/path")
-	assert.Equal(t, vol.Parameters["param1_name"], "aws_param1_name_value")
-
-	vol = vs["other/volume/path"]
-	assert.Equal(t, vol.Path, "other/volume/path")
-	assert.Equal(t, vol.Parameters["param2_name"], "aws_param2_name_value")
 
 	//------------------------------------------------------------
 	// Node1 Hook
@@ -364,18 +352,6 @@ func assertEnv(t *testing.T, env *Environment) {
 	v, ok = en["orchestrator_node2_env_key2"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "orchestrator_node2_env_key2_value")
-
-	vs = nodeSets["node2"].Volumes
-	assert.NotNil(t, vs)
-	assert.Equal(t, 2, len(vs))
-
-	vol = vs["some/volume/path"]
-	assert.Equal(t, vol.Path, "some/volume/path")
-	assert.Equal(t, vol.Parameters["param1_name"], "azure_param1_name_value")
-
-	vol = vs["other/volume/path"]
-	assert.Equal(t, vol.Path, "other/volume/path")
-	assert.Equal(t, vol.Parameters["param2_name"], "azure_param2_name_value")
 
 	la = nodeSets["node2"].Labels
 	v, ok = la["node2_label1"]
