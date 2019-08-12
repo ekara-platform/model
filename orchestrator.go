@@ -74,3 +74,14 @@ func (r Orchestrator) Component() (Component, error) {
 func (r Orchestrator) ComponentName() string {
 	return r.cRef.ref
 }
+
+//DescType returns the Describable type of the orchestrator
+//  Hardcoded to : "Orchestrator"
+func (r Orchestrator) DescType() string {
+	return "Orchestrator"
+}
+
+//DescName returns the Describable name of the node set
+func (r Orchestrator) DescName() string {
+	return r.ComponentName()
+}
