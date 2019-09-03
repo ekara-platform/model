@@ -90,11 +90,6 @@ func CreateEnvironment(location string, yamlEnv yamlEnvironment, holder string) 
 	if err != nil {
 		return env, err
 	}
-	env.Hooks.Undeploy, err = createHook(env, env.location.appendPath("hooks.undeploy"), yamlEnv.Hooks.Undeploy)
-	if err != nil {
-		return env, err
-	}
-	env.Hooks.Destroy, err = createHook(env, env.location.appendPath("hooks.destroy"), yamlEnv.Hooks.Destroy)
 	env.Volumes = createGlobalVolumes(env, env.location.appendPath("volumes"), &yamlEnv)
 	return env, nil
 

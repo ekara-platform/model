@@ -54,10 +54,6 @@ type TEnvironment interface {
 	HasProvisionHooks() bool
 	//HasDeployHooks returns true if the environment has hooks while deploying
 	HasDeployHooks() bool
-	//HasUndeployHooks returns true if the environment has hooks while undeploying
-	HasUndeployHooks() bool
-	//HasDestroyHooks returns true if the environment has hooks while destroying
-	HasDestroyHooks() bool
 	//HasTemplates returns true if the environment has defined templates
 	HasTemplates() bool
 	//Templates returns the environment templates
@@ -118,8 +114,6 @@ type TNodeSet interface {
 	Hooks() TNodeHook
 	//HasProvisionHooks returns true if the node has hooks while provisioning
 	HasProvisionHooks() bool
-	//HasDestroyHooks returns true if the node has hooks while destroying
-	HasDestroyHooks() bool
 	//HasLabels returns true if the node has defined labels
 	HasLabels() bool
 	//Labels returns the node labels
@@ -140,8 +134,6 @@ type TStack interface {
 	Hooks() TStackHooks
 	//HasDeployHooks returns true if the stack has hooks while deploying
 	HasDeployHooks() bool
-	//HasUndeployHooks returns true if the stack has hooks while undeploying
-	HasUndeployHooks() bool
 	//Dependencies returns the stack dependencies
 	Dependencies() TDependencies
 	//HasCopies returns true if the stacks has copies
@@ -270,18 +262,10 @@ type TEnvironmentHooks interface {
 	HasProvision() bool
 	//Provision returns the provisioning tasks
 	Provision() THook
-	//HasDestroy returns true if the hooks has tasks while destroying
-	HasDestroy() bool
-	//Destroy returns the destroying tasks
-	Destroy() THook
 	//HasDeploy returns true if the hooks has tasks while deploying
 	HasDeploy() bool
 	//Deploy returns the deploying tasks
 	Deploy() THook
-	//HasUndeploy returns true if the hooks has tasks while undeploying
-	HasUndeploy() bool
-	//Undeploy returns the undeploying tasks
-	Undeploy() THook
 }
 
 // TStackHooks is a read only representation of the hooks associated to a stack
@@ -290,10 +274,6 @@ type TStackHooks interface {
 	HasDeploy() bool
 	//Deploy returns the deploying tasks
 	Deploy() THook
-	//HasUndeploy returns true if the hooks has tasks while undeploying
-	HasUndeploy() bool
-	//Undeploy returns the undeploying tasks
-	Undeploy() THook
 }
 
 // TTaskHooks is a read only representation of the hooks associated to a task
@@ -310,10 +290,6 @@ type TNodeHook interface {
 	HasProvision() bool
 	//Provision returns the provisioning tasks
 	Provision() THook
-	//HasDestroy returns true if the hooks has tasks while destroying
-	HasDestroy() bool
-	//Destroy returns the destroyinh tasks
-	Destroy() THook
 }
 
 // THook is a read only hooks

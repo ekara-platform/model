@@ -131,10 +131,9 @@ type (
 		Orchestrator yamlOrchestratorRef
 		// The orchestrator settings for this node set
 		Volumes []yamlVolume
-		// The Hooks to be executed while provisioning and destroying the node set
+		// The Hooks to be executed while provisioning the node set
 		Hooks struct {
 			Provision yamlHook `yaml:",omitempty"`
-			Destroy   yamlHook `yaml:",omitempty"`
 		} `yaml:",omitempty"`
 
 		// The labels associated with the nodeset
@@ -211,10 +210,9 @@ type (
 			Component string
 			// The name of the stack on which this one depends
 			DependsOn []string `yaml:"depends_on"`
-			// The Hooks to be executed while deploying and undeploying the stack
+			// The Hooks to be executed while deploying the stack
 			Hooks struct {
-				Deploy   yamlHook `yaml:",omitempty"`
-				Undeploy yamlHook `yaml:",omitempty"`
+				Deploy yamlHook `yaml:",omitempty"`
 			} `yaml:",omitempty"`
 
 			// The parameters
@@ -231,8 +229,6 @@ type (
 			Init      yamlHook `yaml:",omitempty"`
 			Provision yamlHook `yaml:",omitempty"`
 			Deploy    yamlHook `yaml:",omitempty"`
-			Undeploy  yamlHook `yaml:",omitempty"`
-			Destroy   yamlHook `yaml:",omitempty"`
 		} `yaml:",omitempty"`
 
 		// Global volumes

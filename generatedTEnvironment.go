@@ -148,16 +148,6 @@ func (r TEnvironmentOnEnvironmentHolder) HasDeployHooks() bool {
 	return r.h.Hooks.Deploy.HasTasks()
 }
 
-//HasUndeployHooks returns true if the environment has hooks while undeploying
-func (r TEnvironmentOnEnvironmentHolder) HasUndeployHooks() bool {
-	return r.h.Hooks.Undeploy.HasTasks()
-}
-
-//HasDestroyHooks returns true if the environment has hooks while destroying
-func (r TEnvironmentOnEnvironmentHolder) HasDestroyHooks() bool {
-	return r.h.Hooks.Destroy.HasTasks()
-}
-
 //HasTemplates returns true if the environment has defined templates
 func (r TEnvironmentOnEnvironmentHolder) HasTemplates() bool {
 	return len(r.h.Templates.Content) > 0

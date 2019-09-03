@@ -38,16 +38,6 @@ func (r TEnvironmentHooksOnEnvironmentHooksHolder) Provision() THook {
 	return CreateTHookForHook(r.h.Provision)
 }
 
-//HasDestroy returns true if the hooks has tasks while destroying
-func (r TEnvironmentHooksOnEnvironmentHooksHolder) HasDestroy() bool {
-	return r.h.Destroy.HasTasks()
-}
-
-//Destroy returns the destroying tasks
-func (r TEnvironmentHooksOnEnvironmentHooksHolder) Destroy() THook {
-	return CreateTHookForHook(r.h.Destroy)
-}
-
 //HasDeploy returns true if the hooks has tasks while deploying
 func (r TEnvironmentHooksOnEnvironmentHooksHolder) HasDeploy() bool {
 	return r.h.Deploy.HasTasks()
@@ -56,14 +46,4 @@ func (r TEnvironmentHooksOnEnvironmentHooksHolder) HasDeploy() bool {
 //Deploy returns the deploying tasks
 func (r TEnvironmentHooksOnEnvironmentHooksHolder) Deploy() THook {
 	return CreateTHookForHook(r.h.Deploy)
-}
-
-//HasUndeploy returns true if the hooks has tasks while undeploying
-func (r TEnvironmentHooksOnEnvironmentHooksHolder) HasUndeploy() bool {
-	return r.h.Undeploy.HasTasks()
-}
-
-//Undeploy returns the undeploying tasks
-func (r TEnvironmentHooksOnEnvironmentHooksHolder) Undeploy() THook {
-	return CreateTHookForHook(r.h.Undeploy)
 }

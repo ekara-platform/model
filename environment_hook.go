@@ -7,34 +7,22 @@ type (
 		Provision Hook
 		//Deploy specifies the hook tasks to run at the environment deployment
 		Deploy Hook
-		//Undeploy specifies the hook tasks to run when the environment is undeployed
-		Undeploy Hook
-		//Destroy specifies the hook tasks to run when the environment is destroyed
-		Destroy Hook
 	}
 )
 
 //HasTasks returns true if the hook contains at least one task reference
 func (r EnvironmentHooks) HasTasks() bool {
 	return r.Provision.HasTasks() ||
-		r.Deploy.HasTasks() ||
-		r.Undeploy.HasTasks() ||
-		r.Destroy.HasTasks()
+		r.Deploy.HasTasks()
 }
 
 func (r *EnvironmentHooks) merge(other EnvironmentHooks) error {
 	if err := r.Provision.merge(other.Provision); err != nil {
 		return err
 	}
-	if err := r.Deploy.merge(other.Deploy); err != nil {
-		return err
-	}
-	if err := r.Undeploy.merge(other.Undeploy); err != nil {
-		return err
-	}
-	return r.Destroy.merge(other.Destroy)
+	return r.Deploy.merge(other.Deploy)
 }
 
 func (r EnvironmentHooks) validate() ValidationErrors {
-	return ErrorOnInvalid(r.Provision, r.Deploy, r.Undeploy, r.Destroy)
+	return ErrorOnInvalid(r.Provision, r.Deploy)
 }

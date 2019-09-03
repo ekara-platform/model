@@ -130,10 +130,6 @@ func buildNode(name string, env *Environment, location DescriptorLocation, yN ya
 	if err != nil {
 		return nil, err
 	}
-	dHook, err := createHook(env, location.appendPath("hooks.destroy"), yN.Hooks.Destroy)
-	if err != nil {
-		return nil, err
-	}
 	return &NodeSet{
 		location:     location,
 		Name:         name,
@@ -142,7 +138,6 @@ func buildNode(name string, env *Environment, location DescriptorLocation, yN ya
 		Orchestrator: oRef,
 		Hooks: NodeHook{
 			Provision: pHook,
-			Destroy:   dHook,
 		},
 		Labels: yN.Labels}, nil
 }
