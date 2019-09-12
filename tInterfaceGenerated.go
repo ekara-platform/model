@@ -66,8 +66,6 @@ type TOrchestrator interface {
 	Parameters() map[string]interface{}
 	//EnvVars returns the orchestrator environment variables
 	EnvVars() map[string]string
-	//Docker returns the orchestrator parameters for docker
-	Docker() map[string]interface{}
 	//Component returns the orchestrator component
 	Component() (TComponent, error)
 }

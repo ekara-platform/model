@@ -23,14 +23,14 @@ func CreateParent(base Base, yamlEkara yamlEkara) (Parent, error) {
 		repo = ekaraParent
 		defaulted = true
 	}
-	repoDist, e := CreateRepository(base, repo, yamlEkara.Parent.Ref, "")
+	repoParent, e := CreateRepository(base, repo, yamlEkara.Parent.Ref, "")
 	if e != nil {
 		return Parent{}, errors.New("invalid parent repository: " + e.Error())
 	}
 	if !defaulted {
-		repoDist.setAuthentication(yamlEkara.Parent)
+		repoParent.setAuthentication(yamlEkara.Parent)
 	}
-	c := CreateComponent(EkaraComponentId, repoDist)
+	c := CreateComponent(EkaraComponentId, repoParent)
 	return Parent(c), nil
 }
 

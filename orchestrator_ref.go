@@ -4,7 +4,6 @@ type (
 	//OrchestratorRef represents a reference on an Orchestrator
 	OrchestratorRef struct {
 		parameters Parameters
-		docker     Parameters
 		envVars    EnvVars
 
 		env      *Environment
@@ -17,10 +16,6 @@ func createOrchestratorRef(env *Environment, location DescriptorLocation, yamlRe
 	if err != nil {
 		return OrchestratorRef{}, err
 	}
-	dParams, err := CreateParameters(yamlRef.Docker)
-	if err != nil {
-		return OrchestratorRef{}, err
-	}
 	envVars, err := createEnvVars(yamlRef.Env)
 	if err != nil {
 		return OrchestratorRef{}, err
@@ -28,7 +23,6 @@ func createOrchestratorRef(env *Environment, location DescriptorLocation, yamlRe
 	return OrchestratorRef{
 		env:        env,
 		parameters: oParams,
-		docker:     dParams,
 		envVars:    envVars,
 		location:   location,
 	}, nil
@@ -44,10 +38,6 @@ func (r *OrchestratorRef) merge(other OrchestratorRef) error {
 	if err != nil {
 		return err
 	}
-	r.docker, err = r.docker.inherit(other.docker)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -58,10 +48,6 @@ func (r OrchestratorRef) Resolve() (Orchestrator, error) {
 	if err != nil {
 		return Orchestrator{}, err
 	}
-	docker, err := r.docker.inherit(orchestrator.Docker)
-	if err != nil {
-		return Orchestrator{}, err
-	}
 	envVars, err := r.envVars.inherit(orchestrator.EnvVars)
 	if err != nil {
 		return Orchestrator{}, err
@@ -69,7 +55,6 @@ func (r OrchestratorRef) Resolve() (Orchestrator, error) {
 	return Orchestrator{
 		cRef:       orchestrator.cRef,
 		Parameters: params,
-		Docker:     docker,
 		EnvVars:    envVars,
 	}, nil
 }

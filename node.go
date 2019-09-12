@@ -69,7 +69,7 @@ func (r *NodeSet) merge(other NodeSet) error {
 	if err := r.Hooks.merge(other.Hooks); err != nil {
 		return err
 	}
-	if r.Instances < other.Instances {
+	if other.Instances > 0 {
 		r.Instances = other.Instances
 	}
 	r.Labels = r.Labels.inherit(other.Labels)

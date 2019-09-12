@@ -7,8 +7,6 @@ type (
 		cRef componentRef
 		// The orchestrator parameters
 		Parameters Parameters
-		// The Docker parameters
-		Docker Parameters
 		// The orchestrator environment variables
 		EnvVars EnvVars
 	}
@@ -20,10 +18,6 @@ func createOrchestrator(env *Environment, location DescriptorLocation, yamlEnv *
 	if err != nil {
 		return Orchestrator{}, err
 	}
-	docker, err := CreateParameters(yamlO.Docker)
-	if err != nil {
-		return Orchestrator{}, err
-	}
 	envVars, err := createEnvVars(yamlO.Env)
 	if err != nil {
 		return Orchestrator{}, err
@@ -32,7 +26,6 @@ func createOrchestrator(env *Environment, location DescriptorLocation, yamlEnv *
 	o := Orchestrator{
 		cRef:       createComponentRef(env, location.appendPath("component"), yamlO.Component, true),
 		Parameters: params,
-		Docker:     docker,
 		EnvVars:    envVars,
 	}
 
@@ -51,10 +44,6 @@ func (r *Orchestrator) merge(other Orchestrator) error {
 		return err
 	}
 	r.Parameters, err = r.Parameters.inherit(other.Parameters)
-	if err != nil {
-		return err
-	}
-	r.Docker, err = r.Docker.inherit(other.Docker)
 	if err != nil {
 		return err
 	}

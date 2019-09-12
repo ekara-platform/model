@@ -116,10 +116,6 @@ func createStacks(env *Environment, holder string, location DescriptorLocation, 
 		if err != nil {
 			return res, err
 		}
-		uHook, err := createHook(env, stackLocation.appendPath("hooks.undeploy"), yamlStack.Hooks.Undeploy)
-		if err != nil {
-			return res, err
-		}
 
 		yC := yamlStack.Component
 		if yC == "" || yC == "_" {
@@ -130,8 +126,7 @@ func createStacks(env *Environment, holder string, location DescriptorLocation, 
 			Name: name,
 			cRef: createComponentRef(env, stackLocation.appendPath("component"), yC, false),
 			Hooks: StackHook{
-				Deploy:   dHook,
-				Undeploy: uHook},
+				Deploy: dHook},
 			Parameters: params,
 			EnvVars:    envVars,
 			DependsOn:  createDependencies(env, stackLocation.appendPath("depends_on"), name, yamlStack.DependsOn),

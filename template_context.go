@@ -10,22 +10,26 @@ type (
 		Vars Parameters
 		//Vars represents the Environment definition, in Read Only
 		Model TEnvironment
+		//Runtime represents the run time details
+		RunTimeInfo *RunTimeInfo
 	}
 )
 
 //CreateContext Returns a template context
 func CreateContext(params Parameters) *TemplateContext {
 	return &TemplateContext{
-		Vars: params,
+		Vars:        params,
+		RunTimeInfo: createRunTimeInfo(),
 	}
 }
 
 //MergeVars merges others parameters into the template context
 func (cc *TemplateContext) MergeVars(others Parameters) error {
 	var err error
-	cc.Vars, err = cc.Vars.inherit(others)
+	cc.Vars, err = others.inherit(cc.Vars)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }

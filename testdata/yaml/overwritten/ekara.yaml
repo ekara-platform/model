@@ -19,9 +19,6 @@ orchestrator:
   params:
     orchestrator1: "param_initial_orchestrator1"
     orchestrator3: "param_initial_orchestrator3"
-  docker:
-    orchestrator1: "docker_initial_orchestrator1"
-    orchestrator3: "docker_initial_orchestrator3"
   env:
     orchestrator1: "env_initial_orchestrator1"
     orchestrator3: "env_initial_orchestrator3"
@@ -68,9 +65,6 @@ nodes:
       params:
         orchestrator1: "param_overwritten_orchestrator1"
         orchestrator2: "param_new_orchestrator2"
-      docker:
-        orchestrator1: "docker_overwritten_orchestrator1"
-        orchestrator2: "docker_new_orchestrator2"
       env:
         orchestrator1: "env_overwritten_orchestrator1"
         orchestrator2: "env_new_orchestrator2"

@@ -50,8 +50,7 @@ func TestNodeMergeInstance(t *testing.T) {
 	n, ok = origin["n2"]
 	assert.True(t, ok)
 	if assert.Equal(t, n.Name, "n2") {
-		// The "other" instance number has no priority when lower
-		assert.Equal(t, n.Instances, 2)
+		assert.Equal(t, n.Instances, 1)
 	}
 	n, ok = origin["n3"]
 	assert.True(t, ok)
@@ -65,6 +64,24 @@ func TestNodeMergeInstance(t *testing.T) {
 		// The new node should come with its instances
 		assert.Equal(t, n.Instances, 15)
 	}
+}
+
+func TestNodeMergeNoInstance(t *testing.T) {
+	n1 := &NodeSet{Name: "n1", Instances: 1}
+	no1 := NodeSet{Name: "n1", Instances: 0}
+
+	err := n1.merge(no1)
+	assert.Nil(t, err)
+	assert.Equal(t, n1.Instances, 1)
+}
+
+func TestNodeMergeNegativeInstance(t *testing.T) {
+	n1 := &NodeSet{Name: "n1", Instances: 1}
+	no1 := NodeSet{Name: "n1", Instances: -1}
+
+	err := n1.merge(no1)
+	assert.Nil(t, err)
+	assert.Equal(t, n1.Instances, 1)
 }
 
 func TestNodeMergeLocation(t *testing.T) {

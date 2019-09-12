@@ -37,7 +37,6 @@
         "methods":[  
             {"name":"Parameters", "returns":"map[string]interface{}", "attribute":"Parameters" , "doc":"returns the orchestrator parameters"},
             {"name":"EnvVars",  "returns":"map[string]string", "attribute":"EnvVars", "doc":"returns the orchestrator environment variables"},
-            {"name":"Docker", "returns":"map[string]interface{}", "attribute":"Docker" , "doc":"returns the orchestrator parameters for docker"},
             {"name":"Component", "component":{"attribute":"", "type":"Component"}, "doc":"returns the orchestrator component"}
         ]
     },

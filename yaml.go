@@ -31,11 +31,6 @@ type (
 		Vars map[string]interface{} `yaml:",omitempty"`
 	}
 
-	// yaml tag for Docker parameters
-	yamlDockerParams struct {
-		Docker map[string]interface{} `yaml:",omitempty"`
-	}
-
 	// yaml tag for authentication parameters
 	yamlAuth struct {
 		Auth map[string]interface{} `yaml:",omitempty"`
@@ -92,8 +87,6 @@ type (
 	yamlOrchestratorRef struct {
 		// The overriding orchestrator parameters
 		yamlParams `yaml:",inline"`
-		// The overriding docker parameters
-		yamlDockerParams `yaml:",inline"`
 		// The overriding orchestrator environment variables
 		yamlEnv `yaml:",inline"`
 	}
@@ -185,8 +178,6 @@ type (
 			yamlParams `yaml:",inline"`
 			// The orchestrator environment variables
 			yamlEnv `yaml:",inline"`
-			// The Docker parameters
-			yamlDockerParams `yaml:",inline"`
 		}
 
 		// The list of all cloud providers required to create the environment

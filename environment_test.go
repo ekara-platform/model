@@ -69,15 +69,6 @@ func assertEnv(t *testing.T, env *Environment) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "swarm_param_key2_value")
 
-	c = orchestrator.Docker
-	v, ok = c["docker_param_key1"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "docker_param_key1_value")
-
-	v, ok = c["docker_param_key2"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "docker_param_key2_value")
-
 	en := orchestrator.EnvVars
 	v, ok = en["swarm_env_key1"]
 	assert.True(t, ok)
@@ -221,23 +212,6 @@ func assertEnv(t *testing.T, env *Environment) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "swarm_param_key2_value")
 
-	c = ns1Orchestrator.Docker
-	v, ok = c["docker_node1_param_key1"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "docker_node1_param_key1_value")
-
-	v, ok = c["docker_node1_param_key2"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "docker_node1_param_key2_value")
-
-	v, ok = c["docker_param_key1"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "docker_param_key1_value")
-
-	v, ok = c["docker_param_key2"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "docker_param_key2_value")
-
 	en = ns1Orchestrator.EnvVars
 	v, ok = en["orchestrator_node1_env_key1"]
 	assert.True(t, ok)
@@ -329,15 +303,6 @@ func assertEnv(t *testing.T, env *Environment) {
 	v, ok = c["orchestrator_node2_param_key2"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "orchestrator_node2_param_key2_value")
-
-	c = ns2Orchestrator.Docker
-	v, ok = c["docker_node2_param_key1"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "docker_node2_param_key1_value")
-
-	v, ok = c["docker_node2_param_key2"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "docker_node2_param_key2_value")
 
 	en = ns2Orchestrator.EnvVars
 	v, ok = en["orchestrator_node2_env_key1"]
