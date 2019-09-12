@@ -37,13 +37,3 @@ func (r TStackHooksOnStackHookHolder) HasDeploy() bool {
 func (r TStackHooksOnStackHookHolder) Deploy() THook {
 	return CreateTHookForHook(r.h.Deploy)
 }
-
-//HasUndeploy returns true if the hooks has tasks while undeploying
-func (r TStackHooksOnStackHookHolder) HasUndeploy() bool {
-	return r.h.Undeploy.HasTasks()
-}
-
-//Undeploy returns the undeploying tasks
-func (r TStackHooksOnStackHookHolder) Undeploy() THook {
-	return CreateTHookForHook(r.h.Undeploy)
-}

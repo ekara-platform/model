@@ -47,13 +47,3 @@ hooks:
       - task: unknown
     after:
       - task: unknown
-  undeploy:
-    before:
-      - task: unknown
-    after:
-      - task: unknown
-  destroy:
-    before:
-      - task: unknown
-    after:
-      - task: unknown

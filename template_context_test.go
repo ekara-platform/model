@@ -30,11 +30,11 @@ func TestCreateTemplateContext(t *testing.T) {
 func TestMergeTemplateContext(t *testing.T) {
 	p, _ := CreateParameters(map[string]interface{}{
 		"key1": "value1",
-		"key2": "value2_owverwritten",
+		"key2": "value2",
 	})
 
 	others, _ := CreateParameters(map[string]interface{}{
-		"key2": "value2",
+		"key2": "value2_owverwritten",
 		"key3": "value3",
 	})
 

@@ -27,6 +27,7 @@ func TestCreateEngineFromLocalComplexParams(t *testing.T) {
 	assert.Nil(t, e) // no error occurred
 	assert.NotNil(t, yamlEnv)
 }
+
 func TestCreateEngineFromLocalWithData(t *testing.T) {
 
 	vars, _ := CreateParameters(map[string]interface{}{

@@ -113,33 +113,6 @@ func TestOverwrittenOrchestratorParam(t *testing.T) {
 	assert.Equal(t, "param_initial_orchestrator3", orchestratorParams["orchestrator3"])
 }
 
-func TestOverwrittenOrchestratorDocker(t *testing.T) {
-	yamlEnv, e := ParseYamlDescriptor(buildURL(t, "./testdata/yaml/overwritten/ekara.yaml"), &TemplateContext{})
-	assert.Nil(t, e)
-	p, e := CreatePlatform(yamlEnv.Ekara)
-	assert.Nil(t, e)
-	env, e := CreateEnvironment("", yamlEnv, MainComponentId)
-	assert.Nil(t, e)
-	env.ekara = &p
-	assert.NotNil(t, env)
-	assert.NotNil(t, env.Orchestrator)
-	assert.NotNil(t, env.Orchestrator.Docker)
-	assert.Equal(t, 2, len(env.Orchestrator.Docker))
-	assert.Equal(t, "docker_initial_orchestrator1", env.Orchestrator.Docker["orchestrator1"])
-	assert.Equal(t, "docker_initial_orchestrator3", env.Orchestrator.Docker["orchestrator3"])
-
-	managers := env.NodeSets["managers"]
-	assert.NotNil(t, managers)
-	managersOrchestrator, e := managers.Orchestrator.Resolve()
-	assert.Nil(t, e)
-	orchestratorDocker := managersOrchestrator.Docker
-	assert.NotNil(t, orchestratorDocker)
-	assert.Equal(t, 3, len(orchestratorDocker))
-	assert.Equal(t, "docker_overwritten_orchestrator1", orchestratorDocker["orchestrator1"])
-	assert.Equal(t, "docker_new_orchestrator2", orchestratorDocker["orchestrator2"])
-	assert.Equal(t, "docker_initial_orchestrator3", orchestratorDocker["orchestrator3"])
-}
-
 func TestOverwrittenOrchestratorEnv(t *testing.T) {
 	yamlEnv, e := ParseYamlDescriptor(buildURL(t, "./testdata/yaml/overwritten/ekara.yaml"), &TemplateContext{})
 	assert.Nil(t, e)

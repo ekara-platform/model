@@ -26,8 +26,6 @@
             {"name":"Hooks", "interface":{"name":"TEnvironmentHooks", "attribute":"Hooks", "type":"EnvironmentHooks"}, "doc":"returns the environment hooks"},
             {"name":"HasProvisionHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Provision.HasTasks()"}, "doc":"returns true if the environment has hooks while provisioning"},
             {"name":"HasDeployHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Deploy.HasTasks()"}, "doc":"returns true if the environment has hooks while deploying"},
-            {"name":"HasUndeployHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Undeploy.HasTasks()"}, "doc":"returns true if the environment has hooks while undeploying"},
-            {"name":"HasDestroyHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Destroy.HasTasks()"}, "doc":"returns true if the environment has hooks while destroying"},   
             {"name":"HasTemplates", "custom": {"returns":"bool", "impl":"len(r.h.Templates.Content) > 0"}, "doc":"returns true if the environment has defined templates"},
             {"name":"Templates", "custom": {"returns":"[]string", "impl":"r.h.Templates.Content"}, "doc":"returns the environment templates"}
         ]
@@ -39,7 +37,6 @@
         "methods":[  
             {"name":"Parameters", "returns":"map[string]interface{}", "attribute":"Parameters" , "doc":"returns the orchestrator parameters"},
             {"name":"EnvVars",  "returns":"map[string]string", "attribute":"EnvVars", "doc":"returns the orchestrator environment variables"},
-            {"name":"Docker", "returns":"map[string]interface{}", "attribute":"Docker" , "doc":"returns the orchestrator parameters for docker"},
             {"name":"Component", "component":{"attribute":"", "type":"Component"}, "doc":"returns the orchestrator component"}
         ]
     },
@@ -83,7 +80,6 @@
             {"name":"HasHooks", "custom": {"returns":"bool", "impl":"r.h.Hooks.HasTasks()"}, "doc":"returns true if the node has hooks"},
             {"name":"Hooks", "interface":{"name":"TNodeHook", "attribute":"Hooks", "type":"NodeHook"}, "doc":"returns the node hooks"},
             {"name":"HasProvisionHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Provision.HasTasks()"}, "doc":"returns true if the node has hooks while provisioning"},
-            {"name":"HasDestroyHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Destroy.HasTasks()"}, "doc":"returns true if the node has hooks while destroying"},
             {"name":"HasLabels", "custom": {"returns":"bool", "impl":"len(r.h.Labels) > 0"}, "doc":"returns true if the node has defined labels"},
             {"name":"Labels",  "returns":"map[string]string", "attribute":"Labels", "doc":"returns the node labels"}
         ]
@@ -99,11 +95,9 @@
             {"name":"HasHooks", "custom": {"returns":"bool", "impl":"r.h.Hooks.HasTasks()"}, "doc":"returns true if the stack has hooks"},
             {"name":"Hooks", "interface":{"name":"TStackHooks", "attribute":"Hooks", "type":"StackHook"}, "doc":"returns the stack hooks"},
             {"name":"HasDeployHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Deploy.HasTasks()"}, "doc":"returns true if the stack has hooks while deploying"},
-            {"name":"HasUndeployHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Undeploy.HasTasks()"}, "doc":"returns true if the stack has hooks while undeploying"},
             {"name":"Dependencies", "interface":{"name":"TDependencies", "attribute":"DependsOn", "type":"Dependencies"}, "doc":"returns the stack dependencies"},
             {"name":"HasCopies", "custom": {"returns":"bool", "impl":"len(r.h.Copies.Content) > 0"}, "doc":"returns true if the stacks has copies"},
             {"name":"Copies", "interface_map":{"name":"TCopy", "attribute":"Copies.Content", "type":"Copy" }, "doc":"returns the stack copies"}
-            
         ]
     },
     {  
@@ -146,7 +140,6 @@
             {"name":"EnvVars",  "returns":"map[string]string", "attribute":"EnvVars", "doc":"returns the task environment variables"},
             {"name":"HasHooks", "custom": {"returns":"bool", "impl":"r.h.Hooks.HasTasks()"}, "doc":"returns true if the task has hooks"},
             {"name":"Hooks", "interface":{"name":"TTaskHooks", "attribute":"Hooks", "type":"TaskHook"}, "doc":"returns the task hooks"}
-
         ]
     },
     {  
@@ -226,12 +219,8 @@
         "methods":[  
             {"name":"HasProvision",  "custom": {"returns":"bool", "impl":"r.h.Provision.HasTasks()"}, "doc":"returns true if the hooks has tasks while provisioning"},
             {"name":"Provision", "interface":{"name":"THook", "attribute":"Provision", "type":"Hook"}, "doc":"returns the provisioning tasks"},
-            {"name":"HasDestroy",  "custom": {"returns":"bool", "impl":"r.h.Destroy.HasTasks()"}, "doc":"returns true if the hooks has tasks while destroying"},
-            {"name":"Destroy", "interface":{"name":"THook", "attribute":"Destroy" , "type":"Hook"}, "doc":"returns the destroying tasks"},
             {"name":"HasDeploy",  "custom": {"returns":"bool", "impl":"r.h.Deploy.HasTasks()"}, "doc":"returns true if the hooks has tasks while deploying"},
-            {"name":"Deploy", "interface":{"name":"THook", "attribute":"Deploy" , "type":"Hook"}, "doc":"returns the deploying tasks"},
-            {"name":"HasUndeploy",  "custom": {"returns":"bool", "impl":"r.h.Undeploy.HasTasks()"}, "doc":"returns true if the hooks has tasks while undeploying"},
-            {"name":"Undeploy", "interface":{"name":"THook", "attribute":"Undeploy" , "type":"Hook"}, "doc":"returns the undeploying tasks"}
+            {"name":"Deploy", "interface":{"name":"THook", "attribute":"Deploy" , "type":"Hook"}, "doc":"returns the deploying tasks"}
         ]
     },
     {  
@@ -240,9 +229,7 @@
         "doc":"is a read only representation of the hooks associated to a stack",
         "methods":[  
             {"name":"HasDeploy",  "custom": {"returns":"bool", "impl":"r.h.Deploy.HasTasks()"}, "doc":"returns true if the hooks has tasks while deploying"},
-            {"name":"Deploy", "interface":{"name":"THook", "attribute":"Deploy" , "type":"Hook"}, "doc":"returns the deploying tasks"},
-            {"name":"HasUndeploy",  "custom": {"returns":"bool", "impl":"r.h.Undeploy.HasTasks()"}, "doc":"returns true if the hooks has tasks while undeploying"},
-            {"name":"Undeploy", "interface":{"name":"THook", "attribute":"Undeploy" , "type":"Hook"}, "doc":"returns the undeploying tasks"}
+            {"name":"Deploy", "interface":{"name":"THook", "attribute":"Deploy" , "type":"Hook"}, "doc":"returns the deploying tasks"}
         ]
     },
     {  
@@ -260,9 +247,7 @@
         "doc":"is a read only representation of the hooks associated to a node",
         "methods":[  
             {"name":"HasProvision",  "custom": {"returns":"bool", "impl":"r.h.Provision.HasTasks()"}, "doc":"returns true if the hooks has tasks while provisioning"},
-            {"name":"Provision", "interface":{"name":"THook", "attribute":"Provision" , "type":"Hook"}, "doc":"returns the provisioning tasks"},
-            {"name":"HasDestroy",  "custom": {"returns":"bool", "impl":"r.h.Destroy.HasTasks()"}, "doc":"returns true if the hooks has tasks while destroying"},
-            {"name":"Destroy", "interface":{"name":"THook", "attribute":"Destroy" , "type":"Hook"}, "doc":"returns the destroyinh tasks"}
+            {"name":"Provision", "interface":{"name":"THook", "attribute":"Provision" , "type":"Hook"}, "doc":"returns the provisioning tasks"}
         ]
     },
     {  

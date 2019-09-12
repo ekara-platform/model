@@ -31,11 +31,6 @@ type (
 		Vars map[string]interface{} `yaml:",omitempty"`
 	}
 
-	// yaml tag for Docker parameters
-	yamlDockerParams struct {
-		Docker map[string]interface{} `yaml:",omitempty"`
-	}
-
 	// yaml tag for authentication parameters
 	yamlAuth struct {
 		Auth map[string]interface{} `yaml:",omitempty"`
@@ -92,8 +87,6 @@ type (
 	yamlOrchestratorRef struct {
 		// The overriding orchestrator parameters
 		yamlParams `yaml:",inline"`
-		// The overriding docker parameters
-		yamlDockerParams `yaml:",inline"`
 		// The overriding orchestrator environment variables
 		yamlEnv `yaml:",inline"`
 	}
@@ -131,10 +124,9 @@ type (
 		Orchestrator yamlOrchestratorRef
 		// The orchestrator settings for this node set
 		Volumes []yamlVolume
-		// The Hooks to be executed while provisioning and destroying the node set
+		// The Hooks to be executed while provisioning the node set
 		Hooks struct {
 			Provision yamlHook `yaml:",omitempty"`
-			Destroy   yamlHook `yaml:",omitempty"`
 		} `yaml:",omitempty"`
 
 		// The labels associated with the nodeset
@@ -186,8 +178,6 @@ type (
 			yamlParams `yaml:",inline"`
 			// The orchestrator environment variables
 			yamlEnv `yaml:",inline"`
-			// The Docker parameters
-			yamlDockerParams `yaml:",inline"`
 		}
 
 		// The list of all cloud providers required to create the environment
@@ -211,10 +201,9 @@ type (
 			Component string
 			// The name of the stack on which this one depends
 			DependsOn []string `yaml:"depends_on"`
-			// The Hooks to be executed while deploying and undeploying the stack
+			// The Hooks to be executed while deploying the stack
 			Hooks struct {
-				Deploy   yamlHook `yaml:",omitempty"`
-				Undeploy yamlHook `yaml:",omitempty"`
+				Deploy yamlHook `yaml:",omitempty"`
 			} `yaml:",omitempty"`
 
 			// The parameters
@@ -231,8 +220,6 @@ type (
 			Init      yamlHook `yaml:",omitempty"`
 			Provision yamlHook `yaml:",omitempty"`
 			Deploy    yamlHook `yaml:",omitempty"`
-			Undeploy  yamlHook `yaml:",omitempty"`
-			Destroy   yamlHook `yaml:",omitempty"`
 		} `yaml:",omitempty"`
 
 		// Global volumes

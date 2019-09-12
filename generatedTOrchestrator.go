@@ -38,11 +38,6 @@ func (r TOrchestratorOnOrchestratorHolder) EnvVars() map[string]string {
 	return r.h.EnvVars
 }
 
-//Docker returns the orchestrator parameters for docker
-func (r TOrchestratorOnOrchestratorHolder) Docker() map[string]interface{} {
-	return r.h.Docker
-}
-
 //Component returns the orchestrator component
 func (r TOrchestratorOnOrchestratorHolder) Component() (TComponent, error) {
 	v, err := r.h.Component()

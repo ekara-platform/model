@@ -37,13 +37,3 @@ func (r TNodeHookOnNodeHookHolder) HasProvision() bool {
 func (r TNodeHookOnNodeHookHolder) Provision() THook {
 	return CreateTHookForHook(r.h.Provision)
 }
-
-//HasDestroy returns true if the hooks has tasks while destroying
-func (r TNodeHookOnNodeHookHolder) HasDestroy() bool {
-	return r.h.Destroy.HasTasks()
-}
-
-//Destroy returns the destroyinh tasks
-func (r TNodeHookOnNodeHookHolder) Destroy() THook {
-	return CreateTHookForHook(r.h.Destroy)
-}

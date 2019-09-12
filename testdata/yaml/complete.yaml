@@ -160,11 +160,6 @@ nodes:
             env:
               tasks_task2_env_key1: tasks_task2_env_key1_value_overwritten
               tasks_task2_env_key3: tasks_task2_env_key3_value
-      destroy:
-        before:
-          - task: task1  
-        after:
-          - task: task2  
   node2:
     instances: 20
     provider:
@@ -201,22 +196,12 @@ nodes:
           - task: task1  
         after:
           - task: task2  
-      destroy:
-        before:
-          - task: task1  
-        after:
-          - task: task2  
 
 stacks:
   stack1:
     component: stack1
     hooks:
       deploy:
-        before:
-          - task: task1  
-        after:
-          - task: task2  
-      undeploy:
         before:
           - task: task1  
         after:

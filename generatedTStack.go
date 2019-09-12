@@ -58,11 +58,6 @@ func (r TStackOnStackHolder) HasDeployHooks() bool {
 	return r.h.Hooks.Deploy.HasTasks()
 }
 
-//HasUndeployHooks returns true if the stack has hooks while undeploying
-func (r TStackOnStackHolder) HasUndeployHooks() bool {
-	return r.h.Hooks.Undeploy.HasTasks()
-}
-
 //Dependencies returns the stack dependencies
 func (r TStackOnStackHolder) Dependencies() TDependencies {
 	return CreateTDependenciesForDependencies(r.h.DependsOn)

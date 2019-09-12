@@ -63,11 +63,6 @@ func (r TNodeSetOnNodeSetHolder) HasProvisionHooks() bool {
 	return r.h.Hooks.Provision.HasTasks()
 }
 
-//HasDestroyHooks returns true if the node has hooks while destroying
-func (r TNodeSetOnNodeSetHolder) HasDestroyHooks() bool {
-	return r.h.Hooks.Destroy.HasTasks()
-}
-
 //HasLabels returns true if the node has defined labels
 func (r TNodeSetOnNodeSetHolder) HasLabels() bool {
 	return len(r.h.Labels) > 0

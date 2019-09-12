@@ -53,29 +53,37 @@ func ParseYamlDescriptorReferences(url EkURL, context *TemplateContext) (env Env
 		return
 	}
 
-	//Parse just the "vars:" section of the descriptor
-	tempsVars, err := readEnvironmentVars(content)
-	if err != nil {
-		return
-	}
-
-	//Fill the TemplateContext with the vars content of the descriptor
-	err = tempsVars.fillContext(url, context)
-	if err != nil {
-		return
-	}
-
-	// Template the content of the environment descriptor with the freshly
-	// parsed vars mixed with the params comming from the launch context.
-	out, err := ApplyTemplate(url, content, context)
-	if err != nil {
-		return
-	}
-
 	// Unmarshal the resulting YAML to get only references
-	err = yaml.Unmarshal(out.Bytes(), &env)
+	err = yaml.Unmarshal(content, &env)
 	if err != nil {
 		return
 	}
 	return
+	/*
+		//Parse just the "vars:" section of the descriptor
+		tempsVars, err := readEnvironmentVars(content)
+		if err != nil {
+			return
+		}
+
+		//Fill the TemplateContext with the vars content of the descriptor
+		err = tempsVars.fillContext(url, context)
+		if err != nil {
+			return
+		}
+
+		// Template the content of the environment descriptor with the freshly
+		// parsed vars mixed with the params comming from the launch context.
+		out, err := ApplyTemplate(url, content, context)
+		if err != nil {
+			return
+		}
+
+		// Unmarshal the resulting YAML to get only references
+		err = yaml.Unmarshal(out.Bytes(), &env)
+		if err != nil {
+			return
+		}
+		return
+	*/
 }

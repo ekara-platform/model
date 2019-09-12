@@ -69,15 +69,6 @@ func assertEnv(t *testing.T, env *Environment) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "swarm_param_key2_value")
 
-	c = orchestrator.Docker
-	v, ok = c["docker_param_key1"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "docker_param_key1_value")
-
-	v, ok = c["docker_param_key2"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "docker_param_key2_value")
-
 	en := orchestrator.EnvVars
 	v, ok = en["swarm_env_key1"]
 	assert.True(t, ok)
@@ -221,23 +212,6 @@ func assertEnv(t *testing.T, env *Environment) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "swarm_param_key2_value")
 
-	c = ns1Orchestrator.Docker
-	v, ok = c["docker_node1_param_key1"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "docker_node1_param_key1_value")
-
-	v, ok = c["docker_node1_param_key2"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "docker_node1_param_key2_value")
-
-	v, ok = c["docker_param_key1"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "docker_param_key1_value")
-
-	v, ok = c["docker_param_key2"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "docker_param_key2_value")
-
 	en = ns1Orchestrator.EnvVars
 	v, ok = en["orchestrator_node1_env_key1"]
 	assert.True(t, ok)
@@ -270,14 +244,9 @@ func assertEnv(t *testing.T, env *Environment) {
 	no := nodeSets["node1"]
 	assert.Equal(t, 1, len(no.Hooks.Provision.Before))
 	assert.Equal(t, 1, len(no.Hooks.Provision.After))
-	assert.Equal(t, 1, len(no.Hooks.Destroy.Before))
-	assert.Equal(t, 1, len(no.Hooks.Destroy.After))
 
 	assert.Equal(t, "task1", no.Hooks.Provision.Before[0].ref)
 	assert.Equal(t, "task2", no.Hooks.Provision.After[0].ref)
-
-	assert.Equal(t, "task1", no.Hooks.Destroy.Before[0].ref)
-	assert.Equal(t, "task2", no.Hooks.Destroy.After[0].ref)
 
 	//------------------------------------------------------------
 	// Node1 Hook Env and Param
@@ -335,15 +304,6 @@ func assertEnv(t *testing.T, env *Environment) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "orchestrator_node2_param_key2_value")
 
-	c = ns2Orchestrator.Docker
-	v, ok = c["docker_node2_param_key1"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "docker_node2_param_key1_value")
-
-	v, ok = c["docker_node2_param_key2"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "docker_node2_param_key2_value")
-
 	en = ns2Orchestrator.EnvVars
 	v, ok = en["orchestrator_node2_env_key1"]
 	assert.True(t, ok)
@@ -371,12 +331,6 @@ func assertEnv(t *testing.T, env *Environment) {
 	}
 	if assert.Equal(t, 1, len(no.Hooks.Provision.After)) {
 		assert.Equal(t, "task2", no.Hooks.Provision.After[0].ref)
-	}
-	if assert.Equal(t, 1, len(no.Hooks.Destroy.Before)) {
-		assert.Equal(t, "task1", no.Hooks.Destroy.Before[0].ref)
-	}
-	if assert.Equal(t, 1, len(no.Hooks.Destroy.After)) {
-		assert.Equal(t, "task2", no.Hooks.Destroy.After[0].ref)
 	}
 
 	//------------------------------------------------------------
@@ -454,12 +408,6 @@ func assertEnv(t *testing.T, env *Environment) {
 	}
 	if assert.Equal(t, 1, len(stack1.Hooks.Deploy.After)) {
 		assert.Equal(t, "task2", stack1.Hooks.Deploy.After[0].ref)
-	}
-	if assert.Equal(t, 1, len(stack1.Hooks.Undeploy.Before)) {
-		assert.Equal(t, "task1", stack1.Hooks.Undeploy.Before[0].ref)
-	}
-	if assert.Equal(t, 1, len(stack1.Hooks.Undeploy.After)) {
-		assert.Equal(t, "task2", stack1.Hooks.Undeploy.After[0].ref)
 	}
 
 	//------------------------------------------------------------
