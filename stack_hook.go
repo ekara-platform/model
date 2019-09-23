@@ -13,8 +13,8 @@ func (r StackHook) HasTasks() bool {
 	return r.Deploy.HasTasks()
 }
 
-func (r *StackHook) merge(other StackHook) error {
-	return r.Deploy.merge(other.Deploy)
+func (r *StackHook) customize(with StackHook) error {
+	return r.Deploy.customize(with.Deploy)
 }
 
 func (r StackHook) validate() ValidationErrors {

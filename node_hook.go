@@ -13,8 +13,8 @@ func (r NodeHook) HasTasks() bool {
 	return r.Provision.HasTasks()
 }
 
-func (r *NodeHook) merge(other NodeHook) error {
-	return r.Provision.merge(other.Provision)
+func (r *NodeHook) customize(with NodeHook) error {
+	return r.Provision.customize(with.Provision)
 }
 
 func (r NodeHook) validate() ValidationErrors {

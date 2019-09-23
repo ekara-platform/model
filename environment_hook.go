@@ -16,11 +16,11 @@ func (r EnvironmentHooks) HasTasks() bool {
 		r.Deploy.HasTasks()
 }
 
-func (r *EnvironmentHooks) merge(other EnvironmentHooks) error {
-	if err := r.Provision.merge(other.Provision); err != nil {
+func (r *EnvironmentHooks) customize(with EnvironmentHooks) error {
+	if err := r.Provision.customize(with.Provision); err != nil {
 		return err
 	}
-	return r.Deploy.merge(other.Deploy)
+	return r.Deploy.customize(with.Deploy)
 }
 
 func (r EnvironmentHooks) validate() ValidationErrors {

@@ -33,6 +33,17 @@ type (
 	circularRefTracking map[string]interface{}
 )
 
+//DescType returns the Describable type of the task
+//  Hardcoded to : "Task"
+func (s Task) DescType() string {
+	return "Task"
+}
+
+//DescName returns the Describable name of the task
+func (s Task) DescName() string {
+	return s.Name
+}
+
 func (r Task) validate() ValidationErrors {
 	vErrs := ValidationErrors{}
 	if len(r.Playbook) == 0 {
@@ -50,29 +61,27 @@ func (r Task) validate() ValidationErrors {
 	return vErrs
 }
 
-func (r *Task) merge(other Task) error {
+func (r *Task) customize(with Task) error {
 	var err error
-	if !reflect.DeepEqual(r, &other) {
-		if r.Name != other.Name {
-			return errors.New("cannot merge unrelated tasks (" + r.Name + " != " + other.Name + ")")
+	if !reflect.DeepEqual(r, &with) {
+		if r.Name != with.Name {
+			return errors.New("cannot customize unrelated tasks (" + r.Name + " != " + with.Name + ")")
 		}
-		if err = r.cRef.merge(other.cRef); err != nil {
+		if err = r.cRef.customize(with.cRef); err != nil {
 			return err
 		}
-		if err = r.Hooks.merge(other.Hooks); err != nil {
+		if err = r.Hooks.customize(with.Hooks); err != nil {
 			return err
 		}
-		if r.Playbook == "" {
-			r.Playbook = other.Playbook
-		}
-		if r.Cron == "" {
-			r.Cron = other.Cron
-		}
-		r.Parameters, err = r.Parameters.inherit(other.Parameters)
+
+		r.Playbook = with.Playbook
+		r.Cron = with.Cron
+
+		r.Parameters, err = with.Parameters.inherit(r.Parameters)
 		if err != nil {
 			return err
 		}
-		r.EnvVars, err = r.EnvVars.inherit(other.EnvVars)
+		r.EnvVars, err = with.EnvVars.inherit(r.EnvVars)
 		if err != nil {
 			return err
 		}
@@ -113,16 +122,16 @@ func createTasks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnv
 	return res, nil
 }
 
-func (r Tasks) merge(env *Environment, other Tasks) (Tasks, error) {
+func (r Tasks) customize(env *Environment, with Tasks) (Tasks, error) {
 
 	work := make(map[string]*Task)
 	for k, v := range r {
 		work[k] = v
 	}
 
-	for id, t := range other {
+	for id, t := range with {
 		if task, ok := work[id]; ok {
-			if err := task.merge(*t); err != nil {
+			if err := task.customize(*t); err != nil {
 				return work, err
 			}
 		} else {

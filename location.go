@@ -28,6 +28,10 @@ func (r DescriptorLocation) equals(o DescriptorLocation) bool {
 	return reflect.DeepEqual(r, o)
 }
 
+func (r DescriptorLocation) empty() bool {
+	return r.Descriptor == "" && r.Path == ""
+}
+
 func (r DescriptorLocation) appendPath(suffix string) DescriptorLocation {
 	newLoc := DescriptorLocation{Path: r.Path, Descriptor: r.Descriptor}
 	if newLoc.Path == "" {

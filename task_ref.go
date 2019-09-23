@@ -32,19 +32,21 @@ func (r TaskRef) validationDetails() refValidationDetails {
 	}
 }
 
-func (r *TaskRef) merge(other TaskRef) error {
+func (r *TaskRef) customize(with TaskRef) error {
 	var err error
 	if r.ref == "" {
-		r.ref = other.ref
+		r.ref = with.ref
 	}
-	r.parameters, err = r.parameters.inherit(other.parameters)
+	r.parameters, err = with.parameters.inherit(r.parameters)
 	if err != nil {
 		return err
 	}
-	r.envVars, err = r.envVars.inherit(other.envVars)
+	r.envVars, err = with.envVars.inherit(r.envVars)
 	if err != nil {
 		return err
 	}
+	r.mandatory = with.mandatory
+	r.HookLocation = with.HookLocation
 	return nil
 }
 

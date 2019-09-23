@@ -39,10 +39,15 @@ func createComponentRef(env *Environment, location DescriptorLocation, ref strin
 	}
 }
 
-func (r *componentRef) merge(other componentRef) error {
-	if r.ref == "" {
-		r.ref = other.ref
+func (r *componentRef) customize(with componentRef) error {
+	if with.ref != "" {
+		r.ref = with.ref
 	}
+	r.mandatory = with.mandatory
+	if !with.location.empty() {
+		r.location = with.location
+	}
+
 	return nil
 }
 

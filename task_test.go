@@ -1,11 +1,168 @@
 package model
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+var taskOtherT1, taskOtherT2, taskOriginT1, taskOriginT2 TaskRef
+
+func TestTaskDescType(t *testing.T) {
+	s := Task{}
+	assert.Equal(t, s.DescType(), "Task")
+}
+
+func TestTaskDescName(t *testing.T) {
+	s := Task{Name: "my_name"}
+	assert.Equal(t, s.DescName(), "my_name")
+}
+
+func getTaskOrigin() *Task {
+	t1 := &Task{
+		Name:     "my_name",
+		Playbook: "Playbook",
+		Cron:     "Cron",
+	}
+	t1.EnvVars = make(map[string]string)
+	t1.EnvVars["key1"] = "val1_target"
+	t1.EnvVars["key2"] = "val2_target"
+	t1.Parameters = make(map[string]interface{})
+	t1.Parameters["key1"] = "val1_target"
+	t1.Parameters["key2"] = "val2_target"
+
+	t1.cRef = componentRef{
+		ref: "cOriginal",
+	}
+
+	taskOriginT1 = TaskRef{ref: "T1"}
+	taskOriginT2 = TaskRef{ref: "T2"}
+	hT1 := TaskHook{}
+	hT1.Execute.Before = append(hT1.Execute.Before, taskOriginT1)
+	hT1.Execute.After = append(hT1.Execute.After, taskOriginT2)
+	t1.Hooks = hT1
+
+	return t1
+}
+
+func getTaskOther(name string) *Task {
+	other := &Task{
+		Name:     name,
+		Playbook: "Playbook_overwritten",
+		Cron:     "Cron_overwritten",
+	}
+	other.EnvVars = make(map[string]string)
+	other.EnvVars["key2"] = "val2_other"
+	other.EnvVars["key3"] = "val3_other"
+	other.Parameters = make(map[string]interface{})
+	other.Parameters["key2"] = "val2_other"
+	other.Parameters["key3"] = "val3_other"
+
+	other.cRef = componentRef{
+		ref: "cOther",
+	}
+
+	taskOtherT1 = TaskRef{ref: "T3"}
+	taskOtherT2 = TaskRef{ref: "T4"}
+	oT1 := TaskHook{}
+	oT1.Execute.Before = append(oT1.Execute.Before, taskOtherT1)
+	oT1.Execute.After = append(oT1.Execute.After, taskOtherT2)
+	other.Hooks = oT1
+
+	return other
+}
+
+func checkTaskMerge(t *testing.T, ta *Task) {
+
+	assert.Equal(t, ta.cRef.ref, "cOther")
+	assert.Equal(t, ta.Playbook, "Playbook_overwritten")
+	assert.Equal(t, ta.Cron, "Cron_overwritten")
+
+	if assert.Len(t, ta.EnvVars, 3) {
+		checkMap(t, ta.EnvVars, "key1", "val1_target")
+		checkMap(t, ta.EnvVars, "key2", "val2_other")
+		checkMap(t, ta.EnvVars, "key3", "val3_other")
+	}
+
+	if assert.Len(t, ta.Parameters, 3) {
+		checkMapInterface(t, ta.Parameters, "key1", "val1_target")
+		checkMapInterface(t, ta.Parameters, "key2", "val2_other")
+		checkMapInterface(t, ta.Parameters, "key3", "val3_other")
+	}
+
+	if assert.Len(t, ta.Hooks.Execute.Before, 2) {
+		assert.Contains(t, ta.Hooks.Execute.Before, taskOriginT1, taskOtherT1)
+		assert.Equal(t, ta.Hooks.Execute.Before[0], taskOriginT1)
+		assert.Equal(t, ta.Hooks.Execute.Before[1], taskOtherT1)
+	}
+
+	if assert.Len(t, ta.Hooks.Execute.After, 2) {
+		assert.Contains(t, ta.Hooks.Execute.After, taskOriginT2, taskOtherT2)
+		assert.Equal(t, ta.Hooks.Execute.After[0], taskOriginT2)
+		assert.Equal(t, ta.Hooks.Execute.After[1], taskOtherT2)
+	}
+
+}
+
+func TestTaskMerge(t *testing.T) {
+	o := getTaskOrigin()
+	err := o.customize(*getTaskOther("my_name"))
+	if assert.Nil(t, err) {
+		checkTaskMerge(t, o)
+	}
+}
+
+func TestMergeTaskItself(t *testing.T) {
+	o := getTaskOrigin()
+	oi := o
+	err := o.customize(*o)
+	if assert.Nil(t, err) {
+		assert.Equal(t, oi, o)
+	}
+}
+
+func TestTasksMerge(t *testing.T) {
+	origins := make(Tasks)
+	origins["myS"] = getTaskOrigin()
+	others := make(Tasks)
+	others["myS"] = getTaskOther("my_name")
+
+	customized, err := origins.customize(&Environment{}, others)
+	if assert.Nil(t, err) {
+		if assert.Len(t, customized, 1) {
+			o := customized["myS"]
+			checkTaskMerge(t, o)
+		}
+	}
+}
+
+func TestTasksMergeAddition(t *testing.T) {
+	origins := make(Tasks)
+	origins["myS"] = getTaskOrigin()
+	others := make(Tasks)
+	others["myS"] = getTaskOther("my_name")
+	others["new"] = getTaskOther("new")
+
+	customized, err := origins.customize(&Environment{}, others)
+	if assert.Nil(t, err) {
+		assert.Len(t, customized, 2)
+	}
+}
+
+func TestTasksEmptyMerge(t *testing.T) {
+	origins := make(Tasks)
+	o := getTaskOrigin()
+	origins["myS"] = o
+	others := make(Tasks)
+
+	customized, err := origins.customize(&Environment{}, others)
+	if assert.Nil(t, err) {
+		if assert.Len(t, customized, 1) {
+			oc := customized["myS"]
+			assert.Equal(t, o, oc)
+		}
+	}
+}
 
 func TestMergeTaskUnrelated(t *testing.T) {
 	ta := Task{
@@ -20,280 +177,11 @@ func TestMergeTaskUnrelated(t *testing.T) {
 	}
 	o.Parameters["p1"] = "val1"
 
-	err := ta.merge(o)
+	err := ta.customize(o)
 	if assert.NotNil(t, err) {
-		assert.Equal(t, err.Error(), "cannot merge unrelated tasks (Name != Dummy)")
+		assert.Equal(t, err.Error(), "cannot customize unrelated tasks (Name != Dummy)")
 	}
 	assert.Equal(t, 1, len(ta.Parameters))
 	checkMapInterface(t, ta.Parameters, "p1", "val1")
 
-}
-
-func TestMergeTaskItself(t *testing.T) {
-	ta := Task{
-		Name:       "Name",
-		Playbook:   "Playbook",
-		Cron:       "Cron",
-		Parameters: Parameters{},
-		EnvVars:    EnvVars{},
-	}
-	ta.Parameters["p1"] = "val1"
-	ta.EnvVars["e1"] = "env1"
-
-	ta.cRef = componentRef{
-		ref:       "cRef",
-		mandatory: true,
-	}
-
-	task1 := TaskRef{ref: "ref1"}
-	task2 := TaskRef{ref: "ref2"}
-	h := TaskHook{}
-	h.Execute.Before = append(h.Execute.Before, task1)
-	h.Execute.After = append(h.Execute.After, task2)
-
-	ta.Hooks = h
-
-	err := ta.merge(ta)
-	assert.Nil(t, err)
-	assert.Equal(t, 1, len(ta.Parameters))
-	checkMapInterface(t, ta.Parameters, "p1", "val1")
-
-	assert.Equal(t, 1, len(ta.EnvVars))
-	checkMap(t, ta.EnvVars, "e1", "env1")
-
-	assert.Equal(t, ta.cRef.ref, "cRef")
-	assert.True(t, ta.cRef.mandatory)
-
-	assert.True(t, reflect.DeepEqual(h, ta.Hooks))
-}
-
-func TestMergeTaskNoUpdate(t *testing.T) {
-	ta := Task{
-		Name:       "Name",
-		Playbook:   "Playbook",
-		Cron:       "Cron",
-		Parameters: Parameters{},
-		EnvVars:    EnvVars{},
-	}
-	ta.Parameters["p1"] = "val1"
-	ta.EnvVars["e1"] = "env1"
-
-	ta.cRef = componentRef{
-		ref:       "cRef",
-		mandatory: true,
-	}
-
-	task1 := TaskRef{ref: "ref1"}
-	task2 := TaskRef{ref: "ref2"}
-	h := TaskHook{}
-	h.Execute.Before = append(h.Execute.Before, task1)
-	h.Execute.After = append(h.Execute.After, task2)
-
-	ta.Hooks = h
-
-	o := Task{
-		Name:       "Name",
-		Playbook:   "Playbook_updated",
-		Cron:       "Cron_updated",
-		Parameters: Parameters{},
-		EnvVars:    EnvVars{},
-	}
-	o.Parameters["p1"] = "val1_updated"
-	o.EnvVars["e1"] = "env1_updated"
-
-	o.cRef = componentRef{
-		ref:       "cRef_updated",
-		mandatory: false,
-	}
-
-	tasko1 := TaskRef{ref: "ref1_updated"}
-	tasko2 := TaskRef{ref: "ref2_updated"}
-	ho := TaskHook{}
-	ho.Execute.Before = append(ho.Execute.Before, tasko1)
-	ho.Execute.After = append(ho.Execute.After, tasko2)
-
-	o.Hooks = ho
-
-	err := ta.merge(o)
-	assert.Nil(t, err)
-	assert.Equal(t, 1, len(ta.Parameters))
-	checkMapInterface(t, ta.Parameters, "p1", "val1")
-
-	assert.Equal(t, 1, len(ta.EnvVars))
-	checkMap(t, ta.EnvVars, "e1", "env1")
-	assert.Equal(t, ta.Playbook, "Playbook")
-	assert.Equal(t, ta.Cron, "Cron")
-
-	// The component should not be updated
-	assert.Equal(t, ta.cRef.ref, "cRef")
-	assert.True(t, ta.cRef.mandatory)
-
-	// The hook should be updated with the news tasks
-	if assert.False(t, reflect.DeepEqual(h, ta.Hooks)) {
-		assert.Equal(t, 2, len(ta.Hooks.Execute.Before))
-		assert.Equal(t, 2, len(ta.Hooks.Execute.After))
-	}
-}
-
-func TestMergeTaskAddition(t *testing.T) {
-	ta := Task{
-		Name: "Name",
-
-		Parameters: Parameters{},
-		EnvVars:    EnvVars{},
-	}
-	ta.Parameters["p1"] = "val1"
-	ta.EnvVars["e1"] = "env1"
-
-	o := Task{
-		Name:       "Name",
-		Playbook:   "Playbook",
-		Cron:       "Cron",
-		Parameters: Parameters{},
-		EnvVars:    EnvVars{},
-	}
-	o.Parameters["p2"] = "val2_added"
-	o.EnvVars["e2"] = "env2_added"
-
-	o.cRef = componentRef{
-		ref:       "cRef_added",
-		mandatory: false,
-	}
-
-	tasko1 := TaskRef{ref: "ref1_added"}
-	tasko2 := TaskRef{ref: "ref2_added"}
-	ho := TaskHook{}
-	ho.Execute.Before = append(ho.Execute.Before, tasko1)
-	ho.Execute.After = append(ho.Execute.After, tasko2)
-
-	o.Hooks = ho
-
-	err := ta.merge(o)
-	assert.Nil(t, err)
-	assert.Equal(t, 2, len(ta.Parameters))
-	checkMapInterface(t, ta.Parameters, "p1", "val1")
-	checkMapInterface(t, ta.Parameters, "p2", "val2_added")
-
-	assert.Equal(t, 2, len(ta.EnvVars))
-	checkMap(t, ta.EnvVars, "e1", "env1")
-	checkMap(t, ta.EnvVars, "e2", "env2_added")
-
-	assert.Equal(t, ta.Playbook, "Playbook")
-	assert.Equal(t, ta.Cron, "Cron")
-
-	// The component should be added
-	assert.Equal(t, ta.cRef.ref, "cRef_added")
-	assert.False(t, ta.cRef.mandatory)
-
-	// The hook should be updated with the news tasks
-	assert.Equal(t, 1, len(ta.Hooks.Execute.Before))
-	assert.Equal(t, 1, len(ta.Hooks.Execute.After))
-}
-
-func TestMergeNoTasks(t *testing.T) {
-	ta1 := &Task{
-		Name: "Name1",
-
-		Parameters: Parameters{},
-		EnvVars:    EnvVars{},
-	}
-	ta1.Parameters["p11"] = "val11"
-	ta1.EnvVars["e11"] = "env11"
-
-	ta2 := &Task{
-		Name: "Name2",
-
-		Parameters: Parameters{},
-		EnvVars:    EnvVars{},
-	}
-	ta2.Parameters["p12"] = "val12"
-	ta2.EnvVars["e12"] = "env12"
-
-	ts := Tasks{}
-	ts[ta1.Name] = ta1
-	ts[ta2.Name] = ta2
-
-	emptyTs := Tasks{}
-
-	env := &Environment{}
-	ts.merge(env, emptyTs)
-	assert.Equal(t, 2, len(ts))
-}
-
-func TestMergeTasks(t *testing.T) {
-	ta1 := &Task{
-		Name: "Name1",
-
-		Parameters: Parameters{},
-		EnvVars:    EnvVars{},
-	}
-	ta1.Parameters["p11"] = "val11"
-	ta1.EnvVars["e11"] = "env11"
-
-	ta2 := &Task{
-		Name: "Name2",
-
-		Parameters: Parameters{},
-		EnvVars:    EnvVars{},
-	}
-	ta2.Parameters["p12"] = "val12"
-	ta2.EnvVars["e12"] = "env12"
-
-	ts := Tasks{}
-	ts[ta1.Name] = ta1
-	ts[ta2.Name] = ta2
-
-	o1 := &Task{
-		Name: "Name1",
-
-		Parameters: Parameters{},
-		EnvVars:    EnvVars{},
-	}
-	o1.Parameters["p11"] = "update" // Not supposed to be merge
-	o1.Parameters["p12"] = "new"    // Must be merged
-	o1.EnvVars["e11"] = "update"    // Not supposed to be merge
-	o1.EnvVars["e12"] = "new"       // Must be merged
-
-	o3 := &Task{ // The whole task is supposed to be merged
-		Name: "Name3",
-
-		Parameters: Parameters{},
-		EnvVars:    EnvVars{},
-	}
-	o3.Parameters["p13"] = "val13"
-	o3.EnvVars["e13"] = "env13"
-
-	os := Tasks{}
-	os[o1.Name] = o1
-	os[o3.Name] = o3
-
-	env := &Environment{}
-	ts, err := ts.merge(env, os)
-	assert.Nil(t, err)
-
-	if assert.Equal(t, 3, len(ts)) {
-
-		if assert.Equal(t, 2, len(ts[ta1.Name].Parameters)) {
-			checkMapInterface(t, ts[ta1.Name].Parameters, "p11", "val11")
-			checkMapInterface(t, ts[ta1.Name].Parameters, "p12", "new")
-		}
-		if assert.Equal(t, 2, len(ts[ta1.Name].EnvVars)) {
-			checkMap(t, ts[ta1.Name].EnvVars, "e11", "env11")
-			checkMap(t, ts[ta1.Name].EnvVars, "e12", "new")
-		}
-
-		if assert.Equal(t, 1, len(ts[ta2.Name].Parameters)) {
-			checkMapInterface(t, ts[ta2.Name].Parameters, "p12", "val12")
-		}
-		if assert.Equal(t, 1, len(ts[ta2.Name].EnvVars)) {
-			checkMap(t, ts[ta2.Name].EnvVars, "e12", "env12")
-		}
-
-		if assert.Equal(t, 1, len(ts[o3.Name].Parameters)) {
-			checkMapInterface(t, ts[o3.Name].Parameters, "p13", "val13")
-		}
-		if assert.Equal(t, 1, len(ts[o3.Name].EnvVars)) {
-			checkMap(t, ts[o3.Name].EnvVars, "e13", "env13")
-		}
-	}
 }

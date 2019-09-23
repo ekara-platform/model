@@ -54,7 +54,7 @@ func TestMergeTaskHookBefore(t *testing.T) {
 	o := TaskHook{}
 	o.Execute.Before = append(o.Execute.Before, task2)
 
-	err := h.merge(o)
+	err := h.customize(o)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
 	if assert.Equal(t, 2, len(h.Execute.Before)) {
@@ -72,7 +72,7 @@ func TestMergeTaskHookAfter(t *testing.T) {
 	o := TaskHook{}
 	o.Execute.After = append(o.Execute.After, task2)
 
-	err := h.merge(o)
+	err := h.customize(o)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
 	if assert.Equal(t, 2, len(h.Execute.After)) {
@@ -87,7 +87,7 @@ func TestMergeTaskHookItself(t *testing.T) {
 	h := TaskHook{}
 	h.Execute.After = append(h.Execute.After, task1)
 
-	err := h.merge(h)
+	err := h.customize(h)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
 	assert.Equal(t, 0, len(h.Execute.Before))

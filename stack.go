@@ -57,37 +57,37 @@ func (s Stack) validate() ValidationErrors {
 	return ErrorOnInvalid(s.cRef, s.Hooks)
 }
 
-func (s *Stack) merge(other Stack) error {
+func (s *Stack) customize(with Stack) error {
 	var err error
-	if s.Name != other.Name {
-		return errors.New("cannot merge unrelated stacks (" + s.Name + " != " + other.Name + ")")
+	if s.Name != with.Name {
+		return errors.New("cannot customize unrelated stacks (" + s.Name + " != " + with.Name + ")")
 	}
-	if err = s.cRef.merge(other.cRef); err != nil {
+	if err = s.cRef.customize(with.cRef); err != nil {
 		return err
 	}
-	s.Parameters, err = s.Parameters.inherit(other.Parameters)
+	s.Parameters, err = with.Parameters.inherit(s.Parameters)
 	if err != nil {
 		return err
 	}
-	s.EnvVars, err = s.EnvVars.inherit(other.EnvVars)
+	s.EnvVars, err = with.EnvVars.inherit(s.EnvVars)
 	if err != nil {
 		return err
 	}
-	s.DependsOn = s.DependsOn.inherit(other.DependsOn)
-	s.Copies = s.Copies.inherit(other.Copies)
-	return s.Hooks.merge(other.Hooks)
+	s.DependsOn = s.DependsOn.inherit(with.DependsOn)
+	s.Copies = s.Copies.inherit(with.Copies)
+	return s.Hooks.customize(with.Hooks)
 }
 
-func (r Stacks) merge(env *Environment, others Stacks) (Stacks, error) {
+func (r Stacks) customize(env *Environment, with Stacks) (Stacks, error) {
 	res := make(map[string]Stack)
 	for k, v := range r {
 		res[k] = v
 	}
 
-	for id, s := range others {
+	for id, s := range with {
 		if stack, ok := res[id]; ok {
 			sm := &stack
-			if err := sm.merge(s); err != nil {
+			if err := sm.customize(s); err != nil {
 				return res, err
 			}
 			res[id] = *sm

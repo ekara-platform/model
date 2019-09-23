@@ -38,23 +38,24 @@ func createProviderRef(env *Environment, location DescriptorLocation, yamlRef ya
 	}, nil
 }
 
-func (r *ProviderRef) merge(other ProviderRef) error {
+func (r *ProviderRef) customize(with ProviderRef) error {
 	var err error
 	if r.ref == "" {
-		r.ref = other.ref
+		r.ref = with.ref
 	}
-	r.parameters, err = r.parameters.inherit(other.parameters)
+	r.parameters, err = with.parameters.inherit(r.parameters)
 	if err != nil {
 		return err
 	}
-	r.envVars, err = r.envVars.inherit(other.envVars)
+	r.envVars, err = with.envVars.inherit(r.envVars)
 	if err != nil {
 		return err
 	}
-	r.proxy, err = r.proxy.inherit(other.proxy)
+	r.proxy, err = r.proxy.inherit(with.proxy)
 	if err != nil {
 		return err
 	}
+	r.mandatory = with.mandatory
 	return nil
 }
 

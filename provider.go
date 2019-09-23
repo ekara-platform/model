@@ -39,23 +39,29 @@ func (r Provider) validate() ValidationErrors {
 	return ErrorOnInvalid(r.Component)
 }
 
-func (r *Provider) merge(other Provider) error {
+func (r *Provider) customize(with Provider) error {
 	var err error
-	if r.Name != other.Name {
-		return errors.New("cannot merge unrelated providers (" + r.Name + " != " + other.Name + ")")
-	}
-	if err = r.cRef.merge(other.cRef); err != nil {
+
+	if err = r.cRef.customize(with.cRef); err != nil {
 		return err
 	}
-	r.Parameters, err = r.Parameters.inherit(other.Parameters)
+
+	if r.Name != with.Name {
+		return errors.New("cannot customize unrelated providers (" + r.Name + " != " + with.Name + ")")
+	}
+	if err = r.cRef.customize(with.cRef); err != nil {
+		return err
+	}
+	r.Parameters, err = with.Parameters.inherit(r.Parameters)
 	if err != nil {
 		return err
 	}
-	r.EnvVars, err = r.EnvVars.inherit(other.EnvVars)
+	r.EnvVars, err = with.EnvVars.inherit(r.EnvVars)
 	if err != nil {
 		return err
 	}
-	r.Proxy, err = r.Proxy.inherit(other.Proxy)
+
+	r.Proxy, err = r.Proxy.inherit(with.Proxy)
 	if err != nil {
 		return err
 	}
@@ -101,15 +107,15 @@ func createProviders(env *Environment, location DescriptorLocation, yamlEnv *yam
 	return res, nil
 }
 
-func (r Providers) merge(env *Environment, other Providers) (Providers, error) {
+func (r Providers) customize(env *Environment, with Providers) (Providers, error) {
 	res := make(map[string]Provider)
 	for k, v := range r {
 		res[k] = v
 	}
-	for id, p := range other {
+	for id, p := range with {
 		if provider, ok := res[id]; ok {
 			pm := &provider
-			if err := pm.merge(p); err != nil {
+			if err := pm.customize(p); err != nil {
 				return res, err
 			}
 			res[id] = *pm

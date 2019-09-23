@@ -13,8 +13,8 @@ func (r TaskHook) HasTasks() bool {
 	return r.Execute.HasTasks()
 }
 
-func (r *TaskHook) merge(other TaskHook) error {
-	return r.Execute.merge(other.Execute)
+func (r *TaskHook) customize(with TaskHook) error {
+	return r.Execute.customize(with.Execute)
 }
 
 func (r TaskHook) validate() ValidationErrors {

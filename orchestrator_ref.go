@@ -5,9 +5,8 @@ type (
 	OrchestratorRef struct {
 		parameters Parameters
 		envVars    EnvVars
-
-		env      *Environment
-		location DescriptorLocation
+		env        *Environment
+		location   DescriptorLocation
 	}
 )
 
@@ -28,13 +27,13 @@ func createOrchestratorRef(env *Environment, location DescriptorLocation, yamlRe
 	}, nil
 }
 
-func (r *OrchestratorRef) merge(other OrchestratorRef) error {
+func (r *OrchestratorRef) customize(with OrchestratorRef) error {
 	var err error
-	r.parameters, err = r.parameters.inherit(other.parameters)
+	r.parameters, err = with.parameters.inherit(r.parameters)
 	if err != nil {
 		return err
 	}
-	r.envVars, err = r.envVars.inherit(other.envVars)
+	r.envVars, err = with.envVars.inherit(r.envVars)
 	if err != nil {
 		return err
 	}

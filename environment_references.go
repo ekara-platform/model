@@ -55,11 +55,21 @@ func (er EnvironmentReferences) Uses(previousO *Orphans) (*UsedReferences, *Orph
 	for _, val := range er.NodesRefs {
 		located := false
 		for key, pval := range er.ProvidersRefs {
+			// An Orphan, of type provider, must be added
+			// if the provider component is unknown ( for example
+			// when the provider in overwritten), of if the component
+			// is known but not yet referenced
 			if val.Provider.Component == key {
-				res.add(pval.Component)
+				// component unknown
+				if pval.Component == "" {
+					orphans.new(key, "provider")
+				} else {
+					res.add(pval.Component)
+				}
 				located = true
 			}
 		}
+		// component not yet referenced
 		if !located {
 			orphans.new(val.Provider.Component, "provider")
 		}

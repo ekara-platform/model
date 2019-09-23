@@ -37,17 +37,17 @@ func (r Orchestrator) validate() ValidationErrors {
 	return ErrorOnInvalid(r.cRef)
 }
 
-func (r *Orchestrator) merge(other Orchestrator) error {
+func (r *Orchestrator) customize(with Orchestrator) error {
 	var err error
-	err = r.cRef.merge(other.cRef)
+	err = r.cRef.customize(with.cRef)
 	if err != nil {
 		return err
 	}
-	r.Parameters, err = r.Parameters.inherit(other.Parameters)
+	r.Parameters, err = with.Parameters.inherit(r.Parameters)
 	if err != nil {
 		return err
 	}
-	r.EnvVars, err = r.EnvVars.inherit(other.EnvVars)
+	r.EnvVars, err = with.EnvVars.inherit(r.EnvVars)
 	if err != nil {
 		return err
 	}

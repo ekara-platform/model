@@ -37,7 +37,7 @@ func TestMergeHookBefore(t *testing.T) {
 	o := Hook{}
 	o.Before = append(o.Before, task2)
 
-	err := h.merge(o)
+	err := h.customize(o)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
 	if assert.Equal(t, 2, len(h.Before)) {
@@ -57,7 +57,7 @@ func TestMergeHookAfter(t *testing.T) {
 	o := Hook{}
 	o.After = append(o.After, task2)
 
-	err := h.merge(o)
+	err := h.customize(o)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
 	if assert.Equal(t, 2, len(h.After)) {
@@ -74,11 +74,11 @@ func TestMergeHookItself(t *testing.T) {
 	h := Hook{}
 	h.After = append(h.After, task1)
 
-	err := h.merge(h)
+	err := h.customize(h)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
 	assert.Equal(t, 0, len(h.Before))
-	// Just on after because de hook caanot merge its own content
+	// Just on after because de hook cannot customize its own content
 	assert.Equal(t, 1, len(h.After))
 	assert.Equal(t, task1.ref, h.After[0].ref)
 }

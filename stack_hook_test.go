@@ -55,7 +55,7 @@ func TestMergeStackHookBefore(t *testing.T) {
 	o := StackHook{}
 	o.Deploy.Before = append(o.Deploy.Before, task2)
 
-	err := h.merge(o)
+	err := h.customize(o)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
 	if assert.Equal(t, 2, len(h.Deploy.Before)) {
@@ -73,7 +73,7 @@ func TestMergeStackHookAfter(t *testing.T) {
 	o := StackHook{}
 	o.Deploy.After = append(o.Deploy.After, task2)
 
-	err := h.merge(o)
+	err := h.customize(o)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
 	if assert.Equal(t, 2, len(h.Deploy.After)) {
@@ -88,7 +88,7 @@ func TestMergeStackHookItself(t *testing.T) {
 	h := StackHook{}
 	h.Deploy.After = append(h.Deploy.After, task1)
 
-	err := h.merge(h)
+	err := h.customize(h)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
 	assert.Equal(t, 0, len(h.Deploy.Before))

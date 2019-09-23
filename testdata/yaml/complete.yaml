@@ -81,9 +81,6 @@ orchestrator:
   params:
     swarm_param_key1: swarm_param_key1_value
     swarm_param_key2: swarm_param_key2_value
-  docker:
-    docker_param_key1: docker_param_key1_value
-    docker_param_key2: docker_param_key2_value
   env:
     swarm_env_key1: swarm_env_key1_value
     swarm_env_key2: swarm_env_key2_value
@@ -131,9 +128,6 @@ nodes:
       params:
         orchestrator_node1_param_key1: orchestrator_node1_param_key1_value
         orchestrator_node1_param_key2: orchestrator_node1_param_key2_value
-      docker:
-        docker_node1_param_key1: docker_node1_param_key1_value
-        docker_node1_param_key2: docker_node1_param_key2_value
       env:
         orchestrator_node1_env_key1: orchestrator_node1_env_key1_value
         orchestrator_node1_env_key2: orchestrator_node1_env_key2_value
@@ -174,9 +168,6 @@ nodes:
       params:
         orchestrator_node2_param_key1: orchestrator_node2_param_key1_value
         orchestrator_node2_param_key2: orchestrator_node2_param_key2_value
-      docker:
-        docker_node2_param_key1: docker_node2_param_key1_value
-        docker_node2_param_key2: docker_node2_param_key2_value
       env:
         orchestrator_node2_env_key1: orchestrator_node2_env_key1_value
         orchestrator_node2_env_key2: orchestrator_node2_env_key2_value

@@ -49,10 +49,10 @@ func (r Hook) validate() ValidationErrors {
 	return ErrorOnInvalid(r.Before, r.After)
 }
 
-func (r *Hook) merge(other Hook) error {
-	if !reflect.DeepEqual(r, &other) {
-		r.Before = append(r.Before, other.Before...)
-		r.After = append(r.After, other.After...)
+func (r *Hook) customize(with Hook) error {
+	if !reflect.DeepEqual(r, &with) {
+		r.Before = append(r.Before, with.Before...)
+		r.After = append(r.After, with.After...)
 	}
 	return nil
 }

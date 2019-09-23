@@ -72,7 +72,7 @@ func TestMergeNodeHookBefore(t *testing.T) {
 	o := NodeHook{}
 	o.Provision.Before = append(o.Provision.Before, task2)
 
-	err := h.merge(o)
+	err := h.customize(o)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
 	if assert.Equal(t, 2, len(h.Provision.Before)) {
@@ -91,7 +91,7 @@ func TestMergeNodeHookAfter(t *testing.T) {
 	o := NodeHook{}
 	o.Provision.After = append(o.Provision.After, task2)
 
-	err := h.merge(o)
+	err := h.customize(o)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
 	if assert.Equal(t, 2, len(h.Provision.After)) {
@@ -107,7 +107,7 @@ func TestMergeNodeHookItself(t *testing.T) {
 	h := NodeHook{}
 	h.Provision.After = append(h.Provision.After, task1)
 
-	err := h.merge(h)
+	err := h.customize(h)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
 	assert.Equal(t, 0, len(h.Provision.Before))

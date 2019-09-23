@@ -98,50 +98,50 @@ func CreateEnvironment(location string, yamlEnv yamlEnvironment, holder string) 
 //Merge merges the content of the other environment into the receiver
 //
 // Note: basic informations (name, qualifier, description) are only accepted in root descriptor
-func (r *Environment) Merge(other *Environment) error {
+func (r *Environment) Customize(with *Environment) error {
 
 	// basic informations (name, qualifier, description) are only accepted in root descriptor
 	if r.Name == "" {
-		r.Name = other.Name
+		r.Name = with.Name
 	}
 	if r.Qualifier == "" {
-		r.Qualifier = other.Qualifier
+		r.Qualifier = with.Qualifier
 	}
 	if r.Description == "" {
-		r.Description = other.Description
+		r.Description = with.Description
 	}
 
-	if err := r.Orchestrator.merge(other.Orchestrator); err != nil {
+	if err := r.Orchestrator.customize(with.Orchestrator); err != nil {
 		return err
 	}
 
-	if prs, err := r.Providers.merge(r, other.Providers); err != nil {
+	if prs, err := r.Providers.customize(r, with.Providers); err != nil {
 		return err
 	} else {
 		r.Providers = prs
 	}
 
-	if nds, err := r.NodeSets.merge(r, other.NodeSets); err != nil {
+	if nds, err := r.NodeSets.merge(r, with.NodeSets); err != nil {
 		return err
 	} else {
 		r.NodeSets = nds
 	}
-	if sts, err := r.Stacks.merge(r, other.Stacks); err != nil {
+	if sts, err := r.Stacks.customize(r, with.Stacks); err != nil {
 		return err
 	} else {
 		r.Stacks = sts
 	}
-	if tas, err := r.Tasks.merge(r, other.Tasks); err != nil {
+	if tas, err := r.Tasks.customize(r, with.Tasks); err != nil {
 		return err
 	} else {
 		r.Tasks = tas
 	}
-	if vars, err := r.Vars.inherit(other.Vars); err != nil {
+	if vars, err := r.Vars.inherit(with.Vars); err != nil {
 		return err
 	} else {
 		r.Vars = vars
 	}
-	return r.Hooks.merge(other.Hooks)
+	return r.Hooks.customize(with.Hooks)
 }
 
 //Validate validate an environment

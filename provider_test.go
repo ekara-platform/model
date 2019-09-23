@@ -16,107 +16,127 @@ func TestProviderDescName(t *testing.T) {
 	assert.Equal(t, p.DescName(), "my_name")
 }
 
-func TestProviderMerge(t *testing.T) {
-	p1 := Provider{Name: "my_name"}
+func getProviderOrigin() *Provider {
+	p1 := &Provider{Name: "my_name"}
 	p1.EnvVars = make(map[string]string)
-	p1.EnvVars["key1"] = "val1"
-	p1.EnvVars["key2"] = "val2"
+	p1.EnvVars["key1"] = "val1_target"
+	p1.EnvVars["key2"] = "val2_target"
 	p1.Parameters = make(map[string]interface{})
-	p1.Parameters["key1"] = "val1"
-	p1.Parameters["key2"] = "val2"
+	p1.Parameters["key1"] = "val1_target"
+	p1.Parameters["key2"] = "val2_target"
 
-	other := Provider{Name: "my_name"}
+	p1.cRef = componentRef{
+		ref: "cOriginal",
+	}
+
+	return p1
+}
+
+func getProviderOther(name string) *Provider {
+	other := &Provider{Name: name}
 	other.EnvVars = make(map[string]string)
-	other.EnvVars["key2"] = "val2_not_overwritten"
-	other.EnvVars["key3"] = "val3"
+	other.EnvVars["key2"] = "val2_other"
+	other.EnvVars["key3"] = "val3_other"
 	other.Parameters = make(map[string]interface{})
-	other.Parameters["key2"] = "val2_not_overwritten"
-	other.Parameters["key3"] = "val3"
+	other.Parameters["key2"] = "val2_other"
+	other.Parameters["key3"] = "val3_other"
 
-	err := p1.merge(other)
+	other.cRef = componentRef{
+		ref: "cOther",
+	}
+
+	return other
+}
+
+func checkProviderMerge(t *testing.T, p *Provider) {
+
+	assert.Equal(t, p.cRef.ref, "cOther")
+
+	if assert.Equal(t, 3, len(p.EnvVars)) {
+		checkMap(t, p.EnvVars, "key1", "val1_target")
+		checkMap(t, p.EnvVars, "key2", "val2_other")
+		checkMap(t, p.EnvVars, "key3", "val3_other")
+	}
+
+	if assert.Equal(t, 3, len(p.Parameters)) {
+		checkMapInterface(t, p.Parameters, "key1", "val1_target")
+		checkMapInterface(t, p.Parameters, "key2", "val2_other")
+		checkMapInterface(t, p.Parameters, "key3", "val3_other")
+	}
+}
+
+func TestProviderMerge(t *testing.T) {
+
+	o := getProviderOrigin()
+	err := o.customize(*getProviderOther("my_name"))
 	if assert.Nil(t, err) {
-		if assert.Equal(t, 3, len(p1.EnvVars)) {
-			checkMap(t, p1.EnvVars, "key1", "val1")
-			checkMap(t, p1.EnvVars, "key2", "val2")
-			checkMap(t, p1.EnvVars, "key3", "val3")
-		}
+		checkProviderMerge(t, o)
+	}
+}
 
-		if assert.Equal(t, 3, len(p1.Parameters)) {
-			checkMapInterface(t, p1.Parameters, "key1", "val1")
-			checkMapInterface(t, p1.Parameters, "key2", "val2")
-			checkMapInterface(t, p1.Parameters, "key3", "val3")
-		}
+func TestMergeProviderItself(t *testing.T) {
+	o := getProviderOrigin()
+	oi := o
+	err := o.customize(*o)
+	if assert.Nil(t, err) {
+		assert.Equal(t, oi, o)
 	}
 }
 
 func TestProvidersMerge(t *testing.T) {
-	p1 := Provider{Name: "my_name"}
-	p1.EnvVars = make(map[string]string)
-	p1.EnvVars["key1"] = "val1"
-	p1.EnvVars["key2"] = "val2"
-	p1.Parameters = make(map[string]interface{})
-	p1.Parameters["key1"] = "val1"
-	p1.Parameters["key2"] = "val2"
+	origins := make(Providers)
+	origins["myP"] = *getProviderOrigin()
+	others := make(Providers)
+	others["myP"] = *getProviderOther("my_name")
 
-	other := Provider{Name: "my_name"}
-	other.EnvVars = make(map[string]string)
-	other.EnvVars["key2"] = "val2_not_overwritten"
-	other.EnvVars["key3"] = "val3"
-	other.Parameters = make(map[string]interface{})
-	other.Parameters["key2"] = "val2_not_overwritten"
-	other.Parameters["key3"] = "val3"
-
-	p1s := make(map[string]Provider)
-	p1s["myP"] = p1
-	others := make(map[string]Provider)
-	others["myP"] = other
-
-	pms, err := Providers(p1s).merge(&Environment{}, Providers(others))
+	customized, err := origins.customize(&Environment{}, others)
 	if assert.Nil(t, err) {
-		if assert.Equal(t, 1, len(pms)) {
-			p := pms["myP"]
-			if assert.Equal(t, 3, len(p.EnvVars)) {
-				checkMap(t, p.EnvVars, "key1", "val1")
-				checkMap(t, p.EnvVars, "key2", "val2")
-				checkMap(t, p.EnvVars, "key3", "val3")
-			}
-
-			if assert.Equal(t, 3, len(p.Parameters)) {
-				checkMapInterface(t, p.Parameters, "key1", "val1")
-				checkMapInterface(t, p.Parameters, "key2", "val2")
-				checkMapInterface(t, p.Parameters, "key3", "val3")
-			}
+		if assert.Len(t, customized, 1) {
+			o := customized["myP"]
+			checkProviderMerge(t, &o)
 		}
 	}
 }
 
-func TestProvidersEmptyMerge(t *testing.T) {
-	other := Provider{Name: "my_name"}
-	other.EnvVars = make(map[string]string)
-	other.EnvVars["key2"] = "val2"
-	other.EnvVars["key3"] = "val3"
-	other.Parameters = make(map[string]interface{})
-	other.Parameters["key2"] = "val2"
-	other.Parameters["key3"] = "val3"
+func TestProvidersMergeAddition(t *testing.T) {
+	origins := make(Providers)
+	origins["myP"] = *getProviderOrigin()
+	others := make(Providers)
+	others["myP"] = *getProviderOther("my_name")
+	others["new"] = *getProviderOther("new")
 
-	p1s := make(map[string]Provider)
-
-	others := make(map[string]Provider)
-	others["myP"] = other
-
-	pms, err := Providers(p1s).merge(&Environment{}, Providers(others))
+	customized, err := origins.customize(&Environment{}, others)
 	if assert.Nil(t, err) {
-		if assert.Equal(t, 1, len(pms)) {
-			p := pms["myP"]
-			if assert.Equal(t, 2, len(p.EnvVars)) {
-				checkMap(t, p.EnvVars, "key2", "val2")
-				checkMap(t, p.EnvVars, "key3", "val3")
-			}
+		assert.Len(t, customized, 2)
+	}
+}
 
-			if assert.Equal(t, 2, len(p.Parameters)) {
-				checkMapInterface(t, p.Parameters, "key2", "val2")
-				checkMapInterface(t, p.Parameters, "key3", "val3")
-			}
+func TestProvidersEmptyMerge(t *testing.T) {
+	origins := make(Providers)
+	o := getProviderOrigin()
+	origins["myP"] = *o
+	others := make(Providers)
+
+	customized, err := origins.customize(&Environment{}, others)
+	if assert.Nil(t, err) {
+		if assert.Len(t, customized, 1) {
+			oc := customized["myP"]
+			assert.Equal(t, *o, oc)
 		}
+	}
+}
+
+func TestMergeProviderUnrelated(t *testing.T) {
+	pro := Provider{
+		Name: "Name",
+	}
+
+	o := Provider{
+		Name: "Dummy",
+	}
+
+	err := pro.customize(o)
+	if assert.NotNil(t, err) {
+		assert.Equal(t, err.Error(), "cannot customize unrelated providers (Name != Dummy)")
 	}
 }

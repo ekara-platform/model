@@ -60,13 +60,13 @@ func (r *NodeSet) merge(other NodeSet) error {
 	if r.Name != other.Name && other.Name != GenericNodeSetName {
 		return errors.New("cannot merge unrelated node sets (" + r.Name + " != " + other.Name + ")")
 	}
-	if err := r.Provider.merge(other.Provider); err != nil {
+	if err := r.Provider.customize(other.Provider); err != nil {
 		return err
 	}
-	if err := r.Orchestrator.merge(other.Orchestrator); err != nil {
+	if err := r.Orchestrator.customize(other.Orchestrator); err != nil {
 		return err
 	}
-	if err := r.Hooks.merge(other.Hooks); err != nil {
+	if err := r.Hooks.customize(other.Hooks); err != nil {
 		return err
 	}
 	if other.Instances > 0 {

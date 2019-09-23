@@ -21,18 +21,6 @@ func assertEnvRefs(t *testing.T, env EnvironmentReferences) {
 	assert.Equal(t, "someBase", env.Ekara.Base)
 	assert.Equal(t, "ekara-platform/distribution", env.Ekara.Parent.Repository)
 
-	// Variables
-	assert.NotNil(t, env.Vars)
-	if assert.Len(t, env.Vars, 2) {
-		va, ok := env.Vars["global_var_key1"]
-		assert.True(t, ok)
-		assert.Equal(t, va, "global_var_val1")
-
-		va, ok = env.Vars["global_var_key2"]
-		assert.True(t, ok)
-		assert.Equal(t, va, "global_var_val2")
-	}
-
 	//------------------------------------------------------------
 	// Orchestrator
 	//------------------------------------------------------------

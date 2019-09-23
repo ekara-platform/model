@@ -31,7 +31,6 @@ func TestPatternsInherits(t *testing.T) {
 
 	expected := []string{"path1", "path2", "path3", "path4"}
 	if assert.Equal(t, len(expected), len(res.Content)) {
-
 		for _, v := range res.Content {
 			assert.Contains(t, expected, v)
 		}
