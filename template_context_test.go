@@ -14,7 +14,7 @@ func TestCreateTemplateContext(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(p))
 
-	pc := CreateContext(p)
+	pc := CreateTemplateContext(p)
 
 	assert.NotNil(t, pc)
 	assert.Equal(t, 2, len(pc.Vars))
@@ -38,7 +38,7 @@ func TestMergeTemplateContext(t *testing.T) {
 		"key3": "value3",
 	})
 
-	pc := CreateContext(p)
+	pc := CreateTemplateContext(p)
 	err := pc.MergeVars(others)
 	assert.Nil(t, err)
 	assert.NotNil(t, pc)

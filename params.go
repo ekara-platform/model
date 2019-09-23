@@ -2,18 +2,37 @@ package model
 
 import (
 	"fmt"
+	"io/ioutil"
 	"reflect"
+
+	"gopkg.in/yaml.v2"
 )
 
-//Parameters represents the parameters coming from a descriptor
+// Parameters represents the parameters coming from a descriptor
 type Parameters map[string]interface{}
 
+// CreateParameters builds Parameters from the specified map
 func CreateParameters(src map[string]interface{}) (Parameters, error) {
 	dst := make(map[string]interface{})
 	for k, v := range src {
 		dst[k] = v
 	}
 	return src, nil
+}
+
+// ParseParameters parses a yaml file into a Parameters
+func ParseParameters(path string) (Parameters, error) {
+	r := make(Parameters)
+
+	b, err := ioutil.ReadFile(path)
+	if err != nil {
+		return r, err
+	}
+	err = yaml.Unmarshal(b, &r)
+	if err != nil {
+		return r, err
+	}
+	return r, nil
 }
 
 // TODO: terrible! change this

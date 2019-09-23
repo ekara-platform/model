@@ -23,11 +23,11 @@ func TestLabelsInherits(t *testing.T) {
 
 	val, ok := ins["key1"]
 	assert.True(t, ok)
-	assert.Equal(t, "val1", val )
+	assert.Equal(t, "val1", val)
 
 	val, ok = ins["key2"]
 	assert.True(t, ok)
-	assert.Equal(t, "val2_overwritten", val )
+	assert.Equal(t, "val2_overwritten", val)
 
 	val, ok = ins["key3"]
 	assert.True(t, ok)
