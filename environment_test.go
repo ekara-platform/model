@@ -543,5 +543,5 @@ func ExampleEnvironment_Customize() {
 	other := Environment{Name: "OtherName", Qualifier: "OtherQualifier"}
 	root.Customize(&other)
 	fmt.Println(root.QualifiedName())
-	// Outpur: RootName_RootQualifier
+	// Output: RootName_RootQualifier
 }

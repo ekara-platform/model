@@ -56,23 +56,23 @@ func (r NodeSet) validate() ValidationErrors {
 	return vErrs
 }
 
-func (r *NodeSet) merge(other NodeSet) error {
-	if r.Name != other.Name && other.Name != GenericNodeSetName {
-		return errors.New("cannot merge unrelated node sets (" + r.Name + " != " + other.Name + ")")
+func (r *NodeSet) customize(with NodeSet) error {
+	if r.Name != with.Name && with.Name != GenericNodeSetName {
+		return errors.New("cannot customize unrelated node sets (" + r.Name + " != " + with.Name + ")")
 	}
-	if err := r.Provider.customize(other.Provider); err != nil {
+	if err := r.Provider.customize(with.Provider); err != nil {
 		return err
 	}
-	if err := r.Orchestrator.customize(other.Orchestrator); err != nil {
+	if err := r.Orchestrator.customize(with.Orchestrator); err != nil {
 		return err
 	}
-	if err := r.Hooks.customize(other.Hooks); err != nil {
+	if err := r.Hooks.customize(with.Hooks); err != nil {
 		return err
 	}
-	if other.Instances > 0 {
-		r.Instances = other.Instances
+	if with.Instances > 0 {
+		r.Instances = with.Instances
 	}
-	r.Labels = r.Labels.inherit(other.Labels)
+	r.Labels = r.Labels.inherit(with.Labels)
 	return nil
 }
 
@@ -102,18 +102,13 @@ func createNodeSets(env *Environment, location DescriptorLocation, yamlEnv *yaml
 		// The generic node set will be merged into all others
 		// in order to propagate the common stuff.
 		for name, n := range res {
-			err := n.merge(*gNs)
+			err := n.customize(*gNs)
 			if err != nil {
 				return res, err
 			}
 			res[name] = n
 		}
 	}
-
-	//for _, n := range res {
-	//	env.Ekara.tagUsedComponent(n.Provider)
-	//}
-
 	return res, nil
 }
 
@@ -142,16 +137,16 @@ func buildNode(name string, env *Environment, location DescriptorLocation, yN ya
 		Labels: yN.Labels}, nil
 }
 
-func (r NodeSets) merge(env *Environment, other NodeSets) (NodeSets, error) {
+func (r NodeSets) customize(env *Environment, with NodeSets) (NodeSets, error) {
 	res := make(map[string]NodeSet)
 	for kr, vr := range r {
 		res[kr] = vr
 	}
 
-	for id, n := range other {
+	for id, n := range with {
 		if nodeSet, ok := res[id]; ok {
 			nm := &nodeSet
-			if err := nm.merge(n); err != nil {
+			if err := nm.customize(n); err != nil {
 				return res, err
 			}
 			res[id] = *nm

@@ -10,9 +10,9 @@ import (
 func TestNodeMergeUnrelated(t *testing.T) {
 	n1 := NodeSet{Name: "n1"}
 	other := NodeSet{Name: "n2"}
-	err := n1.merge(other)
+	err := n1.customize(other)
 	assert.NotNil(t, err)
-	assert.Equal(t, err.Error(), fmt.Sprintf("cannot merge unrelated node sets (%s != %s)", n1.Name, other.Name))
+	assert.Equal(t, err.Error(), fmt.Sprintf("cannot customize unrelated node sets (%s != %s)", n1.Name, other.Name))
 }
 
 func TestNodeMergeInstance(t *testing.T) {
@@ -37,7 +37,7 @@ func TestNodeMergeInstance(t *testing.T) {
 	other[no3.Name] = no3
 	other[no4.Name] = no4
 
-	origin, err := NodeSets(origin).merge(env, NodeSets(other))
+	origin, err := NodeSets(origin).customize(env, NodeSets(other))
 	assert.Nil(t, err)
 	assert.Equal(t, len(origin), 4)
 
@@ -70,7 +70,7 @@ func TestNodeMergeNoInstance(t *testing.T) {
 	n1 := &NodeSet{Name: "n1", Instances: 1}
 	no1 := NodeSet{Name: "n1", Instances: 0}
 
-	err := n1.merge(no1)
+	err := n1.customize(no1)
 	assert.Nil(t, err)
 	assert.Equal(t, n1.Instances, 1)
 }
@@ -79,7 +79,7 @@ func TestNodeMergeNegativeInstance(t *testing.T) {
 	n1 := &NodeSet{Name: "n1", Instances: 1}
 	no1 := NodeSet{Name: "n1", Instances: -1}
 
-	err := n1.merge(no1)
+	err := n1.customize(no1)
 	assert.Nil(t, err)
 	assert.Equal(t, n1.Instances, 1)
 }
@@ -102,7 +102,7 @@ func TestNodeMergeLocation(t *testing.T) {
 	other[no2.Name] = no2
 	other[no3.Name] = no3
 
-	origin, err := NodeSets(origin).merge(env, NodeSets(other))
+	origin, err := NodeSets(origin).customize(env, NodeSets(other))
 	assert.Nil(t, err)
 	assert.Equal(t, len(origin), 3)
 
@@ -161,7 +161,7 @@ func TestNodeMergeLabels(t *testing.T) {
 	other[no2.Name] = no2
 	other[no3.Name] = no3
 
-	origin, err := NodeSets(origin).merge(env, NodeSets(other))
+	origin, err := NodeSets(origin).customize(env, NodeSets(other))
 	assert.Nil(t, err)
 	assert.Equal(t, len(origin), 3)
 

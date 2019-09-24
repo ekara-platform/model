@@ -95,18 +95,20 @@ func CreateEnvironment(location string, yamlEnv yamlEnvironment, holder string) 
 
 }
 
-//Merge merges the content of the other environment into the receiver
+//Customize merges the content of the giver environment into the receiver
 //
-// Note: basic informations (name, qualifier, description) are only accepted in root descriptor
+// Note: basic informations (name, qualifier, description) are only accepted once if the are not already defined
 func (r *Environment) Customize(with *Environment) error {
 
-	// basic informations (name, qualifier, description) are only accepted in root descriptor
+	// basic informations (name, qualifier, description) are only accepted once if the are not already defined
 	if r.Name == "" {
 		r.Name = with.Name
 	}
+
 	if r.Qualifier == "" {
 		r.Qualifier = with.Qualifier
 	}
+
 	if r.Description == "" {
 		r.Description = with.Description
 	}
@@ -121,26 +123,30 @@ func (r *Environment) Customize(with *Environment) error {
 		r.Providers = prs
 	}
 
-	if nds, err := r.NodeSets.merge(r, with.NodeSets); err != nil {
+	if nds, err := r.NodeSets.customize(r, with.NodeSets); err != nil {
 		return err
 	} else {
 		r.NodeSets = nds
 	}
+
 	if sts, err := r.Stacks.customize(r, with.Stacks); err != nil {
 		return err
 	} else {
 		r.Stacks = sts
 	}
+
 	if tas, err := r.Tasks.customize(r, with.Tasks); err != nil {
 		return err
 	} else {
 		r.Tasks = tas
 	}
+
 	if vars, err := r.Vars.inherit(with.Vars); err != nil {
 		return err
 	} else {
 		r.Vars = vars
 	}
+
 	return r.Hooks.customize(with.Hooks)
 }
 
@@ -181,6 +187,7 @@ func InitEnvironment() *Environment {
 	return env
 }
 
+//Platform Returns the platform on which the environment is built
 func (env *Environment) Platform() *Platform {
 	return env.ekara
 }
