@@ -50,7 +50,6 @@ func (s Stack) DescName() string {
 }
 
 func (s Stack) validate() ValidationErrors {
-	// TODO add a validation on copies destinations
 	if len(s.DependsOn.Content) > 0 {
 		return ErrorOnInvalid(s.cRef, s.DependsOn.Content, s.Hooks)
 	}

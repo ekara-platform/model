@@ -26,7 +26,6 @@ func (r Patterns) inherit(parent Patterns) Patterns {
 }
 
 func createPatterns(env *Environment, location DescriptorLocation, paths []string) Patterns {
-	//TODO do something with the location if one day we decide to validate the patterns content
 	res := Patterns{}
 	for _, v := range paths {
 		res.Content = append(res.Content, v)
