@@ -117,35 +117,35 @@ func (r *Environment) Customize(with *Environment) error {
 		return err
 	}
 
-	if prs, err := r.Providers.customize(r, with.Providers); err != nil {
+	prs, err := r.Providers.customize(r, with.Providers)
+	if err != nil {
 		return err
-	} else {
-		r.Providers = prs
 	}
+	r.Providers = prs
 
-	if nds, err := r.NodeSets.customize(r, with.NodeSets); err != nil {
+	nds, err := r.NodeSets.customize(r, with.NodeSets)
+	if err != nil {
 		return err
-	} else {
-		r.NodeSets = nds
 	}
+	r.NodeSets = nds
 
-	if sts, err := r.Stacks.customize(r, with.Stacks); err != nil {
+	sts, err := r.Stacks.customize(r, with.Stacks)
+	if err != nil {
 		return err
-	} else {
-		r.Stacks = sts
 	}
+	r.Stacks = sts
 
-	if tas, err := r.Tasks.customize(r, with.Tasks); err != nil {
+	tas, err := r.Tasks.customize(r, with.Tasks)
+	if err != nil {
 		return err
-	} else {
-		r.Tasks = tas
 	}
+	r.Tasks = tas
 
-	if vars, err := r.Vars.inherit(with.Vars); err != nil {
+	vars, err := r.Vars.inherit(with.Vars)
+	if err != nil {
 		return err
-	} else {
-		r.Vars = vars
 	}
+	r.Vars = vars
 
 	return r.Hooks.customize(with.Hooks)
 }
@@ -188,6 +188,6 @@ func InitEnvironment() *Environment {
 }
 
 //Platform Returns the platform on which the environment is built
-func (env *Environment) Platform() *Platform {
-	return env.ekara
+func (r *Environment) Platform() *Platform {
+	return r.ekara
 }
