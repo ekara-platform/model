@@ -35,13 +35,13 @@ type (
 
 //DescType returns the Describable type of the task
 //  Hardcoded to : "Task"
-func (s Task) DescType() string {
+func (r Task) DescType() string {
 	return "Task"
 }
 
 //DescName returns the Describable name of the task
-func (s Task) DescName() string {
-	return s.Name
+func (r Task) DescName() string {
+	return r.Name
 }
 
 func (r Task) validate() ValidationErrors {
