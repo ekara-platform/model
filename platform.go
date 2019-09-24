@@ -50,6 +50,7 @@ func (p Platform) validate() ValidationErrors {
 	return vErrs
 }
 
+//KeepTemplates Stores the template into the given component
 func (p Platform) KeepTemplates(c Component, templates Patterns) {
 	if len(templates.Content) > 0 {
 		comp := p.Components[c.Id]
@@ -58,6 +59,7 @@ func (p Platform) KeepTemplates(c Component, templates Patterns) {
 	}
 }
 
+//AddComponent Add the given component to the platform
 func (p *Platform) AddComponent(c Component) {
 	p.Components[c.Id] = c
 }
