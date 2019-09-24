@@ -15,7 +15,7 @@ import (
 func TestValidationNodesUnknownHook(t *testing.T) {
 	yamlEnv, e := ParseYamlDescriptor(buildURL(t, "./testdata/yaml/grammar/nodes_unknown_hook.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
-	p, e := CreatePlatform(yamlEnv.Ekara)
+	p, e := createPlatform(yamlEnv.Ekara)
 	assert.Nil(t, e)
 	env, e := CreateEnvironment("", yamlEnv, MainComponentId)
 	assert.Nil(t, e)
@@ -34,7 +34,7 @@ func TestValidationNodesUnknownHook(t *testing.T) {
 func TestValidationNodesKnownHook(t *testing.T) {
 	yamlEnv, e := ParseYamlDescriptor(buildURL(t, "./testdata/yaml/grammar/nodes_known_hook.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
-	p, e := CreatePlatform(yamlEnv.Ekara)
+	p, e := createPlatform(yamlEnv.Ekara)
 	assert.Nil(t, e)
 	env, e := CreateEnvironment("", yamlEnv, MainComponentId)
 	assert.Nil(t, e)

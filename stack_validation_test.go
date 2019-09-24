@@ -28,7 +28,7 @@ func TestValidationNoStacks(t *testing.T) {
 func TestValidationUnknownStack(t *testing.T) {
 	yamlEnv, e := ParseYamlDescriptor(buildURL(t, "./testdata/yaml/grammar/unknown_stack.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
-	p, e := CreatePlatform(yamlEnv.Ekara)
+	p, e := createPlatform(yamlEnv.Ekara)
 	assert.Nil(t, e)
 	env, e := CreateEnvironment("", yamlEnv, MainComponentId)
 	assert.Nil(t, e)
@@ -50,7 +50,7 @@ func TestValidationUnknownStack(t *testing.T) {
 func TestValidationUnknownDependsOn(t *testing.T) {
 	yamlEnv, e := ParseYamlDescriptor(buildURL(t, "./testdata/yaml/grammar/stack_unknown_depends_on.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
-	p, e := CreatePlatform(yamlEnv.Ekara)
+	p, e := createPlatform(yamlEnv.Ekara)
 	assert.Nil(t, e)
 	env, e := CreateEnvironment("", yamlEnv, MainComponentId)
 	assert.Nil(t, e)

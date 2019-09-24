@@ -87,7 +87,7 @@ func (er EnvironmentReferences) Uses(previousO *Orphans) (*UsedReferences, *Orph
 func (er EnvironmentReferences) References(owner string) (*ReferencedComponents, error) {
 	res := CreateReferencedComponents()
 
-	ekara, err := CreatePlatform(er.Ekara)
+	ekara, err := createPlatform(er.Ekara)
 	if err != nil {
 		return res, err
 	}

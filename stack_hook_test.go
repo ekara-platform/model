@@ -15,7 +15,7 @@ import (
 func TestValidateUnknownStackHooks(t *testing.T) {
 	yamlEnv, e := ParseYamlDescriptor(buildURL(t, "./testdata/yaml/grammar/stack_unknown_hook.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
-	p, e := CreatePlatform(yamlEnv.Ekara)
+	p, e := createPlatform(yamlEnv.Ekara)
 	assert.Nil(t, e)
 	env, e := CreateEnvironment("", yamlEnv, MainComponentId)
 	assert.Nil(t, e)

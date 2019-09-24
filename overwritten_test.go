@@ -9,7 +9,7 @@ import (
 func TestOverwrittenProviderParam(t *testing.T) {
 	yamlEnv, e := ParseYamlDescriptor(buildURL(t, "./testdata/yaml/overwritten/ekara.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
-	p, e := CreatePlatform(yamlEnv.Ekara)
+	p, e := createPlatform(yamlEnv.Ekara)
 	assert.Nil(t, e)
 	env, e := CreateEnvironment("", yamlEnv, MainComponentId)
 	assert.Nil(t, e)
@@ -36,7 +36,7 @@ func TestOverwrittenProviderParam(t *testing.T) {
 func TestOverwrittenProviderEnv(t *testing.T) {
 	yamlEnv, e := ParseYamlDescriptor(buildURL(t, "./testdata/yaml/overwritten/ekara.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
-	p, e := CreatePlatform(yamlEnv.Ekara)
+	p, e := createPlatform(yamlEnv.Ekara)
 	assert.Nil(t, e)
 	env, e := CreateEnvironment("", yamlEnv, MainComponentId)
 	assert.Nil(t, e)
@@ -63,7 +63,7 @@ func TestOverwrittenProviderEnv(t *testing.T) {
 func TestOverwrittenProviderProxy(t *testing.T) {
 	yamlEnv, e := ParseYamlDescriptor(buildURL(t, "./testdata/yaml/overwritten/ekara.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
-	p, e := CreatePlatform(yamlEnv.Ekara)
+	p, e := createPlatform(yamlEnv.Ekara)
 	assert.Nil(t, e)
 	env, e := CreateEnvironment("", yamlEnv, MainComponentId)
 	assert.Nil(t, e)
@@ -89,7 +89,7 @@ func TestOverwrittenProviderProxy(t *testing.T) {
 func TestOverwrittenOrchestratorParam(t *testing.T) {
 	yamlEnv, e := ParseYamlDescriptor(buildURL(t, "./testdata/yaml/overwritten/ekara.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
-	p, e := CreatePlatform(yamlEnv.Ekara)
+	p, e := createPlatform(yamlEnv.Ekara)
 	assert.Nil(t, e)
 	env, e := CreateEnvironment("", yamlEnv, MainComponentId)
 	assert.Nil(t, e)
@@ -116,7 +116,7 @@ func TestOverwrittenOrchestratorParam(t *testing.T) {
 func TestOverwrittenOrchestratorEnv(t *testing.T) {
 	yamlEnv, e := ParseYamlDescriptor(buildURL(t, "./testdata/yaml/overwritten/ekara.yaml"), &TemplateContext{})
 	assert.Nil(t, e)
-	p, e := CreatePlatform(yamlEnv.Ekara)
+	p, e := createPlatform(yamlEnv.Ekara)
 	assert.Nil(t, e)
 	env, e := CreateEnvironment("", yamlEnv, MainComponentId)
 	assert.Nil(t, e)

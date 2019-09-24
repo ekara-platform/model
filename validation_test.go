@@ -33,7 +33,7 @@ func testEmptyContent(t *testing.T, name string, onlyWarning bool) (ValidationEr
 	file := fmt.Sprintf("./testdata/yaml/grammar/no_%s.yaml", name)
 	yamlEnv, e := ParseYamlDescriptor(buildURL(t, file), &TemplateContext{})
 	assert.Nil(t, e)
-	p, e := CreatePlatform(yamlEnv.Ekara)
+	p, e := createPlatform(yamlEnv.Ekara)
 	assert.Nil(t, e)
 	env, e := CreateEnvironment("", yamlEnv, MainComponentId)
 	assert.Nil(t, e)

@@ -11,7 +11,7 @@ type Platform struct {
 	Components map[string]Component
 }
 
-func CreatePlatform(yamlEkara yamlEkara) (Platform, error) {
+func createPlatform(yamlEkara yamlEkara) (Platform, error) {
 	p := Platform{}
 	// Compute the component base for the environment
 	base, e := CreateComponentBase(yamlEkara)
