@@ -40,7 +40,6 @@ func (r Copies) inherit(parent Copies) Copies {
 }
 
 func createCopies(env *Environment, location DescriptorLocation, copies []yamlCopy) Copies {
-	//TODO do somthing with the location if one day we decide to validate the copies content
 	res := Copies{}
 	res.Content = make(map[string]Copy)
 	for _, yCop := range copies {
