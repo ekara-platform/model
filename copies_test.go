@@ -8,7 +8,7 @@ import (
 
 func TestCreateCopies(t *testing.T) {
 	copies := []yamlCopy{
-		yamlCopy{
+		{
 			Target: yamlTarget{
 				yamlLabel: yamlLabel{map[string]string{
 					"key1": "path1_lab1",
@@ -18,7 +18,7 @@ func TestCreateCopies(t *testing.T) {
 			},
 			Patterns: []string{"path1_pattern1", "path1_pattern2"},
 		},
-		yamlCopy{
+		{
 			Target: yamlTarget{
 				yamlLabel: yamlLabel{map[string]string{
 					"key1": "path2_lab1",
