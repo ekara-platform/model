@@ -1,7 +1,7 @@
 package model
 
 type (
-	// Copies represents a list of content  to be copied
+	// Copies represents a list of content to be copied
 	// The key of the map is the path where the content should be copied
 	// The map content is an array of path patterns to locate the content to be copied
 	Copies struct {
@@ -9,8 +9,9 @@ type (
 		Content map[string]Copy
 	}
 
+	// Copy represents a content to be copied
 	Copy struct {
-		// Labels identifies the node sets where to copy
+		// Labels identifies the nodesets where to copy
 		Labels Labels
 		//Sources identifies the content to copy
 		Sources Patterns

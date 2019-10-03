@@ -49,6 +49,7 @@ type (
 	}
 )
 
+//MarshalYAML serialize the url content into YAML
 func (fu FileURL) MarshalYAML() (interface{}, error) {
 	res, err := yaml.Marshal(&struct {
 		URL *url.URL
@@ -58,6 +59,7 @@ func (fu FileURL) MarshalYAML() (interface{}, error) {
 	return string(res), err
 }
 
+//MarshalYAML serialize the url content into YAML
 func (ru RemoteURL) MarshalYAML() (interface{}, error) {
 	res, err := yaml.Marshal(&struct {
 		URL *url.URL
@@ -195,8 +197,8 @@ func CreateUrl(path string) (EkURL, error) {
 }
 
 //ReadUrl reads the content referenced by the url
-func (ru FileURL) ReadUrl() ([]byte, error) {
-	location := ru.filePath
+func (fu FileURL) ReadUrl() ([]byte, error) {
+	location := fu.filePath
 
 	file, err := os.Open(location)
 	if err != nil {
@@ -211,8 +213,8 @@ func (ru FileURL) ReadUrl() ([]byte, error) {
 }
 
 //AsFilePath return path corresponding to the file url
-func (ru FileURL) AsFilePath() string {
-	return ru.filePath
+func (fu FileURL) AsFilePath() string {
+	return fu.filePath
 }
 
 //ReadUrl reads the content referenced by the url

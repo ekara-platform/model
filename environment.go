@@ -43,6 +43,9 @@ type (
 	}
 )
 
+//CreateEnvironment creates a new environment based on the provided yaml
+//The older passed as parameter y the name of the component holding the ekara.yaml on which
+// the environment has been built
 func CreateEnvironment(location string, yamlEnv yamlEnvironment, holder string) (*Environment, error) {
 	env := &Environment{}
 	var err error
