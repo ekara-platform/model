@@ -8,6 +8,7 @@ import (
 type Platform struct {
 	Base       Base
 	Parent     Parent
+	HasParent  bool
 	Components map[string]Component
 }
 
@@ -21,10 +22,11 @@ func createPlatform(yamlEkara yamlEkara) (Platform, error) {
 	p.Base = base
 
 	// Create the parent component
-	parent, e := CreateParent(base, yamlEkara)
+	parent, hasParent, e := CreateParent(base, yamlEkara)
 	if e != nil {
 		return p, errors.New("Error creating the parent : " + e.Error())
 	}
+	p.HasParent = hasParent
 	p.Parent = parent
 
 	// Create other components of the environment

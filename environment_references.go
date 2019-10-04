@@ -99,12 +99,12 @@ func (er EnvironmentReferences) References(owner string) (*ReferencedComponents,
 }
 
 // Parent returns the parent of the component
-func (er EnvironmentReferences) Parent() (parent Parent, err error) {
+func (er EnvironmentReferences) Parent() (Parent, bool, error) {
 	var parentBase Base
-	parentBase, err = CreateBase(er.Ekara.Base)
+	parentBase, err := CreateBase(er.Ekara.Base)
 	if err != nil {
-		return
+		return Parent{}, false, err
 	}
-	parent, err = CreateParent(parentBase, er.Ekara)
-	return
+	parent, b, err := CreateParent(parentBase, er.Ekara)
+	return parent, b, err
 }

@@ -4,34 +4,23 @@ import (
 	"errors"
 )
 
-const (
-	//EkaraParent The default repository for the ekara parent
-	ekaraParent = "ekara-platform/distribution"
-)
-
 //Parent Represents the parent used to run Ekara
 type Parent Component
 
 //CreateParent creates the parent
-func CreateParent(base Base, yamlEkara yamlEkara) (Parent, error) {
-	defaulted := false
+func CreateParent(base Base, yamlEkara yamlEkara) (Parent, bool, error) {
 	repo := yamlEkara.Parent.Repository
 	if repo == "" {
-		//If the parent is not specified we must look for the default Ekara one
-		// even if the project has defined its own base.
-		base, _ = CreateBase("")
-		repo = ekaraParent
-		defaulted = true
+		//If the parent is not specified we return an nil parent
+		return Parent{}, false, nil
 	}
 	repoParent, e := CreateRepository(base, repo, yamlEkara.Parent.Ref, "")
 	if e != nil {
-		return Parent{}, errors.New("invalid parent repository: " + e.Error())
+		return Parent{}, false, errors.New("invalid parent repository: " + e.Error())
 	}
-	if !defaulted {
-		repoParent.setAuthentication(yamlEkara.Parent)
-	}
+	repoParent.setAuthentication(yamlEkara.Parent)
 	c := CreateComponent(EkaraComponentId, repoParent)
-	return Parent(c), nil
+	return Parent(c), true, nil
 }
 
 //Component returns the referenced component
