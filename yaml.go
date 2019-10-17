@@ -17,6 +17,8 @@ type (
 
 	yamlTarget struct {
 		yamlLabel `yaml:",inline"`
+		//Once indicates if the copy should be done only on one node matching the targeted labels
+		Once bool
 		// The volume path where to copy the content
 		Path string
 	}

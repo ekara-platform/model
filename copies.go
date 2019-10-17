@@ -11,6 +11,8 @@ type (
 
 	// Copy represents a content to be copied
 	Copy struct {
+		//Once indicates if the copy should be done only on one node matching the targeted labels
+		Once bool
 		// Labels identifies the nodesets where to copy
 		Labels Labels
 		//Sources identifies the content to copy
@@ -44,7 +46,9 @@ func createCopies(env *Environment, location DescriptorLocation, copies []yamlCo
 	res := Copies{}
 	res.Content = make(map[string]Copy)
 	for _, yCop := range copies {
-		copy := Copy{}
+		copy := Copy{
+			Once:  yCop.Target.Once,
+		}
 		copy.Labels = yCop.Target.Labels
 		patterns := Patterns{}
 		for _, vPattern := range yCop.Patterns {
