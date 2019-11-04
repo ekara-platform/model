@@ -12,12 +12,26 @@ import (
 type Parameters map[string]interface{}
 
 // CreateParameters builds Parameters from the specified map
-func CreateParameters(src map[string]interface{}) (Parameters, error) {
+func CreateParameters(src map[string]interface{}) Parameters {
 	dst := make(map[string]interface{})
 	for k, v := range src {
 		dst[k] = v
 	}
-	return src, nil
+	return src
+}
+
+// CloneParameters deep-copy the entire parameters
+func CloneParameters(other Parameters) Parameters {
+	cp := make(map[string]interface{})
+	for k, v := range other {
+		vm, ok := v.(map[string]interface{})
+		if ok {
+			cp[k] = CloneParameters(vm)
+		} else {
+			cp[k] = v
+		}
+	}
+	return cp
 }
 
 // ParseParameters parses a yaml file into a Parameters
@@ -36,7 +50,7 @@ func ParseParameters(path string) (Parameters, error) {
 }
 
 // TODO: terrible! change this
-func (r Parameters) inherit(parent Parameters) (Parameters, error) {
+func (r Parameters) inherit(parent Parameters) Parameters {
 	parentG := make(map[interface{}]interface{})
 	for k, v := range parent {
 		parentG[k] = v
@@ -52,7 +66,7 @@ func (r Parameters) inherit(parent Parameters) (Parameters, error) {
 	for k, v := range dst {
 		ret[fmt.Sprintf("%v", k)] = v
 	}
-	return ret, nil
+	return ret
 }
 
 func merge(dst map[interface{}]interface{}, src map[interface{}]interface{}) {

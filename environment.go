@@ -55,12 +55,7 @@ func CreateEnvironment(location string, yamlEnv yamlEnvironment, holder string) 
 	env.Qualifier = yamlEnv.Qualifier
 	env.Description = yamlEnv.Description
 	env.Templates = createPatterns(env, env.location.appendPath("templates_patterns"), yamlEnv.Templates)
-
-	vars, err := CreateParameters(yamlEnv.yamlVars.Vars)
-	if err != nil {
-		return env, err
-	}
-	env.Vars = vars
+	env.Vars = CreateParameters(yamlEnv.yamlVars.Vars)
 
 	env.Tasks, err = createTasks(env, env.location.appendPath("tasks"), &yamlEnv)
 	if err != nil {
@@ -102,7 +97,6 @@ func CreateEnvironment(location string, yamlEnv yamlEnvironment, holder string) 
 //
 // Note: basic informations (name, qualifier, description) are only accepted once if the are not already defined
 func (r *Environment) Customize(with *Environment) error {
-
 	// basic informations (name, qualifier, description) are only accepted once if the are not already defined
 	if r.Name == "" {
 		r.Name = with.Name
@@ -144,11 +138,7 @@ func (r *Environment) Customize(with *Environment) error {
 	}
 	r.Tasks = tas
 
-	vars, err := r.Vars.inherit(with.Vars)
-	if err != nil {
-		return err
-	}
-	r.Vars = vars
+	r.Vars = r.Vars.inherit(with.Vars)
 
 	return r.Hooks.customize(with.Hooks)
 }

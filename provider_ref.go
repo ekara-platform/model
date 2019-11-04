@@ -15,46 +15,24 @@ type (
 
 // createProviderRef creates a reference to the provider declared into the yaml reference
 func createProviderRef(env *Environment, location DescriptorLocation, yamlRef yamlProviderRef) (ProviderRef, error) {
-	params, err := CreateParameters(yamlRef.Params)
-	if err != nil {
-		return ProviderRef{}, err
-	}
-	envVars, err := createEnvVars(yamlRef.Env)
-	if err != nil {
-		return ProviderRef{}, err
-	}
-	proxy, err := createProxy(yamlRef.Proxy)
-	if err != nil {
-		return ProviderRef{}, err
-	}
 	return ProviderRef{
 		env:        env,
 		ref:        yamlRef.Name,
-		parameters: params,
-		proxy:      proxy,
-		envVars:    envVars,
+		parameters: CreateParameters(yamlRef.Params),
+		proxy:      createProxy(yamlRef.Proxy),
+		envVars:    createEnvVars(yamlRef.Env),
 		location:   location,
 		mandatory:  true,
 	}, nil
 }
 
 func (r *ProviderRef) customize(with ProviderRef) error {
-	var err error
 	if r.ref == "" {
 		r.ref = with.ref
 	}
-	r.parameters, err = with.parameters.inherit(r.parameters)
-	if err != nil {
-		return err
-	}
-	r.envVars, err = with.envVars.inherit(r.envVars)
-	if err != nil {
-		return err
-	}
-	r.proxy, err = r.proxy.inherit(with.proxy)
-	if err != nil {
-		return err
-	}
+	r.parameters = with.parameters.inherit(r.parameters)
+	r.envVars = with.envVars.inherit(r.envVars)
+	r.proxy = r.proxy.inherit(with.proxy)
 	r.mandatory = with.mandatory
 	return nil
 }
@@ -67,25 +45,12 @@ func (r ProviderRef) Resolve() (Provider, error) {
 		return Provider{}, err
 	}
 	provider := r.env.Providers[r.ref]
-	params, err := r.parameters.inherit(provider.Parameters)
-	if err != nil {
-		return Provider{}, err
-	}
-	envVars, err := r.envVars.inherit(provider.EnvVars)
-	if err != nil {
-		return Provider{}, err
-	}
-	proxy, err := r.proxy.inherit(provider.Proxy)
-	if err != nil {
-		return Provider{}, err
-	}
-
 	return Provider{
 		Name:       provider.Name,
 		cRef:       provider.cRef,
-		Parameters: params,
-		EnvVars:    envVars,
-		Proxy:      proxy,
+		Parameters: r.parameters.inherit(provider.Parameters),
+		EnvVars:    r.envVars.inherit(provider.EnvVars),
+		Proxy:      r.proxy.inherit(provider.Proxy),
 	}, nil
 }
 

@@ -7,15 +7,15 @@ type Proxy struct {
 	NoProxy string `yaml:"no_proxy" json:",omitempty"`
 }
 
-func createProxy(yamlRef yamlProxy) (Proxy, error) {
+func createProxy(yamlRef yamlProxy) Proxy {
 	return Proxy{
 		Http:    yamlRef.Http,
 		Https:   yamlRef.Https,
 		NoProxy: yamlRef.NoProxy,
-	}, nil
+	}
 }
 
-func (r Proxy) inherit(parent Proxy) (Proxy, error) {
+func (r Proxy) inherit(parent Proxy) Proxy {
 	if r.Http == "" {
 		r.Http = parent.Http
 	}
@@ -25,5 +25,5 @@ func (r Proxy) inherit(parent Proxy) (Proxy, error) {
 	if r.NoProxy == "" {
 		r.NoProxy = parent.NoProxy
 	}
-	return r, nil
+	return r
 }

@@ -7,7 +7,6 @@ import (
 )
 
 const (
-
 	//DefaultDescriptorName specifies the default name of the environment descriptor
 	//
 	//When the environment descriptor is not specified, for example into a use
@@ -18,7 +17,6 @@ const (
 )
 
 type (
-
 	//Repository represents a descriptor or component location
 	Repository struct {
 		// Scm specifies type of source sontrol management system holding the
@@ -105,13 +103,8 @@ func resolveRepositoryInfo(base Base, repo string) (cUrl EkURL, e error) {
 	return
 }
 
-func (r *Repository) setAuthentication(yamlComponent yamlComponent) error {
-	params, err := CreateParameters(yamlComponent.Auth)
-	if err != nil {
-		return err
-	}
+func (r *Repository) setAuthentication(yamlComponent yamlComponent) {
 	if len(yamlComponent.Auth) > 0 {
-		r.Authentication = params
+		r.Authentication = CreateParameters(yamlComponent.Auth)
 	}
-	return nil
 }

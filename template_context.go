@@ -23,13 +23,17 @@ func CreateTemplateContext(params Parameters) *TemplateContext {
 	}
 }
 
-// MergeVars merges others parameters into the template context
-func (cc *TemplateContext) MergeVars(others Parameters) error {
-	var err error
-	cc.Vars, err = others.inherit(cc.Vars)
-	if err != nil {
-		return err
+// CloneTemplateContext deeply clone the given template context
+func CloneTemplateContext(other *TemplateContext, env *Environment) *TemplateContext {
+	tplC := TemplateContext{
+		Vars:        CloneParameters(other.Vars),
+		Model:       CreateTEnvironmentForEnvironment(*env),
+		RunTimeInfo: createRunTimeInfo(),
 	}
+	return &tplC
+}
 
-	return nil
+// MergeVars merges others parameters into the template context
+func (cc *TemplateContext) MergeVars(others Parameters) {
+	cc.Vars = others.inherit(cc.Vars)
 }
