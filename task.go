@@ -77,14 +77,8 @@ func (r *Task) customize(with Task) error {
 		r.Playbook = with.Playbook
 		r.Cron = with.Cron
 
-		r.Parameters, err = with.Parameters.inherit(r.Parameters)
-		if err != nil {
-			return err
-		}
-		r.EnvVars, err = with.EnvVars.inherit(r.EnvVars)
-		if err != nil {
-			return err
-		}
+		r.Parameters = with.Parameters.inherit(r.Parameters)
+		r.EnvVars = with.EnvVars.inherit(r.EnvVars)
 	}
 	return nil
 }
@@ -93,14 +87,6 @@ func createTasks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnv
 	res := Tasks{}
 	for name, yamlTask := range yamlEnv.Tasks {
 		taskLocation := location.appendPath(name)
-		params, err := CreateParameters(yamlTask.Params)
-		if err != nil {
-			return res, err
-		}
-		envVars, err := createEnvVars(yamlTask.Env)
-		if err != nil {
-			return res, err
-		}
 		eHook, err := createHook(env, taskLocation.appendPath("hooks.execute"), yamlTask.Hooks.Execute)
 		if err != nil {
 			return res, err
@@ -111,8 +97,8 @@ func createTasks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnv
 			Playbook:   yamlTask.Playbook,
 			cRef:       createComponentRef(env, taskLocation.appendPath("component"), yamlTask.Component, false),
 			Cron:       yamlTask.Cron,
-			Parameters: params,
-			EnvVars:    envVars,
+			Parameters: CreateParameters(yamlTask.Params),
+			EnvVars:    createEnvVars(yamlTask.Env),
 			Hooks: TaskHook{
 				Execute: eHook,
 			},

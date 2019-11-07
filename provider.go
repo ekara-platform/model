@@ -52,19 +52,9 @@ func (r *Provider) customize(with Provider) error {
 	if err = r.cRef.customize(with.cRef); err != nil {
 		return err
 	}
-	r.Parameters, err = with.Parameters.inherit(r.Parameters)
-	if err != nil {
-		return err
-	}
-	r.EnvVars, err = with.EnvVars.inherit(r.EnvVars)
-	if err != nil {
-		return err
-	}
-
-	r.Proxy, err = r.Proxy.inherit(with.Proxy)
-	if err != nil {
-		return err
-	}
+	r.Parameters = with.Parameters.inherit(r.Parameters)
+	r.EnvVars = with.EnvVars.inherit(r.EnvVars)
+	r.Proxy = r.Proxy.inherit(with.Proxy)
 	return nil
 }
 
@@ -83,18 +73,9 @@ func createProviders(env *Environment, location DescriptorLocation, yamlEnv *yam
 	res := Providers{}
 	for name, yamlProvider := range yamlEnv.Providers {
 		providerLocation := location.appendPath(name)
-		params, err := CreateParameters(yamlProvider.Params)
-		if err != nil {
-			return res, err
-		}
-		envVars, err := createEnvVars(yamlProvider.Env)
-		if err != nil {
-			return res, err
-		}
-		proxy, err := createProxy(yamlProvider.Proxy)
-		if err != nil {
-			return res, err
-		}
+		params := CreateParameters(yamlProvider.Params)
+		envVars := createEnvVars(yamlProvider.Env)
+		proxy := createProxy(yamlProvider.Proxy)
 		res[name] = Provider{
 			Name:       name,
 			cRef:       createComponentRef(env, providerLocation.appendPath("component"), yamlProvider.Component, true),

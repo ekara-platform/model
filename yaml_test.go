@@ -29,8 +29,7 @@ func TestCreateEngineFromLocalComplexParams(t *testing.T) {
 }
 
 func TestCreateEngineFromLocalWithData(t *testing.T) {
-
-	vars, _ := CreateParameters(map[string]interface{}{
+	vars := CreateParameters(map[string]interface{}{
 		"info": map[string]string{
 			"name": "Name from data",
 			"desc": "Description from data",

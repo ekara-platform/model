@@ -13,8 +13,7 @@ func TestCreateProxy(t *testing.T) {
 		NoProxy: "no_proxy_value",
 	}
 
-	p, err := createProxy(yaml)
-	assert.Nil(t, err)
+	p := createProxy(yaml)
 	assert.NotNil(t, p)
 
 	assert.Equal(t, "http_value", p.Http)
@@ -35,8 +34,7 @@ func TestInheritNoEffect(t *testing.T) {
 		NoProxy: "no_proxy_other_value",
 	}
 
-	p, err := p.inherit(other)
-	assert.Nil(t, err)
+	p = p.inherit(other)
 	assert.NotNil(t, p)
 	// Everything was defined in the proxy then inherit has no effect
 	assert.Equal(t, "http_value", p.Http)
@@ -57,8 +55,7 @@ func TestInherit(t *testing.T) {
 		NoProxy: "no_proxy_other_value",
 	}
 
-	p, err := p.inherit(other)
-	assert.Nil(t, err)
+	p = p.inherit(other)
 	assert.NotNil(t, p)
 	// Nothing was defined in the proxy then inherit has an effect
 	assert.Equal(t, "http_other_value", p.Http)

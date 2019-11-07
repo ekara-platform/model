@@ -64,14 +64,8 @@ func (s *Stack) customize(with Stack) error {
 	if err = s.cRef.customize(with.cRef); err != nil {
 		return err
 	}
-	s.Parameters, err = with.Parameters.inherit(s.Parameters)
-	if err != nil {
-		return err
-	}
-	s.EnvVars, err = with.EnvVars.inherit(s.EnvVars)
-	if err != nil {
-		return err
-	}
+	s.Parameters = with.Parameters.inherit(s.Parameters)
+	s.EnvVars = with.EnvVars.inherit(s.EnvVars)
 	s.DependsOn = s.DependsOn.inherit(with.DependsOn)
 	s.Copies = s.Copies.inherit(with.Copies)
 	return s.Hooks.customize(with.Hooks)
@@ -103,14 +97,8 @@ func createStacks(env *Environment, holder string, location DescriptorLocation, 
 	for name, yamlStack := range yamlEnv.Stacks {
 		// Root stack
 		stackLocation := location.appendPath(name)
-		params, err := CreateParameters(yamlStack.Params)
-		if err != nil {
-			return res, err
-		}
-		envVars, err := createEnvVars(yamlStack.Env)
-		if err != nil {
-			return res, err
-		}
+		params := CreateParameters(yamlStack.Params)
+		envVars := createEnvVars(yamlStack.Env)
 		dHook, err := createHook(env, stackLocation.appendPath("hooks.deploy"), yamlStack.Hooks.Deploy)
 		if err != nil {
 			return res, err

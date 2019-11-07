@@ -14,22 +14,11 @@ type (
 
 func createOrchestrator(env *Environment, location DescriptorLocation, yamlEnv *yamlEnvironment) (Orchestrator, error) {
 	yamlO := yamlEnv.Orchestrator
-	params, err := CreateParameters(yamlO.Params)
-	if err != nil {
-		return Orchestrator{}, err
-	}
-	envVars, err := createEnvVars(yamlO.Env)
-	if err != nil {
-		return Orchestrator{}, err
-	}
-
 	o := Orchestrator{
 		cRef:       createComponentRef(env, location.appendPath("component"), yamlO.Component, true),
-		Parameters: params,
-		EnvVars:    envVars,
+		Parameters: CreateParameters(yamlO.Params),
+		EnvVars:    createEnvVars(yamlO.Env),
 	}
-
-	//env.Ekara.tagUsedComponent(o)
 	return o, nil
 }
 
@@ -43,14 +32,8 @@ func (r *Orchestrator) customize(with Orchestrator) error {
 	if err != nil {
 		return err
 	}
-	r.Parameters, err = with.Parameters.inherit(r.Parameters)
-	if err != nil {
-		return err
-	}
-	r.EnvVars, err = with.EnvVars.inherit(r.EnvVars)
-	if err != nil {
-		return err
-	}
+	r.Parameters = with.Parameters.inherit(r.Parameters)
+	r.EnvVars = with.EnvVars.inherit(r.EnvVars)
 	return nil
 }
 

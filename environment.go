@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"strings"
+
 	"gopkg.in/yaml.v2"
 )
 
@@ -46,8 +47,8 @@ type (
 		parcels []Parcel
 	}
 
-	Parcel struct{
-		ID string
+	Parcel struct {
+		ID    string
 		Lines []string
 	}
 )
@@ -64,12 +65,7 @@ func CreateEnvironment(location string, yamlEnv yamlEnvironment, holder string) 
 	env.Qualifier = yamlEnv.Qualifier
 	env.Description = yamlEnv.Description
 	env.Templates = createPatterns(env, env.location.appendPath("templates_patterns"), yamlEnv.Templates)
-
-	vars, err := CreateParameters(yamlEnv.yamlVars.Vars)
-	if err != nil {
-		return env, err
-	}
-	env.Vars = vars
+	env.Vars = CreateParameters(yamlEnv.yamlVars.Vars)
 
 	env.Tasks, err = createTasks(env, env.location.appendPath("tasks"), &yamlEnv)
 	if err != nil {
@@ -158,28 +154,24 @@ func (r *Environment) Customize(from Component, with *Environment) error {
 	}
 	r.Tasks = tas
 
-	vars, err := r.Vars.inherit(with.Vars)
-	if err != nil {
-		return err
-	}
-	r.Vars = vars
+	r.Vars = r.Vars.inherit(with.Vars)
 
-	err =  r.Hooks.customize(with.Hooks)
-	
+	err = r.Hooks.customize(with.Hooks)
+
 	l, err := lines(*r)
 	if err != nil {
 		return err
 	}
 	r.parcels = append(r.parcels, Parcel{ID: from.Id, Lines: l})
-	
+
 	return err
 }
 
-func lines(e Environment) ([]string , error){
+func lines(e Environment) ([]string, error) {
 	fmt.Println("----> Before getting lines")
 	yamlT, err := yaml.Marshal(e)
 	if err != nil {
-			return []string{}, err
+		return []string{}, err
 	}
 	ls := strings.Split(string(yamlT), "\n")
 	return ls, nil
@@ -228,6 +220,6 @@ func (r *Environment) Platform() *Platform {
 	return r.ekara
 }
 
-func (r *Environment) GetParcels()   []Parcel{
+func (r *Environment) GetParcels() []Parcel {
 	return r.parcels
 }

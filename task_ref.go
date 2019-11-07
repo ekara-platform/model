@@ -33,18 +33,11 @@ func (r TaskRef) validationDetails() refValidationDetails {
 }
 
 func (r *TaskRef) customize(with TaskRef) error {
-	var err error
 	if r.ref == "" {
 		r.ref = with.ref
 	}
-	r.parameters, err = with.parameters.inherit(r.parameters)
-	if err != nil {
-		return err
-	}
-	r.envVars, err = with.envVars.inherit(r.envVars)
-	if err != nil {
-		return err
-	}
+	r.parameters = with.parameters.inherit(r.parameters)
+	r.envVars = with.envVars.inherit(r.envVars)
 	r.mandatory = with.mandatory
 	r.HookLocation = with.HookLocation
 	return nil
@@ -58,14 +51,6 @@ func (r TaskRef) Resolve() (Task, error) {
 		return Task{}, err
 	}
 	task := r.env.Tasks[r.ref]
-	params, err := r.parameters.inherit(task.Parameters)
-	if err != nil {
-		return Task{}, err
-	}
-	envVars, err := r.envVars.inherit(task.EnvVars)
-	if err != nil {
-		return Task{}, err
-	}
 	return Task{
 		Name:       task.Name,
 		location:   task.location,
@@ -73,25 +58,17 @@ func (r TaskRef) Resolve() (Task, error) {
 		Playbook:   task.Playbook,
 		Cron:       task.Cron,
 		Hooks:      task.Hooks,
-		Parameters: params,
-		EnvVars:    envVars}, nil
+		Parameters: r.parameters.inherit(task.Parameters),
+		EnvVars:    r.envVars.inherit(task.EnvVars)}, nil
 }
 
 func createTaskRef(env *Environment, location DescriptorLocation, tRef yamlTaskRef, hl hookLocation) (TaskRef, error) {
-	params, err := CreateParameters(tRef.Params)
-	if err != nil {
-		return TaskRef{}, err
-	}
-	envVars, err := createEnvVars(tRef.Env)
-	if err != nil {
-		return TaskRef{}, err
-	}
 	return TaskRef{
 		env:          env,
 		HookLocation: hl,
 		ref:          tRef.Task,
-		parameters:   params,
-		envVars:      envVars,
+		parameters:   CreateParameters(tRef.Params),
+		envVars:      createEnvVars(tRef.Env),
 		location:     location,
 		mandatory:    true,
 	}, nil

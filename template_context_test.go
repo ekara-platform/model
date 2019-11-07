@@ -7,11 +7,10 @@ import (
 )
 
 func TestCreateTemplateContext(t *testing.T) {
-	p, err := CreateParameters(map[string]interface{}{
+	p := CreateParameters(map[string]interface{}{
 		"key1": "value1",
 		"key2": "value2",
 	})
-	assert.Nil(t, err)
 	assert.Equal(t, 2, len(p))
 
 	pc := CreateTemplateContext(p)
@@ -28,19 +27,18 @@ func TestCreateTemplateContext(t *testing.T) {
 }
 
 func TestMergeTemplateContext(t *testing.T) {
-	p, _ := CreateParameters(map[string]interface{}{
+	p := CreateParameters(map[string]interface{}{
 		"key1": "value1",
 		"key2": "value2",
 	})
 
-	others, _ := CreateParameters(map[string]interface{}{
+	others := CreateParameters(map[string]interface{}{
 		"key2": "value2_owverwritten",
 		"key3": "value3",
 	})
 
 	pc := CreateTemplateContext(p)
-	err := pc.MergeVars(others)
-	assert.Nil(t, err)
+	pc.MergeVars(others)
 	assert.NotNil(t, pc)
 	assert.Equal(t, 3, len(pc.Vars))
 	va, ok := pc.Vars["key1"]

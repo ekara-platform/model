@@ -7,11 +7,10 @@ import (
 )
 
 func TestCreateEnvVars(t *testing.T) {
-	e, err := createEnvVars(map[string]string{
+	e := createEnvVars(map[string]string{
 		"key1": "val1",
 		"key2": "val2",
 	})
-	assert.Nil(t, err)
 	if assert.Len(t, e, 2) {
 		val, ok := e["key1"]
 		assert.True(t, ok)
@@ -34,8 +33,7 @@ func TestEnvVarsInherits(t *testing.T) {
 	os["key3"] = "val3"
 	os["key4"] = "val4"
 
-	ins, err := os.inherit(ls)
-	assert.Nil(t, err)
+	ins := os.inherit(ls)
 	assert.NotNil(t, ins)
 	assert.Len(t, ins, 4)
 

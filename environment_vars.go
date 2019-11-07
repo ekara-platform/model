@@ -42,10 +42,7 @@ func (v yamlEnvironmentVars) fillContext(u EkURL, context *TemplateContext) erro
 	}
 
 	if len(templated.Vars) > 0 {
-		err = context.MergeVars(templated.Vars)
-		if err != nil {
-			return err
-		}
+		context.MergeVars(templated.Vars)
 	}
 	return nil
 }
