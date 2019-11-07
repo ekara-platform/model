@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
@@ -527,23 +526,15 @@ func TestEnvironmentNameQualifierCustomization(t *testing.T) {
 	initial := Environment{Name: "", Qualifier: "", ekara: &Platform{}}
 	first := Environment{Name: "FirstName", Qualifier: "FirstQualifier", ekara: &Platform{}}
 	second := Environment{Name: "SecondName", Qualifier: "secondQualifier", ekara: &Platform{}}
-	initial.Customize(&first)
+	initial.Customize(Component{Id: "first"}, &first)
 	// The first environment should merge its name and qualifier because those
 	// into the initial one are empty.
 	assert.Equal(t, "FirstName", initial.Name)
 	assert.Equal(t, "FirstQualifier", initial.Qualifier)
-	initial.Customize(&second)
+	initial.Customize(Component{Id: "second"}, &second)
 	// The second environment should NOT merge its name and qualifier because those
 	// into the initial one are not empty anymore.
 	assert.Equal(t, "FirstName", initial.Name)
 	assert.Equal(t, "FirstQualifier", initial.Qualifier)
 
-}
-
-func ExampleEnvironment_Customize() {
-	root := Environment{Name: "RootName", Qualifier: "RootQualifier"}
-	other := Environment{Name: "OtherName", Qualifier: "OtherQualifier"}
-	root.Customize(&other)
-	fmt.Println(root.QualifiedName())
-	// Output: RootName_RootQualifier
 }

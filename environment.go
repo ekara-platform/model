@@ -1,7 +1,9 @@
 package model
 
 import (
+	"fmt"
 	"strings"
+	"gopkg.in/yaml.v2"
 )
 
 //go:generate go run ./generate/generate.go
@@ -12,34 +14,41 @@ type (
 		// The location of the environment root
 		location DescriptorLocation `yaml:",omitempty"`
 		// The environment name
-		Name string
+		Name string `yaml:",omitempty"`
 		// The environment qualifier
-		Qualifier string
+		Qualifier string `yaml:",omitempty"`
 		// The environment description
-		Description string
+		Description string `yaml:",omitempty"`
 		// Ekara platform settings
 		// The platform is "private" in order to be ignored
 		// by the yaml unmarshalling process because an envirronment
 		// cannot define component
 		ekara *Platform
 		// The descriptor variables
-		Vars Parameters
+		Vars Parameters `yaml:",omitempty"`
 		// The orchestrator used to manage the environment
-		Orchestrator Orchestrator
+		Orchestrator Orchestrator `yaml:",omitempty"`
 		// The providers where to create the environment node sets
-		Providers Providers
+		Providers Providers `yaml:",omitempty"`
 		// The node sets to create
-		NodeSets NodeSets
+		NodeSets NodeSets `yaml:",omitempty"`
 		// The software stacks to install on the created node sets
-		Stacks Stacks
+		Stacks Stacks `yaml:",omitempty"`
 		// The tasks which can be ran against the environment
-		Tasks Tasks
+		Tasks Tasks `yaml:",omitempty"`
 		// The hooks linked to the environment lifecycle events
-		Hooks EnvironmentHooks
+		Hooks EnvironmentHooks `yaml:",omitempty"`
 		// The global volumes of the environment
-		Volumes GlobalVolumes
+		Volumes GlobalVolumes `yaml:",omitempty"`
 		// Templates contains the templates defined into a descriptor
-		Templates Patterns
+		Templates Patterns `yaml:",omitempty"`
+
+		parcels []Parcel
+	}
+
+	Parcel struct{
+		ID string
+		Lines []string
 	}
 )
 
@@ -101,7 +110,12 @@ func CreateEnvironment(location string, yamlEnv yamlEnvironment, holder string) 
 //Customize merges the content of the giver environment into the receiver
 //
 // Note: basic informations (name, qualifier, description) are only accepted once if the are not already defined
-func (r *Environment) Customize(with *Environment) error {
+func (r *Environment) Customize(from Component, with *Environment) error {
+
+	// We don't want to customize the templates defined into the environment
+	// But instead we want to keep them into the component
+	r.Platform().KeepTemplates(from, with.Templates)
+	with.Templates = Patterns{}
 
 	// basic informations (name, qualifier, description) are only accepted once if the are not already defined
 	if r.Name == "" {
@@ -150,7 +164,25 @@ func (r *Environment) Customize(with *Environment) error {
 	}
 	r.Vars = vars
 
-	return r.Hooks.customize(with.Hooks)
+	err =  r.Hooks.customize(with.Hooks)
+	
+	l, err := lines(*r)
+	if err != nil {
+		return err
+	}
+	r.parcels = append(r.parcels, Parcel{ID: from.Id, Lines: l})
+	
+	return err
+}
+
+func lines(e Environment) ([]string , error){
+	fmt.Println("----> Before getting lines")
+	yamlT, err := yaml.Marshal(e)
+	if err != nil {
+			return []string{}, err
+	}
+	ls := strings.Split(string(yamlT), "\n")
+	return ls, nil
 }
 
 //Validate validate an environment
@@ -185,6 +217,7 @@ func InitEnvironment() *Environment {
 		ekara: &Platform{
 			Components: make(map[string]Component),
 		},
+		parcels: make([]Parcel, 0, 0),
 	}
 	env.Orchestrator.cRef.env = env
 	return env
@@ -193,4 +226,8 @@ func InitEnvironment() *Environment {
 //Platform Returns the platform on which the environment is built
 func (r *Environment) Platform() *Platform {
 	return r.ekara
+}
+
+func (r *Environment) GetParcels()   []Parcel{
+	return r.parcels
 }

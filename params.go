@@ -9,7 +9,7 @@ import (
 )
 
 // Parameters represents the parameters coming from a descriptor
-type Parameters map[string]interface{}
+type Parameters map[string]interface{} 
 
 // CreateParameters builds Parameters from the specified map
 func CreateParameters(src map[string]interface{}) (Parameters, error) {

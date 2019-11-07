@@ -1,5 +1,9 @@
 package model
 
+import (
+	"gopkg.in/yaml.v2"
+)
+
 type (
 	// ProviderRef represents a reference to a provider
 	ProviderRef struct {
@@ -12,6 +16,21 @@ type (
 		mandatory  bool
 	}
 )
+
+func (r ProviderRef) MarshalYAML() (interface{}, error) {
+	b, e :=  yaml.Marshal(&struct {
+		Ref        string 
+		Parameters Parameters `yaml:",omitempty"`
+		EnvVars    EnvVars `yaml:",omitempty"`
+		Proxy      Proxy `yaml:",omitempty"`
+	}{
+		Ref: r.ref,
+		Parameters: r.parameters, 
+		EnvVars: r.envVars,
+		Proxy: r.proxy,
+	})
+	return string(b), e
+}
 
 // createProviderRef creates a reference to the provider declared into the yaml reference
 func createProviderRef(env *Environment, location DescriptorLocation, yamlRef yamlProviderRef) (ProviderRef, error) {

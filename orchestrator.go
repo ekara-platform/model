@@ -6,9 +6,9 @@ type (
 		// The component containing the orchestrator
 		cRef componentRef
 		// The orchestrator parameters
-		Parameters Parameters
+		Parameters Parameters `yaml:",omitempty"`
 		// The orchestrator environment variables
-		EnvVars EnvVars
+		EnvVars EnvVars  `yaml:",omitempty"`
 	}
 )
 

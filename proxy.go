@@ -2,9 +2,9 @@ package model
 
 //Proxy represents the proxy definition
 type Proxy struct {
-	Http    string `yaml:"http_proxy" json:",omitempty"`
-	Https   string `yaml:"https_proxy" json:",omitempty"`
-	NoProxy string `yaml:"no_proxy" json:",omitempty"`
+	Http    string `yaml:"http_proxy,omitempty" json:",omitempty"`
+	Https   string `yaml:"https_proxy,omitempty" json:",omitempty"`
+	NoProxy string `yaml:"no_proxy,omitempty" json:",omitempty"`
 }
 
 func createProxy(yamlRef yamlProxy) (Proxy, error) {

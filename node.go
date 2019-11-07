@@ -23,13 +23,13 @@ type (
 		// The number of machines to create
 		Instances int
 		// The ref to the provider where to create the machines
-		Provider ProviderRef
+		Provider ProviderRef 
 		// The parameters related to the orchestrator used to manage the machines
-		Orchestrator OrchestratorRef
+		Orchestrator OrchestratorRef 
 		// The hooks linked to the node set lifecycle events
-		Hooks NodeHook
+		Hooks NodeHook `yaml:",omitempty"`
 		// The labels associated with the nodeset
-		Labels Labels
+		Labels Labels `yaml:",omitempty,flow"`
 	}
 
 	//NodeSets represents all the node sets of the environment

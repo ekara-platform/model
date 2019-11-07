@@ -27,11 +27,11 @@ type (
 		// Url specifies the repository Url where to fetch the component
 		Url EkURL
 		// The reference to the branch or tag to fetch. If not specified the default branch will be fetched
-		Ref string
+		Ref string `yaml:",omitempty"`
 		//DescriptorName specifies the name of the descriptor
-		DescriptorName string
+		DescriptorName string `yaml:",omitempty"`
 		// The authentication parameters to use if repository is not publicly accessible
-		Authentication Parameters
+		Authentication Parameters `yaml:",omitempty"`
 	}
 )
 

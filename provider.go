@@ -13,11 +13,11 @@ type (
 		// The Name of the provider
 		Name string
 		// The provider parameters
-		Parameters Parameters
+		Parameters Parameters  `yaml:",omitempty"`
 		// The provider environment variables
-		EnvVars EnvVars
+		EnvVars EnvVars  `yaml:",omitempty"` 
 		// The provider proxy
-		Proxy Proxy
+		Proxy Proxy  `yaml:",omitempty"`
 	}
 
 	//Providers lists all the providers required to build the environemt

@@ -13,15 +13,15 @@ type (
 		// The name of the stack
 		Name string
 		//DependsOn specifies the stack references on which this one depends
-		DependsOn Dependencies
+		DependsOn Dependencies `yaml:",omitempty"`
 		// The hooks linked to the stack lifecycle events
-		Hooks StackHook
+		Hooks StackHook `yaml:",omitempty"`
 		// The stack parameters
-		Parameters Parameters
+		Parameters Parameters `yaml:",omitempty"`
 		// The stack environment variables
-		EnvVars EnvVars
+		EnvVars EnvVars `yaml:",omitempty"`
 		// The stack content to be copied on volumes
-		Copies Copies
+		Copies Copies `yaml:",omitempty"`
 	}
 
 	//StackRef defines a dependency a on stack which must be previously processed

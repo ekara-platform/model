@@ -16,15 +16,15 @@ type (
 		// Name of the task
 		Name string
 		// The playbook to execute
-		Playbook string
+		Playbook string `yaml:",omitempty"`
 		// The cron expression when the task must be scheduled
-		Cron string
+		Cron string `yaml:",omitempty"`
 		// The task parameters
-		Parameters Parameters
+		Parameters Parameters `yaml:",omitempty"`
 		// The task environment variables
-		EnvVars EnvVars
+		EnvVars EnvVars `yaml:",omitempty"`
 		//The hooks linked to the task lifecycle events
-		Hooks TaskHook
+		Hooks TaskHook `yaml:",omitempty"`
 	}
 
 	//Tasks represent all the tasks of an environment
