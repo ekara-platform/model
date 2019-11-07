@@ -47,6 +47,7 @@ type (
 		parcels []Parcel
 	}
 
+	//Parcel represent an environment intermediate version
 	Parcel struct {
 		ID    string
 		Lines []string
@@ -220,6 +221,8 @@ func (r *Environment) Platform() *Platform {
 	return r.ekara
 }
 
+//GetParcels returns environment intermediate versions.
+//The last parcel, in the returned array, will be the final environment version
 func (r *Environment) GetParcels() []Parcel {
 	return r.parcels
 }
