@@ -8,8 +8,12 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type ParametersAware interface {
+	ParamsInfo() Parameters
+}
+
 // Parameters represents the parameters coming from a descriptor
-type Parameters map[string]interface{} 
+type Parameters map[string]interface{}
 
 // CreateParameters builds Parameters from the specified map
 func CreateParameters(src map[string]interface{}) Parameters {

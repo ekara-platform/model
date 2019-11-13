@@ -8,7 +8,7 @@ type (
 		// The orchestrator parameters
 		Parameters Parameters `yaml:",omitempty"`
 		// The orchestrator environment variables
-		EnvVars EnvVars  `yaml:",omitempty"`
+		EnvVars EnvVars `yaml:",omitempty"`
 	}
 )
 
@@ -22,38 +22,46 @@ func createOrchestrator(env *Environment, location DescriptorLocation, yamlEnv *
 	return o, nil
 }
 
-func (r Orchestrator) validate() ValidationErrors {
-	return ErrorOnInvalid(r.cRef)
+func (o Orchestrator) EnvVarsInfo() EnvVars {
+	return o.EnvVars
 }
 
-func (r *Orchestrator) customize(with Orchestrator) error {
+func (o Orchestrator) ParamsInfo() Parameters {
+	return o.Parameters
+}
+
+func (o Orchestrator) validate() ValidationErrors {
+	return ErrorOnInvalid(o.cRef)
+}
+
+func (o *Orchestrator) customize(with Orchestrator) error {
 	var err error
-	err = r.cRef.customize(with.cRef)
+	err = o.cRef.customize(with.cRef)
 	if err != nil {
 		return err
 	}
-	r.Parameters = with.Parameters.inherit(r.Parameters)
-	r.EnvVars = with.EnvVars.inherit(r.EnvVars)
+	o.Parameters = with.Parameters.inherit(o.Parameters)
+	o.EnvVars = with.EnvVars.inherit(o.EnvVars)
 	return nil
 }
 
 //Component returns the referenced component
-func (r Orchestrator) Component() (Component, error) {
-	return r.cRef.resolve()
+func (o Orchestrator) Component() (Component, error) {
+	return o.cRef.resolve()
 }
 
 //ComponentName returns the referenced component name
-func (r Orchestrator) ComponentName() string {
-	return r.cRef.ref
+func (o Orchestrator) ComponentName() string {
+	return o.cRef.ref
 }
 
 //DescType returns the Describable type of the orchestrator
 //  Hardcoded to : "Orchestrator"
-func (r Orchestrator) DescType() string {
+func (o Orchestrator) DescType() string {
 	return "Orchestrator"
 }
 
 //DescName returns the Describable name of the node set
-func (r Orchestrator) DescName() string {
-	return r.ComponentName()
+func (o Orchestrator) DescName() string {
+	return o.ComponentName()
 }

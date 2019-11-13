@@ -59,16 +59,6 @@ nodes:
         env2: "new_env2"
       proxy:
         no_proxy: "overwritten_aws_no_proxy"
-
-
-    orchestrator:
-      params:
-        orchestrator1: "param_overwritten_orchestrator1"
-        orchestrator2: "param_new_orchestrator2"
-      env:
-        orchestrator1: "env_overwritten_orchestrator1"
-        orchestrator2: "env_new_orchestrator2"
-
     instances: 3
 
 stacks:

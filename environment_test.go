@@ -192,42 +192,6 @@ func assertEnv(t *testing.T, env *Environment) {
 	assert.True(t, ok)
 	assert.Equal(t, v, "provider_node1_param_key2_value")
 
-	ns1Orchestrator, e := nodeSets["node1"].Orchestrator.Resolve()
-	assert.Nil(t, e)
-	c = ns1Orchestrator.Parameters
-	v, ok = c["orchestrator_node1_param_key1"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "orchestrator_node1_param_key1_value")
-
-	v, ok = c["orchestrator_node1_param_key2"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "orchestrator_node1_param_key2_value")
-
-	v, ok = c["swarm_param_key1"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "swarm_param_key1_value")
-
-	v, ok = c["swarm_param_key2"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "swarm_param_key2_value")
-
-	en = ns1Orchestrator.EnvVars
-	v, ok = en["orchestrator_node1_env_key1"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "orchestrator_node1_env_key1_value")
-
-	v, ok = en["orchestrator_node1_env_key2"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "orchestrator_node1_env_key2_value")
-
-	v, ok = en["swarm_env_key1"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "swarm_env_key1_value")
-
-	v, ok = en["swarm_env_key2"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "swarm_env_key2_value")
-
 	la := nodeSets["node1"].Labels
 	v, ok = la["node1_label1"]
 	assert.True(t, ok)
@@ -291,26 +255,6 @@ func assertEnv(t *testing.T, env *Environment) {
 	v, ok = c["provider_node2_param_key2"]
 	assert.True(t, ok)
 	assert.Equal(t, v, "provider_node2_param_key2_value")
-
-	ns2Orchestrator, e := nodeSets["node2"].Orchestrator.Resolve()
-	assert.Nil(t, e)
-	c = ns2Orchestrator.Parameters
-	v, ok = c["orchestrator_node2_param_key1"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "orchestrator_node2_param_key1_value")
-
-	v, ok = c["orchestrator_node2_param_key2"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "orchestrator_node2_param_key2_value")
-
-	en = ns2Orchestrator.EnvVars
-	v, ok = en["orchestrator_node2_env_key1"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "orchestrator_node2_env_key1_value")
-
-	v, ok = en["orchestrator_node2_env_key2"]
-	assert.True(t, ok)
-	assert.Equal(t, v, "orchestrator_node2_env_key2_value")
 
 	la = nodeSets["node2"].Labels
 	v, ok = la["node2_label1"]

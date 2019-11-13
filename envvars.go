@@ -1,5 +1,9 @@
 package model
 
+type EnvVarsAware interface {
+	EnvVarsInfo() EnvVars
+}
+
 //EnvVars Represents environment variable
 type EnvVars map[string]string
 

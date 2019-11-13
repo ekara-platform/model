@@ -11,7 +11,7 @@ type (
 	// Hook represents tasks to be executed linked to an ekara life cycle event
 	Hook struct {
 		//Before specifies the tasks to run before the ekara life cycle event occurs
-		Before []TaskRef 
+		Before []TaskRef
 		//After specifies the tasks to run once the ekara life cycle event has occurred
 		After []TaskRef
 	}

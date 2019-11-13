@@ -123,15 +123,6 @@ nodes:
       env:
         provider_node1_env_key1: provider_node1_env_key1_value
         provider_node1_env_key2: provider_node1_env_key2_value
-
-    orchestrator:
-      params:
-        orchestrator_node1_param_key1: orchestrator_node1_param_key1_value
-        orchestrator_node1_param_key2: orchestrator_node1_param_key2_value
-      env:
-        orchestrator_node1_env_key1: orchestrator_node1_env_key1_value
-        orchestrator_node1_env_key2: orchestrator_node1_env_key2_value
-
     labels:
       node1_label1: node1_label1_value
       node1_label2: node1_label2_value
@@ -157,13 +148,6 @@ nodes:
       env:
         provider_node2_env_key1: provider_node2_env_key1_value
         provider_node2_env_key2: provider_node2_env_key2_value
-    orchestrator:
-      params:
-        orchestrator_node2_param_key1: orchestrator_node2_param_key1_value
-        orchestrator_node2_param_key2: orchestrator_node2_param_key2_value
-      env:
-        orchestrator_node2_env_key1: orchestrator_node2_env_key1_value
-        orchestrator_node2_env_key2: orchestrator_node2_env_key2_value
     labels:
       node2_label1: node2_label1_value
       node2_label2: node2_label2_value
@@ -196,7 +180,7 @@ stacks:
       stack2_env_key2: stack2_env_key2_value
      
     copies:  
-    - target: 
+    - target:
         once: true
         labels:
           label1: t1_val1   

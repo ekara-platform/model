@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"strings"
 
 	"gopkg.in/yaml.v2"
@@ -169,7 +168,6 @@ func (r *Environment) Customize(from Component, with *Environment) error {
 }
 
 func lines(e Environment) ([]string, error) {
-	fmt.Println("----> Before getting lines")
 	yamlT, err := yaml.Marshal(e)
 	if err != nil {
 		return []string{}, err

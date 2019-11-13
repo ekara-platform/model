@@ -23,9 +23,7 @@ type (
 		// The number of machines to create
 		Instances int
 		// The ref to the provider where to create the machines
-		Provider ProviderRef 
-		// The parameters related to the orchestrator used to manage the machines
-		Orchestrator OrchestratorRef 
+		Provider ProviderRef
 		// The hooks linked to the node set lifecycle events
 		Hooks NodeHook `yaml:",omitempty"`
 		// The labels associated with the nodeset
@@ -52,7 +50,7 @@ func (r NodeSet) validate() ValidationErrors {
 	if r.Instances <= 0 {
 		vErrs.addError(errors.New("instances must be a positive number"), r.location.appendPath("instances"))
 	}
-	vErrs.merge(ErrorOnInvalid(r.Provider, r.Orchestrator, r.Hooks))
+	vErrs.merge(ErrorOnInvalid(r.Provider, r.Hooks))
 	return vErrs
 }
 
@@ -61,9 +59,6 @@ func (r *NodeSet) customize(with NodeSet) error {
 		return errors.New("cannot customize unrelated node sets (" + r.Name + " != " + with.Name + ")")
 	}
 	if err := r.Provider.customize(with.Provider); err != nil {
-		return err
-	}
-	if err := r.Orchestrator.customize(with.Orchestrator); err != nil {
 		return err
 	}
 	if err := r.Hooks.customize(with.Hooks); err != nil {
@@ -117,20 +112,15 @@ func buildNode(name string, env *Environment, location DescriptorLocation, yN ya
 	if err != nil {
 		return nil, err
 	}
-	oRef, err := createOrchestratorRef(env, location.appendPath("orchestrator"), yN.Orchestrator)
-	if err != nil {
-		return nil, err
-	}
 	pHook, err := createHook(env, location.appendPath("hooks.provision"), yN.Hooks.Provision)
 	if err != nil {
 		return nil, err
 	}
 	return &NodeSet{
-		location:     location,
-		Name:         name,
-		Instances:    yN.Instances,
-		Provider:     pRef,
-		Orchestrator: oRef,
+		location:  location,
+		Name:      name,
+		Instances: yN.Instances,
+		Provider:  pRef,
 		Hooks: NodeHook{
 			Provision: pHook,
 		},
@@ -152,7 +142,6 @@ func (r NodeSets) customize(env *Environment, with NodeSets) (NodeSets, error) {
 			res[id] = *nm
 		} else {
 			n.Provider.env = env
-			n.Orchestrator.env = env
 			res[id] = n
 		}
 	}

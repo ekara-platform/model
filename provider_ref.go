@@ -18,16 +18,16 @@ type (
 )
 
 func (r ProviderRef) MarshalYAML() (interface{}, error) {
-	b, e :=  yaml.Marshal(&struct {
-		Ref        string 
+	b, e := yaml.Marshal(&struct {
+		Ref        string
 		Parameters Parameters `yaml:",omitempty"`
-		EnvVars    EnvVars `yaml:",omitempty"`
-		Proxy      Proxy `yaml:",omitempty"`
+		EnvVars    EnvVars    `yaml:",omitempty"`
+		Proxy      Proxy      `yaml:",omitempty"`
 	}{
-		Ref: r.ref,
-		Parameters: r.parameters, 
-		EnvVars: r.envVars,
-		Proxy: r.proxy,
+		Ref:        r.ref,
+		Parameters: r.parameters,
+		EnvVars:    r.envVars,
+		Proxy:      r.proxy,
 	})
 	return string(b), e
 }

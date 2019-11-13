@@ -38,11 +38,6 @@ func (r TNodeSetOnNodeSetHolder) Instances() int {
 	return r.h.Instances
 }
 
-//Orchestrator returns the reference on the orchestrator managing the node
-func (r TNodeSetOnNodeSetHolder) Orchestrator() TOrchestratorRef {
-	return CreateTOrchestratorRefForOrchestratorRef(r.h.Orchestrator)
-}
-
 //Provider returns the reference on the provider wherein the node should be deployed
 func (r TNodeSetOnNodeSetHolder) Provider() TProviderRef {
 	return CreateTProviderRefForProviderRef(r.h.Provider)

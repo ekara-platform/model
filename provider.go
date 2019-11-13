@@ -13,59 +13,71 @@ type (
 		// The Name of the provider
 		Name string
 		// The provider parameters
-		Parameters Parameters  `yaml:",omitempty"`
+		Parameters Parameters `yaml:",omitempty"`
 		// The provider environment variables
-		EnvVars EnvVars  `yaml:",omitempty"` 
+		EnvVars EnvVars `yaml:",omitempty"`
 		// The provider proxy
-		Proxy Proxy  `yaml:",omitempty"`
+		Proxy Proxy `yaml:",omitempty"`
 	}
 
 	//Providers lists all the providers required to build the environemt
 	Providers map[string]Provider
 )
 
+func (p Provider) EnvVarsInfo() EnvVars {
+	return p.EnvVars
+}
+
+func (p Provider) ParamsInfo() Parameters {
+	return p.Parameters
+}
+
+//ProxyInfo returns the proxy info associated with the provider
+func (p Provider) ProxyInfo() Proxy {
+	return p.Proxy
+}
+
 //DescType returns the Describable type of the provider
-//  Hardcoded to : "Provider"
-func (r Provider) DescType() string {
+func (p Provider) DescType() string {
 	return "Provider"
 }
 
 //DescName returns the Describable name of the provider
-func (r Provider) DescName() string {
-	return r.Name
+func (p Provider) DescName() string {
+	return p.Name
 }
 
-func (r Provider) validate() ValidationErrors {
-	return ErrorOnInvalid(r.Component)
+func (p Provider) validate() ValidationErrors {
+	return ErrorOnInvalid(p.Component)
 }
 
-func (r *Provider) customize(with Provider) error {
+func (p *Provider) customize(with Provider) error {
 	var err error
 
-	if err = r.cRef.customize(with.cRef); err != nil {
+	if err = p.cRef.customize(with.cRef); err != nil {
 		return err
 	}
 
-	if r.Name != with.Name {
-		return errors.New("cannot customize unrelated providers (" + r.Name + " != " + with.Name + ")")
+	if p.Name != with.Name {
+		return errors.New("cannot customize unrelated providers (" + p.Name + " != " + with.Name + ")")
 	}
-	if err = r.cRef.customize(with.cRef); err != nil {
+	if err = p.cRef.customize(with.cRef); err != nil {
 		return err
 	}
-	r.Parameters = with.Parameters.inherit(r.Parameters)
-	r.EnvVars = with.EnvVars.inherit(r.EnvVars)
-	r.Proxy = r.Proxy.inherit(with.Proxy)
+	p.Parameters = with.Parameters.inherit(p.Parameters)
+	p.EnvVars = with.EnvVars.inherit(p.EnvVars)
+	p.Proxy = p.Proxy.inherit(with.Proxy)
 	return nil
 }
 
 //Component returns the referenced component
-func (r Provider) Component() (Component, error) {
-	return r.cRef.resolve()
+func (p Provider) Component() (Component, error) {
+	return p.cRef.resolve()
 }
 
 //ComponentName returns the referenced component name
-func (r Provider) ComponentName() string {
-	return r.cRef.ref
+func (p Provider) ComponentName() string {
+	return p.cRef.ref
 }
 
 // createProviders creates all the providers declared into the provided environment
