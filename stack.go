@@ -38,6 +38,14 @@ type (
 	Stacks map[string]Stack
 )
 
+func (s Stack) EnvVarsInfo() EnvVars {
+	return s.EnvVars
+}
+
+func (s Stack) ParamsInfo() Parameters {
+	return s.Parameters
+}
+
 //DescType returns the Describable type of the stack
 //  Hardcoded to : "Stack"
 func (s Stack) DescType() string {

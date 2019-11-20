@@ -1,5 +1,9 @@
 package model
 
+type ProxyAware interface {
+	ProxyInfo() Proxy
+}
+
 //Proxy represents the proxy definition
 type Proxy struct {
 	Http    string `yaml:"http_proxy,omitempty" json:",omitempty"`

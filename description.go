@@ -12,6 +12,7 @@ type (
 	//  Nodeset
 	//  Provider
 	//  Stack
+	//  Task
 	//
 	// The Describable interface can be used for example in logs or even in
 	// execution report files in order to provider a human readable vision of what
@@ -40,7 +41,7 @@ func (c chained) DescName() string {
 	return strings.Join(c.descNames, "-")
 }
 
-// ChainDescribable merges the types and names of several Describables
+// ChainDescribable merges the types and names of several describable
 func ChainDescribable(descs ...Describable) Describable {
 	r := chained{}
 	for _, v := range descs {

@@ -47,7 +47,7 @@ func createCopies(env *Environment, location DescriptorLocation, copies []yamlCo
 	res.Content = make(map[string]Copy)
 	for _, yCop := range copies {
 		copy := Copy{
-			Once:  yCop.Target.Once,
+			Once: yCop.Target.Once,
 		}
 		copy.Labels = yCop.Target.Labels
 		patterns := Patterns{}

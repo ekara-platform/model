@@ -40,15 +40,7 @@
             {"name":"Component", "component":{"attribute":"", "type":"Component"}, "doc":"returns the orchestrator component"}
         ]
     },
-    {  
-        "name":"TOrchestratorRef",
-        "implemented_by":["OrchestratorRef"],
-        "doc":"is a read only reference on the orchestrator",
-        "methods":[  
-            {"name":"Orchestrator", "resolve":{"name":"TOrchestrator", "attribute":"", "type":"Orchestrator"}, "doc":"returns the orchestrator managing a node"}
-        ]
-    },
-    {  
+    {
         "name":"TProvider",
         "implemented_by":["Provider"],
         "doc":"is a read only provider",
@@ -75,7 +67,6 @@
         "methods":[  
             {"name":"Name","attribute":"Name", "doc":"returns the name of the node set"},
             {"name":"Instances","returns":"int","attribute":"Instances", "doc":"returns the number of nodes to create for this node set"},
-            {"name":"Orchestrator", "interface":{"name":"TOrchestratorRef", "attribute":"Orchestrator", "type":"OrchestratorRef"}, "doc":"returns the reference on the orchestrator managing the node"},
             {"name":"Provider", "interface":{"name":"TProviderRef", "attribute":"Provider", "type":"ProviderRef"}, "doc":"returns the reference on the provider wherein the node should be deployed"},
             {"name":"HasHooks", "custom": {"returns":"bool", "impl":"r.h.Hooks.HasTasks()"}, "doc":"returns true if the node has hooks"},
             {"name":"Hooks", "interface":{"name":"TNodeHook", "attribute":"Hooks", "type":"NodeHook"}, "doc":"returns the node hooks"},
