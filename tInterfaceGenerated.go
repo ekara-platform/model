@@ -114,6 +114,8 @@ type TNodeSet interface {
 type TStack interface {
 	//Name returns the name of the stack
 	Name() string
+	//Playbook returns the custom deployment playbook of the stack if any
+	Playbook() string
 	//Parameters returns the stack parameters
 	Parameters() map[string]interface{}
 	//EnvVars returns the stack environment variables

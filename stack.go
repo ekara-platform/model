@@ -22,6 +22,8 @@ type (
 		EnvVars EnvVars `yaml:",omitempty"`
 		// The stack content to be copied on volumes
 		Copies Copies `yaml:",omitempty"`
+		// The custom stack deployment playbook
+		Playbook string
 	}
 
 	//StackRef defines a dependency a on stack which must be previously processed
@@ -126,6 +128,7 @@ func createStacks(env *Environment, holder string, location DescriptorLocation, 
 			EnvVars:    envVars,
 			DependsOn:  createDependencies(env, stackLocation.appendPath("depends_on"), name, yamlStack.DependsOn),
 			Copies:     createCopies(env, stackLocation.appendPath("volume_copies"), yamlStack.Copies),
+			Playbook:   yamlStack.Playbook,
 		}
 		res[name] = s
 		//env.Ekara.tagUsedComponent(res[name])

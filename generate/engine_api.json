@@ -81,6 +81,7 @@
         "doc":"is a read only stack",
         "methods":[  
             {"name":"Name","attribute":"Name", "doc":"returns the name of the stack"},
+            {"name":"Playbook","attribute":"Playbook", "doc":"returns the custom deployment playbook of the stack if any"},
             {"name":"Parameters", "returns":"map[string]interface{}", "attribute":"Parameters" , "doc":"returns the stack parameters"},
             {"name":"EnvVars",  "returns":"map[string]string", "attribute":"EnvVars", "doc":"returns the stack environment variables"},
             {"name":"HasHooks", "custom": {"returns":"bool", "impl":"r.h.Hooks.HasTasks()"}, "doc":"returns true if the stack has hooks"},

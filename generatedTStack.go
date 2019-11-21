@@ -33,6 +33,11 @@ func (r TStackOnStackHolder) Name() string {
 	return r.h.Name
 }
 
+//Playbook returns the custom deployment playbook of the stack if any
+func (r TStackOnStackHolder) Playbook() string {
+	return r.h.Playbook
+}
+
 //Parameters returns the stack parameters
 func (r TStackOnStackHolder) Parameters() map[string]interface{} {
 	return r.h.Parameters

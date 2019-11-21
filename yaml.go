@@ -215,6 +215,9 @@ type (
 
 			// The stack content to be copied on volumes
 			Copies []yamlCopy `yaml:"copies"`
+
+			// Custom playbook
+			Playbook string
 		}
 
 		// Global hooks
