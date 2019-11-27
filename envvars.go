@@ -1,5 +1,6 @@
 package model
 
+//EnvVarsAware represents the common behavior of environment variables holders
 type EnvVarsAware interface {
 	EnvVarsInfo() EnvVars
 }

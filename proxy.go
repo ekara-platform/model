@@ -1,5 +1,6 @@
 package model
 
+//ProxyAware represents the common behavior of proxy definition holders
 type ProxyAware interface {
 	ProxyInfo() Proxy
 }

@@ -8,6 +8,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+//ParametersAware represents the common behavior of parameters holders
 type ParametersAware interface {
 	ParamsInfo() Parameters
 }
