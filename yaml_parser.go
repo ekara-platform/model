@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"gopkg.in/yaml.v2"
 )
 
@@ -17,6 +18,7 @@ func ParseYamlDescriptor(u EkURL, context *TemplateContext) (env yamlEnvironment
 	//Parse just the "vars:" section of the descriptor
 	tempsVars, err := readEnvironmentVars(content)
 	if err != nil {
+		err = fmt.Errorf(" yaml error in %s : %s", u.String(), err.Error())
 		return
 	}
 
@@ -36,6 +38,7 @@ func ParseYamlDescriptor(u EkURL, context *TemplateContext) (env yamlEnvironment
 	// Unmarshal the resulting YAML to get an environment
 	err = yaml.Unmarshal(out.Bytes(), &env)
 	if err != nil {
+		err = fmt.Errorf(" yaml error in %s : %s", u.String(), err.Error())
 		return
 	}
 	return
@@ -56,6 +59,7 @@ func ParseYamlDescriptorReferences(url EkURL, context *TemplateContext) (env Env
 	//Parse just the "vars:" section of the descriptor
 	tempsVars, err := readEnvironmentVars(content)
 	if err != nil {
+		err = fmt.Errorf(" yaml error in %s : %s", url.String(), err.Error())
 		return
 	}
 
@@ -75,6 +79,7 @@ func ParseYamlDescriptorReferences(url EkURL, context *TemplateContext) (env Env
 	// Unmarshal the resulting YAML to get only references
 	err = yaml.Unmarshal(out.Bytes(), &env)
 	if err != nil {
+		err = fmt.Errorf(" yaml error in %s : %s", url.String(), err.Error())
 		return
 	}
 	return
