@@ -15,6 +15,8 @@ type (
 		Once bool
 		// Labels identifies the nodesets where to copy
 		Labels Labels
+		// Path identifies the destination path of the copy
+		Path string
 		//Sources identifies the content to copy
 		Sources Patterns
 	}
@@ -36,26 +38,35 @@ func (r Copies) inherit(parent Copies) Copies {
 			work := dst.Content[k]
 			work.Sources = work.Sources.inherit(v.Sources)
 			work.Labels = work.Labels.inherit(v.Labels)
+			if work.Path == "" {
+				// Only override path if none specified
+				work.Path = v.Path
+			}
+			if v.Once == true {
+				// only override once if true (meaning if it's true, it's forever true in children)
+				work.Once = true
+			}
 			dst.Content[k] = work
 		}
 	}
 	return dst
 }
 
-func createCopies(env *Environment, location DescriptorLocation, copies []yamlCopy) Copies {
+func createCopies(env *Environment, location DescriptorLocation, copies map[string]yamlCopy) Copies {
 	res := Copies{}
 	res.Content = make(map[string]Copy)
-	for _, yCop := range copies {
-		copy := Copy{
-			Once: yCop.Target.Once,
+	for cpName, yCop := range copies {
+		theCopy := Copy{
+			Once:   yCop.Once,
+			Labels: yCop.Labels,
 		}
-		copy.Labels = yCop.Target.Labels
-		patterns := Patterns{}
-		for _, vPattern := range yCop.Patterns {
-			patterns.Content = append(patterns.Content, vPattern)
+		sources := Patterns{}
+		for _, vSource := range yCop.Sources {
+			sources.Content = append(sources.Content, vSource)
 		}
-		copy.Sources = patterns
-		res.Content[yCop.Target.Path] = copy
+		theCopy.Sources = sources
+		theCopy.Path = yCop.Path
+		res.Content[cpName] = theCopy
 	}
 	return res
 }

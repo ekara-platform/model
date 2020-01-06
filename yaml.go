@@ -10,17 +10,14 @@ type (
 
 	// yaml tag for stuff to be copied on volumes
 	yamlCopy struct {
-		Target yamlTarget
-		// The list of path patterns identifying content to be copied
-		Patterns []string `yaml:"sources"`
-	}
-
-	yamlTarget struct {
-		yamlLabel `yaml:",inline"`
 		//Once indicates if the copy should be done only on one node matching the targeted labels
 		Once bool
 		// The volume path where to copy the content
 		Path string
+		// Labels to restrict the copy to some node sets
+		yamlLabel `yaml:",inline"`
+		// The list of path patterns identifying content to be copied
+		Sources []string `yaml:"sources"`
 	}
 
 	// yaml tag for parameters
@@ -214,7 +211,7 @@ type (
 			yamlEnv `yaml:",inline"`
 
 			// The stack content to be copied on volumes
-			Copies []yamlCopy `yaml:"copies"`
+			Copies map[string]yamlCopy
 
 			// Custom playbook
 			Playbook string
