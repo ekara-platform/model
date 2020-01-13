@@ -101,3 +101,8 @@ func merge(dst map[interface{}]interface{}, src map[interface{}]interface{}) {
 		}
 	}
 }
+
+// ToYAML returns the Parameters content as yaml
+func (r Parameters) ToYAML() ([]byte, error) {
+	return yaml.Marshal(r)
+}
