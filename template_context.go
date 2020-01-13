@@ -36,22 +36,17 @@ func CloneTemplateContext(other *TemplateContext, cr ComponentReferencer) (*Temp
 		Vars:  CloneParameters(other.Vars),
 		Model: other.Model,
 	}
-	var target interface{}
-	target, e := cr.Component()
-	if e != nil {
-		return nil, e
-	}
-	if o, ok := target.(Describable); ok {
+	if o, ok := cr.(Describable); ok {
 		tplC.Component.Type = o.DescType()
 		tplC.Component.Name = o.DescName()
 	}
-	if o, ok := target.(ParametersAware); ok {
+	if o, ok := cr.(ParametersAware); ok {
 		tplC.Component.Params = CloneParameters(o.ParamsInfo())
 	}
-	if o, ok := target.(ProxyAware); ok {
+	if o, ok := cr.(ProxyAware); ok {
 		tplC.Component.Proxy = o.ProxyInfo()
 	}
-	if o, ok := target.(EnvVarsAware); ok {
+	if o, ok := cr.(EnvVarsAware); ok {
 		tplC.Component.EnvVars = o.EnvVarsInfo()
 	}
 	return &tplC, nil

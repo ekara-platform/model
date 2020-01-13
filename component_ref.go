@@ -20,14 +20,6 @@ type (
 		//location indicates where the reference is located into the descriptor
 		location DescriptorLocation
 	}
-
-	//ComponentReferencer allows to access to a component through its reference
-	ComponentReferencer interface {
-		//Component returns the referenced component
-		Component() (Component, error)
-		//ComponentName returns the referenced component name
-		ComponentName() string
-	}
 )
 
 func createComponentRef(env *Environment, location DescriptorLocation, ref string, mandatory bool) componentRef {

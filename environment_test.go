@@ -317,8 +317,9 @@ func assertEnv(t *testing.T, env *Environment) {
 	//------------------------------------------------------------
 	copies := stack2.Copies
 	if assert.Equal(t, len(copies.Content), 2) {
-		if assert.Contains(t, copies.Content, "some/target1/volume/path") {
-			v, ok := copies.Content["some/target1/volume/path"]
+		if assert.Contains(t, copies.Content, "cp1") {
+			v, ok := copies.Content["cp1"]
+			assert.Equal(t, v.Path, "some/target1/volume/path")
 			assert.True(t, v.Once)
 			assert.True(t, ok)
 			assert.Contains(t, v.Sources.Content, "*target1_to_be_copied.yaml")
@@ -330,8 +331,9 @@ func assertEnv(t *testing.T, env *Environment) {
 			assert.True(t, ok)
 			assert.Equal(t, lab, "t1_val2")
 		}
-		if assert.Contains(t, copies.Content, "some/target2/volume/path") {
-			v, ok := copies.Content["some/target2/volume/path"]
+		if assert.Contains(t, copies.Content, "cp2") {
+			v, ok := copies.Content["cp2"]
+			assert.Equal(t, v.Path, "some/target2/volume/path")
 			assert.False(t, v.Once)
 			assert.True(t, ok)
 			assert.Contains(t, v.Sources.Content, "*target2_to_be_copied.yaml")

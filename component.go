@@ -1,7 +1,6 @@
 package model
 
 type (
-
 	//Component represents an element composing an ekara environment
 	//
 	//A component is always hosted into a source control management system.
@@ -15,6 +14,14 @@ type (
 		Repository Repository
 		//Templates Defines the content to template for the component
 		Templates Patterns
+	}
+
+	//ComponentReferencer allows to access to a component through its reference
+	ComponentReferencer interface {
+		//Component returns the referenced component
+		Component() (Component, error)
+		//ComponentName returns the referenced component name
+		ComponentName() string
 	}
 )
 
@@ -35,4 +42,12 @@ func CreateComponent(id string, repo Repository) Component {
 //Templatable indicates if the component contains templates
 func (c Component) Templatable() (bool, Patterns) {
 	return len(c.Templates.Content) > 0, c.Templates
+}
+
+func (c Component) Component() (Component, error) {
+	return c, nil
+}
+
+func (c Component) ComponentName() string {
+	return c.Id
 }

@@ -179,22 +179,22 @@ stacks:
       stack2_env_key1: stack2_env_key1_value
       stack2_env_key2: stack2_env_key2_value
      
-    copies:  
-    - target:
+    copies:
+      cp1:
         once: true
         labels:
           label1: t1_val1   
           label2: t1_val2   
         path: "some/target1/volume/path"
-      sources:
-        - "*target1_to_be_copied.yaml"
-        - "*target1_to_be_copied.yml"
-    - target: 
+        sources:
+          - "*target1_to_be_copied.yaml"
+          - "*target1_to_be_copied.yml"
+      cp2:
         once: false
         labels:
           label1: t2_val1   
           label2: t2_val2   
         path: "some/target2/volume/path"
-      sources:
-        - "*target2_to_be_copied.yaml"
-        - "*target2_to_be_copied.yml"
+        sources:
+          - "*target2_to_be_copied.yaml"
+          - "*target2_to_be_copied.yml"
