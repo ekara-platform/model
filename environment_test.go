@@ -205,16 +205,16 @@ func assertEnv(t *testing.T, env *Environment) {
 	// Node1 Hook
 	//------------------------------------------------------------
 	no := nodeSets["node1"]
-	assert.Equal(t, 1, len(no.Hooks.Provision.Before))
-	assert.Equal(t, 1, len(no.Hooks.Provision.After))
+	assert.Equal(t, 1, len(no.Hooks.Create.Before))
+	assert.Equal(t, 1, len(no.Hooks.Create.After))
 
-	assert.Equal(t, "task1", no.Hooks.Provision.Before[0].ref)
-	assert.Equal(t, "task2", no.Hooks.Provision.After[0].ref)
+	assert.Equal(t, "task1", no.Hooks.Create.Before[0].ref)
+	assert.Equal(t, "task2", no.Hooks.Create.After[0].ref)
 
 	//------------------------------------------------------------
 	// Node1 Hook Env and Param
 	//------------------------------------------------------------
-	r, err := no.Hooks.Provision.After[0].Resolve()
+	r, err := no.Hooks.Create.After[0].Resolve()
 	assert.Nil(t, err)
 	p := r.Parameters
 
@@ -269,11 +269,11 @@ func assertEnv(t *testing.T, env *Environment) {
 	// Node2 Hook
 	//------------------------------------------------------------
 	no = nodeSets["node2"]
-	if assert.Equal(t, 1, len(no.Hooks.Provision.Before)) {
-		assert.Equal(t, "task1", no.Hooks.Provision.Before[0].ref)
+	if assert.Equal(t, 1, len(no.Hooks.Create.Before)) {
+		assert.Equal(t, "task1", no.Hooks.Create.Before[0].ref)
 	}
-	if assert.Equal(t, 1, len(no.Hooks.Provision.After)) {
-		assert.Equal(t, "task2", no.Hooks.Provision.After[0].ref)
+	if assert.Equal(t, 1, len(no.Hooks.Create.After)) {
+		assert.Equal(t, "task2", no.Hooks.Create.After[0].ref)
 	}
 
 	//------------------------------------------------------------

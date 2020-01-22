@@ -90,7 +90,7 @@ func CreateEnvironment(location string, yamlEnv yamlEnvironment, holder string) 
 			return env, err
 		}
 	}
-	env.Hooks.Provision, err = createHook(env, env.location.appendPath("hooks.provision"), yamlEnv.Hooks.Provision)
+	env.Hooks.Create, err = createHook(env, env.location.appendPath("hooks.create"), yamlEnv.Hooks.Create)
 	if err != nil {
 		return env, err
 	}

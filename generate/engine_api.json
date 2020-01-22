@@ -24,7 +24,7 @@
 
             {"name":"HasHooks", "custom": {"returns":"bool", "impl":"r.h.Hooks.HasTasks()"}, "doc":"returns true if the environment has hooks"},
             {"name":"Hooks", "interface":{"name":"TEnvironmentHooks", "attribute":"Hooks", "type":"EnvironmentHooks"}, "doc":"returns the environment hooks"},
-            {"name":"HasProvisionHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Provision.HasTasks()"}, "doc":"returns true if the environment has hooks while provisioning"},
+            {"name":"HasCreateHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Create.HasTasks()"}, "doc":"returns true if the environment has hooks while creating"},
             {"name":"HasDeployHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Deploy.HasTasks()"}, "doc":"returns true if the environment has hooks while deploying"},
             {"name":"HasTemplates", "custom": {"returns":"bool", "impl":"len(r.h.Templates.Content) > 0"}, "doc":"returns true if the environment has defined templates"},
             {"name":"Templates", "custom": {"returns":"[]string", "impl":"r.h.Templates.Content"}, "doc":"returns the environment templates"}
@@ -70,7 +70,7 @@
             {"name":"Provider", "interface":{"name":"TProviderRef", "attribute":"Provider", "type":"ProviderRef"}, "doc":"returns the reference on the provider wherein the node should be deployed"},
             {"name":"HasHooks", "custom": {"returns":"bool", "impl":"r.h.Hooks.HasTasks()"}, "doc":"returns true if the node has hooks"},
             {"name":"Hooks", "interface":{"name":"TNodeHook", "attribute":"Hooks", "type":"NodeHook"}, "doc":"returns the node hooks"},
-            {"name":"HasProvisionHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Provision.HasTasks()"}, "doc":"returns true if the node has hooks while provisioning"},
+            {"name":"HasCreateHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Create.HasTasks()"}, "doc":"returns true if the node has hooks while creating"},
             {"name":"HasLabels", "custom": {"returns":"bool", "impl":"len(r.h.Labels) > 0"}, "doc":"returns true if the node has defined labels"},
             {"name":"Labels",  "returns":"map[string]string", "attribute":"Labels", "doc":"returns the node labels"}
         ]
@@ -209,8 +209,8 @@
         "implemented_by":["EnvironmentHooks"],
         "doc":"is a read only representation of the hooks associated to an environment",
         "methods":[  
-            {"name":"HasProvision",  "custom": {"returns":"bool", "impl":"r.h.Provision.HasTasks()"}, "doc":"returns true if the hooks has tasks while provisioning"},
-            {"name":"Provision", "interface":{"name":"THook", "attribute":"Provision", "type":"Hook"}, "doc":"returns the provisioning tasks"},
+            {"name":"HasCreate",  "custom": {"returns":"bool", "impl":"r.h.Create.HasTasks()"}, "doc":"returns true if the hooks has tasks while creating"},
+            {"name":"Create", "interface":{"name":"THook", "attribute":"Create", "type":"Hook"}, "doc":"returns the creating tasks"},
             {"name":"HasDeploy",  "custom": {"returns":"bool", "impl":"r.h.Deploy.HasTasks()"}, "doc":"returns true if the hooks has tasks while deploying"},
             {"name":"Deploy", "interface":{"name":"THook", "attribute":"Deploy" , "type":"Hook"}, "doc":"returns the deploying tasks"}
         ]
@@ -238,8 +238,8 @@
         "implemented_by":["NodeHook"],
         "doc":"is a read only representation of the hooks associated to a node",
         "methods":[  
-            {"name":"HasProvision",  "custom": {"returns":"bool", "impl":"r.h.Provision.HasTasks()"}, "doc":"returns true if the hooks has tasks while provisioning"},
-            {"name":"Provision", "interface":{"name":"THook", "attribute":"Provision" , "type":"Hook"}, "doc":"returns the provisioning tasks"}
+            {"name":"HasCreate",  "custom": {"returns":"bool", "impl":"r.h.Create.HasTasks()"}, "doc":"returns true if the hooks has tasks while creating"},
+            {"name":"Create", "interface":{"name":"THook", "attribute":"Create" , "type":"Hook"}, "doc":"returns the creating tasks"}
         ]
     },
     {  

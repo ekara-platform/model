@@ -37,7 +37,7 @@ stacks:
     component: stack1
 
 hooks:
-  provision:
+  create:
     before:
       - task: unknown
     after:

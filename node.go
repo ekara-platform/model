@@ -112,7 +112,7 @@ func buildNode(name string, env *Environment, location DescriptorLocation, yN ya
 	if err != nil {
 		return nil, err
 	}
-	pHook, err := createHook(env, location.appendPath("hooks.provision"), yN.Hooks.Provision)
+	pHook, err := createHook(env, location.appendPath("hooks.create"), yN.Hooks.Create)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +122,7 @@ func buildNode(name string, env *Environment, location DescriptorLocation, yN ya
 		Instances: yN.Instances,
 		Provider:  pRef,
 		Hooks: NodeHook{
-			Provision: pHook,
+			Create: pHook,
 		},
 		Labels: yN.Labels}, nil
 }

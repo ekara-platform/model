@@ -123,9 +123,9 @@ type (
 		Orchestrator yamlOrchestratorRef
 		// The orchestrator settings for this node set
 		Volumes []yamlVolume
-		// The Hooks to be executed while provisioning the node set
+		// The Hooks to be executed while creating the node set
 		Hooks struct {
-			Provision yamlHook `yaml:",omitempty"`
+			Create yamlHook `yaml:",omitempty"`
 		} `yaml:",omitempty"`
 
 		// The labels associated with the nodeset
@@ -219,9 +219,16 @@ type (
 
 		// Global hooks
 		Hooks struct {
-			Init      yamlHook `yaml:",omitempty"`
-			Provision yamlHook `yaml:",omitempty"`
-			Deploy    yamlHook `yaml:",omitempty"`
+			Init yamlHook `yaml:",omitempty"`
+			//Rename provition into create
+			//Make those hooks being real global hooks...
+			//Add new ones into the * nodeset and merged then into each nodes
+			//--> watch out with the merging order
+			// -- :"Global Before" should be applied before the ones defined at the node level
+			// -- :"Global After" should be applied after the ones defined at the node level
+			// -- : Add units tests for that...
+			Create yamlHook `yaml:",omitempty"`
+			Deploy yamlHook `yaml:",omitempty"`
 		} `yaml:",omitempty"`
 
 		// Global volumes

@@ -26,8 +26,8 @@ func TestValidateUnknownGlobalHooks(t *testing.T) {
 	assert.False(t, vErrs.HasWarnings())
 	assert.Equal(t, 4, len(vErrs.Errors))
 
-	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.provision.before"))
-	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.provision.after"))
+	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.create.before"))
+	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.create.after"))
 	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.deploy.before"))
 	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.deploy.after"))
 }
@@ -37,15 +37,15 @@ func TestHasNoTaskEnv(t *testing.T) {
 	assert.False(t, h.HasTasks())
 }
 
-func TestHasTaskBeforeEnvProvision(t *testing.T) {
+func TestHasTaskBeforeEnvCreate(t *testing.T) {
 	h := EnvironmentHooks{}
-	h.Provision.Before = append(h.Provision.Before, oneTask)
+	h.Create.Before = append(h.Create.Before, oneTask)
 	assert.True(t, h.HasTasks())
 }
 
-func TestHasTaskAfterEnvProvision(t *testing.T) {
+func TestHasTaskAfterEnvCreate(t *testing.T) {
 	h := EnvironmentHooks{}
-	h.Provision.After = append(h.Provision.After, oneTask)
+	h.Create.After = append(h.Create.After, oneTask)
 	assert.True(t, h.HasTasks())
 }
 
@@ -65,20 +65,20 @@ func TestMergeEnvironmentHookBefore(t *testing.T) {
 	task1 := TaskRef{ref: "ref1"}
 	task2 := TaskRef{ref: "ref2"}
 	h := EnvironmentHooks{}
-	h.Provision.Before = append(h.Provision.Before, task1)
+	h.Create.Before = append(h.Create.Before, task1)
 	h.Deploy.Before = append(h.Deploy.Before, task1)
 	o := EnvironmentHooks{}
-	o.Provision.Before = append(o.Provision.Before, task2)
+	o.Create.Before = append(o.Create.Before, task2)
 	o.Deploy.Before = append(o.Deploy.Before, task2)
 
 	err := h.customize(o)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
 
-	if assert.Equal(t, 2, len(h.Provision.Before)) {
-		assert.Equal(t, 0, len(h.Provision.After))
-		assert.Equal(t, task1.ref, h.Provision.Before[0].ref)
-		assert.Equal(t, task2.ref, h.Provision.Before[1].ref)
+	if assert.Equal(t, 2, len(h.Create.Before)) {
+		assert.Equal(t, 0, len(h.Create.After))
+		assert.Equal(t, task1.ref, h.Create.Before[0].ref)
+		assert.Equal(t, task2.ref, h.Create.Before[1].ref)
 	}
 
 	if assert.Equal(t, 2, len(h.Deploy.Before)) {
@@ -93,20 +93,20 @@ func TestMergeEnvironmentHookAfter(t *testing.T) {
 	task1 := TaskRef{ref: "ref1"}
 	task2 := TaskRef{ref: "ref2"}
 	h := EnvironmentHooks{}
-	h.Provision.After = append(h.Provision.After, task1)
+	h.Create.After = append(h.Create.After, task1)
 	h.Deploy.After = append(h.Deploy.After, task1)
 	o := EnvironmentHooks{}
-	o.Provision.After = append(o.Provision.After, task2)
+	o.Create.After = append(o.Create.After, task2)
 	o.Deploy.After = append(o.Deploy.After, task2)
 
 	err := h.customize(o)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
 
-	if assert.Equal(t, 2, len(h.Provision.After)) {
-		assert.Equal(t, 0, len(h.Provision.Before))
-		assert.Equal(t, task1.ref, h.Provision.After[0].ref)
-		assert.Equal(t, task2.ref, h.Provision.After[1].ref)
+	if assert.Equal(t, 2, len(h.Create.After)) {
+		assert.Equal(t, 0, len(h.Create.Before))
+		assert.Equal(t, task1.ref, h.Create.After[0].ref)
+		assert.Equal(t, task2.ref, h.Create.After[1].ref)
 	}
 
 	if assert.Equal(t, 2, len(h.Deploy.After)) {
@@ -120,16 +120,16 @@ func TestMergeEnvironmentHookAfter(t *testing.T) {
 func TestMergeEnvironmentHookItself(t *testing.T) {
 	task1 := TaskRef{ref: "ref1"}
 	h := EnvironmentHooks{}
-	h.Provision.After = append(h.Provision.After, task1)
+	h.Create.After = append(h.Create.After, task1)
 	h.Deploy.After = append(h.Deploy.After, task1)
 
 	err := h.customize(h)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
-	assert.Equal(t, 0, len(h.Provision.Before))
+	assert.Equal(t, 0, len(h.Create.Before))
 	assert.Equal(t, 0, len(h.Deploy.Before))
-	assert.Equal(t, 1, len(h.Provision.After))
+	assert.Equal(t, 1, len(h.Create.After))
 	assert.Equal(t, 1, len(h.Deploy.After))
-	assert.Equal(t, task1.ref, h.Provision.After[0].ref)
+	assert.Equal(t, task1.ref, h.Create.After[0].ref)
 	assert.Equal(t, task1.ref, h.Deploy.After[0].ref)
 }

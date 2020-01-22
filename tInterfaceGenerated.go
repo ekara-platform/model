@@ -50,8 +50,8 @@ type TEnvironment interface {
 	HasHooks() bool
 	//Hooks returns the environment hooks
 	Hooks() TEnvironmentHooks
-	//HasProvisionHooks returns true if the environment has hooks while provisioning
-	HasProvisionHooks() bool
+	//HasCreateHooks returns true if the environment has hooks while creating
+	HasCreateHooks() bool
 	//HasDeployHooks returns true if the environment has hooks while deploying
 	HasDeployHooks() bool
 	//HasTemplates returns true if the environment has defined templates
@@ -102,8 +102,8 @@ type TNodeSet interface {
 	HasHooks() bool
 	//Hooks returns the node hooks
 	Hooks() TNodeHook
-	//HasProvisionHooks returns true if the node has hooks while provisioning
-	HasProvisionHooks() bool
+	//HasCreateHooks returns true if the node has hooks while creating
+	HasCreateHooks() bool
 	//HasLabels returns true if the node has defined labels
 	HasLabels() bool
 	//Labels returns the node labels
@@ -250,10 +250,10 @@ type TRepository interface {
 
 // TEnvironmentHooks is a read only representation of the hooks associated to an environment
 type TEnvironmentHooks interface {
-	//HasProvision returns true if the hooks has tasks while provisioning
-	HasProvision() bool
-	//Provision returns the provisioning tasks
-	Provision() THook
+	//HasCreate returns true if the hooks has tasks while creating
+	HasCreate() bool
+	//Create returns the creating tasks
+	Create() THook
 	//HasDeploy returns true if the hooks has tasks while deploying
 	HasDeploy() bool
 	//Deploy returns the deploying tasks
@@ -278,10 +278,10 @@ type TTaskHooks interface {
 
 // TNodeHook is a read only representation of the hooks associated to a node
 type TNodeHook interface {
-	//HasProvision returns true if the hooks has tasks while provisioning
-	HasProvision() bool
-	//Provision returns the provisioning tasks
-	Provision() THook
+	//HasCreate returns true if the hooks has tasks while creating
+	HasCreate() bool
+	//Create returns the creating tasks
+	Create() THook
 }
 
 // THook is a read only hooks

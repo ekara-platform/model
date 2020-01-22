@@ -28,12 +28,12 @@ func CreateTNodeHookForNodeHook(o NodeHook) TNodeHookOnNodeHookHolder {
 	}
 }
 
-//HasProvision returns true if the hooks has tasks while provisioning
-func (r TNodeHookOnNodeHookHolder) HasProvision() bool {
-	return r.h.Provision.HasTasks()
+//HasCreate returns true if the hooks has tasks while creating
+func (r TNodeHookOnNodeHookHolder) HasCreate() bool {
+	return r.h.Create.HasTasks()
 }
 
-//Provision returns the provisioning tasks
-func (r TNodeHookOnNodeHookHolder) Provision() THook {
-	return CreateTHookForHook(r.h.Provision)
+//Create returns the creating tasks
+func (r TNodeHookOnNodeHookHolder) Create() THook {
+	return CreateTHookForHook(r.h.Create)
 }

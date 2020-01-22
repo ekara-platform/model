@@ -127,7 +127,7 @@ nodes:
       node1_label1: node1_label1_value
       node1_label2: node1_label2_value
     hooks:
-      provision:
+      create:
         before:
           - task: task1  
         after:
@@ -152,7 +152,7 @@ nodes:
       node2_label1: node2_label1_value
       node2_label2: node2_label2_value
     hooks:
-      provision:
+      create:
         before:
           - task: task1  
         after:

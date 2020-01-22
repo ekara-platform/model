@@ -32,7 +32,7 @@ nodes:
     provider:
       name: aws
     hooks:
-      provision:
+      create:
         before:
           - task: unknown
         after:

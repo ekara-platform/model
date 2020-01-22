@@ -53,9 +53,9 @@ func (r TNodeSetOnNodeSetHolder) Hooks() TNodeHook {
 	return CreateTNodeHookForNodeHook(r.h.Hooks)
 }
 
-//HasProvisionHooks returns true if the node has hooks while provisioning
-func (r TNodeSetOnNodeSetHolder) HasProvisionHooks() bool {
-	return r.h.Hooks.Provision.HasTasks()
+//HasCreateHooks returns true if the node has hooks while creating
+func (r TNodeSetOnNodeSetHolder) HasCreateHooks() bool {
+	return r.h.Hooks.Create.HasTasks()
 }
 
 //HasLabels returns true if the node has defined labels

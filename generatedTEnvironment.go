@@ -138,9 +138,9 @@ func (r TEnvironmentOnEnvironmentHolder) Hooks() TEnvironmentHooks {
 	return CreateTEnvironmentHooksForEnvironmentHooks(r.h.Hooks)
 }
 
-//HasProvisionHooks returns true if the environment has hooks while provisioning
-func (r TEnvironmentOnEnvironmentHolder) HasProvisionHooks() bool {
-	return r.h.Hooks.Provision.HasTasks()
+//HasCreateHooks returns true if the environment has hooks while creating
+func (r TEnvironmentOnEnvironmentHolder) HasCreateHooks() bool {
+	return r.h.Hooks.Create.HasTasks()
 }
 
 //HasDeployHooks returns true if the environment has hooks while deploying

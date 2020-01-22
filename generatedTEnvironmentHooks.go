@@ -28,14 +28,14 @@ func CreateTEnvironmentHooksForEnvironmentHooks(o EnvironmentHooks) TEnvironment
 	}
 }
 
-//HasProvision returns true if the hooks has tasks while provisioning
-func (r TEnvironmentHooksOnEnvironmentHooksHolder) HasProvision() bool {
-	return r.h.Provision.HasTasks()
+//HasCreate returns true if the hooks has tasks while creating
+func (r TEnvironmentHooksOnEnvironmentHooksHolder) HasCreate() bool {
+	return r.h.Create.HasTasks()
 }
 
-//Provision returns the provisioning tasks
-func (r TEnvironmentHooksOnEnvironmentHooksHolder) Provision() THook {
-	return CreateTHookForHook(r.h.Provision)
+//Create returns the creating tasks
+func (r TEnvironmentHooksOnEnvironmentHooksHolder) Create() THook {
+	return CreateTHookForHook(r.h.Create)
 }
 
 //HasDeploy returns true if the hooks has tasks while deploying
