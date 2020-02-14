@@ -50,10 +50,16 @@ type TEnvironment interface {
 	HasHooks() bool
 	//Hooks returns the environment hooks
 	Hooks() TEnvironmentHooks
+	//HasInitHooks returns true if the environment has hooks before creating
+	HasInitHooks() bool
 	//HasCreateHooks returns true if the environment has hooks while creating
 	HasCreateHooks() bool
+	//HasInstallHooks returns true if the environment has hooks while installing
+	HasInstallHooks() bool
 	//HasDeployHooks returns true if the environment has hooks while deploying
 	HasDeployHooks() bool
+	//HasDeleteHooks returns true if the environment has hooks while deleting
+	HasDeleteHooks() bool
 	//HasTemplates returns true if the environment has defined templates
 	HasTemplates() bool
 	//Templates returns the environment templates
@@ -166,8 +172,6 @@ type TTask interface {
 	Name() string
 	//Playbook returns the playbook linked to the task
 	Playbook() string
-	//Cron returns the cron linked to the task
-	Cron() string
 	//Parameters returns the task parameters
 	Parameters() map[string]interface{}
 	//EnvVars returns the task environment variables
@@ -250,14 +254,26 @@ type TRepository interface {
 
 // TEnvironmentHooks is a read only representation of the hooks associated to an environment
 type TEnvironmentHooks interface {
+	//HasInit returns true if the hooks has tasks while before creating
+	HasInit() bool
+	//Init returns the initialization tasks
+	Init() THook
 	//HasCreate returns true if the hooks has tasks while creating
 	HasCreate() bool
 	//Create returns the creating tasks
 	Create() THook
+	//HasInstall returns true if the hooks has tasks while installing
+	HasInstall() bool
+	//Install returns the installing tasks
+	Install() THook
 	//HasDeploy returns true if the hooks has tasks while deploying
 	HasDeploy() bool
 	//Deploy returns the deploying tasks
 	Deploy() THook
+	//HasDelete returns true if the hooks has tasks while deleting
+	HasDelete() bool
+	//Delete returns the deletion tasks
+	Delete() THook
 }
 
 // TStackHooks is a read only representation of the hooks associated to a stack

@@ -53,6 +53,17 @@ type (
 	}
 )
 
+//DescType returns the Describable type of the environment
+//  Hardcoded to : "Environment"
+func (r Environment) DescType() string {
+	return "Environment"
+}
+
+//DescName returns the Describable name of the environment
+func (r Environment) DescName() string {
+	return r.QualifiedName().String()
+}
+
 //CreateEnvironment creates a new environment based on the provided yaml
 //The older passed as parameter y the name of the component holding the ekara.yaml on which
 // the environment has been built
@@ -90,11 +101,23 @@ func CreateEnvironment(location string, yamlEnv yamlEnvironment, holder string) 
 			return env, err
 		}
 	}
+	env.Hooks.Init, err = createHook(env, env.location.appendPath("hooks.init"), yamlEnv.Hooks.Init)
+	if err != nil {
+		return env, err
+	}
 	env.Hooks.Create, err = createHook(env, env.location.appendPath("hooks.create"), yamlEnv.Hooks.Create)
 	if err != nil {
 		return env, err
 	}
+	env.Hooks.Install, err = createHook(env, env.location.appendPath("hooks.install"), yamlEnv.Hooks.Install)
+	if err != nil {
+		return env, err
+	}
 	env.Hooks.Deploy, err = createHook(env, env.location.appendPath("hooks.deploy"), yamlEnv.Hooks.Deploy)
+	if err != nil {
+		return env, err
+	}
+	env.Hooks.Delete, err = createHook(env, env.location.appendPath("hooks.delete"), yamlEnv.Hooks.Delete)
 	if err != nil {
 		return env, err
 	}

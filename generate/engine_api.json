@@ -24,8 +24,11 @@
 
             {"name":"HasHooks", "custom": {"returns":"bool", "impl":"r.h.Hooks.HasTasks()"}, "doc":"returns true if the environment has hooks"},
             {"name":"Hooks", "interface":{"name":"TEnvironmentHooks", "attribute":"Hooks", "type":"EnvironmentHooks"}, "doc":"returns the environment hooks"},
+            {"name":"HasInitHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Init.HasTasks()"}, "doc":"returns true if the environment has hooks before creating"},
             {"name":"HasCreateHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Create.HasTasks()"}, "doc":"returns true if the environment has hooks while creating"},
+            {"name":"HasInstallHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Install.HasTasks()"}, "doc":"returns true if the environment has hooks while installing"},
             {"name":"HasDeployHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Deploy.HasTasks()"}, "doc":"returns true if the environment has hooks while deploying"},
+            {"name":"HasDeleteHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Delete.HasTasks()"}, "doc":"returns true if the environment has hooks while deleting"},
             {"name":"HasTemplates", "custom": {"returns":"bool", "impl":"len(r.h.Templates.Content) > 0"}, "doc":"returns true if the environment has defined templates"},
             {"name":"Templates", "custom": {"returns":"[]string", "impl":"r.h.Templates.Content"}, "doc":"returns the environment templates"}
         ]
@@ -127,7 +130,6 @@
         "methods":[  
             {"name":"Name","attribute":"Name", "doc":"returns the name of the task"},
             {"name":"Playbook","attribute":"Playbook", "doc":"returns the playbook linked to the task"},
-            {"name":"Cron","attribute":"Cron", "doc":"returns the cron linked to the task"},
             {"name":"Parameters", "returns":"map[string]interface{}", "attribute":"Parameters" , "doc":"returns the task parameters"},
             {"name":"EnvVars",  "returns":"map[string]string", "attribute":"EnvVars", "doc":"returns the task environment variables"},
             {"name":"HasHooks", "custom": {"returns":"bool", "impl":"r.h.Hooks.HasTasks()"}, "doc":"returns true if the task has hooks"},
@@ -209,10 +211,16 @@
         "implemented_by":["EnvironmentHooks"],
         "doc":"is a read only representation of the hooks associated to an environment",
         "methods":[  
+            {"name":"HasInit",  "custom": {"returns":"bool", "impl":"r.h.Init.HasTasks()"}, "doc":"returns true if the hooks has tasks while before creating"},
+            {"name":"Init", "interface":{"name":"THook", "attribute":"Init", "type":"Hook"}, "doc":"returns the initialization tasks"},
             {"name":"HasCreate",  "custom": {"returns":"bool", "impl":"r.h.Create.HasTasks()"}, "doc":"returns true if the hooks has tasks while creating"},
             {"name":"Create", "interface":{"name":"THook", "attribute":"Create", "type":"Hook"}, "doc":"returns the creating tasks"},
+            {"name":"HasInstall",  "custom": {"returns":"bool", "impl":"r.h.Install.HasTasks()"}, "doc":"returns true if the hooks has tasks while installing"},
+            {"name":"Install", "interface":{"name":"THook", "attribute":"Install", "type":"Hook"}, "doc":"returns the installing tasks"},
             {"name":"HasDeploy",  "custom": {"returns":"bool", "impl":"r.h.Deploy.HasTasks()"}, "doc":"returns true if the hooks has tasks while deploying"},
-            {"name":"Deploy", "interface":{"name":"THook", "attribute":"Deploy" , "type":"Hook"}, "doc":"returns the deploying tasks"}
+            {"name":"Deploy", "interface":{"name":"THook", "attribute":"Deploy" , "type":"Hook"}, "doc":"returns the deploying tasks"},
+            {"name":"HasDelete",  "custom": {"returns":"bool", "impl":"r.h.Delete.HasTasks()"}, "doc":"returns true if the hooks has tasks while deleting"},
+            {"name":"Delete", "interface":{"name":"THook", "attribute":"Delete" , "type":"Hook"}, "doc":"returns the deletion tasks"}
         ]
     },
     {  

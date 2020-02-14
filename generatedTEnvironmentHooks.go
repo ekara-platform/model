@@ -28,6 +28,16 @@ func CreateTEnvironmentHooksForEnvironmentHooks(o EnvironmentHooks) TEnvironment
 	}
 }
 
+//HasInit returns true if the hooks has tasks while before creating
+func (r TEnvironmentHooksOnEnvironmentHooksHolder) HasInit() bool {
+	return r.h.Init.HasTasks()
+}
+
+//Init returns the initialization tasks
+func (r TEnvironmentHooksOnEnvironmentHooksHolder) Init() THook {
+	return CreateTHookForHook(r.h.Init)
+}
+
 //HasCreate returns true if the hooks has tasks while creating
 func (r TEnvironmentHooksOnEnvironmentHooksHolder) HasCreate() bool {
 	return r.h.Create.HasTasks()
@@ -38,6 +48,16 @@ func (r TEnvironmentHooksOnEnvironmentHooksHolder) Create() THook {
 	return CreateTHookForHook(r.h.Create)
 }
 
+//HasInstall returns true if the hooks has tasks while installing
+func (r TEnvironmentHooksOnEnvironmentHooksHolder) HasInstall() bool {
+	return r.h.Install.HasTasks()
+}
+
+//Install returns the installing tasks
+func (r TEnvironmentHooksOnEnvironmentHooksHolder) Install() THook {
+	return CreateTHookForHook(r.h.Install)
+}
+
 //HasDeploy returns true if the hooks has tasks while deploying
 func (r TEnvironmentHooksOnEnvironmentHooksHolder) HasDeploy() bool {
 	return r.h.Deploy.HasTasks()
@@ -46,4 +66,14 @@ func (r TEnvironmentHooksOnEnvironmentHooksHolder) HasDeploy() bool {
 //Deploy returns the deploying tasks
 func (r TEnvironmentHooksOnEnvironmentHooksHolder) Deploy() THook {
 	return CreateTHookForHook(r.h.Deploy)
+}
+
+//HasDelete returns true if the hooks has tasks while deleting
+func (r TEnvironmentHooksOnEnvironmentHooksHolder) HasDelete() bool {
+	return r.h.Delete.HasTasks()
+}
+
+//Delete returns the deletion tasks
+func (r TEnvironmentHooksOnEnvironmentHooksHolder) Delete() THook {
+	return CreateTHookForHook(r.h.Delete)
 }

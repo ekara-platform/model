@@ -38,11 +38,6 @@ func (r TTaskOnTaskHolder) Playbook() string {
 	return r.h.Playbook
 }
 
-//Cron returns the cron linked to the task
-func (r TTaskOnTaskHolder) Cron() string {
-	return r.h.Cron
-}
-
 //Parameters returns the task parameters
 func (r TTaskOnTaskHolder) Parameters() map[string]interface{} {
 	return r.h.Parameters

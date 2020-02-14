@@ -20,21 +20,24 @@ type (
 			// Environment variables of the component
 			EnvVars EnvVars
 		}
+		Runtime Parameters
 	}
 )
 
 // CreateTemplateContext Returns a template context
 func CreateTemplateContext(params Parameters) *TemplateContext {
 	return &TemplateContext{
-		Vars: params,
+		Vars:    params,
+		Runtime: make(map[string]interface{}),
 	}
 }
 
 // CloneTemplateContext deeply clone the given template context
 func CloneTemplateContext(other *TemplateContext, cr ComponentReferencer) (*TemplateContext, error) {
 	tplC := TemplateContext{
-		Vars:  CloneParameters(other.Vars),
-		Model: other.Model,
+		Vars:    CloneParameters(other.Vars),
+		Runtime: CloneParameters(other.Runtime),
+		Model:   other.Model,
 	}
 	if o, ok := cr.(Describable); ok {
 		tplC.Component.Type = o.DescType()

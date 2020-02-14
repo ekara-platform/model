@@ -24,17 +24,35 @@ func TestValidateUnknownGlobalHooks(t *testing.T) {
 	vErrs := env.Validate()
 	assert.True(t, vErrs.HasErrors())
 	assert.False(t, vErrs.HasWarnings())
-	assert.Equal(t, 4, len(vErrs.Errors))
+	assert.Equal(t, 10, len(vErrs.Errors))
 
+	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.init.before"))
+	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.init.after"))
 	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.create.before"))
 	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.create.after"))
+	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.install.before"))
+	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.install.after"))
 	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.deploy.before"))
 	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.deploy.after"))
+	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.delete.before"))
+	assert.True(t, vErrs.contains(Error, "reference to unknown task: unknown", "hooks.delete.after"))
 }
 
 func TestHasNoTaskEnv(t *testing.T) {
 	h := EnvironmentHooks{}
 	assert.False(t, h.HasTasks())
+}
+
+func TestHasTaskBeforeEnvInit(t *testing.T) {
+	h := EnvironmentHooks{}
+	h.Init.Before = append(h.Init.Before, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
+func TestHasTaskAfterEnvInit(t *testing.T) {
+	h := EnvironmentHooks{}
+	h.Init.After = append(h.Init.After, oneTask)
+	assert.True(t, h.HasTasks())
 }
 
 func TestHasTaskBeforeEnvCreate(t *testing.T) {
@@ -46,6 +64,18 @@ func TestHasTaskBeforeEnvCreate(t *testing.T) {
 func TestHasTaskAfterEnvCreate(t *testing.T) {
 	h := EnvironmentHooks{}
 	h.Create.After = append(h.Create.After, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
+func TestHasTaskBeforeEnvInstall(t *testing.T) {
+	h := EnvironmentHooks{}
+	h.Install.Before = append(h.Install.Before, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
+func TestHasTaskAfterEnvInstall(t *testing.T) {
+	h := EnvironmentHooks{}
+	h.Install.After = append(h.Install.After, oneTask)
 	assert.True(t, h.HasTasks())
 }
 
@@ -61,24 +91,54 @@ func TestHasTaskAfterEnvDeploy(t *testing.T) {
 	assert.True(t, h.HasTasks())
 }
 
+func TestHasTaskBeforeEnvDelete(t *testing.T) {
+	h := EnvironmentHooks{}
+	h.Delete.Before = append(h.Delete.Before, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
+func TestHasTaskAfterEnvDelete(t *testing.T) {
+	h := EnvironmentHooks{}
+	h.Delete.After = append(h.Delete.After, oneTask)
+	assert.True(t, h.HasTasks())
+}
+
 func TestMergeEnvironmentHookBefore(t *testing.T) {
 	task1 := TaskRef{ref: "ref1"}
 	task2 := TaskRef{ref: "ref2"}
 	h := EnvironmentHooks{}
+	h.Init.Before = append(h.Init.Before, task1)
 	h.Create.Before = append(h.Create.Before, task1)
+	h.Install.Before = append(h.Install.Before, task1)
 	h.Deploy.Before = append(h.Deploy.Before, task1)
+	h.Delete.Before = append(h.Delete.Before, task1)
 	o := EnvironmentHooks{}
+	o.Init.Before = append(o.Init.Before, task2)
 	o.Create.Before = append(o.Create.Before, task2)
+	o.Install.Before = append(o.Install.Before, task2)
 	o.Deploy.Before = append(o.Deploy.Before, task2)
+	o.Delete.Before = append(o.Delete.Before, task2)
 
 	err := h.customize(o)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
 
+	if assert.Equal(t, 2, len(h.Init.Before)) {
+		assert.Equal(t, 0, len(h.Init.After))
+		assert.Equal(t, task1.ref, h.Init.Before[0].ref)
+		assert.Equal(t, task2.ref, h.Init.Before[1].ref)
+	}
+
 	if assert.Equal(t, 2, len(h.Create.Before)) {
 		assert.Equal(t, 0, len(h.Create.After))
 		assert.Equal(t, task1.ref, h.Create.Before[0].ref)
 		assert.Equal(t, task2.ref, h.Create.Before[1].ref)
+	}
+
+	if assert.Equal(t, 2, len(h.Install.Before)) {
+		assert.Equal(t, 0, len(h.Install.After))
+		assert.Equal(t, task1.ref, h.Install.Before[0].ref)
+		assert.Equal(t, task2.ref, h.Install.Before[1].ref)
 	}
 
 	if assert.Equal(t, 2, len(h.Deploy.Before)) {
@@ -87,26 +147,49 @@ func TestMergeEnvironmentHookBefore(t *testing.T) {
 		assert.Equal(t, task2.ref, h.Deploy.Before[1].ref)
 	}
 
+	if assert.Equal(t, 2, len(h.Delete.Before)) {
+		assert.Equal(t, 0, len(h.Delete.After))
+		assert.Equal(t, task1.ref, h.Delete.Before[0].ref)
+		assert.Equal(t, task2.ref, h.Delete.Before[1].ref)
+	}
 }
 
 func TestMergeEnvironmentHookAfter(t *testing.T) {
 	task1 := TaskRef{ref: "ref1"}
 	task2 := TaskRef{ref: "ref2"}
 	h := EnvironmentHooks{}
+	h.Init.After = append(h.Init.After, task1)
 	h.Create.After = append(h.Create.After, task1)
+	h.Install.After = append(h.Install.After, task1)
 	h.Deploy.After = append(h.Deploy.After, task1)
+	h.Delete.After = append(h.Delete.After, task1)
 	o := EnvironmentHooks{}
+	o.Init.After = append(o.Init.After, task2)
 	o.Create.After = append(o.Create.After, task2)
+	o.Install.After = append(o.Install.After, task2)
 	o.Deploy.After = append(o.Deploy.After, task2)
+	o.Delete.After = append(o.Delete.After, task2)
 
 	err := h.customize(o)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
 
+	if assert.Equal(t, 2, len(h.Init.After)) {
+		assert.Equal(t, 0, len(h.Init.Before))
+		assert.Equal(t, task1.ref, h.Init.After[0].ref)
+		assert.Equal(t, task2.ref, h.Init.After[1].ref)
+	}
+
 	if assert.Equal(t, 2, len(h.Create.After)) {
 		assert.Equal(t, 0, len(h.Create.Before))
 		assert.Equal(t, task1.ref, h.Create.After[0].ref)
 		assert.Equal(t, task2.ref, h.Create.After[1].ref)
+	}
+
+	if assert.Equal(t, 2, len(h.Install.After)) {
+		assert.Equal(t, 0, len(h.Install.Before))
+		assert.Equal(t, task1.ref, h.Install.After[0].ref)
+		assert.Equal(t, task2.ref, h.Install.After[1].ref)
 	}
 
 	if assert.Equal(t, 2, len(h.Deploy.After)) {
@@ -115,21 +198,38 @@ func TestMergeEnvironmentHookAfter(t *testing.T) {
 		assert.Equal(t, task2.ref, h.Deploy.After[1].ref)
 	}
 
+	if assert.Equal(t, 2, len(h.Delete.After)) {
+		assert.Equal(t, 0, len(h.Delete.Before))
+		assert.Equal(t, task1.ref, h.Delete.After[0].ref)
+		assert.Equal(t, task2.ref, h.Delete.After[1].ref)
+	}
 }
 
 func TestMergeEnvironmentHookItself(t *testing.T) {
 	task1 := TaskRef{ref: "ref1"}
 	h := EnvironmentHooks{}
+	h.Init.After = append(h.Init.After, task1)
 	h.Create.After = append(h.Create.After, task1)
+	h.Install.After = append(h.Install.After, task1)
 	h.Deploy.After = append(h.Deploy.After, task1)
+	h.Delete.After = append(h.Delete.After, task1)
 
 	err := h.customize(h)
 	assert.Nil(t, err)
 	assert.True(t, h.HasTasks())
+	assert.Equal(t, 0, len(h.Init.Before))
 	assert.Equal(t, 0, len(h.Create.Before))
+	assert.Equal(t, 0, len(h.Install.Before))
 	assert.Equal(t, 0, len(h.Deploy.Before))
+	assert.Equal(t, 0, len(h.Delete.Before))
+	assert.Equal(t, 1, len(h.Init.After))
 	assert.Equal(t, 1, len(h.Create.After))
+	assert.Equal(t, 1, len(h.Install.After))
 	assert.Equal(t, 1, len(h.Deploy.After))
+	assert.Equal(t, 1, len(h.Delete.After))
+	assert.Equal(t, task1.ref, h.Init.After[0].ref)
 	assert.Equal(t, task1.ref, h.Create.After[0].ref)
+	assert.Equal(t, task1.ref, h.Install.After[0].ref)
 	assert.Equal(t, task1.ref, h.Deploy.After[0].ref)
+	assert.Equal(t, task1.ref, h.Delete.After[0].ref)
 }

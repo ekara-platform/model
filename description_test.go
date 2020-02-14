@@ -7,6 +7,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestDescribableEnvironment(t *testing.T) {
+	o := Environment{
+		Name:      "MyName",
+		Qualifier: "MyQualifier",
+	}
+	assert.Equal(t, "MyName_MyQualifier", o.DescName())
+	assert.Equal(t, "Environment", o.DescType())
+}
+
 func TestDescribableNodeSet(t *testing.T) {
 	o := NodeSet{Name: "Name1"}
 	assert.Equal(t, "Name1", o.DescName())

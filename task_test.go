@@ -22,7 +22,6 @@ func getTaskOrigin() *Task {
 	t1 := &Task{
 		Name:     "my_name",
 		Playbook: "Playbook",
-		Cron:     "Cron",
 	}
 	t1.EnvVars = make(map[string]string)
 	t1.EnvVars["key1"] = "val1_target"
@@ -49,7 +48,6 @@ func getTaskOther(name string) *Task {
 	other := &Task{
 		Name:     name,
 		Playbook: "Playbook_overwritten",
-		Cron:     "Cron_overwritten",
 	}
 	other.EnvVars = make(map[string]string)
 	other.EnvVars["key2"] = "val2_other"
@@ -76,7 +74,6 @@ func checkTaskMerge(t *testing.T, ta *Task) {
 
 	assert.Equal(t, ta.cRef.ref, "cOther")
 	assert.Equal(t, ta.Playbook, "Playbook_overwritten")
-	assert.Equal(t, ta.Cron, "Cron_overwritten")
 
 	if assert.Len(t, ta.EnvVars, 3) {
 		checkMap(t, ta.EnvVars, "key1", "val1_target")

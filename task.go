@@ -17,8 +17,6 @@ type (
 		Name string
 		// The playbook to execute
 		Playbook string `yaml:",omitempty"`
-		// The cron expression when the task must be scheduled
-		Cron string `yaml:",omitempty"`
 		// The task parameters
 		Parameters Parameters `yaml:",omitempty"`
 		// The task environment variables
@@ -75,7 +73,6 @@ func (r *Task) customize(with Task) error {
 		}
 
 		r.Playbook = with.Playbook
-		r.Cron = with.Cron
 
 		r.Parameters = with.Parameters.inherit(r.Parameters)
 		r.EnvVars = with.EnvVars.inherit(r.EnvVars)
@@ -96,7 +93,6 @@ func createTasks(env *Environment, location DescriptorLocation, yamlEnv *yamlEnv
 			Name:       name,
 			Playbook:   yamlTask.Playbook,
 			cRef:       createComponentRef(env, taskLocation.appendPath("component"), yamlTask.Component, false),
-			Cron:       yamlTask.Cron,
 			Parameters: CreateParameters(yamlTask.Params),
 			EnvVars:    createEnvVars(yamlTask.Env),
 			Hooks: TaskHook{

@@ -138,14 +138,29 @@ func (r TEnvironmentOnEnvironmentHolder) Hooks() TEnvironmentHooks {
 	return CreateTEnvironmentHooksForEnvironmentHooks(r.h.Hooks)
 }
 
+//HasInitHooks returns true if the environment has hooks before creating
+func (r TEnvironmentOnEnvironmentHolder) HasInitHooks() bool {
+	return r.h.Hooks.Init.HasTasks()
+}
+
 //HasCreateHooks returns true if the environment has hooks while creating
 func (r TEnvironmentOnEnvironmentHolder) HasCreateHooks() bool {
 	return r.h.Hooks.Create.HasTasks()
 }
 
+//HasInstallHooks returns true if the environment has hooks while installing
+func (r TEnvironmentOnEnvironmentHolder) HasInstallHooks() bool {
+	return r.h.Hooks.Install.HasTasks()
+}
+
 //HasDeployHooks returns true if the environment has hooks while deploying
 func (r TEnvironmentOnEnvironmentHolder) HasDeployHooks() bool {
 	return r.h.Hooks.Deploy.HasTasks()
+}
+
+//HasDeleteHooks returns true if the environment has hooks while deleting
+func (r TEnvironmentOnEnvironmentHolder) HasDeleteHooks() bool {
+	return r.h.Hooks.Delete.HasTasks()
 }
 
 //HasTemplates returns true if the environment has defined templates

@@ -46,7 +46,6 @@ templates:
 tasks:
   task1:
     component: task1 
-    cron: task1_cron
     playbook: task1_playbook
     params:
       tasks_task1_param_key1: tasks_task1_param_key1_value
@@ -57,7 +56,6 @@ tasks:
 
   task2:
     component: task2
-    cron: task2_cron
     playbook: task2_playbook
     params:
       tasks_task2_param_key1: tasks_task2_param_key1_value
@@ -198,3 +196,34 @@ stacks:
         sources:
           - "*target2_to_be_copied.yaml"
           - "*target2_to_be_copied.yml"
+
+hooks:
+  init:
+    before:
+      - task: task1  
+        prefix: fistExecution
+      - task: task1  
+        prefix: secondExecution
+    after:
+      - task: task2  
+  create:
+    before:
+      - task: task1  
+    after:
+      - task: task2  
+  install:
+    before:
+      - task: task1  
+    after:
+      - task: task2  
+  deploy:
+    before:
+      - task: task1  
+    after:
+      - task: task2  
+  delete:
+    before:
+      - task: task1  
+    after:
+      - task: task2  
+    

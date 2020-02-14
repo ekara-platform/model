@@ -8,6 +8,7 @@ type (
 	//TaskRef represents a reference to a task
 	TaskRef struct {
 		ref          string
+		Prefix       string
 		HookLocation hookLocation
 		parameters   Parameters
 		envVars      EnvVars
@@ -36,6 +37,7 @@ func (r *TaskRef) customize(with TaskRef) error {
 	if r.ref == "" {
 		r.ref = with.ref
 	}
+	r.Prefix = with.Prefix
 	r.parameters = with.parameters.inherit(r.parameters)
 	r.envVars = with.envVars.inherit(r.envVars)
 	r.mandatory = with.mandatory
@@ -56,7 +58,6 @@ func (r TaskRef) Resolve() (Task, error) {
 		location:   task.location,
 		cRef:       task.cRef,
 		Playbook:   task.Playbook,
-		Cron:       task.Cron,
 		Hooks:      task.Hooks,
 		Parameters: r.parameters.inherit(task.Parameters),
 		EnvVars:    r.envVars.inherit(task.EnvVars)}, nil
@@ -67,6 +68,7 @@ func createTaskRef(env *Environment, location DescriptorLocation, tRef yamlTaskR
 		env:          env,
 		HookLocation: hl,
 		ref:          tRef.Task,
+		Prefix:       tRef.Prefix,
 		parameters:   CreateParameters(tRef.Params),
 		envVars:      createEnvVars(tRef.Env),
 		location:     location,

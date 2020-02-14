@@ -94,6 +94,8 @@ type (
 	yamlTaskRef struct {
 		// The referenced task
 		Task string
+		// Prefix, optional string used to prefix the stored hook results.*
+		Prefix string
 		// The overriding parameters
 		yamlParams `yaml:",inline"`
 		// The overriding environment variables
@@ -161,8 +163,6 @@ type (
 			yamlEnv `yaml:",inline"`
 			// The name of the playbook to launch the task
 			Playbook string `yaml:",omitempty"`
-			// The CRON to run cyclically the task
-			Cron string `yaml:",omitempty"`
 			// The Hooks to be executed in addition the the main task playbook
 			Hooks struct {
 				Execute yamlHook `yaml:",omitempty"`
@@ -219,16 +219,11 @@ type (
 
 		// Global hooks
 		Hooks struct {
-			Init yamlHook `yaml:",omitempty"`
-			//Rename provition into create
-			//Make those hooks being real global hooks...
-			//Add new ones into the * nodeset and merged then into each nodes
-			//--> watch out with the merging order
-			// -- :"Global Before" should be applied before the ones defined at the node level
-			// -- :"Global After" should be applied after the ones defined at the node level
-			// -- : Add units tests for that...
-			Create yamlHook `yaml:",omitempty"`
-			Deploy yamlHook `yaml:",omitempty"`
+			Init    yamlHook `yaml:",omitempty"`
+			Create  yamlHook `yaml:",omitempty"`
+			Install yamlHook `yaml:",omitempty"`
+			Deploy  yamlHook `yaml:",omitempty"`
+			Delete  yamlHook `yaml:",omitempty"`
 		} `yaml:",omitempty"`
 
 		// Global volumes

@@ -417,10 +417,7 @@ func assertEnv(t *testing.T, env *Environment) {
 	assert.NotContains(t, tasks, "dummy")
 
 	assert.Equal(t, "task1_playbook", tasks["task1"].Playbook)
-	assert.Equal(t, "task1_cron", tasks["task1"].Cron)
-
 	assert.Equal(t, "task2_playbook", tasks["task2"].Playbook)
-	assert.Equal(t, "task2_cron", tasks["task2"].Cron)
 
 	//------------------------------------------------------------
 	// Environment Tasks Hooks
@@ -433,6 +430,36 @@ func assertEnv(t *testing.T, env *Environment) {
 		assert.Equal(t, "task2", ta.Hooks.Execute.After[0].ref)
 	}
 
+	//------------------------------------------------------------
+	// Environment Hook
+	//------------------------------------------------------------
+	assert.Equal(t, 2, len(env.Hooks.Init.Before))
+	assert.Equal(t, 1, len(env.Hooks.Init.After))
+	assert.Equal(t, "task1", env.Hooks.Init.Before[0].ref)
+	assert.Equal(t, "task1", env.Hooks.Init.Before[1].ref)
+	assert.Equal(t, "fistExecution", env.Hooks.Init.Before[0].prefix)
+	assert.Equal(t, "secondExecution", env.Hooks.Init.Before[1].prefix)
+	assert.Equal(t, "task2", env.Hooks.Init.After[0].ref)
+
+	assert.Equal(t, 1, len(env.Hooks.Create.Before))
+	assert.Equal(t, 1, len(env.Hooks.Create.After))
+	assert.Equal(t, "task1", env.Hooks.Create.Before[0].ref)
+	assert.Equal(t, "task2", env.Hooks.Create.After[0].ref)
+
+	assert.Equal(t, 1, len(env.Hooks.Install.Before))
+	assert.Equal(t, 1, len(env.Hooks.Install.After))
+	assert.Equal(t, "task1", env.Hooks.Install.Before[0].ref)
+	assert.Equal(t, "task2", env.Hooks.Install.After[0].ref)
+
+	assert.Equal(t, 1, len(env.Hooks.Deploy.Before))
+	assert.Equal(t, 1, len(env.Hooks.Deploy.After))
+	assert.Equal(t, "task1", env.Hooks.Deploy.Before[0].ref)
+	assert.Equal(t, "task2", env.Hooks.Deploy.After[0].ref)
+
+	assert.Equal(t, 1, len(env.Hooks.Delete.Before))
+	assert.Equal(t, 1, len(env.Hooks.Delete.After))
+	assert.Equal(t, "task1", env.Hooks.Delete.Before[0].ref)
+	assert.Equal(t, "task2", env.Hooks.Delete.After[0].ref)
 }
 
 func buildURL(t *testing.T, loc string) EkURL {

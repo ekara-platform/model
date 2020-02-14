@@ -37,7 +37,17 @@ stacks:
     component: stack1
 
 hooks:
+  init:
+    before:
+      - task: unknown
+    after:
+      - task: unknown
   create:
+    before:
+      - task: unknown
+    after:
+      - task: unknown
+  install:
     before:
       - task: unknown
     after:
@@ -47,3 +57,8 @@ hooks:
       - task: unknown
     after:
       - task: unknown
+  delete:
+    before:
+      - task: unknown
+    after:
+      - task: unknown      
