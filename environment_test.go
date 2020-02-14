@@ -437,8 +437,8 @@ func assertEnv(t *testing.T, env *Environment) {
 	assert.Equal(t, 1, len(env.Hooks.Init.After))
 	assert.Equal(t, "task1", env.Hooks.Init.Before[0].ref)
 	assert.Equal(t, "task1", env.Hooks.Init.Before[1].ref)
-	assert.Equal(t, "fistExecution", env.Hooks.Init.Before[0].prefix)
-	assert.Equal(t, "secondExecution", env.Hooks.Init.Before[1].prefix)
+	assert.Equal(t, "fistExecution", env.Hooks.Init.Before[0].Prefix)
+	assert.Equal(t, "secondExecution", env.Hooks.Init.Before[1].Prefix)
 	assert.Equal(t, "task2", env.Hooks.Init.After[0].ref)
 
 	assert.Equal(t, 1, len(env.Hooks.Create.Before))
