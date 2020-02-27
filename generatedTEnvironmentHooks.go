@@ -68,12 +68,12 @@ func (r TEnvironmentHooksOnEnvironmentHooksHolder) Deploy() THook {
 	return CreateTHookForHook(r.h.Deploy)
 }
 
-//HasDelete returns true if the hooks has tasks while deleting
-func (r TEnvironmentHooksOnEnvironmentHooksHolder) HasDelete() bool {
-	return r.h.Delete.HasTasks()
+//HasDestroy returns true if the hooks has tasks while destroying
+func (r TEnvironmentHooksOnEnvironmentHooksHolder) HasDestroy() bool {
+	return r.h.Destroy.HasTasks()
 }
 
-//Delete returns the deletion tasks
-func (r TEnvironmentHooksOnEnvironmentHooksHolder) Delete() THook {
-	return CreateTHookForHook(r.h.Delete)
+//Destroy returns the destruction tasks
+func (r TEnvironmentHooksOnEnvironmentHooksHolder) Destroy() THook {
+	return CreateTHookForHook(r.h.Destroy)
 }

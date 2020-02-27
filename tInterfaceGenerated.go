@@ -34,10 +34,10 @@ type TEnvironment interface {
 	HasProviders() bool
 	//Providers returns the environment providers
 	Providers() map[string]TProvider
-	//HasNodeSets returns true if the environment has nodes
-	HasNodeSets() bool
-	//Nodesets returns the environment providers
-	Nodesets() map[string]TNodeSet
+	//HasNodes returns true if the environment has nodes
+	HasNodes() bool
+	//Nodes returns the environment providers
+	Nodes() map[string]TNodeSet
 	//HasStacks returns true if the environment has stacks
 	HasStacks() bool
 	//Stacks returns the environment stacks
@@ -58,8 +58,8 @@ type TEnvironment interface {
 	HasInstallHooks() bool
 	//HasDeployHooks returns true if the environment has hooks while deploying
 	HasDeployHooks() bool
-	//HasDeleteHooks returns true if the environment has hooks while deleting
-	HasDeleteHooks() bool
+	//HasDestroyHooks returns true if the environment has hooks while destroying
+	HasDestroyHooks() bool
 	//HasTemplates returns true if the environment has defined templates
 	HasTemplates() bool
 	//Templates returns the environment templates
@@ -270,10 +270,10 @@ type TEnvironmentHooks interface {
 	HasDeploy() bool
 	//Deploy returns the deploying tasks
 	Deploy() THook
-	//HasDelete returns true if the hooks has tasks while deleting
-	HasDelete() bool
-	//Delete returns the deletion tasks
-	Delete() THook
+	//HasDestroy returns true if the hooks has tasks while destroying
+	HasDestroy() bool
+	//Destroy returns the destruction tasks
+	Destroy() THook
 }
 
 // TStackHooks is a read only representation of the hooks associated to a stack

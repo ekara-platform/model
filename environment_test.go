@@ -456,10 +456,10 @@ func assertEnv(t *testing.T, env *Environment) {
 	assert.Equal(t, "task1", env.Hooks.Deploy.Before[0].ref)
 	assert.Equal(t, "task2", env.Hooks.Deploy.After[0].ref)
 
-	assert.Equal(t, 1, len(env.Hooks.Delete.Before))
-	assert.Equal(t, 1, len(env.Hooks.Delete.After))
-	assert.Equal(t, "task1", env.Hooks.Delete.Before[0].ref)
-	assert.Equal(t, "task2", env.Hooks.Delete.After[0].ref)
+	assert.Equal(t, 1, len(env.Hooks.Destroy.Before))
+	assert.Equal(t, 1, len(env.Hooks.Destroy.After))
+	assert.Equal(t, "task1", env.Hooks.Destroy.Before[0].ref)
+	assert.Equal(t, "task2", env.Hooks.Destroy.After[0].ref)
 }
 
 func buildURL(t *testing.T, loc string) EkURL {

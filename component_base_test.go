@@ -42,9 +42,9 @@ func TestCreateFileComponentBase(t *testing.T) {
 	var p string
 
 	if os.PathSeparator == '/' {
-		p = wd + "./some/path"
+		p = wd + "/some/path"
 	} else if os.PathSeparator == '\\' {
-		p = wd + ".\\some\\path"
+		p = wd + "\\some\\path"
 	}
 
 	e = os.MkdirAll(p, 0777)

@@ -83,13 +83,13 @@ func (r TEnvironmentOnEnvironmentHolder) Providers() map[string]TProvider {
 
 }
 
-//HasNodeSets returns true if the environment has nodes
-func (r TEnvironmentOnEnvironmentHolder) HasNodeSets() bool {
+//HasNodes returns true if the environment has nodes
+func (r TEnvironmentOnEnvironmentHolder) HasNodes() bool {
 	return len(r.h.NodeSets) > 0
 }
 
-//Nodesets returns the environment providers
-func (r TEnvironmentOnEnvironmentHolder) Nodesets() map[string]TNodeSet {
+//Nodes returns the environment providers
+func (r TEnvironmentOnEnvironmentHolder) Nodes() map[string]TNodeSet {
 	result := make(map[string]TNodeSet)
 	for k, val := range r.h.NodeSets {
 		result[k] = CreateTNodeSetForNodeSet(val)
@@ -158,9 +158,9 @@ func (r TEnvironmentOnEnvironmentHolder) HasDeployHooks() bool {
 	return r.h.Hooks.Deploy.HasTasks()
 }
 
-//HasDeleteHooks returns true if the environment has hooks while deleting
-func (r TEnvironmentOnEnvironmentHolder) HasDeleteHooks() bool {
-	return r.h.Hooks.Delete.HasTasks()
+//HasDestroyHooks returns true if the environment has hooks while destroying
+func (r TEnvironmentOnEnvironmentHolder) HasDestroyHooks() bool {
+	return r.h.Hooks.Destroy.HasTasks()
 }
 
 //HasTemplates returns true if the environment has defined templates

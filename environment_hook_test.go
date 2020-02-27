@@ -93,13 +93,13 @@ func TestHasTaskAfterEnvDeploy(t *testing.T) {
 
 func TestHasTaskBeforeEnvDelete(t *testing.T) {
 	h := EnvironmentHooks{}
-	h.Delete.Before = append(h.Delete.Before, oneTask)
+	h.Destroy.Before = append(h.Destroy.Before, oneTask)
 	assert.True(t, h.HasTasks())
 }
 
 func TestHasTaskAfterEnvDelete(t *testing.T) {
 	h := EnvironmentHooks{}
-	h.Delete.After = append(h.Delete.After, oneTask)
+	h.Destroy.After = append(h.Destroy.After, oneTask)
 	assert.True(t, h.HasTasks())
 }
 
@@ -111,13 +111,13 @@ func TestMergeEnvironmentHookBefore(t *testing.T) {
 	h.Create.Before = append(h.Create.Before, task1)
 	h.Install.Before = append(h.Install.Before, task1)
 	h.Deploy.Before = append(h.Deploy.Before, task1)
-	h.Delete.Before = append(h.Delete.Before, task1)
+	h.Destroy.Before = append(h.Destroy.Before, task1)
 	o := EnvironmentHooks{}
 	o.Init.Before = append(o.Init.Before, task2)
 	o.Create.Before = append(o.Create.Before, task2)
 	o.Install.Before = append(o.Install.Before, task2)
 	o.Deploy.Before = append(o.Deploy.Before, task2)
-	o.Delete.Before = append(o.Delete.Before, task2)
+	o.Destroy.Before = append(o.Destroy.Before, task2)
 
 	err := h.customize(o)
 	assert.Nil(t, err)
@@ -147,10 +147,10 @@ func TestMergeEnvironmentHookBefore(t *testing.T) {
 		assert.Equal(t, task2.ref, h.Deploy.Before[1].ref)
 	}
 
-	if assert.Equal(t, 2, len(h.Delete.Before)) {
-		assert.Equal(t, 0, len(h.Delete.After))
-		assert.Equal(t, task1.ref, h.Delete.Before[0].ref)
-		assert.Equal(t, task2.ref, h.Delete.Before[1].ref)
+	if assert.Equal(t, 2, len(h.Destroy.Before)) {
+		assert.Equal(t, 0, len(h.Destroy.After))
+		assert.Equal(t, task1.ref, h.Destroy.Before[0].ref)
+		assert.Equal(t, task2.ref, h.Destroy.Before[1].ref)
 	}
 }
 
@@ -162,13 +162,13 @@ func TestMergeEnvironmentHookAfter(t *testing.T) {
 	h.Create.After = append(h.Create.After, task1)
 	h.Install.After = append(h.Install.After, task1)
 	h.Deploy.After = append(h.Deploy.After, task1)
-	h.Delete.After = append(h.Delete.After, task1)
+	h.Destroy.After = append(h.Destroy.After, task1)
 	o := EnvironmentHooks{}
 	o.Init.After = append(o.Init.After, task2)
 	o.Create.After = append(o.Create.After, task2)
 	o.Install.After = append(o.Install.After, task2)
 	o.Deploy.After = append(o.Deploy.After, task2)
-	o.Delete.After = append(o.Delete.After, task2)
+	o.Destroy.After = append(o.Destroy.After, task2)
 
 	err := h.customize(o)
 	assert.Nil(t, err)
@@ -198,10 +198,10 @@ func TestMergeEnvironmentHookAfter(t *testing.T) {
 		assert.Equal(t, task2.ref, h.Deploy.After[1].ref)
 	}
 
-	if assert.Equal(t, 2, len(h.Delete.After)) {
-		assert.Equal(t, 0, len(h.Delete.Before))
-		assert.Equal(t, task1.ref, h.Delete.After[0].ref)
-		assert.Equal(t, task2.ref, h.Delete.After[1].ref)
+	if assert.Equal(t, 2, len(h.Destroy.After)) {
+		assert.Equal(t, 0, len(h.Destroy.Before))
+		assert.Equal(t, task1.ref, h.Destroy.After[0].ref)
+		assert.Equal(t, task2.ref, h.Destroy.After[1].ref)
 	}
 }
 
@@ -212,7 +212,7 @@ func TestMergeEnvironmentHookItself(t *testing.T) {
 	h.Create.After = append(h.Create.After, task1)
 	h.Install.After = append(h.Install.After, task1)
 	h.Deploy.After = append(h.Deploy.After, task1)
-	h.Delete.After = append(h.Delete.After, task1)
+	h.Destroy.After = append(h.Destroy.After, task1)
 
 	err := h.customize(h)
 	assert.Nil(t, err)
@@ -221,15 +221,15 @@ func TestMergeEnvironmentHookItself(t *testing.T) {
 	assert.Equal(t, 0, len(h.Create.Before))
 	assert.Equal(t, 0, len(h.Install.Before))
 	assert.Equal(t, 0, len(h.Deploy.Before))
-	assert.Equal(t, 0, len(h.Delete.Before))
+	assert.Equal(t, 0, len(h.Destroy.Before))
 	assert.Equal(t, 1, len(h.Init.After))
 	assert.Equal(t, 1, len(h.Create.After))
 	assert.Equal(t, 1, len(h.Install.After))
 	assert.Equal(t, 1, len(h.Deploy.After))
-	assert.Equal(t, 1, len(h.Delete.After))
+	assert.Equal(t, 1, len(h.Destroy.After))
 	assert.Equal(t, task1.ref, h.Init.After[0].ref)
 	assert.Equal(t, task1.ref, h.Create.After[0].ref)
 	assert.Equal(t, task1.ref, h.Install.After[0].ref)
 	assert.Equal(t, task1.ref, h.Deploy.After[0].ref)
-	assert.Equal(t, task1.ref, h.Delete.After[0].ref)
+	assert.Equal(t, task1.ref, h.Destroy.After[0].ref)
 }

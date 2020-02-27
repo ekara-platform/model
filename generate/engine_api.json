@@ -15,8 +15,8 @@
             {"name":"HasProviders", "custom": {"returns":"bool", "impl":"len(r.h.Providers) > 0"}, "doc":"returns true if the environment has providers"},
             {"name":"Providers", "interface_map":{"name":"TProvider", "attribute":"Providers", "type":"Provider" }, "doc":"returns the environment providers"},
 
-            {"name":"HasNodeSets", "custom": {"returns":"bool", "impl":"len(r.h.NodeSets) > 0"}, "doc":"returns true if the environment has nodes"},
-            {"name":"Nodesets", "interface_map":{"name":"TNodeSet", "attribute":"NodeSets", "type":"NodeSet" }, "doc":"returns the environment providers"},
+            {"name":"HasNodes", "custom": {"returns":"bool", "impl":"len(r.h.NodeSets) > 0"}, "doc":"returns true if the environment has nodes"},
+            {"name":"Nodes", "interface_map":{"name":"TNodeSet", "attribute":"NodeSets", "type":"NodeSet" }, "doc":"returns the environment providers"},
             {"name":"HasStacks", "custom": {"returns":"bool", "impl":"len(r.h.Stacks) > 0"}, "doc":"returns true if the environment has stacks"},
             {"name":"Stacks", "interface_map":{"name":"TStack", "attribute":"Stacks", "type":"Stack" }, "doc":"returns the environment stacks"},
             {"name":"HasTasks", "custom": {"returns":"bool", "impl":"len(r.h.Tasks) > 0"}, "doc":"returns true if the environment has tasks"},
@@ -28,7 +28,7 @@
             {"name":"HasCreateHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Create.HasTasks()"}, "doc":"returns true if the environment has hooks while creating"},
             {"name":"HasInstallHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Install.HasTasks()"}, "doc":"returns true if the environment has hooks while installing"},
             {"name":"HasDeployHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Deploy.HasTasks()"}, "doc":"returns true if the environment has hooks while deploying"},
-            {"name":"HasDeleteHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Delete.HasTasks()"}, "doc":"returns true if the environment has hooks while deleting"},
+            {"name":"HasDestroyHooks",  "custom": {"returns":"bool", "impl":"r.h.Hooks.Destroy.HasTasks()"}, "doc":"returns true if the environment has hooks while destroying"},
             {"name":"HasTemplates", "custom": {"returns":"bool", "impl":"len(r.h.Templates.Content) > 0"}, "doc":"returns true if the environment has defined templates"},
             {"name":"Templates", "custom": {"returns":"[]string", "impl":"r.h.Templates.Content"}, "doc":"returns the environment templates"}
         ]
@@ -219,8 +219,8 @@
             {"name":"Install", "interface":{"name":"THook", "attribute":"Install", "type":"Hook"}, "doc":"returns the installing tasks"},
             {"name":"HasDeploy",  "custom": {"returns":"bool", "impl":"r.h.Deploy.HasTasks()"}, "doc":"returns true if the hooks has tasks while deploying"},
             {"name":"Deploy", "interface":{"name":"THook", "attribute":"Deploy" , "type":"Hook"}, "doc":"returns the deploying tasks"},
-            {"name":"HasDelete",  "custom": {"returns":"bool", "impl":"r.h.Delete.HasTasks()"}, "doc":"returns true if the hooks has tasks while deleting"},
-            {"name":"Delete", "interface":{"name":"THook", "attribute":"Delete" , "type":"Hook"}, "doc":"returns the deletion tasks"}
+            {"name":"HasDestroy",  "custom": {"returns":"bool", "impl":"r.h.Destroy.HasTasks()"}, "doc":"returns true if the hooks has tasks while destroying"},
+            {"name":"Destroy", "interface":{"name":"THook", "attribute":"Destroy" , "type":"Hook"}, "doc":"returns the destruction tasks"}
         ]
     },
     {  

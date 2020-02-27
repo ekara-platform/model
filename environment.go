@@ -117,7 +117,7 @@ func CreateEnvironment(location string, yamlEnv yamlEnvironment, holder string) 
 	if err != nil {
 		return env, err
 	}
-	env.Hooks.Delete, err = createHook(env, env.location.appendPath("hooks.delete"), yamlEnv.Hooks.Delete)
+	env.Hooks.Destroy, err = createHook(env, env.location.appendPath("hooks.delete"), yamlEnv.Hooks.Delete)
 	if err != nil {
 		return env, err
 	}

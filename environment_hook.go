@@ -11,8 +11,8 @@ type (
 		Install Hook
 		//Deploy specifies the hook tasks to run at the environment deployment
 		Deploy Hook
-		//Delete specifies the hook tasks to run at the environment deletion
-		Delete Hook
+		//Destroy specifies the hook tasks to run at the environment destruction
+		Destroy Hook
 	}
 )
 
@@ -22,7 +22,7 @@ func (r EnvironmentHooks) HasTasks() bool {
 		r.Create.HasTasks() ||
 		r.Install.HasTasks() ||
 		r.Deploy.HasTasks() ||
-		r.Delete.HasTasks()
+		r.Destroy.HasTasks()
 }
 
 func (r *EnvironmentHooks) customize(with EnvironmentHooks) error {
@@ -38,9 +38,9 @@ func (r *EnvironmentHooks) customize(with EnvironmentHooks) error {
 	if err := r.Deploy.customize(with.Deploy); err != nil {
 		return err
 	}
-	return r.Delete.customize(with.Delete)
+	return r.Destroy.customize(with.Destroy)
 }
 
 func (r EnvironmentHooks) validate() ValidationErrors {
-	return ErrorOnInvalid(r.Init, r.Create, r.Install, r.Deploy, r.Delete)
+	return ErrorOnInvalid(r.Init, r.Create, r.Install, r.Deploy, r.Destroy)
 }
