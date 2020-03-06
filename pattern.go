@@ -25,7 +25,7 @@ func (r Patterns) inherit(parent Patterns) Patterns {
 	return dst
 }
 
-func createPatterns(env *Environment, location DescriptorLocation, paths []string) Patterns {
+func createPatterns(paths []string) Patterns {
 	res := Patterns{}
 	for _, v := range paths {
 		res.Content = append(res.Content, v)

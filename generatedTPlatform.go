@@ -42,3 +42,13 @@ func (r TPlatformOnPlatformHolder) Parent() TComponent {
 func (r TPlatformOnPlatformHolder) HasComponents() bool {
 	return len(r.h.Components) > 0
 }
+
+//HasTemplates returns true if the environment has defined templates
+func (r TPlatformOnPlatformHolder) HasTemplates() bool {
+	return len(r.h.Templates.Content) > 0
+}
+
+//Templates returns the environment templates
+func (r TPlatformOnPlatformHolder) Templates() []string {
+	return r.h.Templates.Content
+}

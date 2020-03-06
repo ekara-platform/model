@@ -40,8 +40,6 @@ type (
 		Hooks EnvironmentHooks `yaml:",omitempty"`
 		// The global volumes of the environment
 		Volumes GlobalVolumes `yaml:",omitempty"`
-		// Templates contains the templates defined into a descriptor
-		Templates Patterns `yaml:",omitempty"`
 
 		parcels []Parcel
 	}
@@ -75,7 +73,6 @@ func CreateEnvironment(location string, yamlEnv yamlEnvironment, holder string) 
 	env.Name = yamlEnv.Name
 	env.Qualifier = yamlEnv.Qualifier
 	env.Description = yamlEnv.Description
-	env.Templates = createPatterns(env, env.location.appendPath("templates_patterns"), yamlEnv.Templates)
 	env.Vars = CreateParameters(yamlEnv.yamlVars.Vars)
 
 	env.Tasks, err = createTasks(env, env.location.appendPath("tasks"), &yamlEnv)
@@ -133,8 +130,8 @@ func (r *Environment) Customize(from Component, with *Environment) error {
 
 	// We don't want to customize the templates defined into the environment
 	// But instead we want to keep them into the component
-	r.Platform().KeepTemplates(from, with.Templates)
-	with.Templates = Patterns{}
+	r.Platform().KeepTemplates(from, with.ekara.Templates)
+	with.ekara.Templates = Patterns{}
 
 	// basic informations (name, qualifier, description) are only accepted once if the are not already defined
 	if r.Name == "" {

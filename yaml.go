@@ -114,6 +114,8 @@ type (
 		Base       string `yaml:",omitempty"`
 		Parent     yamlComponent
 		Components map[string]yamlComponent
+		// The list of path patterns where to apply the template mechanism
+		Templates []string `yaml:"templates"`
 	}
 
 	yamlNode struct {
@@ -149,9 +151,6 @@ type (
 
 		// The descriptor variables
 		yamlVars `yaml:",inline"`
-
-		// The list of path patterns where to apply the template mechanism
-		Templates []string `yaml:"templates"`
 
 		// Tasks which can be run on the created environment
 		Tasks map[string]struct {
