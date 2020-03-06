@@ -33,15 +33,13 @@ ekara:
     task3:
       repository: some-org/task21
       ref: 1.2.3
-
+  templates:
+    - "environment/*/*.yaml"
+    - "environment/*.yml"
 
 vars:
   global_var_key1: global_var_val1 
   global_var_key2: global_var_val2 
-
-templates:
-  - "environment/*/*.yaml"
-  - "environment/*.yml"
 
 tasks:
   task1:

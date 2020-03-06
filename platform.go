@@ -10,6 +10,7 @@ type Platform struct {
 	Parent     Parent
 	HasParent  bool
 	Components map[string]Component
+	Templates  Patterns
 }
 
 func createPlatform(yamlEkara yamlEkara) (Platform, error) {
@@ -28,6 +29,9 @@ func createPlatform(yamlEkara yamlEkara) (Platform, error) {
 	}
 	p.HasParent = hasParent
 	p.Parent = parent
+
+	// Store templates in the environment
+	p.Templates = createPatterns(yamlEkara.Templates)
 
 	// Create other components of the environment
 	components := map[string]Component{}

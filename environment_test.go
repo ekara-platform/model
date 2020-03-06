@@ -45,8 +45,8 @@ func assertEnv(t *testing.T, env *Environment) {
 	}
 
 	// Templates
-	assert.NotNil(t, env.Templates)
-	templates := env.Templates
+	assert.NotNil(t, env.ekara.Templates)
+	templates := env.ekara.Templates
 	tC := templates.Content
 	if assert.Equal(t, len(tC), 2) {
 		assert.Contains(t, tC, "environment/*/*.yaml")

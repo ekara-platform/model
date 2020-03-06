@@ -60,10 +60,6 @@ type TEnvironment interface {
 	HasDeployHooks() bool
 	//HasDestroyHooks returns true if the environment has hooks while destroying
 	HasDestroyHooks() bool
-	//HasTemplates returns true if the environment has defined templates
-	HasTemplates() bool
-	//Templates returns the environment templates
-	Templates() []string
 }
 
 // TOrchestrator is a read only orchestrator
@@ -196,6 +192,10 @@ type TPlatform interface {
 	Parent() TComponent
 	//HasComponents returns true if the platform has components
 	HasComponents() bool
+	//HasTemplates returns true if the environment has defined templates
+	HasTemplates() bool
+	//Templates returns the environment templates
+	Templates() []string
 }
 
 // TBase is a read only base location
