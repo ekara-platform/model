@@ -36,7 +36,7 @@ func (r Copies) inherit(parent Copies) Copies {
 		} else {
 			// if it's not new we will merge the patterns/labels from the original content and the parent
 			work := dst.Content[k]
-			work.Sources = work.Sources.inherit(v.Sources)
+			work.Sources = union(work.Sources, v.Sources)
 			work.Labels = work.Labels.inherit(v.Labels)
 			if work.Path == "" {
 				// Only override path if none specified
@@ -60,11 +60,7 @@ func createCopies(env *Environment, location DescriptorLocation, copies map[stri
 			Once:   yCop.Once,
 			Labels: yCop.Labels,
 		}
-		sources := Patterns{}
-		for _, vSource := range yCop.Sources {
-			sources.Content = append(sources.Content, vSource)
-		}
-		theCopy.Sources = sources
+		theCopy.Sources = yCop.Sources
 		theCopy.Path = yCop.Path
 		res.Content[cpName] = theCopy
 	}

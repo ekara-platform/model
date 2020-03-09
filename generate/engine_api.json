@@ -117,8 +117,8 @@
         "methods":[  
             {"name":"HasLabels", "custom": {"returns":"bool", "impl":"len(r.h.Labels) > 0"}, "doc":"returns true if the copy has defined labels"},
             {"name":"Labels",  "returns":"map[string]string", "attribute":"Labels", "doc":"returns the copy labels"},
-            {"name":"HasSources", "custom": {"returns":"bool", "impl":"len(r.h.Sources.Content) > 0"}, "doc":"returns true if the copy has defined sources"},
-            {"name":"Sources",  "returns":"[]string", "attribute":"Sources.Content", "doc":"returns the copy sources"}
+            {"name":"HasSources", "custom": {"returns":"bool", "impl":"len(r.h.Sources) > 0"}, "doc":"returns true if the copy has defined sources"},
+            {"name":"Sources",  "returns":"[]string", "attribute":"Sources", "doc":"returns the copy sources"}
         ]
     },
     {  
@@ -150,8 +150,8 @@
             {"name":"Base", "interface":{"name":"TBase", "attribute":"Base" }, "doc":"returns the base location of the platform"},
             {"name":"Parent", "interface":{"name":"TComponent", "attribute":"Parent"}, "doc":"returns the parent used by the platform"},
             {"name":"HasComponents",  "custom": {"returns":"bool", "impl":"len(r.h.Components) > 0"}, "doc":"returns true if the platform has components"},
-            {"name":"HasTemplates", "custom": {"returns":"bool", "impl":"len(r.h.Templates.Content) > 0"}, "doc":"returns true if the environment has defined templates"},
-            {"name":"Templates", "custom": {"returns":"[]string", "impl":"r.h.Templates.Content"}, "doc":"returns the environment templates"}
+            {"name":"HasTemplates", "custom": {"returns":"bool", "impl":"len(r.h.Templates) > 0"}, "doc":"returns true if the environment has defined templates"},
+            {"name":"Templates", "custom": {"returns":"[]string", "impl":"r.h.Templates"}, "doc":"returns the environment templates"}
         ]
     },
     {  
@@ -191,8 +191,8 @@
         "methods":[  
             {"name":"ID","attribute":"Id", "doc":"returns the name of the component"},
             {"name":"Repository", "interface":{"name":"TRepository", "attribute":"Repository"}, "doc":"returns the repository where the component is located"},
-            {"name":"HasTemplates",  "custom": {"returns":"bool", "impl":"len(r.h.Templates.Content) > 0"}, "doc":"returns true if the component has defined templates"},
-            {"name":"Templates", "custom": {"returns":"[]string", "impl":"r.h.Templates.Content"}, "doc":"returns true if the component templates"}
+            {"name":"HasTemplates",  "custom": {"returns":"bool", "impl":"len(r.h.Templates) > 0"}, "doc":"returns true if the component has defined templates"},
+            {"name":"Templates", "custom": {"returns":"[]string", "impl":"r.h.Templates"}, "doc":"returns true if the component templates"}
         ]
     },
     {  

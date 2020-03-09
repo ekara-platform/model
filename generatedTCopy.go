@@ -40,10 +40,10 @@ func (r TCopyOnCopyHolder) Labels() map[string]string {
 
 //HasSources returns true if the copy has defined sources
 func (r TCopyOnCopyHolder) HasSources() bool {
-	return len(r.h.Sources.Content) > 0
+	return len(r.h.Sources) > 0
 }
 
 //Sources returns the copy sources
 func (r TCopyOnCopyHolder) Sources() []string {
-	return r.h.Sources.Content
+	return r.h.Sources
 }

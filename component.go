@@ -41,7 +41,7 @@ func CreateComponent(id string, repo Repository) Component {
 
 //Templatable indicates if the component contains templates
 func (c Component) Templatable() (bool, Patterns) {
-	return len(c.Templates.Content) > 0, c.Templates
+	return len(c.Templates) > 0, c.Templates
 }
 
 func (c Component) Component() (Component, error) {

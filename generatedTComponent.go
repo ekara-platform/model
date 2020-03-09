@@ -40,12 +40,12 @@ func (r TComponentOnParentHolder) Repository() TRepository {
 
 //HasTemplates returns true if the component has defined templates
 func (r TComponentOnParentHolder) HasTemplates() bool {
-	return len(r.h.Templates.Content) > 0
+	return len(r.h.Templates) > 0
 }
 
 //Templates returns true if the component templates
 func (r TComponentOnParentHolder) Templates() []string {
-	return r.h.Templates.Content
+	return r.h.Templates
 }
 
 //TComponentOnComponentHolder is the struct containing the Component in order to implement TComponent
@@ -72,10 +72,10 @@ func (r TComponentOnComponentHolder) Repository() TRepository {
 
 //HasTemplates returns true if the component has defined templates
 func (r TComponentOnComponentHolder) HasTemplates() bool {
-	return len(r.h.Templates.Content) > 0
+	return len(r.h.Templates) > 0
 }
 
 //Templates returns true if the component templates
 func (r TComponentOnComponentHolder) Templates() []string {
-	return r.h.Templates.Content
+	return r.h.Templates
 }

@@ -31,7 +31,7 @@ func createPlatform(yamlEkara yamlEkara) (Platform, error) {
 	p.Parent = parent
 
 	// Store templates in the environment
-	p.Templates = createPatterns(yamlEkara.Templates)
+	p.Templates = yamlEkara.Templates
 
 	// Create other components of the environment
 	components := map[string]Component{}
@@ -58,7 +58,7 @@ func (p Platform) validate() ValidationErrors {
 
 //KeepTemplates Stores the template into the given component
 func (p Platform) KeepTemplates(c Component, templates Patterns) {
-	if len(templates.Content) > 0 {
+	if len(templates) > 0 {
 		comp := p.Components[c.Id]
 		comp.Templates = templates
 		p.Components[c.Id] = comp

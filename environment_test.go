@@ -47,7 +47,7 @@ func assertEnv(t *testing.T, env *Environment) {
 	// Templates
 	assert.NotNil(t, env.ekara.Templates)
 	templates := env.ekara.Templates
-	tC := templates.Content
+	tC := templates
 	if assert.Equal(t, len(tC), 2) {
 		assert.Contains(t, tC, "environment/*/*.yaml")
 		assert.Contains(t, tC, "environment/*.yml")
@@ -322,8 +322,8 @@ func assertEnv(t *testing.T, env *Environment) {
 			assert.Equal(t, v.Path, "some/target1/volume/path")
 			assert.True(t, v.Once)
 			assert.True(t, ok)
-			assert.Contains(t, v.Sources.Content, "*target1_to_be_copied.yaml")
-			assert.Contains(t, v.Sources.Content, "*target1_to_be_copied.yml")
+			assert.Contains(t, v.Sources, "*target1_to_be_copied.yaml")
+			assert.Contains(t, v.Sources, "*target1_to_be_copied.yml")
 			lab, ok := v.Labels["label1"]
 			assert.True(t, ok)
 			assert.Equal(t, lab, "t1_val1")
@@ -336,8 +336,8 @@ func assertEnv(t *testing.T, env *Environment) {
 			assert.Equal(t, v.Path, "some/target2/volume/path")
 			assert.False(t, v.Once)
 			assert.True(t, ok)
-			assert.Contains(t, v.Sources.Content, "*target2_to_be_copied.yaml")
-			assert.Contains(t, v.Sources.Content, "*target2_to_be_copied.yml")
+			assert.Contains(t, v.Sources, "*target2_to_be_copied.yaml")
+			assert.Contains(t, v.Sources, "*target2_to_be_copied.yml")
 			lab, ok := v.Labels["label1"]
 			assert.True(t, ok)
 			assert.Equal(t, lab, "t2_val1")
