@@ -48,9 +48,7 @@ func getStackOrigin() Stack {
 			"label_key1": "label_value1",
 			"label_key2": "label_value2",
 		},
-		Sources: Patterns{
-			Content: []string{"path1", "path2"},
-		},
+		Sources: Patterns{"path1", "path2"},
 	}
 	return s1
 }
@@ -84,9 +82,7 @@ func getStackOther(name string) Stack {
 			"label_key3": "label_value3",
 			"label_key4": "label_value4",
 		},
-		Sources: Patterns{
-			Content: []string{"path3", "path4"},
-		},
+		Sources: Patterns{"path3", "path4"},
 	}
 	return other
 }

@@ -45,10 +45,10 @@ func (r TPlatformOnPlatformHolder) HasComponents() bool {
 
 //HasTemplates returns true if the environment has defined templates
 func (r TPlatformOnPlatformHolder) HasTemplates() bool {
-	return len(r.h.Templates.Content) > 0
+	return len(r.h.Templates) > 0
 }
 
 //Templates returns the environment templates
 func (r TPlatformOnPlatformHolder) Templates() []string {
-	return r.h.Templates.Content
+	return r.h.Templates
 }
