@@ -53,6 +53,19 @@ func assertEnv(t *testing.T, env *Environment) {
 		assert.Contains(t, tC, "environment/*.yml")
 	}
 
+	// Custom playbooks
+	assert.NotNil(t, env.ekara.Playbooks)
+	playbooks := env.ekara.Playbooks
+	if assert.Equal(t, len(playbooks), 2) {
+		p, ok := env.ekara.Playbooks["phase1"]
+		assert.True(t, ok)
+		assert.Equal(t, p, "path/to/playbook1.yaml")
+
+		p, ok = env.ekara.Playbooks["phase2"]
+		assert.True(t, ok)
+		assert.Equal(t, p, "path/to/playbook2.yaml")
+	}
+
 	//------------------------------------------------------------
 	// Orchestrator
 	//------------------------------------------------------------

@@ -36,6 +36,9 @@ ekara:
   templates:
     - "environment/*/*.yaml"
     - "environment/*.yml"
+  playbooks:
+    phase1: path/to/playbook1.yaml
+    phase2: path/to/playbook2.yaml
 
 vars:
   global_var_key1: global_var_val1 
