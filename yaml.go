@@ -45,6 +45,11 @@ type (
 		Labels map[string]string `yaml:",omitempty"`
 	}
 
+	// yaml tag for custom playbooks
+	yamlPlaybooks struct {
+		Playbooks map[string]string `yaml:",omitempty"`
+	}
+
 	// yaml tag for component
 	yamlComponent struct {
 		// The source repository where the component lives
@@ -116,6 +121,8 @@ type (
 		Components map[string]yamlComponent
 		// The list of path patterns where to apply the template mechanism
 		Templates []string `yaml:"templates"`
+		// The list of custom playbooks
+		yamlPlaybooks `yaml:",inline"`
 	}
 
 	yamlNode struct {
